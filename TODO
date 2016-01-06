@@ -1,10 +1,15 @@
 HIGH PRIORITY:
 	- Bug fixes
-	- Autonomous
+	- Change drivebase type
+	- Change manipulators
 	
 
 NOT AS HIGH PRIORITY:
-	- Fix velToPwm
+	- Autonomous
+	- Laptop configuration
+		-ssh config:
+			-Fix the "rm ~/.ssh/known_hosts" problem
+			-add "StrictHostKeyChecking no/UserKnownHostsFile=/dev/null" for robot
 	
 		
 NICE THINGS TO HAVE:
@@ -14,7 +19,3 @@ NICE THINGS TO HAVE:
 	-Meta IO information
 		-Add a function that will discover which IOs different parts use (and make a nice list)
 		-Make a data type to talk about different inputs
-	-Laptop configuration
-		-ssh config:
-			-Fix the "rm ~/.ssh/known_hosts" problem
-			-add "StrictHostKeyChecking no/UserKnownHostsFile=/dev/null" for robot
