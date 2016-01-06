@@ -1,9 +1,0 @@
-Nick B:    Network encoding, user interface design, image processing        - vision 
-Tristan C: Path-finding and genral coding                                   - autonomous and general robot code
-Adrian H:  Autonomous, OI, general coding,                                  - general coding
-Matthew M: Manipulators, autonomous, drive, control systems, general coding - drive and DemoBot
-Calvin M:  General coding                                                   - general coding 
-Thomas S:  General coding                                                   - general coding
-Zachary S: General coding                                                   - general coding
-Jacob T:   Networking, drive, general coding                                - general coding 
-Logan T:   Manipulators, drive, OI, general coding                          - drive and DemoBot
