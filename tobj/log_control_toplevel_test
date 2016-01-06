@@ -1,0 +1,118 @@
+==3029== Memcheck, a memory error detector
+==3029== Copyright (C) 2002-2013, and GNU GPL'd, by Julian Seward et al.
+==3029== Using Valgrind-3.10.0.SVN and LibVEX; rerun with -h for copyright info
+==3029== Command: ./tobj/control_toplevel_test
+==3029== 
+Toplevel::Goal( drive:Drivebase::Goal(0 0) pump:AUTO tote_sensors:Tote_sensors::Output() arm:Arm::Goal(UP_AUTO) collector:Collector::Goal(OFF))
+Status( drive:Drivebase::Status( [ OK_ OK_ OK_ OK_ ] ) pump:NOT_FULL tote_sensors:Tote_sensors::Output() arm:Arm::Status(MID) collector:Collector::Status())
+{ Input(DIGITAL_IO 0) Input(DIGITAL_IO 1) Input(DIGITAL_IO 2) Input(DIGITAL_IO 3) Input(DIGITAL_IO 5) Input(DIGITAL_IO 6) Input(DIGITAL_IO 7) Input(DIGITAL_IO 8) Input(DIGITAL_IO 9) Input(CURRENT 0) Input(CURRENT 1) Input(CURRENT 2) Input(CURRENT 3) Input(PUMP) }
+Inputs:
+Drivebase{ Input(DIGITAL_IO 0) Input(DIGITAL_IO 1) Input(DIGITAL_IO 2) Input(DIGITAL_IO 3) Input(CURRENT 0) Input(CURRENT 1) Input(CURRENT 2) Input(CURRENT 3) }
+Pump{ Input(PUMP) }
+Tote_sensors{ Input(DIGITAL_IO 7) Input(DIGITAL_IO 8) Input(DIGITAL_IO 9) }
+Arm{ Input(DIGITAL_IO 5) Input(DIGITAL_IO 6) }
+Collector{ }
+Input(JOYSTICK 0)	UNUSED
+Input(JOYSTICK 1)	UNUSED
+Input(JOYSTICK 2)	UNUSED
+Input(DIGITAL_IO 0)	Drivebase
+Input(DIGITAL_IO 1)	Drivebase
+Input(DIGITAL_IO 2)	Drivebase
+Input(DIGITAL_IO 3)	Drivebase
+Input(DIGITAL_IO 4)	UNUSED
+Input(DIGITAL_IO 5)	Arm
+Input(DIGITAL_IO 6)	Arm
+Input(DIGITAL_IO 7)	Tote_sensors
+Input(DIGITAL_IO 8)	Tote_sensors
+Input(DIGITAL_IO 9)	Tote_sensors
+Input(ENCODER 0)	UNUSED
+Input(ENCODER 1)	UNUSED
+Input(ENCODER 2)	UNUSED
+Input(ENCODER 3)	UNUSED
+Input(ENCODER 4)	UNUSED
+Input(ANALOG 0)	UNUSED
+Input(ANALOG 1)	UNUSED
+Input(ANALOG 2)	UNUSED
+Input(ANALOG 3)	UNUSED
+Input(TALON_SRX 0)	UNUSED
+Input(TALON_SRX 1)	UNUSED
+Input(DRIVER_STATION)	UNUSED
+Input(CURRENT 0)	Drivebase
+Input(CURRENT 1)	Drivebase
+Input(CURRENT 2)	Drivebase
+Input(CURRENT 3)	Drivebase
+Input(CURRENT 4)	UNUSED
+Input(CURRENT 5)	UNUSED
+Input(CURRENT 6)	UNUSED
+Input(CURRENT 7)	UNUSED
+Input(CURRENT 8)	UNUSED
+Input(CURRENT 9)	UNUSED
+Input(CURRENT 10)	UNUSED
+Input(CURRENT 11)	UNUSED
+Input(CURRENT 12)	UNUSED
+Input(CURRENT 13)	UNUSED
+Input(CURRENT 14)	UNUSED
+Input(CURRENT 15)	UNUSED
+Outputs:
+{ Output(PWM 0) Output(PWM 1) Output(PWM 2) Output(PUMP) }
+Drivebase{ Output(PWM 0) Output(PWM 1) }
+Pump{ Output(PUMP) }
+Tote_sensors{ }
+Arm{ }
+Collector{ Output(PWM 2) }
+Output(PWM 0)	Drivebase
+Output(PWM 1)	Drivebase
+Output(PWM 2)	Collector
+Output(PWM 3)	UNUSED
+Output(PWM 4)	UNUSED
+Output(PWM 5)	UNUSED
+Output(PWM 6)	UNUSED
+Output(PWM 7)	UNUSED
+Output(PWM 8)	UNUSED
+Output(PWM 9)	UNUSED
+Output(SOLENOID 0)	UNUSED
+Output(SOLENOID 1)	UNUSED
+Output(SOLENOID 2)	UNUSED
+Output(SOLENOID 3)	UNUSED
+Output(SOLENOID 4)	UNUSED
+Output(SOLENOID 5)	UNUSED
+Output(SOLENOID 6)	UNUSED
+Output(SOLENOID 7)	UNUSED
+Output(RELAY 0)	UNUSED
+Output(RELAY 1)	UNUSED
+Output(RELAY 2)	UNUSED
+Output(RELAY 3)	UNUSED
+Output(RELAY 4)	UNUSED
+Output(RELAY 5)	UNUSED
+Output(RELAY 6)	UNUSED
+Output(RELAY 7)	UNUSED
+Output(DIGITAL_IO 0)	UNUSED
+Output(DIGITAL_IO 1)	UNUSED
+Output(DIGITAL_IO 2)	UNUSED
+Output(DIGITAL_IO 3)	UNUSED
+Output(DIGITAL_IO 4)	UNUSED
+Output(DIGITAL_IO 5)	UNUSED
+Output(DIGITAL_IO 6)	UNUSED
+Output(DIGITAL_IO 7)	UNUSED
+Output(DIGITAL_IO 8)	UNUSED
+Output(DIGITAL_IO 9)	UNUSED
+Output(TALON_SRX 0)	UNUSED
+Output(TALON_SRX 1)	UNUSED
+Output(DRIVER_STATION 0)	UNUSED
+Output(DRIVER_STATION 1)	UNUSED
+Output(DRIVER_STATION 2)	UNUSED
+Output(DRIVER_STATION 3)	UNUSED
+Output(DRIVER_STATION 4)	UNUSED
+Output(DRIVER_STATION 5)	UNUSED
+Output(DRIVER_STATION 6)	UNUSED
+Output(DRIVER_STATION 7)	UNUSED
+Output(PUMP)	Pump
+==3029== 
+==3029== HEAP SUMMARY:
+==3029==     in use at exit: 0 bytes in 0 blocks
+==3029==   total heap usage: 1,148 allocs, 1,148 frees, 46,165 bytes allocated
+==3029== 
+==3029== All heap blocks were freed -- no leaks are possible
+==3029== 
+==3029== For counts of detected and suppressed errors, rerun with: -v
+==3029== ERROR SUMMARY: 0 errors from 0 contexts (suppressed: 0 from 0)

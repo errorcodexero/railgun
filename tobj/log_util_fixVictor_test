@@ -1,0 +1,46 @@
+==3043== Memcheck, a memory error detector
+==3043== Copyright (C) 2002-2013, and GNU GPL'd, by Julian Seward et al.
+==3043== Using Valgrind-3.10.0.SVN and LibVEX; rerun with -h for copyright info
+==3043== Command: ./tobj/util_fixVictor_test
+==3043== 
+1.71671e+06
+0.112624
+0.226113
+0.248266
+0.395435
+0.561003
+0.665693
+0.710804
+0.742696
+0.82508
+1.0534
+-1	-0.9984
+-0.9	-0.937035
+-0.8	-0.911182
+-0.7	-0.900463
+-0.6	-0.884499
+-0.5	-0.842912
+-0.4	-0.755322
+-0.3	-0.601353
+-0.2	-0.360624
+-0.0999999	-0.0127566
+7.30157e-08	0
+0.1	0.0127573
+0.2	0.360624
+0.3	0.601353
+0.4	0.755323
+0.5	0.842912
+0.6	0.884499
+0.7	0.900463
+0.8	0.911182
+0.9	0.937035
+1	0.9984
+==3043== 
+==3043== HEAP SUMMARY:
+==3043==     in use at exit: 0 bytes in 0 blocks
+==3043==   total heap usage: 0 allocs, 0 frees, 0 bytes allocated
+==3043== 
+==3043== All heap blocks were freed -- no leaks are possible
+==3043== 
+==3043== For counts of detected and suppressed errors, rerun with: -v
+==3043== ERROR SUMMARY: 0 errors from 0 contexts (suppressed: 0 from 0)

@@ -1,0 +1,26 @@
+==3078== Memcheck, a memory error detector
+==3078== Copyright (C) 2002-2013, and GNU GPL'd, by Julian Seward et al.
+==3078== Using Valgrind-3.10.0.SVN and LibVEX; rerun with -h for copyright info
+==3078== Command: ./tobj/util_interface_test
+==3078== 
+Robot_outputs(pwm:0 0 0 0 0 0 0 0 0 0 solenoid:00000000 relay:00000000 dio:iiiiiiiiii talon_srx:(power_level: 0)(power_level: 0)Driver_station_output(digital:00000000)1)
+Robot_inputs(
+  mode=Robot_mode(auto=0 en=0)
+  now=0
+  Joystick_data(axes: 0.00  0.00  0.00  0.00  0.00  0.00  0.00  0.00 buttons:0 0 0 0 0 0 0 0 0 0 0 0 )
+  Joystick_data(axes: 0.00  0.00  0.00  0.00  0.00  0.00  0.00  0.00 buttons:0 0 0 0 0 0 0 0 0 0 0 0 )
+  Joystick_data(axes: 0.00  0.00  0.00  0.00  0.00  0.00  0.00  0.00 buttons:0 0 0 0 0 0 0 0 0 0 0 0 )
+ dio:Digital_inputs([ OUTPUT OUTPUT OUTPUT OUTPUT OUTPUT OUTPUT OUTPUT OUTPUT OUTPUT OUTPUT ][ NULL NULL NULL NULL NULL ]) analog:0 0.00 1 0.00 2 0.00 3 0.00  talon_srx:(encoder_position: 0 velocity:0 fwd_limit_switch: 0 rev_limit_switch: 0 a: 0 b: 0)(encoder_position: 0 velocity:0 fwd_limit_switch: 0 rev_limit_switch: 0 a: 0 b: 0) currents:[ 0.00 0.00 0.00 0.00 0.00 0.00 0.00 0.00 0.00 0.00 0.00 0.00 0.00 0.00 0.00 0.00 ]Driver_station_input(analog:0.00 0.00 0.00 0.00 0.00 0.00 0.00 0.00 digital:00000000) orientation:0.00)
+Joystick_data(axes: 0.00  0.00  0.00  0.00  0.00  0.00  0.00  0.00 buttons:0 0 0 0 0 0 0 0 0 0 0 0 )
+Jaguar_output(voltage=0.00)
+Jaguar_output(speed=10.00 pid.p=0.30 pid.i=0.00 pid.d=0.00)
+Jaguar_output(voltage=1.00)
+==3078== 
+==3078== HEAP SUMMARY:
+==3078==     in use at exit: 0 bytes in 0 blocks
+==3078==   total heap usage: 143 allocs, 143 frees, 20,716 bytes allocated
+==3078== 
+==3078== All heap blocks were freed -- no leaks are possible
+==3078== 
+==3078== For counts of detected and suppressed errors, rerun with: -v
+==3078== ERROR SUMMARY: 0 errors from 0 contexts (suppressed: 0 from 0)

@@ -1,0 +1,20 @@
+==3009== Memcheck, a memory error detector
+==3009== Copyright (C) 2002-2013, and GNU GPL'd, by Julian Seward et al.
+==3009== Using Valgrind-3.10.0.SVN and LibVEX; rerun with -h for copyright info
+==3009== Command: ./tobj/control_collector_test
+==3009== 
+Collector()
+inputs: Collector::Input()
+outputs: -1 0 1
+status details: Collector::Status()
+statuses: Collector::Status()
+goals: Collector::Goal(FORWARD) Collector::Goal(OFF) Collector::Goal(REVERSE)
+==3009== 
+==3009== HEAP SUMMARY:
+==3009==     in use at exit: 0 bytes in 0 blocks
+==3009==   total heap usage: 84 allocs, 84 frees, 8,599 bytes allocated
+==3009== 
+==3009== All heap blocks were freed -- no leaks are possible
+==3009== 
+==3009== For counts of detected and suppressed errors, rerun with: -v
+==3009== ERROR SUMMARY: 0 errors from 0 contexts (suppressed: 0 from 0)

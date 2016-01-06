@@ -1,0 +1,43 @@
+Driver Controller
+-------------------
+Left Joystick - Forward/Backward/Left/Right
+Right Joystick - Stationary Rotation
+A - Nudge Back
+B - Nudge Right
+X - Nudge Left
+Y - Nudge Forward
+Start - Left Backwards Turn
+Back - Right Backwards Turn
+Left Button - Nudge Counter-clockwise
+Right Button - Nudge Clockwise
+Left Trigger - Boost
+Right Trigger - Slow
+
+
+Gunner Controller
+-------------------
+Tote:
+   B - Stop 
+   Left Joystick:
+      Press - Bottom 
+      Down - Level 1
+      Left - Level 2
+      Right - Level 3
+      Up - Level 4
+      Left Trigger - TOP 
+   RB - Go To Engage Kicker Height
+Can:
+   B - Stop 
+   Right Joystick:
+      Press - Bottom 
+      Down - Level 1
+      Left - Level 2
+      Right - Level 3
+      Up - Level 4
+   X - Level 5 
+   Start - TOP (nundge)//Not on oi
+   Right Trigger - TOP (TOP)
+   LB - Nuge down big
+   A - Nudge down small//not on oi
+Kicker:
+   Y - Toggle Kicker//not working

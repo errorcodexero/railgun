@@ -1,0 +1,23 @@
+g++ -Wall -Werror -std=c++0x -DMONITOR_TEST \
+	monitor.cpp \
+	toplevel.cpp \
+	../util/fixVictor.cpp \
+	../util/interface.cpp \
+	../util/jag_interface.cpp \
+	pump.cpp \
+	collector.cpp \
+	../util/posedge_toggle.cpp \
+	force_interface.cpp \
+	drivebase.cpp \
+	../util/driver_station_interface.cpp \
+	../util/util.cpp \
+	../util/countup_timer.cpp \
+	force.cpp \
+	../util/posedge_trigger.cpp \
+	../util/point.cpp \
+	../util/negedge_trigger.cpp \
+	../util/countdown_timer.cpp\
+	motor_check.cpp\
+	tote_sensors.cpp\
+	arm.cpp\
+	-o monitor 2>&1 && ./monitor

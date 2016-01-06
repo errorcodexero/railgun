@@ -1,0 +1,16 @@
+==3085== Memcheck, a memory error detector
+==3085== Copyright (C) 2002-2013, and GNU GPL'd, by Julian Seward et al.
+==3085== Using Valgrind-3.10.0.SVN and LibVEX; rerun with -h for copyright info
+==3085== Command: ./tobj/util_countup_timer_test
+==3085== 
+Countup_timer(-1,-1)
+Countup_timer(0,9.9)
+==3085== 
+==3085== HEAP SUMMARY:
+==3085==     in use at exit: 0 bytes in 0 blocks
+==3085==   total heap usage: 0 allocs, 0 frees, 0 bytes allocated
+==3085== 
+==3085== All heap blocks were freed -- no leaks are possible
+==3085== 
+==3085== For counts of detected and suppressed errors, rerun with: -v
+==3085== ERROR SUMMARY: 0 errors from 0 contexts (suppressed: 0 from 0)

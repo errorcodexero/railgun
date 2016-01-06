@@ -1,0 +1,20 @@
+HIGH PRIORITY:
+	- Bug fixes
+	- Autonomous
+	
+
+NOT AS HIGH PRIORITY:
+	- Fix velToPwm
+	
+		
+NICE THINGS TO HAVE:
+	-Clean-up stuff:
+		-use enum class more places
+		-use std::array in place of C arrays in several places
+	-Meta IO information
+		-Add a function that will discover which IOs different parts use (and make a nice list)
+		-Make a data type to talk about different inputs
+	-Laptop configuration
+		-ssh config:
+			-Fix the "rm ~/.ssh/known_hosts" problem
+			-add "StrictHostKeyChecking no/UserKnownHostsFile=/dev/null" for robot
