@@ -1,21 +1,24 @@
 HIGH PRIORITY:
-	- Bug fixes
-	- Change drivebase type
-	- Change manipulators
-	
+	- Bug fixes - Evertone
+	- Change drivebase IOs if needed - Logan
+	- Change manipulators - Logan
+	- OI code - Matthew
+		
 
 NOT AS HIGH PRIORITY:
-	- Autonomous
-	- Laptop configuration
+	- Logger & Diagnostics
+	- Autonomous - Tristan
+	- Laptop configuration - Adrian
 		-ssh config:
 			-Fix the "rm ~/.ssh/known_hosts" problem
 			-add "StrictHostKeyChecking no/UserKnownHostsFile=/dev/null" for robot
 	
 		
 NICE THINGS TO HAVE:
-	-Clean-up stuff:
-		-use enum class more places
-		-use std::array in place of C arrays in several places
-	-Meta IO information
+	- Chee-Z parts - Nick
+	- Clean-up stuff:
+		- Use enum class more places
+		- Use std::array in place of C arrays in several places
+	- Meta IO information
 		-Add a function that will discover which IOs different parts use (and make a nice list)
 		-Make a data type to talk about different inputs
