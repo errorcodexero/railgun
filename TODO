@@ -8,6 +8,7 @@ HIGH PRIORITY:
 NOT AS HIGH PRIORITY:
 	- Logger & Diagnostics
 	- Autonomous - Tristan
+	- Vision - Nick
 	- Laptop configuration - Adrian
 		-ssh config:
 			-Fix the "rm ~/.ssh/known_hosts" problem
