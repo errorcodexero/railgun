@@ -5,10 +5,7 @@ using namespace std;
 #define COLLECTOR_ADDRESS 2
 
 ostream& operator<<(ostream& o, Collector::Goal a){
-	if(a==Collector::Goal::OFF) return o<<"Collector::Goal(OFF)";
-	if(a==Collector::Goal::REVERSE) return o<<"Collector::Goal(REVERSE)";
-	if(a==Collector::Goal::FORWARD) return o<<"Collector::Goal(FORWARD)";
-	assert(0);
+	return o<<"Collector::Goal()";
 }
 
 ostream& operator<<(ostream& o, Collector::Status){ return o<<"Collector::Status()";}
