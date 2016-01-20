@@ -6,10 +6,11 @@
 #include "../util/interface.h"
 #include "../util/driver_station_interface.h"
 #include "../util/countdown_timer.h"
+#include "../util/quick.h"
 #include <set>
 
 struct Tilt{
-	struct Goal{
+	class Goal{
 		public: 
 		enum class Mode{GO_TO_ANGLE,UP,DOWN,STOP};
 		
@@ -31,10 +32,11 @@ struct Tilt{
 	
 	typedef double Output;	
 	
-	struct Status_detail{
+	class Status_detail{
 		public:
 		enum class Type{TOP,BOTTOM,MID,ERRORS};
-		std::pair<bool,bool> stalled;
+		std::pair<bool,bool> reached_ends;
+		bool stalled;
 		
 		private:
 		Status_detail();
@@ -55,11 +57,12 @@ struct Tilt{
 
 	typedef Status_detail Status;
 
-	struct Input{
-		bool top,bottom;
-		double current;
-		int ticks;
-	};
+	#define TILT_INPUT(X) \
+		X(bool,top)\
+		X(bool,bottom)\
+		X(double,current)\
+		X(int,ticks)
+	DECLARE_STRUCT(Input,TILT_INPUT)
 	
 	struct Estimator{
 		Maybe_inline<int> top,bottom;
@@ -87,7 +90,7 @@ struct Tilt{
 		int can_address;
 		
 		explicit Output_applicator(int);
-		Output operator()(Robot_outputs);
+		Output operator()(Robot_outputs)const;
 		Robot_outputs operator()(Robot_outputs,Output)const;
 	};	
 	
@@ -96,5 +99,22 @@ struct Tilt{
 	Estimator estimator;
 	explicit Tilt(int);
 };
+
+std::ostream& operator<<(std::ostream&, Tilt);
+
+bool operator<(Tilt::Status_detail, Tilt::Status_detail);
+bool operator==(Tilt::Status_detail, Tilt::Status_detail);
+bool operator==(Tilt::Goal,Tilt::Goal);
+bool operator<(Tilt::Goal,Tilt::Goal);
+bool operator==(Tilt,Tilt);
+
+std::set<Tilt::Input> examples(Tilt::Input*);
+std::set<Tilt::Goal> examples(Tilt::Goal*);
+std::set<Tilt::Status_detail> examples(Tilt::Status_detail*);
+std::set<Tilt::Output> examples(Tilt::Output*);
+
+Tilt::Output control(Tilt::Status_detail, Tilt::Goal);
+Tilt::Status status(Tilt::Status_detail);
+bool ready(Tilt::Status, Tilt::Goal);
 
 #endif
