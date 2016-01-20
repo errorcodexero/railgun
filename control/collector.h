@@ -10,34 +10,7 @@
 using namespace std;
 
 struct Collector{
-	struct Goal{
-		public:
-		enum class Front{IN,OUT,OFF};
-		typedef Front Sides;
-		enum class Mode{GO_TO_ANGLE,UP,DOWN,STOP};
-	
-		private:
-		Sides sides_;
-		Front front_;
-		Mode mode_;
-		double tilt_min, tilt_target, tilt_max;
-
-
-		public:
-		static Goal front_in();
-		static Goal front_out();
-		static goal front_off();
-		
-		static Goal sides_in();
-		static Goal sides_out();
-		static Goal sides_off();
-		
-		static Goal go_to_angle(array<double,3>);
-		static tilt_up();
-		static tilt_down();
-		static tilt_stop();
-				
-	}; 
+	enum class Goal{IN,OUT,OFF}; 
 	
 	struct Status_detail{};
 
@@ -51,7 +24,7 @@ struct Collector{
 	};
 
 	struct Output{
-		double sides, front, theta;
+		double sides, front, tilt;
 	};
 	
 	struct Output_applicator{
