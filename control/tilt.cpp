@@ -223,8 +223,9 @@ std::set<Tilt::Status_detail> examples(Tilt::Status_detail*){
 		Tilt::Status_detail::error()
 	};
 }
-std::set<Tilt::Output> examples(Tilt::Output*){ return std::set<Tilt::Output>{Tilt::Output{}}; }
-
+std::set<Tilt::Output> examples(Tilt::Output*){ 
+	return {-1,0,1};
+}
 Tilt::Output control(Tilt::Status_detail status, Tilt::Goal goal){
 	switch(goal.mode()){
 		case Tilt::Goal::Mode::UP:
