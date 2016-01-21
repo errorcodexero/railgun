@@ -3,10 +3,131 @@
 
 #define nyi { std::cout<<"\nnyi "<<__LINE__<<"\n"; exit(44); }
 
-std::ostream& operator<<(std::ostream& o, Tilt a){ return o<<"Tilt()"; }
+Tilt::Status_detail::Status_detail(): 
+	reached_ends(std::make_pair(0,0)),
+	stalled(0)
+{}
+
+Tilt::Goal::Goal(){}
+
+Tilt::Output_applicator::Output_applicator(int a):can_address(a){
+	assert(can_address>=0 && (unsigned)can_address<Robot_outputs::TALON_SRX_OUTPUTS);
+}
+
+Tilt::Input_reader::Input_reader(int a):can_address(a){
+	assert(can_address>=0 && (unsigned)can_address<Robot_outputs::TALON_SRX_OUTPUTS);
+}
+
+Tilt::Tilt(int can_address):
+	output_applicator(can_address),
+	input_reader(can_address)
+{}
+
+
+
+Robot_inputs Tilt::Input_reader::operator()(Robot_inputs all,Tilt::Input in)const{
+        auto &t=all.talon_srx[can_address];
+        t.fwd_limit_switch=in.top;
+        t.rev_limit_switch=in.bottom;
+        t.encoder_position=in.ticks;
+        t.current=in.current;
+        return all;
+}
+
+Tilt::Input Tilt::Input_reader::operator()(Robot_inputs all)const{
+        auto &t=all.talon_srx[can_address];
+        return Tilt::Input{
+                t.fwd_limit_switch,
+                t.rev_limit_switch,
+                t.encoder_position,
+                t.current
+        };
+}
+
+Tilt::Goal::Mode Tilt::Goal::mode()const{
+	return mode_;
+}
+
+Tilt::Estimator::Estimator():
+        last(Tilt::Status_detail::error()),
+        timer_start_angle(0)
+{}
+
+std::array<double,3> Tilt::Goal::angle()const{
+	assert(mode_==Tilt::Goal::Mode::GO_TO_ANGLE);
+	return std::array<double,3>{angle_min,angle_target,angle_max};
+}
+
+Tilt::Goal Tilt::Goal::up(){
+	Tilt::Goal a;
+	a.mode_=Tilt::Goal::Mode::UP;
+	return a;
+}
+
+Tilt::Goal Tilt::Goal::go_to_angle(std::array<double,3> angles){
+	Tilt::Goal a;
+	a.mode_=Tilt::Goal::Mode::GO_TO_ANGLE;
+	a.angle_min=angles[0];
+	a.angle_target=angles[1];
+	a.angle_max=angles[2];
+	return a;
+}
+
+Tilt::Goal Tilt::Goal::down(){
+	Tilt::Goal a;
+	a.mode_=Tilt::Goal::Mode::DOWN;
+	return a;
+}
+
+Tilt::Goal Tilt::Goal::stop(){
+	Tilt::Goal a;
+	a.mode_=Tilt::Goal::Mode::STOP;
+	return a;
+}
+
+Tilt::Status_detail::Type Tilt::Status_detail::type()const{
+	return type_;
+}
+
+double Tilt::Status_detail::get_angle()const{
+	return angle;
+}
+
+Tilt::Status_detail Tilt::Status_detail::top(){
+	Tilt::Status_detail a;
+	a.type_=Tilt::Status_detail::Type::TOP;
+	return a;
+}
+
+Tilt::Status_detail Tilt::Status_detail::mid(double d){
+	Tilt::Status_detail a;
+	a.type_=Tilt::Status_detail::Type::MID;
+	a.angle=d;
+	return a;
+}
+
+Tilt::Status_detail Tilt::Status_detail::bottom(){
+	Tilt::Status_detail a;
+	a.type_=Tilt::Status_detail::Type::BOTTOM;
+	return a;
+}
+
+Tilt::Status_detail Tilt::Status_detail::error(){
+	Tilt::Status_detail a;
+	a.type_=Tilt::Status_detail::Type::ERRORS;
+	return a;
+}
+
 std::ostream& operator<<(std::ostream& o, Tilt::Status_detail::Type a){
 	#define X(name) if(a==Tilt::Status_detail::Type::name) return o<<""#name;
 	X(ERRORS) X(TOP) X(BOTTOM) X(MID)
+	#undef X
+	nyi
+}
+
+std::ostream& operator<<(std::ostream& o, Tilt::Goal::Mode a){
+	#define X(name) if(a==Tilt::Goal::Mode::name) return o<<""#name;
+	X(UP) X(DOWN) X(GO_TO_ANGLE) X(STOP)
 	#undef X
 	nyi
 }
@@ -21,15 +142,24 @@ std::ostream& operator<<(std::ostream& o, Tilt::Status_detail a){
 	}
 	return o<<")";
 }
-std::ostream& operator<<(std::ostream& o, Tilt::Goal a){ return o<<"Goal()"; }
 
-Tilt::Status_detail::Status_detail(): 
-	reached_ends(std::make_pair(0,0)),
-	stalled(0)
-{}
+std::ostream& operator<<(std::ostream& o, Tilt::Goal a){ 
+	o<<"Tilt::Goal(";
+	o<<" mode:"<<a.mode();
+	if(a.mode()==Tilt::Goal::Mode::GO_TO_ANGLE) o<<" angles:"<<a.angle();
+	return o<<")";
+}
 
-Tilt::Output_applicator::Output_applicator(int a):can_address(a){
-	assert(can_address>=0 && (unsigned)can_address<Robot_outputs::TALON_SRX_OUTPUTS);
+std::ostream& operator<<(std::ostream& o, Tilt::Output_applicator){ return o<<"Tilt::Output_applicator()";} 
+std::ostream& operator<<(std::ostream& o, Tilt::Input_reader){ return o<<"Tilt::Input_reader()";}
+std::ostream& operator<<(std::ostream& o, Tilt::Estimator){ return o<<"Tilt::Estimator()";} 
+ 
+std::ostream& operator<<(std::ostream& o, Tilt a){
+	o<<"Tilt(";
+	o<<" "<<a.output_applicator;
+	o<<" "<<a.input_reader;
+	o<<" "<<a.estimator;
+	return o<<")";
 }
 
 #define CMP(name) if(a.name<b.name) return 1; if(b.name<a.name) return 0;
@@ -49,6 +179,14 @@ bool operator<(Tilt::Status_detail a, Tilt::Status_detail b){
 bool operator==(Tilt::Status_detail a,Tilt::Status_detail b){
 	if(a.type()!=b.type()) return 0;
 	return ((a.type()!=Tilt::Status_detail::Type::MID || a.get_angle()==b.get_angle()) && a.reached_ends==b.reached_ends && a.stalled==b.stalled);
+}
+
+bool operator<(Tilt::Goal a, Tilt::Goal b){
+	if(a.mode()==b.mode()) {
+		if(a.mode()==Tilt::Goal::Mode::GO_TO_ANGLE) return a.angle()<b.angle();
+		return 0;
+	}
+	return a.mode()<b.mode();
 }
 
 Robot_outputs Tilt::Output_applicator::operator()(Robot_outputs r, Tilt::Output out)const{
@@ -120,8 +258,22 @@ Tilt::Status status(Tilt::Status_detail a){
 	return a;
 }
 
-bool ready(Tilt::Status, Tilt::Goal){
-	return 1;
+bool ready(Tilt::Status status, Tilt::Goal goal){
+	switch(goal.mode()){
+		case Tilt::Goal::Mode::UP: return status.type()==Tilt::Status_detail::Type::TOP;
+		case Tilt::Goal::Mode::GO_TO_ANGLE: return (status.get_angle()>goal.angle()[0] && status.get_angle()<goal.angle()[2]);
+		case Tilt::Goal::Mode::DOWN: return status.type()==Tilt::Status_detail::Type::BOTTOM;
+		case Tilt::Goal::Mode::STOP: return 1;
+		default: nyi
+	}
+}
+
+void Tilt::Estimator::update(Time, Tilt::Input, Tilt::Output) {
+
+}
+
+Tilt::Status_detail Tilt::Estimator::get()const {
+	return last;
 }
 
 #ifdef TILT_TEST

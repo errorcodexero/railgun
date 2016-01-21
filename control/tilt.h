@@ -57,14 +57,15 @@ struct Tilt{
 
 	typedef Status_detail Status;
 
-	#define TILT_INPUT(X) \
-		X(bool,top)\
-		X(bool,bottom)\
-		X(double,current)\
-		X(int,ticks)
-	DECLARE_STRUCT(Input,TILT_INPUT)
+	#define TILT_INPUT(X) X(bool,top) X(bool,bottom) X(int,ticks) X(double,current)
+	struct Input{
+		bool top, bottom;
+		int ticks;
+		double current;
+	};
 	
 	struct Estimator{
+		Status_detail last;
 		Maybe_inline<int> top,bottom;
 		Maybe_inline<double> range()const;
 
