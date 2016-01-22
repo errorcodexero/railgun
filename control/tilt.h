@@ -103,9 +103,16 @@ struct Tilt{
 
 std::ostream& operator<<(std::ostream&, Tilt);
 
+bool operator==(Tilt::Input const&,Tilt::Input const&);
+bool operator!=(Tilt::Input const&,Tilt::Input const&);
+bool operator<(Tilt::Input const&,Tilt::Input const&);
+std::ostream& operator<<(std::ostream&,Tilt::Input const&);
 bool operator<(Tilt::Status_detail, Tilt::Status_detail);
+bool operator<(Tilt::Status_detail,Tilt::Status_detail);
 bool operator==(Tilt::Status_detail, Tilt::Status_detail);
+bool operator!=(Tilt::Status_detail, Tilt::Status_detail);
 bool operator==(Tilt::Goal,Tilt::Goal);
+bool operator!=(Tilt::Goal,Tilt::Goal);
 bool operator<(Tilt::Goal,Tilt::Goal);
 bool operator==(Tilt,Tilt);
 

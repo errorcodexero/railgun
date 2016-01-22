@@ -190,6 +190,11 @@ bool operator==(Tilt::Status_detail a,Tilt::Status_detail b){
 	return ((a.type()!=Tilt::Status_detail::Type::MID || a.get_angle()==b.get_angle()) && a.reached_ends==b.reached_ends && a.stalled==b.stalled);
 }
 
+bool operator!=(Tilt::Status_detail a,Tilt::Status_detail b){ return !(a==b); }
+
+bool operator==(Tilt::Goal a, Tilt::Goal b){ return (a.mode()==b.mode() && a.angle()==b.angle()); }
+bool operator!=(Tilt::Goal a, Tilt::Goal b){ return !(a==b); }
+
 bool operator<(Tilt::Goal a, Tilt::Goal b){
 	if(a.mode()==b.mode()) {
 		if(a.mode()==Tilt::Goal::Mode::GO_TO_ANGLE) return a.angle()<b.angle();

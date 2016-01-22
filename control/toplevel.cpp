@@ -136,7 +136,7 @@ Toplevel::Status::Status():
 		0
 	),
 	pump(Pump::Status::NOT_FULL),
-	arm(Arm::Status::MID)
+	tilt(Tilt::Status::MID)
 {}
 
 bool operator==(Toplevel::Status a,Toplevel::Status b){
@@ -307,7 +307,7 @@ set<Toplevel::Status_detail> examples(Toplevel::Status_detail*){
 		*examples((Drivebase::Status_detail*)0).begin(),
 		Pump::Status_detail{},
 		Tote_sensors::Status_detail{},
-		Arm::Status_detail{},
+		*examples((Tilt::Status_detail*)0).begin(),
 		Collector::Status_detail{}
 	}};
 }
@@ -325,7 +325,7 @@ set<Toplevel::Input> examples(Toplevel::Input*){
 		*examples((Drivebase::Input*)0).begin(),
 		Pump::Input{},
 		Tote_sensors::Input{0,0,0},
-		Arm::Input{false,false},
+		*examples((Tilt::Input*)0).begin(),
 		Collector::Input{}
 	};
 	return {a};
