@@ -249,7 +249,28 @@ Tilt::Output control(Tilt::Status_detail status, Tilt::Goal goal){
 				default: assert(0);
 			}
 		case Tilt::Goal::Mode::GO_TO_ANGLE:
-			nyi
+			{
+				const double POWER=1;
+				const double SLOW=(POWER/5);
+				switch (status.type()) {
+					case Tilt::Status_detail::Type::MID:
+						{
+							double error=goal.angle()[1]-status.get_angle();
+							double desired_power=error*SLOW;
+							if(desired_power>POWER)return POWER;
+							if(desired_power<-POWER)return -POWER;
+							return desired_power;
+						}
+					case Tilt::Status_detail::Type::TOP:
+						return -POWER;
+					case Tilt::Status_detail::Type::BOTTOM:
+						return POWER;
+					case Tilt::Status_detail::Type::ERRORS:
+						return 0.0;
+					default:
+						assert(0);
+				}
+			}
 		case Tilt::Goal::Mode::STOP: return 0;
 		default: assert(0);
 	}
