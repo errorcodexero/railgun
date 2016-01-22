@@ -10,7 +10,21 @@
 using namespace std;
 
 struct Collector{
-	enum class Goal{IN,OUT,OFF}; 
+	class Goal{
+		public:
+		enum class Mode{IN,OUT,OFF}; 
+		
+		private: 
+		Goal();
+		Mode mode_;
+		
+		public: 
+		Mode mode()const;
+		
+		static Goal in();
+		static Goal out();
+		static Goal off();
+	};
 	
 	struct Status_detail{};
 
@@ -23,9 +37,7 @@ struct Collector{
 		Robot_inputs operator()(Robot_inputs,Collector::Input)const;
 	};
 
-	struct Output{
-		double sides, front, tilt;
-	};
+	typedef double Output;
 	
 	struct Output_applicator{
 		Robot_outputs operator()(Robot_outputs,Collector::Output)const;

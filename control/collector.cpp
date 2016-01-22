@@ -4,8 +4,39 @@ using namespace std;
 
 #define COLLECTOR_ADDRESS 2
 
+Collector::Goal::Goal(){}
+
+ostream& operator<<(ostream& o, Collector::Goal::Mode a){
+	#define X(name) if(a==Collector::Goal::Mode::name)return o<<""#name;
+	X(IN) X(OUT) X(OFF)
+	#undef X
+	assert(0);
+}
+
+Collector::Goal::Mode Collector::Goal::mode()const{
+	return mode_;
+}
+
+Collector::Goal Collector::Goal::in(){
+	Collector::Goal a;
+	a.mode_=Collector::Goal::Mode::IN;
+	return a;
+}
+
+Collector::Goal Collector::Goal::out(){
+	Collector::Goal a;
+	a.mode_=Collector::Goal::Mode::OUT;
+	return a;
+}
+
+Collector::Goal Collector::Goal::off(){
+	Collector::Goal a;
+	a.mode_=Collector::Goal::Mode::OFF;
+	return a;
+}
+
 ostream& operator<<(ostream& o, Collector::Goal a){
-	return o<<"Collector::Goal()";
+	return o<<"Collector::Goal( mode:"<<a.mode()<<")";
 }
 
 ostream& operator<<(ostream& o, Collector::Status){ return o<<"Collector::Status()";}
@@ -23,6 +54,7 @@ bool operator==(Collector::Estimator, Collector::Estimator){ return 1;}
 bool operator!=(Collector::Estimator, Collector::Estimator){ return 0;}
 bool operator==(Collector::Input_reader,Collector::Input_reader){ return 1;}
 bool operator==(Collector::Output_applicator,Collector::Output_applicator){return 1;}
+bool operator<(Collector::Goal a, Collector::Goal b){ return a.mode()<b.mode(); }
 bool operator==(Collector a, Collector b){ return (a.input_reader==b.input_reader && a.estimator==b.estimator && a.output_applicator==b.output_applicator);}
 bool operator!=(Collector a, Collector b){ return !(a==b);}
 
@@ -46,25 +78,25 @@ set<Collector::Input> examples(Collector::Input*){
 }
 
 set<Collector::Goal> examples(Collector::Goal*){ 
-	return set<Collector::Goal>{Collector::Goal::FORWARD,Collector::Goal::OFF,Collector::Goal::REVERSE};
+	return {Collector::Goal::in(),Collector::Goal::off(),Collector::Goal::out()};
 }
 
 set<Collector::Status_detail> examples(Collector::Status_detail*){ 
 	return set<Collector::Status_detail>{Collector::Status_detail{}};
 }
 set<Collector::Output> examples(Collector::Output*){ 
-	return set<Collector::Output>{1,0,-1};
+	return {1,0,-1};
 }
 
 
 Collector::Output control(Collector::Status_detail, Collector::Goal goal){
-	if(goal==Collector::Goal::FORWARD)return Collector::Output{-1};
-	if(goal==Collector::Goal::OFF)return Collector::Output{0};
-	if(goal==Collector::Goal::REVERSE)return Collector::Output{1};
+	if(goal.mode()==Collector::Goal::Mode::IN)return Collector::Output{1};
+	if(goal.mode()==Collector::Goal::Mode::OFF)return Collector::Output{0};
+	if(goal.mode()==Collector::Goal::Mode::OUT)return Collector::Output{-1};
 	assert(0);
 }
 
-Collector::Status status(Collector::Status_detail){ return Collector::Status{};}
+Collector::Status status(Collector::Status_detail a){ return a;}
 
 bool ready(Collector::Status, Collector::Goal){return 1;}
 

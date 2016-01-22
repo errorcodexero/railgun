@@ -44,6 +44,15 @@ Tilt::Input Tilt::Input_reader::operator()(Robot_inputs all)const{
         };
 }
 
+Tilt::Output Tilt::Output_applicator::operator()(Robot_outputs r)const{
+	return r.talon_srx[can_address].power_level;
+}
+
+Robot_outputs Tilt::Output_applicator::operator()(Robot_outputs r, Tilt::Output out)const{
+	r.talon_srx[can_address].power_level=out;
+	return r;
+}
+
 Tilt::Goal::Mode Tilt::Goal::mode()const{
 	return mode_;
 }
@@ -187,15 +196,6 @@ bool operator<(Tilt::Goal a, Tilt::Goal b){
 		return 0;
 	}
 	return a.mode()<b.mode();
-}
-
-Robot_outputs Tilt::Output_applicator::operator()(Robot_outputs r, Tilt::Output out)const{
-	r.talon_srx[can_address].power_level=out;
-	return r;
-}
-
-Tilt::Output Tilt::Output_applicator::operator()(Robot_outputs r)const{
-	return r.talon_srx[can_address].power_level;
 }
 
 std::set<Tilt::Input> examples(Tilt::Input*){ 
