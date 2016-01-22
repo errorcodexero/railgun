@@ -23,8 +23,6 @@ Tilt::Tilt(int can_address):
 	input_reader(can_address)
 {}
 
-
-
 Robot_inputs Tilt::Input_reader::operator()(Robot_inputs all,Tilt::Input in)const{
         auto &t=all.talon_srx[can_address];
         t.fwd_limit_switch=in.top;
@@ -202,6 +200,9 @@ bool operator<(Tilt::Goal a, Tilt::Goal b){
 	}
 	return a.mode()<b.mode();
 }
+
+bool operator==(Tilt a, Tilt b){ return (a.output_applicator==b.output_applicator && a.input_reader==b.input_reader && a.estimator==b.estimator); }
+bool operator!=(Tilt a, Tilt b){ return !(a==b); }
 
 std::set<Tilt::Input> examples(Tilt::Input*){ 
 	return  {

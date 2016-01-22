@@ -7,6 +7,7 @@
 using namespace std;
 
 Toplevel::Toplevel():
+	tilt(1),
 	input_reader(this),
 	estimator(this),
 	output_applicator(this)
@@ -136,7 +137,7 @@ Toplevel::Status::Status():
 		0
 	),
 	pump(Pump::Status::NOT_FULL),
-	tilt(Tilt::Status::MID)
+	tilt(Tilt::Status::mid(0))
 {}
 
 bool operator==(Toplevel::Status a,Toplevel::Status b){

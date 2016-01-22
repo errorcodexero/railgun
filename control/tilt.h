@@ -103,18 +103,27 @@ struct Tilt{
 
 std::ostream& operator<<(std::ostream&, Tilt);
 
+std::ostream& operator<<(std::ostream&, Tilt::Status_detail::Type);
+std::ostream& operator<<(std::ostream&, Tilt::Goal::Mode);
+std::ostream& operator<<(std::ostream&, Tilt::Status_detail);
+std::ostream& operator<<(std::ostream&, Tilt::Goal); 
+
 bool operator==(Tilt::Input const&,Tilt::Input const&);
 bool operator!=(Tilt::Input const&,Tilt::Input const&);
 bool operator<(Tilt::Input const&,Tilt::Input const&);
 std::ostream& operator<<(std::ostream&,Tilt::Input const&);
+
 bool operator<(Tilt::Status_detail, Tilt::Status_detail);
 bool operator<(Tilt::Status_detail,Tilt::Status_detail);
 bool operator==(Tilt::Status_detail, Tilt::Status_detail);
 bool operator!=(Tilt::Status_detail, Tilt::Status_detail);
+
 bool operator==(Tilt::Goal,Tilt::Goal);
 bool operator!=(Tilt::Goal,Tilt::Goal);
 bool operator<(Tilt::Goal,Tilt::Goal);
+
 bool operator==(Tilt,Tilt);
+bool operator!=(Tilt,Tilt);
 
 std::set<Tilt::Input> examples(Tilt::Input*);
 std::set<Tilt::Goal> examples(Tilt::Goal*);
