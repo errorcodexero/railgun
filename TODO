@@ -28,7 +28,7 @@ NICE THINGS TO HAVE:
 
 AUTO-MODE REQUIREMENTS & STEPS:
 	-Starting with ball in bot
-	1. Go through defense (ask Briggler which one it will be. We might code different versions for each defense. These modes would be selected with and OI swich.)
+	1. Go through defense (ask Briggler which one it will be. We might code different versions for each defense. These modes would be selected with an OI swich.)
 	2. Drive to Low Goal 
 	3. Position Robot to score
 	4. Score Low goal with ball
