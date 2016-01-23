@@ -5,10 +5,12 @@
 
 Tilt::Status_detail::Status_detail(): 
 	reached_ends(std::make_pair(0,0)),
-	stalled(0)
+	stalled(0),
+	type_(Tilt::Status_detail::Type::MID),
+	angle(0)
 {}
 
-Tilt::Goal::Goal(){}
+Tilt::Goal::Goal():mode_(Tilt::Goal::Mode::STOP),angle_min(0),angle_target(0),angle_max(0){}
 
 Tilt::Output_applicator::Output_applicator(int a):can_address(a){
 	assert(can_address>=0 && (unsigned)can_address<Robot_outputs::TALON_SRX_OUTPUTS);

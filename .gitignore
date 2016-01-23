@@ -2,3 +2,7 @@
 *.obj
 *.jar
 *.o
+tobj/
+*~
+*.tmp
+t.mk
