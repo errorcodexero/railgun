@@ -1,5 +1,5 @@
-#ifndef PANEL2015_H
-#define PANEL2015_H 
+#ifndef PANEL2016_H
+#define PANEL2016_H 
 
 #include "../util/maybe.h"
 #include "../util/interface.h"

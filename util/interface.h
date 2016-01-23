@@ -82,7 +82,7 @@ struct Robot_outputs{
 	static const unsigned DIGITAL_IOS=10;//there are really 14 on the cRIO and the roboRIO headers say 26.
 	std::array<Digital_out,DIGITAL_IOS> digital_io;
 	
-	static const unsigned TALON_SRX_OUTPUTS=0;
+	static const unsigned TALON_SRX_OUTPUTS=3;
 	std::array<Talon_srx_output, TALON_SRX_OUTPUTS> talon_srx;
 	
 	static const unsigned CAN_JAGUARS=0;

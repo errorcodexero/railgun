@@ -17,5 +17,5 @@ g++ -Wall -Werror -std=c++0x -DTOPLEVEL_TEST \
 	../util/input.cpp\
 	../util/output.cpp\
 	tote_sensors.cpp\
-	arm.cpp\
+	tilt.cpp\
 	-o toplevel 2>&1 && ./toplevel 2>&1
