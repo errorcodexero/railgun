@@ -5,7 +5,9 @@ g++ -Wall -Werror -std=c++0x -DMONITOR_TEST \
 	../util/interface.cpp \
 	../util/jag_interface.cpp \
 	pump.cpp \
-	collector.cpp \
+	front.cpp \
+	sides.cpp \
+	tilt.cpp \
 	../util/posedge_toggle.cpp \
 	force_interface.cpp \
 	drivebase.cpp \
@@ -19,5 +21,4 @@ g++ -Wall -Werror -std=c++0x -DMONITOR_TEST \
 	../util/countdown_timer.cpp\
 	motor_check.cpp\
 	tote_sensors.cpp\
-	arm.cpp\
 	-o monitor 2>&1 && ./monitor

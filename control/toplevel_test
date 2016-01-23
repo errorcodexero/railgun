@@ -5,7 +5,8 @@ g++ -Wall -Werror -std=c++0x -DTOPLEVEL_TEST \
 	../util/negedge_trigger.cpp \
 	../util/countup_timer.cpp \
 	pump.cpp \
-	collector.cpp \
+	sides.cpp \
+	front.cpp \
 	../util/point.cpp \
 	drivebase.cpp \
 	../util/interface.cpp \

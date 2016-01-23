@@ -309,7 +309,8 @@ set<Toplevel::Status_detail> examples(Toplevel::Status_detail*){
 		Pump::Status_detail{},
 		Tote_sensors::Status_detail{},
 		*examples((Tilt::Status_detail*)0).begin(),
-		Collector::Status_detail{}
+		Sides::Status_detail{},
+		Front::Status_detail{}
 	}};
 }
 
@@ -327,7 +328,8 @@ set<Toplevel::Input> examples(Toplevel::Input*){
 		Pump::Input{},
 		Tote_sensors::Input{0,0,0},
 		*examples((Tilt::Input*)0).begin(),
-		Collector::Input{}
+		Sides::Input{},
+		Front::Input{}
 	};
 	return {a};
 }

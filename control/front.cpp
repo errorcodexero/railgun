@@ -4,7 +4,8 @@
 using namespace std;
 
 #define nyi { cout<<"\nnyi "<<__LINE__<<"\n"; exit(44); }
-#define FRONT_ADDRESS 2
+#define FRONT_ADDRESS 3
+#define FRONT_SPEED 1
 
 ostream& operator<<(ostream& o, Front::Goal a){
 	#define X(name) if(a==Front::Goal::name)return o<<"Front::Goal("#name")";
@@ -41,18 +42,18 @@ Front::Input Front::Input_reader::operator()(Robot_inputs)const{ return Front::I
 Robot_inputs Front::Input_reader::operator()(Robot_inputs a, Front::Input)const{ return a;}
 
 Robot_outputs Front::Output_applicator::operator()(Robot_outputs r, Front::Output out)const{
-	if(out==Front::Output::OUT) r.pwm[FRONT_ADDRESS]=1;
+	if(out==Front::Output::OUT) r.pwm[FRONT_ADDRESS]=FRONT_SPEED;
 	else if(out==Front::Output::OFF) r.pwm[FRONT_ADDRESS]=0;
-	else if(out==Front::Output::IN) r.pwm[FRONT_ADDRESS]=-1;
+	else if(out==Front::Output::IN) r.pwm[FRONT_ADDRESS]=-FRONT_SPEED;
 	return r;
 }
 
 Front::Status_detail Front::Estimator::get()const{ return Front::Status_detail{};}
 
 Front::Output Front::Output_applicator::operator()(Robot_outputs r)const{
-	if(r.pwm[FRONT_ADDRESS]==1)return Front::Output::OUT;
+	if(r.pwm[FRONT_ADDRESS]==FRONT_SPEED)return Front::Output::OUT;
 	if(r.pwm[FRONT_ADDRESS]==0)return Front::Output::OFF;
-	if(r.pwm[FRONT_ADDRESS]==-1)return Front::Output::IN;
+	if(r.pwm[FRONT_ADDRESS]==-FRONT_SPEED)return Front::Output::IN;
 	assert(0);
 }
 	

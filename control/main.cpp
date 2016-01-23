@@ -6,7 +6,6 @@
 #include <stdlib.h>
 #include "toplevel.h"
 #include "../util/util.h"
-#include "toplevel_mode.h"
 #include "../input/util.h"
 
 using namespace std;
@@ -44,9 +43,9 @@ array<double,LEN> floats_to_doubles(array<float,LEN> a){
 Toplevel::Goal Main::teleop(
 	Robot_inputs const& in,
 	Joystick_data const& main_joystick,
-	Joystick_data const&  gunner_joystick,
+	Joystick_data const& /*gunner_joystick*/,
 	Panel const&  /*oi_panel*/,
-	Toplevel::Status_detail& toplevel_status
+	Toplevel::Status_detail& /*toplevel_status*/
 ){
 	Toplevel::Goal goals;
 
@@ -94,31 +93,6 @@ Toplevel::Goal Main::teleop(
 	
 
 	goals.drive=goal;
-	if (gunner_joystick.button[Gamepad_button::Y]) button_mode = Button_mode::AUTO_UP;
-	else if(gunner_joystick.button[Gamepad_button::A]) button_mode = Button_mode::AUTO_DOWN;
-	if (gunner_joystick.button[Gamepad_button::LB]) {
-		goals.arm = Arm::Goal::UP_MANUAL;
-		button_mode = Button_mode::MANUAL;
-	} else if (gunner_joystick.button[Gamepad_button::RB]) {
-		goals.arm = Arm::Goal::DOWN_MANUAL;
-		button_mode = Button_mode::MANUAL;
-	} else if (button_mode == Button_mode::MANUAL) {
-		goals.arm = Arm::Goal::STOP;
-	}
-	goals.arm = [&]{
-		switch (button_mode) {
-			case Button_mode::AUTO_UP:
-				return Arm::Goal::UP_AUTO;
-			case Button_mode::AUTO_DOWN:
-				return Arm::Goal::DOWN_AUTO;
-			case Button_mode::MANUAL:
-				return goals.arm;
-			default:
-				assert(0);
-		}
-	}();
-	goals.collector=gunner_joystick.button[Gamepad_button::X]?Collector::Goal::FORWARD:(gunner_joystick.button[Gamepad_button::B]?Collector::Goal::REVERSE:Collector::Goal::OFF);
-	cout<<toplevel_status.arm<<"\n";
 	return goals;
 }
 

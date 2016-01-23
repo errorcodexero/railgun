@@ -6,14 +6,16 @@
 #include "drivebase.h"
 #include "tote_sensors.h"
 #include "tilt.h"
-#include "collector.h"
+#include "sides.h"
+#include "front.h"
 
 #define TOPLEVEL_ITEMS\
 	X(Drivebase,drive,)\
 	X(Pump,pump,Pump::Goal::AUTO)\
 	X(Tote_sensors,tote_sensors,Tote_sensors::Goal{})\
 	X(Tilt,tilt,Tilt::Goal::stop())\
-	X(Collector,collector,Collector::Goal::off())
+	X(Sides,sides,Sides::Goal::OFF)\
+	X(Front,front,Front::Goal::OFF)
 
 class Toplevel{
 	public:
