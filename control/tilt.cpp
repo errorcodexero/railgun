@@ -201,6 +201,11 @@ bool operator<(Tilt::Goal a, Tilt::Goal b){
 	return a.mode()<b.mode();
 }
 
+bool operator==(Tilt::Output_applicator a,Tilt::Output_applicator b){ return a.can_address==b.can_address; }
+bool operator==(Tilt::Input_reader a,Tilt::Input_reader b){ return a.can_address==b.can_address; }
+bool operator==(Tilt::Estimator a,Tilt::Estimator b){ return (a.last==b.last && a.top==b.top && a.bottom==b.bottom); }
+bool operator!=(Tilt::Estimator a,Tilt::Estimator b){ return !(a==b); }
+
 bool operator==(Tilt a, Tilt b){ return (a.output_applicator==b.output_applicator && a.input_reader==b.input_reader && a.estimator==b.estimator); }
 bool operator!=(Tilt a, Tilt b){ return !(a==b); }
 
@@ -229,6 +234,7 @@ std::set<Tilt::Status_detail> examples(Tilt::Status_detail*){
 		Tilt::Status_detail::error()
 	};
 }
+
 std::set<Tilt::Output> examples(Tilt::Output*){ 
 	return {-1,0,1};
 }
