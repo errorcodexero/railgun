@@ -10,21 +10,7 @@
 using namespace std;
 
 struct Collector{
-	class Goal{
-		public:
-		enum class Mode{IN,OFF,OUT}; 
-		
-		private: 
-		Goal();
-		Mode mode_;
-		
-		public: 
-		Mode mode()const;
-		
-		static Goal in();
-		static Goal out();
-		static Goal off();
-	};
+	enum class Goal{OUT,OFF,IN};
 	
 	struct Status_detail{};
 
@@ -73,12 +59,7 @@ bool operator<(Collector::Input_reader, Collector::Input_reader);
 bool operator==(Collector::Estimator, Collector::Estimator);
 bool operator!=(Collector::Estimator, Collector::Estimator);
 
-
 bool operator==(Collector::Output_applicator,Collector::Output_applicator);
-
-bool operator==(Collector::Goal,Collector::Goal);
-bool operator!=(Collector::Goal,Collector::Goal);
-bool operator<(Collector::Goal,Collector::Goal);
 
 bool operator==(Collector,Collector);
 bool operator!=(Collector,Collector);
