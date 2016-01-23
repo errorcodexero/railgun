@@ -5,15 +5,15 @@
 #include "pump.h"
 #include "drivebase.h"
 #include "tote_sensors.h"
-#include "arm.h"
+#include "tilt.h"
 #include "collector.h"
 
 #define TOPLEVEL_ITEMS\
 	X(Drivebase,drive,)\
 	X(Pump,pump,Pump::Goal::AUTO)\
 	X(Tote_sensors,tote_sensors,Tote_sensors::Goal{})\
-	X(Arm,arm,Arm::Goal::UP_AUTO)\
-	X(Collector,collector,Collector::Goal::OFF)
+	X(Tilt,tilt,Tilt::Goal::stop())\
+	X(Collector,collector,Collector::Goal::off())
 
 class Toplevel{
 	public:

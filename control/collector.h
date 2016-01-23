@@ -10,7 +10,21 @@
 using namespace std;
 
 struct Collector{
-	enum class Goal{IN,OUT,OFF}; 
+	class Goal{
+		public:
+		enum class Mode{IN,OFF,OUT}; 
+		
+		private: 
+		Goal();
+		Mode mode_;
+		
+		public: 
+		Mode mode()const;
+		
+		static Goal in();
+		static Goal out();
+		static Goal off();
+	};
 	
 	struct Status_detail{};
 
@@ -23,9 +37,7 @@ struct Collector{
 		Robot_inputs operator()(Robot_inputs,Collector::Input)const;
 	};
 
-	struct Output{
-		double sides, front, tilt;
-	};
+	typedef Goal Output;
 	
 	struct Output_applicator{
 		Robot_outputs operator()(Robot_outputs,Collector::Output)const;
@@ -50,21 +62,30 @@ ostream& operator<<(ostream&,Collector::Input);
 bool operator==(Collector::Input,Collector::Input);
 bool operator!=(Collector::Input,Collector::Input);
 bool operator<(Collector::Input, Collector::Input);
+
 bool operator<(Collector::Status_detail, Collector::Status_detail);
 bool operator==(Collector::Status_detail, Collector::Status_detail);
 bool operator!=(Collector::Status_detail, Collector::Status_detail);
+
+bool operator==(Collector::Input_reader,Collector::Input_reader);
 bool operator<(Collector::Input_reader, Collector::Input_reader);
+
 bool operator==(Collector::Estimator, Collector::Estimator);
 bool operator!=(Collector::Estimator, Collector::Estimator);
-bool operator==(Collector::Input_reader,Collector::Input_reader);
+
+
 bool operator==(Collector::Output_applicator,Collector::Output_applicator);
+
+bool operator==(Collector::Goal,Collector::Goal);
+bool operator!=(Collector::Goal,Collector::Goal);
+bool operator<(Collector::Goal,Collector::Goal);
+
 bool operator==(Collector,Collector);
 bool operator!=(Collector,Collector);
 
 set<Collector::Input> examples(Collector::Input*);
 set<Collector::Goal> examples(Collector::Goal*);
 set<Collector::Status_detail> examples(Collector::Status_detail*);
-set<Collector::Output> examples(Collector::Output*);
 
 Collector::Output control(Collector::Status_detail, Collector::Goal);
 Collector::Status status(Collector::Status_detail);

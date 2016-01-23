@@ -1,14 +1,14 @@
-HIGH PRIORITY:
+HIGH PRIORITY
 	- Bug fixes - Everyone
 	- Change drivebase IOs if needed - Logan
-	- Change manipulators - Logan
-	- OI code - Matthew
+	- Change manipulators - Logan AFTER DESIGN OF SAID MANIPULATORS
+	- OI code - Matthew/Logan/Adrian DUE JAN 30 
 		
 
 NOT AS HIGH PRIORITY:
 	- Logger & Diagnostics
-	- Autonomous - Tristan
-	- Vision - Nick
+	- Autonomous - Tristan/Matthew DUE FEB 13
+	- Vision - Nick DUE FEB 18
 	- Laptop configuration - Adrian
 		-ssh config:
 			-Fix the "rm ~/.ssh/known_hosts" problem
@@ -16,10 +16,23 @@ NOT AS HIGH PRIORITY:
 	
 		
 NICE THINGS TO HAVE:
-	- Chee-Z parts - Nick
 	- Clean-up stuff:
 		- Use enum class more places
 		- Use std::array in place of C arrays in several places
 	- Meta IO information
 		-Add a function that will discover which IOs different parts use (and make a nice list)
-		-Make a data type to talk about different inputs
+		 -Make a data type to talk about different inputs
+
+
+
+
+AUTO-MODE REQUIREMENTS & STEPS:
+	-Starting with ball in bot
+	1. Go through defense (ask Briggler which one it will be. We might code different versions for each defense. These modes would be selected with and OI swich.)
+	2. Drive to Low Goal 
+	3. Position Robot to score
+	4. Score Low goal with ball
+	5. Reposition to return to defenses
+	6. Return to defenses
+	7. Go back through defense to the center (also could go through low bar?)
+	8. Position for begining of TELE-OP

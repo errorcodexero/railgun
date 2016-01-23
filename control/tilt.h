@@ -12,7 +12,7 @@
 struct Tilt{
 	class Goal{
 		public: 
-		enum class Mode{GO_TO_ANGLE,UP,DOWN,STOP};
+		enum class Mode{DOWN,GO_TO_ANGLE,STOP,UP};
 		
 		private:
 		Goal();
@@ -64,6 +64,14 @@ struct Tilt{
 		double current;
 	};
 	
+	struct Input_reader{
+		int can_address;
+
+		explicit Input_reader(int);
+		Input operator()(Robot_inputs)const;
+		Robot_inputs operator()(Robot_inputs,Input)const;
+	};
+	
 	struct Estimator{
 		Status_detail last;
 		Maybe_inline<int> top,bottom;
@@ -77,14 +85,6 @@ struct Tilt{
 		
 		void update(Time,Input,Output);
 		Status_detail get()const;
-	};
-	
-	struct Input_reader{
-		int can_address;
-
-		explicit Input_reader(int);
-		Input operator()(Robot_inputs)const;
-		Robot_inputs operator()(Robot_inputs,Input)const;
 	};
 	
 	struct Output_applicator{
@@ -101,13 +101,34 @@ struct Tilt{
 	explicit Tilt(int);
 };
 
+
+std::ostream& operator<<(std::ostream&, Tilt::Status_detail::Type);
+std::ostream& operator<<(std::ostream&, Tilt::Goal::Mode);
+std::ostream& operator<<(std::ostream&, Tilt::Status_detail);
+std::ostream& operator<<(std::ostream&, Tilt::Goal); 
 std::ostream& operator<<(std::ostream&, Tilt);
 
+bool operator==(Tilt::Input const&,Tilt::Input const&);
+bool operator!=(Tilt::Input const&,Tilt::Input const&);
+bool operator<(Tilt::Input const&,Tilt::Input const&);
+std::ostream& operator<<(std::ostream&,Tilt::Input const&);
+
 bool operator<(Tilt::Status_detail, Tilt::Status_detail);
+bool operator<(Tilt::Status_detail,Tilt::Status_detail);
 bool operator==(Tilt::Status_detail, Tilt::Status_detail);
+bool operator!=(Tilt::Status_detail, Tilt::Status_detail);
+
 bool operator==(Tilt::Goal,Tilt::Goal);
+bool operator!=(Tilt::Goal,Tilt::Goal);
 bool operator<(Tilt::Goal,Tilt::Goal);
+
+bool operator==(Tilt::Output_applicator,Tilt::Output_applicator);
+bool operator==(Tilt::Input_reader,Tilt::Input_reader);
+bool operator==(Tilt::Estimator,Tilt::Estimator);
+bool operator!=(Tilt::Estimator,Tilt::Estimator);
+
 bool operator==(Tilt,Tilt);
+bool operator!=(Tilt,Tilt);
 
 std::set<Tilt::Input> examples(Tilt::Input*);
 std::set<Tilt::Goal> examples(Tilt::Goal*);

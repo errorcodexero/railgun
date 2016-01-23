@@ -23,8 +23,6 @@ Tilt::Tilt(int can_address):
 	input_reader(can_address)
 {}
 
-
-
 Robot_inputs Tilt::Input_reader::operator()(Robot_inputs all,Tilt::Input in)const{
         auto &t=all.talon_srx[can_address];
         t.fwd_limit_switch=in.top;
@@ -42,6 +40,15 @@ Tilt::Input Tilt::Input_reader::operator()(Robot_inputs all)const{
                 t.encoder_position,
                 t.current
         };
+}
+
+Tilt::Output Tilt::Output_applicator::operator()(Robot_outputs r)const{
+	return r.talon_srx[can_address].power_level;
+}
+
+Robot_outputs Tilt::Output_applicator::operator()(Robot_outputs r, Tilt::Output out)const{
+	r.talon_srx[can_address].power_level=out;
+	return r;
 }
 
 Tilt::Goal::Mode Tilt::Goal::mode()const{
@@ -181,6 +188,11 @@ bool operator==(Tilt::Status_detail a,Tilt::Status_detail b){
 	return ((a.type()!=Tilt::Status_detail::Type::MID || a.get_angle()==b.get_angle()) && a.reached_ends==b.reached_ends && a.stalled==b.stalled);
 }
 
+bool operator!=(Tilt::Status_detail a,Tilt::Status_detail b){ return !(a==b); }
+
+bool operator==(Tilt::Goal a, Tilt::Goal b){ return (a.mode()==b.mode() && a.angle()==b.angle()); }
+bool operator!=(Tilt::Goal a, Tilt::Goal b){ return !(a==b); }
+
 bool operator<(Tilt::Goal a, Tilt::Goal b){
 	if(a.mode()==b.mode()) {
 		if(a.mode()==Tilt::Goal::Mode::GO_TO_ANGLE) return a.angle()<b.angle();
@@ -189,14 +201,13 @@ bool operator<(Tilt::Goal a, Tilt::Goal b){
 	return a.mode()<b.mode();
 }
 
-Robot_outputs Tilt::Output_applicator::operator()(Robot_outputs r, Tilt::Output out)const{
-	r.talon_srx[can_address].power_level=out;
-	return r;
-}
+bool operator==(Tilt::Output_applicator a,Tilt::Output_applicator b){ return a.can_address==b.can_address; }
+bool operator==(Tilt::Input_reader a,Tilt::Input_reader b){ return a.can_address==b.can_address; }
+bool operator==(Tilt::Estimator a,Tilt::Estimator b){ return (a.last==b.last && a.top==b.top && a.bottom==b.bottom); }
+bool operator!=(Tilt::Estimator a,Tilt::Estimator b){ return !(a==b); }
 
-Tilt::Output Tilt::Output_applicator::operator()(Robot_outputs r)const{
-	return r.talon_srx[can_address].power_level;
-}
+bool operator==(Tilt a, Tilt b){ return (a.output_applicator==b.output_applicator && a.input_reader==b.input_reader && a.estimator==b.estimator); }
+bool operator!=(Tilt a, Tilt b){ return !(a==b); }
 
 std::set<Tilt::Input> examples(Tilt::Input*){ 
 	return  {
@@ -223,6 +234,7 @@ std::set<Tilt::Status_detail> examples(Tilt::Status_detail*){
 		Tilt::Status_detail::error()
 	};
 }
+
 std::set<Tilt::Output> examples(Tilt::Output*){ 
 	return {-1,0,1};
 }
@@ -249,7 +261,28 @@ Tilt::Output control(Tilt::Status_detail status, Tilt::Goal goal){
 				default: assert(0);
 			}
 		case Tilt::Goal::Mode::GO_TO_ANGLE:
-			nyi
+			{
+				const double POWER=1;
+				const double SLOW=(POWER/5);
+				switch (status.type()) {
+					case Tilt::Status_detail::Type::MID:
+						{
+							double error=goal.angle()[1]-status.get_angle();
+							double desired_power=error*SLOW;
+							if(desired_power>POWER)return POWER;
+							if(desired_power<-POWER)return -POWER;
+							return desired_power;
+						}
+					case Tilt::Status_detail::Type::TOP:
+						return -POWER;
+					case Tilt::Status_detail::Type::BOTTOM:
+						return POWER;
+					case Tilt::Status_detail::Type::ERRORS:
+						return 0.0;
+					default:
+						assert(0);
+				}
+			}
 		case Tilt::Goal::Mode::STOP: return 0;
 		default: assert(0);
 	}
