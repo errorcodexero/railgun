@@ -8,83 +8,43 @@
 using namespace std;
 
 Panel::Panel():
-	in_use(0),
-	auto_mode(Auto_mode::DO_NOTHING),
-	level_button(Level_button::DEFAULT),
-	operation_buttons(Operation_buttons::DEFAULT),
-	slide_pos(0.0),
-	override_height(0),
-	move_arm_to_pos(0),
-	can_nudge_small(0),
-	engage_kicker_height(0),
-	tote_nudge(0),
-	can_nudge(0),
-	stop(0),
-	target_type(0),
-	move_arm_one(0),
-	move_arm_cont(0),
-	bottom_mode(1)
+	in_use(0)	
 {}
 
-ostream& operator<<(ostream& o,Panel::Auto_mode a){
-	o<<" Auto_Mode(";
-	if(a==Panel::Auto_mode::DO_NOTHING)o<<"do_nothing";
-	else if(a==Panel::Auto_mode::MOVE)o<<"move";
-	else if(a==Panel::Auto_mode::CAN_GRAB)o<<"can_grab";
-	else assert(0);
-	o<<")";
-	return o;
+ostream& operator<<(ostream& o,Panel::Climber a){
+	o<<"Panel::Climber(";
+	#define X(name) if(a==Panel::Climber::name)o<<""#name;
+	X(UP) X(DOWN)
+	#undef X
+	return o<<")";
 }
 
-ostream& operator<<(ostream& o,Panel::Level_button a){
-	o<<" Level_button(";
-	if(a==Panel::Level_button::DEFAULT)o<<"default";
-	else if(a==Panel::Level_button::LEVEL0)o<<"0";
-	else if(a==Panel::Level_button::LEVEL1)o<<"1";
-	else if(a==Panel::Level_button::LEVEL2)o<<"2";
-	else if(a==Panel::Level_button::LEVEL3)o<<"3";
-	else if(a==Panel::Level_button::LEVEL4)o<<"4";
-	else if(a==Panel::Level_button::LEVEL5)o<<"5";	
-	else if(a==Panel::Level_button::LEVEL6)o<<"6";
-	else assert(0);
-	o<<")";
-	return o;
+ostream& operator<<(ostream& o,Panel::Collector a){
+	o<<"Panel::Collector(";
+	#define X(name) if(a==Panel::Collector::name)o<<""#name;
+	X(IN) X(OUT) X(OFF) X(AUTO)	
+	#undef X
+	return o<<")";
 }
 
-ostream& operator<<(ostream& o,Panel::Operation_buttons a){
-	o<<" Operation_buttons(";
-	if(a==Panel::Operation_buttons::CAN_NUDGE_SMALL)o<<"can_nudge_small";
-	else if(a==Panel::Operation_buttons::ENGAGE_KICKER_HEIGHT)o<<"engage_kicker_height";
-	else if(a==Panel::Operation_buttons::TOTE_NUDGE)o<<"tote_nudge";
-	else if(a==Panel::Operation_buttons::CAN_NUDGE)o<<"can_nudge";
-	else if(a==Panel::Operation_buttons::DEFAULT)o<<"default";
-	else assert(0);
-	o<<")";
-	return o;
+ostream& operator<<(ostream& o,Panel::Tilt a){
+	o<<"Panel::Tilt(";
+	#define X(name) if(a==Panel::Tilt::name)o<<""#name;
+	X(UP) X(DOWN) X(STOP) X(AUTO)
+	#undef X
+	return o<<")";
 }
+
+ostream& operator<<(ostream& o, Panel::Auto_mode a){
+	o<<"Auto_mode(";
+	#define X(name) if(a==Panel::Auto_mode::name)o<<""#name;
+	X(NOTHING) X(MOVE) X(SHOOT)
+	#undef X
+	return o<<")";
 
 ostream& operator<<(ostream& o,Panel p){
 	o<<"Panel(";
-	o<<p.in_use;
-	o<<" "<<p.auto_mode;
-	o<<", "<<p.level_button;
-	o<<", "<<p.operation_buttons;
-	o<<", slide_pos:"<<p.slide_pos;
-	o<<", override_height:"<<p.override_height;
-	o<<", Buttons(";
-	o<<" move_arm_to_pos:"<<p.move_arm_to_pos;
-	o<<", can_nudge_small:"<<p.can_nudge_small;
-	o<<", engage_kicker_height:"<<p.engage_kicker_height;
-	o<<", tote_nudge:"<<p.tote_nudge;
-	o<<", can_nudge:"<<p.can_nudge;
-	o<<", stop:"<<p.stop;
-	o<<", 3_pos_switches(";
-	o<<" target_type:"<<p.target_type;
-	o<<", move_arm_one:"<<p.move_arm_one;
-	o<<", move_arm_cont:"<<p.move_arm_cont;
-	o<<", bottom_mode:"<<p.bottom_mode<<")";
-	o<<")";
-	return o;
+	return o<<")";
 }
 
 Panel::Auto_mode auto_mode_convert(int potin){
@@ -92,9 +52,9 @@ Panel::Auto_mode auto_mode_convert(int potin){
 		case 1:
 			return Panel::Auto_mode::MOVE;
 		case 2:
-			return Panel::Auto_mode::CAN_GRAB;
+			return Panel::Auto_mode::SHOOT;
 		default:
-			return Panel::Auto_mode::DO_NOTHING;
+			return Panel::Auto_mode::NOTHING;
 	}
 }
 
