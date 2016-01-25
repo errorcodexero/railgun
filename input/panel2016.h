@@ -7,15 +7,21 @@
 struct Panel{
 	bool in_use;
    	//Buttons:
-	bool stop_climb;
+	bool eject;
 	bool activate_tilt;
-	//2 position switches: 
-	enum class Climber{UP,DOWN};
-	Climber climber;
-	//4 position switches: 
-	enum class Collector{IN,OUT,OFF,AUTO};
+	bool collect;
+	bool reflect;
+	bool stow;
+	bool open_portcullis;
+	bool lower_cheval;
+	//2 position swicthes:
+	
+	//3 position switches: 
+	enum class Climber{UP,STOP,DOWN};
+	Climber climber; 
+	enum class Collector{IN,OUT,OFF};
 	Collector front, sides;
-	enum class Tilt{UP,DOWN,STOP,AUTO};
+	enum class Tilt{UP,DOWN,STOP};
 	Tilt tilt;
 	//10 position switches:
 	enum class Auto_mode{NOTHING,MOVE,SHOOT};

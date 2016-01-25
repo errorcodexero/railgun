@@ -22,7 +22,7 @@ ostream& operator<<(ostream& o,Panel::Climber a){
 ostream& operator<<(ostream& o,Panel::Collector a){
 	o<<"Panel::Collector(";
 	#define X(name) if(a==Panel::Collector::name)o<<""#name;
-	X(IN) X(OUT) X(OFF) X(AUTO)	
+	X(IN) X(OUT) X(OFF)	
 	#undef X
 	return o<<")";
 }
@@ -30,7 +30,7 @@ ostream& operator<<(ostream& o,Panel::Collector a){
 ostream& operator<<(ostream& o,Panel::Tilt a){
 	o<<"Panel::Tilt(";
 	#define X(name) if(a==Panel::Tilt::name)o<<""#name;
-	X(UP) X(DOWN) X(STOP) X(AUTO)
+	X(UP) X(DOWN) X(STOP)
 	#undef X
 	return o<<")";
 }
