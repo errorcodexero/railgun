@@ -38,8 +38,21 @@ struct Climb{
 	Output_applicator output_applicator;
 };
 
-set<Climb::Input> examples(Climb::Input*);
-set<Climb::Goal> examples(Climb::Goal*);
-set<Climb::Status_detail> examples(Climb::Status_detail*);
+std::ostream& operator<<(std::ostream&,Climb);
+std::ostream& operator<<(std::ostream&,Climb::Goal);
+std::ostream& operator<<(std::ostream&,Climb::Input);
+std::ostream& operator<<(std::ostream&,Climb::Status_detail);
+
+bool operator==(Climb::Input,Climb::Input);
+bool operator==(Climb::Status_detail,Climb::Status_detail);
+bool operator<(Climb::Status_detail,Climb::Status_detail);
+
+std::set<Climb::Input> examples(Climb::Input*);
+std::set<Climb::Goal> examples(Climb::Goal*);
+std::set<Climb::Status_detail> examples(Climb::Status_detail*);
+
+Climb::Output control(Climb::Status_detail,Climb::Goal);
+Climb::Status status(Climb::Status_detail);
+bool ready(Climb::Status,Climb::Goal);
 
 #endif
