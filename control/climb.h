@@ -44,10 +44,23 @@ std::ostream& operator<<(std::ostream&,Climb::Input);
 std::ostream& operator<<(std::ostream&,Climb::Status_detail);
 
 bool operator==(Climb::Input,Climb::Input);
+bool operator!=(Climb::Input,Climb::Input);
 bool operator<(Climb::Input,Climb::Input);
+
 bool operator<(Climb::Goal,Climb::Goal);
+
 bool operator==(Climb::Status_detail,Climb::Status_detail);
+bool operator!=(Climb::Status_detail,Climb::Status_detail);
 bool operator<(Climb::Status_detail,Climb::Status_detail);
+
+bool operator==(Climb::Input_reader,Climb::Input_reader);
+bool operator==(Climb::Output_applicator,Climb::Output_applicator);
+
+bool operator==(Climb::Estimator,Climb::Estimator);
+bool operator!=(Climb::Estimator,Climb::Estimator);
+
+bool operator==(Climb,Climb);
+bool operator!=(const Climb,const Climb);
 
 std::set<Climb::Input> examples(Climb::Input*);
 std::set<Climb::Goal> examples(Climb::Goal*);

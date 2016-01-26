@@ -23,12 +23,24 @@ std::ostream& operator<<(std::ostream& o,Climb){
 }
 
 bool operator==(Climb::Input,Climb::Input){ return true; }
+bool operator!=(Climb::Input,Climb::Input){ return false; }
 bool operator<(Climb::Input,Climb::Input){ return false; }
+
 bool operator<(Climb::Goal a,Climb::Goal b){
 	return ((b==Climb::Goal::UP && a!=b) || (b==Climb::Goal::STOP && a==Climb::Goal::DOWN));
 }
 bool operator==(Climb::Status_detail,Climb::Status_detail){ return true; }
+bool operator!=(Climb::Status_detail a,Climb::Status_detail b){ return !(a==b); }
 bool operator<(Climb::Status_detail,Climb::Status_detail){ return false; }
+
+bool operator==(Climb::Input_reader,Climb::Input_reader){ return true; }
+bool operator==(Climb::Output_applicator,Climb::Output_applicator){ return true; }
+
+bool operator==(Climb::Estimator,Climb::Estimator){ return true; }
+bool operator!=(Climb::Estimator,Climb::Estimator){ return false; }
+
+bool operator==(Climb a,Climb b){ return (a.input_reader==b.input_reader && a.estimator==b.estimator && a.output_applicator==b.output_applicator); }
+bool operator!=(const Climb a,const Climb b){ return !(a==b); }
 
 Climb::Status_detail Climb::Estimator::get()const{
 	return {};

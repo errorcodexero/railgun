@@ -8,6 +8,7 @@
 #include "tilt.h"
 #include "sides.h"
 #include "front.h"
+#include "climb.h"
 
 #define TOPLEVEL_ITEMS\
 	X(Drivebase,drive,)\
@@ -15,7 +16,8 @@
 	X(Tote_sensors,tote_sensors,Tote_sensors::Goal{})\
 	X(Tilt,tilt,Tilt::Goal::stop())\
 	X(Sides,sides,Sides::Goal::OFF)\
-	X(Front,front,Front::Goal::OFF)
+	X(Front,front,Front::Goal::OFF) \
+	X(Climb,climb,Climb::Goal::STOP)
 
 class Toplevel{
 	public:

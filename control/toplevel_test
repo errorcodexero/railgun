@@ -7,6 +7,7 @@ g++ -Wall -Werror -std=c++0x -DTOPLEVEL_TEST \
 	pump.cpp \
 	sides.cpp \
 	front.cpp \
+	climb.cpp \
 	../util/point.cpp \
 	drivebase.cpp \
 	../util/interface.cpp \
