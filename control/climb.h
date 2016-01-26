@@ -60,7 +60,7 @@ bool operator==(Climb::Estimator,Climb::Estimator);
 bool operator!=(Climb::Estimator,Climb::Estimator);
 
 bool operator==(Climb,Climb);
-bool operator!=(const Climb,const Climb);
+bool operator!=(Climb,Climb);
 
 std::set<Climb::Input> examples(Climb::Input*);
 std::set<Climb::Goal> examples(Climb::Goal*);

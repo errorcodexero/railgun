@@ -310,7 +310,8 @@ set<Toplevel::Status_detail> examples(Toplevel::Status_detail*){
 		Tote_sensors::Status_detail{},
 		*examples((Tilt::Status_detail*)0).begin(),
 		Sides::Status_detail{},
-		Front::Status_detail{}
+		Front::Status_detail{},
+		Climb::Status_detail{}
 	}};
 }
 
@@ -329,7 +330,8 @@ set<Toplevel::Input> examples(Toplevel::Input*){
 		Tote_sensors::Input{0,0,0},
 		*examples((Tilt::Input*)0).begin(),
 		Sides::Input{},
-		Front::Input{}
+		Front::Input{},
+		Climb::Input{}
 	};
 	return {a};
 }

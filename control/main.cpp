@@ -129,8 +129,7 @@ Robot_outputs Main::operator()(Robot_inputs in,ostream&){
 	Joystick_data main_joystick=in.joystick[0];
 	Joystick_data gunner_joystick=in.joystick[1];
 	Panel oi_panel=interpret(in.joystick[2]);
-	if(!in.robot_mode.enabled || in.robot_mode.autonomous) oi_panel.level_button=Panel::Level_button::DEFAULT;
-	if(!in.robot_mode.enabled || in.robot_mode.autonomous) oi_panel.operation_buttons=Panel::Operation_buttons::DEFAULT;
+	//if(!in.robot_mode.enabled || in.robot_mode.autonomous);//todo: set oi to do nothing/stop
 		
 	force.update(
 		main_joystick.button[Gamepad_button::A],

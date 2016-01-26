@@ -40,7 +40,7 @@ bool operator==(Climb::Estimator,Climb::Estimator){ return true; }
 bool operator!=(Climb::Estimator,Climb::Estimator){ return false; }
 
 bool operator==(Climb a,Climb b){ return (a.input_reader==b.input_reader && a.estimator==b.estimator && a.output_applicator==b.output_applicator); }
-bool operator!=(const Climb a,const Climb b){ return !(a==b); }
+bool operator!=(Climb a,Climb b){ return !(a==b); }
 
 Climb::Status_detail Climb::Estimator::get()const{
 	return {};
