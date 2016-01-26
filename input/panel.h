@@ -15,13 +15,13 @@ struct Panel{
 	bool open_portcullis;
 	bool lower_cheval;
 	//2 position swicthes:
-	
+	bool collector_auto;
 	//3 position switches: 
 	enum class Climber{UP,STOP,DOWN};
 	Climber climber; 
-	enum class Collector{IN,OUT,OFF};
+	enum class Collector{IN,OFF,OUT};
 	Collector front, sides;
-	enum class Tilt{UP,DOWN,STOP};
+	enum class Tilt{UP,STOP,DOWN};
 	Tilt tilt;
 	//10 position switches:
 	enum class Auto_mode{NOTHING,MOVE,SHOOT};

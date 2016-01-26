@@ -8,7 +8,21 @@
 using namespace std;
 
 Panel::Panel():
-	in_use(0)	
+	in_use(0),
+	eject(0),
+	activate_tilt(0),
+	collect(0),
+	reflect(0),
+	stow(0),
+	open_portcullis(0),
+	lower_cheval(0),
+	collector_auto(0),
+	climber(Climber::STOP),
+	front(Collector::OFF),
+	sides(Collector::OFF),
+	tilt(Tilt::STOP),
+	auto_mode(Auto_mode::NOTHING),
+	angle(0)
 {}
 
 ostream& operator<<(ostream& o,Panel::Climber a){
@@ -36,15 +50,30 @@ ostream& operator<<(ostream& o,Panel::Tilt a){
 }
 
 ostream& operator<<(ostream& o, Panel::Auto_mode a){
-	o<<"Auto_mode(";
+	o<<"Panel::Auto_mode(";
 	#define X(name) if(a==Panel::Auto_mode::name)o<<""#name;
 	X(NOTHING) X(MOVE) X(SHOOT)
 	#undef X
 	return o<<")";
 }
 
-ostream& operator<<(ostream& o,Panel){
+ostream& operator<<(ostream& o,Panel p){
 	o<<"Panel(";
+	o<<"in_use:"<<p.in_use;
+	o<<", eject:"<<p.eject;
+	o<<", activate_tilt:"<<p.activate_tilt;
+	o<<", collect:"<<p.collect;
+	o<<", reflect:"<<p.reflect;
+	o<<", stow:"<<p.stow;
+	o<<", open_portcullis:"<<p.open_portcullis;
+	o<<", lower_cheval:"<<p.lower_cheval;
+	o<<", collector_auto:"<<p.collector_auto;
+	o<<", climber:"<<p.climber;
+	o<<", front:"<<p.front;
+	o<<", sides:"<<p.sides;
+	o<<", tilt:"<<p.tilt;
+	o<<", auto_mode:"<<p.auto_mode;
+	o<<", angle:"<<p.angle;
 	return o<<")";
 }
 
@@ -75,7 +104,7 @@ Panel interpret(Joystick_data d){
 	{
 		Volt auto_mode=d.axis[5];
 		p.auto_mode=auto_mode_convert(interpret_10_turn_pot(auto_mode));
-	}
+	}	
 	return p;
 }
 
