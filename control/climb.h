@@ -44,6 +44,8 @@ std::ostream& operator<<(std::ostream&,Climb::Input);
 std::ostream& operator<<(std::ostream&,Climb::Status_detail);
 
 bool operator==(Climb::Input,Climb::Input);
+bool operator<(Climb::Input,Climb::Input);
+bool operator<(Climb::Goal,Climb::Goal);
 bool operator==(Climb::Status_detail,Climb::Status_detail);
 bool operator<(Climb::Status_detail,Climb::Status_detail);
 
