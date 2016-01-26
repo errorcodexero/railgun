@@ -1,11 +1,11 @@
 HIGH PRIORITY
-	- Bug fixes - Everyone
 	- Change drivebase IOs if needed - Logan
 	- Change manipulators - Logan AFTER DESIGN OF SAID MANIPULATORS
 	- OI code - Matthew/Logan/Adrian DUE JAN 30 
 		
 
 NOT AS HIGH PRIORITY:
+	- Bug Fixes everyone - EVERYONE
 	- Logger & Diagnostics
 	- Autonomous - Tristan/Matthew DUE FEB 13
 	- Vision - Nick DUE FEB 18
