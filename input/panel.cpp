@@ -1,4 +1,4 @@
-#include "panel2016.h"
+#include "panel.h"
 #include <iostream>
 #include <stdlib.h> 
 #include "util.h"
@@ -79,7 +79,7 @@ Panel interpret(Joystick_data d){
 	return p;
 }
 
-#ifdef PANEL2016_TEST
+#ifdef PANEL_TEST
 Joystick_data driver_station_input_rand(){
 	Joystick_data r;
 	for(unsigned i=0;i<JOY_AXES;i++){

@@ -7,7 +7,7 @@
 #include "../util/countdown_timer.h"
 #include "../util/countup_timer.h"
 #include "toplevel.h"
-#include "../input/panel2016.h"
+#include "../input/panel.h"
 
 struct Main{
 	#define MODES X(TELEOP) X(AUTO_MOVE) 
