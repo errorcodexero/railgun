@@ -52,7 +52,7 @@ Toplevel::Goal Main::teleop(
 	static const float Y_NUDGE_POWER=.2;// ROTATE_NUDGE_POWER=.5;//nudge amounts 
 	static const double turbo_button=main_joystick.axis[Gamepad_axis::LTRIGGER], slow_button=main_joystick.axis[Gamepad_axis::RTRIGGER];//turbo and slow buttons	
 	
-	Drivebase::Goal &goal=goals.drive;	
+	Drivebase::Goal &goal=goals.drive;
 	if(!nudges[0].timer.done()){
 		goal.left=-Y_NUDGE_POWER;
 		goal.right=-Y_NUDGE_POWER;
@@ -71,13 +71,9 @@ Toplevel::Goal Main::teleop(
 	const float LIMIT=0.005;
 	const float SLOW_TURNING=.8;
 
-	if(fabs(goal.left)<LIMIT && fabs(goal.right)<LIMIT){
-		if(!nudges[2].timer.done()); 
-		else if(!nudges[3].timer.done()); 
-		else{
-			goal.left=(set_drive_speed(real_turning,turbo_button,slow_button))*SLOW_TURNING;
-			goal.right=(set_drive_speed(-real_turning,turbo_button,slow_button))*SLOW_TURNING;	
-		}
+	if(fabs(goal.left)<LIMIT && fabs(goal.right)<LIMIT && nudges[2].timer.done() && nudges[3].timer.done()){
+		goal.left=(set_drive_speed(real_turning,turbo_button,slow_button))*SLOW_TURNING;
+		goal.right=(set_drive_speed(-real_turning,turbo_button,slow_button))*SLOW_TURNING;
 	}
 
 	static const bool normal_nudge_enable=turbo_button<.25;	
@@ -88,9 +84,7 @@ Toplevel::Goal Main::teleop(
 		bool start=nudges[i].trigger(normal_nudge_enable && main_joystick.button[nudge_buttons[i]]);
 		if(start)nudges[i].timer.set(.1);
 		nudges[i].timer.update(in.now,1);
-	}
-	
-	
+	}	
 
 	goals.drive=goal;
 	return goals;

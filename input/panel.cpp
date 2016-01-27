@@ -93,18 +93,19 @@ Panel interpret(Joystick_data d){
 	{
 		p.in_use=[&](){
 			for(int i=0;i<JOY_AXES;i++) {
-				if(d.axis[i]!=0)return 1;
+				if(d.axis[i]!=0)return true;
 			}
 			for(int i=0;i<JOY_BUTTONS;i++) {
-				if(d.button[i]!=0)return 1;
+				if(d.button[i]!=0)return true;
 			}
-			return 0;
+			return false;
 		}();
 	}
 	{
 		Volt auto_mode=d.axis[5];
 		p.auto_mode=auto_mode_convert(interpret_10_turn_pot(auto_mode));
-	}	
+	}
+	
 	return p;
 }
 
