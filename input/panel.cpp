@@ -9,8 +9,8 @@ using namespace std;
 
 Panel::Panel():
 	in_use(0),
+	control_tilt(0),
 	eject(0),
-	activate_tilt(0),
 	collect(0),
 	reflect(0),
 	stow(0),
@@ -28,7 +28,7 @@ Panel::Panel():
 ostream& operator<<(ostream& o,Panel::Climber a){
 	o<<"Panel::Climber(";
 	#define X(name) if(a==Panel::Climber::name)o<<""#name;
-	X(UP) X(DOWN)
+	X(EXTEND) X(STOP) X(RETRACT)
 	#undef X
 	return o<<")";
 }
@@ -60,8 +60,8 @@ ostream& operator<<(ostream& o, Panel::Auto_mode a){
 ostream& operator<<(ostream& o,Panel p){
 	o<<"Panel(";
 	o<<"in_use:"<<p.in_use;
+	o<<", control_tilt:"<<p.control_tilt;
 	o<<", eject:"<<p.eject;
-	o<<", activate_tilt:"<<p.activate_tilt;
 	o<<", collect:"<<p.collect;
 	o<<", reflect:"<<p.reflect;
 	o<<", stow:"<<p.stow;
@@ -89,6 +89,7 @@ Panel::Auto_mode auto_mode_convert(int potin){
 }
 
 Panel interpret(Joystick_data d){
+	#define AXIS_RANGE(axis, last, curr, next, button) if (axis > curr-(curr-last)/2 && axis < curr+(next-curr)) button = 1;
 	Panel p;
 	{
 		p.in_use=[&](){
@@ -102,10 +103,23 @@ Panel interpret(Joystick_data d){
 		}();
 	}
 	{
-		Volt auto_mode=d.axis[5];
+		Volt auto_mode=d.axis[0];
 		p.auto_mode=auto_mode_convert(interpret_10_turn_pot(auto_mode));
 	}
-	
+	{
+		float op=d.axis[1];
+		static const float DEFAULT=-1, COLLECT=-.7, REFLECT=-.4, EJECT=0, STOW=.4, PORTCULLIS=.7, CHEVAL=1;
+		#define X(button) p.button = 0;
+		X(collect) X(reflect) X(eject) X(stow) X(open_portcullis) X(lower_cheval)
+		#undef X
+		AXIS_RANGE(op, DEFAULT, COLLECT, REFLECT, p.collect)
+		else AXIS_RANGE(op, COLLECT, REFLECT, EJECT, p.reflect)
+		else AXIS_RANGE(op, REFLECT, EJECT, STOW, p.eject)
+		else AXIS_RANGE(op, EJECT, STOW, PORTCULLIS, p.stow)
+		else AXIS_RANGE(op, STOW, PORTCULLIS, CHEVAL, p.open_portcullis)
+		else AXIS_RANGE(op, PORTCULLIS, CHEVAL, 1.5, p.lower_cheval)
+	}
+	#undef AXIS_RANGE
 	return p;
 }
 

@@ -7,8 +7,8 @@
 struct Panel{
 	bool in_use;
    	//Buttons:
+	bool control_tilt;
 	bool eject;
-	bool activate_tilt;
 	bool collect;
 	bool reflect;
 	bool stow;
@@ -17,7 +17,7 @@ struct Panel{
 	//2 position swicthes:
 	bool collector_auto;
 	//3 position switches: 
-	enum class Climber{UP,STOP,DOWN};
+	enum class Climber{EXTEND,STOP,RETRACT};
 	Climber climber; 
 	enum class Collector{IN,OFF,OUT};
 	Collector front, sides;
@@ -26,7 +26,7 @@ struct Panel{
 	//10 position switches:
 	enum class Auto_mode{NOTHING,MOVE,SHOOT};
 	Auto_mode auto_mode;
-	//Dial
+	//Dials
 	double angle;
 	Panel();
 };
