@@ -1,6 +1,8 @@
 HIGH PRIORITY
 	- Drivebase - Logan DUE JAN 30
-	- Write manipulator code into main - Logan
+	- Write shooter code - Need to wait until shooter is decided upon for completion
+	- Add sensor input into collector code to automate modes - Logan/Matthew
+	- Write climber, collector, and shooter code into main - Anyone
 	- OI code - Matthew/Logan/Adrian DUE JAN 30 
 		
 
