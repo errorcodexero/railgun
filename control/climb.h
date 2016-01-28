@@ -10,11 +10,30 @@
 struct Climb{
 	enum class Goal{UP,STOP,DOWN};
 	
-	struct Status_detail{};
+	class Status_detail{
+                public:
+		enum class Type{TOP,BOTTOM,MID,ERRORS};
+                std::pair<bool,bool> reached_ends;
+
+                private:
+                Status_detail();
+
+                Type type_;
+
+                public:
+                Type type()const;
+
+                static Status_detail top();
+                static Status_detail mid();
+                static Status_detail bottom();
+                static Status_detail error();	
+	};
 
 	typedef Status_detail Status;
 	
-	struct Input{};
+	struct Input{
+		bool top,bottom;
+	};
 
 	struct Input_reader{
 		Climb::Input operator()(Robot_inputs)const;
@@ -29,6 +48,8 @@ struct Climb{
 	};
 	
 	struct Estimator{
+		Climb::Status_detail last;
+		Estimator();
 		Climb::Status_detail get()const;
 		void update(Time,Input,Output);
 	};

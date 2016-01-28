@@ -51,8 +51,7 @@ struct Tilt{
 		static Status_detail top();
 		static Status_detail mid(double);
 		static Status_detail bottom();	
-		static Status_detail error();	
-	
+		static Status_detail error();
 	};
 
 	typedef Status_detail Status;
