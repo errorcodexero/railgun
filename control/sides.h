@@ -12,11 +12,16 @@ using namespace std;
 struct Sides{
 	enum class Goal{IN,OFF,OUT};
 	
-	struct Status_detail{};
+	struct Status_detail{
+		bool has_ball;
+		Status_detail();
+	};
 
 	typedef Status_detail Status;
 
-	struct Input{};
+	struct Input{
+		bool has_ball;
+	};
 	
 	struct Input_reader{
 		Sides::Input operator()(Robot_inputs)const;

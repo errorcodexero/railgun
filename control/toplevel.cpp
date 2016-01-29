@@ -137,7 +137,10 @@ Toplevel::Status::Status():
 		0
 	),
 	pump(Pump::Status::NOT_FULL),
-	tilt(Tilt::Status::mid(0))
+	tilt(Tilt::Status::mid(0)),
+	sides(Sides::Status{}),
+	front(Front::Status{}),
+	climb(Climb::Status::mid())
 {}
 
 bool operator==(Toplevel::Status a,Toplevel::Status b){
@@ -309,9 +312,9 @@ set<Toplevel::Status_detail> examples(Toplevel::Status_detail*){
 		Pump::Status_detail{},
 		Tote_sensors::Status_detail{},
 		*examples((Tilt::Status_detail*)0).begin(),
-		Sides::Status_detail{},
-		Front::Status_detail{},
-		Climb::Status_detail{}
+		*examples((Sides::Status_detail*)0).begin(),
+		*examples((Front::Status_detail*)0).begin(),
+		*examples((Climb::Status_detail*)0).begin()
 	}};
 }
 
@@ -329,9 +332,9 @@ set<Toplevel::Input> examples(Toplevel::Input*){
 		Pump::Input{},
 		Tote_sensors::Input{0,0,0},
 		*examples((Tilt::Input*)0).begin(),
-		Sides::Input{},
-		Front::Input{},
-		Climb::Input{}
+		Sides::Input{0},
+		Front::Input{0},
+		Climb::Input{0,0}
 	};
 	return {a};
 }

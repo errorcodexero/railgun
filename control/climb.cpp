@@ -1,8 +1,9 @@
 #include "climb.h"
 #include <stdlib.h>
 
-#define CLIMB_ADDRESS 3
+#define CLIMB_ADDRESS 4
 #define CLIMB_SPEED 1
+
 Climb::Status_detail::Type Climb::Status_detail::type()const{ return type_; }
 
 Climb::Status_detail::Status_detail():reached_ends(std::make_pair(false,false)),type_(Climb::Status_detail::Type::MID){}

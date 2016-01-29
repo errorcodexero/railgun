@@ -7,7 +7,8 @@ Tilt::Status_detail::Status_detail():
 	reached_ends(std::make_pair(0,0)),
 	stalled(0),
 	type_(Tilt::Status_detail::Type::MID),
-	angle(0)
+	angle(0),
+	has_ball(0)
 {}
 
 Tilt::Goal::Goal():mode_(Tilt::Goal::Mode::STOP),angle_min(0),angle_target(0),angle_max(0){}
@@ -31,7 +32,8 @@ Robot_inputs Tilt::Input_reader::operator()(Robot_inputs all,Tilt::Input in)cons
         t.rev_limit_switch=in.bottom;
         t.encoder_position=in.ticks;
         t.current=in.current;
-        return all;
+        all.digital_io.in[6]=in.has_ball? Digital_in::_1 : Digital_in::_0;
+	return all;
 }
 
 Tilt::Input Tilt::Input_reader::operator()(Robot_inputs all)const{
@@ -39,6 +41,7 @@ Tilt::Input Tilt::Input_reader::operator()(Robot_inputs all)const{
         return Tilt::Input{
                 t.fwd_limit_switch,
                 t.rev_limit_switch,
+		all.digital_io.in[6]==Digital_in::_1,
                 t.encoder_position,
                 t.current
         };
@@ -213,10 +216,14 @@ bool operator!=(Tilt a, Tilt b){ return !(a==b); }
 
 std::set<Tilt::Input> examples(Tilt::Input*){ 
 	return  {
-		Tilt::Input{0,0,0,0},
-		Tilt::Input{0,1,0,0},
-		Tilt::Input{1,0,0,0},
-		Tilt::Input{1,1,0,0}
+		Tilt::Input{0,0,0,0,0},
+		Tilt::Input{0,1,0,0,0},
+		Tilt::Input{1,0,0,0,0},
+		Tilt::Input{1,1,0,0,0},
+		Tilt::Input{0,0,1,0,0},
+		Tilt::Input{0,1,1,0,0},
+		Tilt::Input{1,0,1,0,0},
+		Tilt::Input{1,1,1,0,0}
 	};
 }
 std::set<Tilt::Goal> examples(Tilt::Goal*){

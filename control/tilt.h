@@ -47,7 +47,8 @@ struct Tilt{
 		public:
 		Type type()const;
 		double get_angle()const;
-		
+		bool has_ball;		
+
 		static Status_detail top();
 		static Status_detail mid(double);
 		static Status_detail bottom();	
@@ -58,7 +59,7 @@ struct Tilt{
 
 	#define TILT_INPUT(X) X(bool,top) X(bool,bottom) X(int,ticks) X(double,current)
 	struct Input{
-		bool top, bottom;
+		bool top, bottom, has_ball;
 		int ticks;
 		double current;
 	};
