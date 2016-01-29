@@ -5,6 +5,8 @@
 
 Climb::Status_detail::Type Climb::Status_detail::type()const{ return type_; }
 
+Climb::Status_detail::Status_detail():reached_ends(std::make_pair(false,false)),type_(Climb::Status_detail::Type::MID){}
+
 Climb::Status_detail Climb::Status_detail::top(){
 	Climb::Status_detail a;
 	a.type_=Climb::Status_detail::Type::TOP;
@@ -28,8 +30,6 @@ Climb::Status_detail Climb::Status_detail::error(){
 	a.type_=Climb::Status_detail::Type::ERRORS;
 	return a;
 }
-
-Climb::Status_detail::Status_detail():reached_ends(std::make_pair(false,false)),type_(Climb::Status_detail::Type::MID){}
 
 Climb::Estimator::Estimator():last(Status_detail::error()){}
 
@@ -68,7 +68,14 @@ bool operator<(Climb::Goal a,Climb::Goal b){
 }
 bool operator==(Climb::Status_detail a,Climb::Status_detail b){ return (a.type()==b.type() && a.reached_ends==b.reached_ends); }
 bool operator!=(Climb::Status_detail a,Climb::Status_detail b){ return !(a==b); }
-bool operator<(Climb::Status_detail a,Climb::Status_detail b){ return (a.type()<b.type() && a.reached_ends<b.reached_ends); }
+
+bool operator<(Climb::Status_detail a, Climb::Status_detail b){
+        if(a.type()<b.type())return true;
+	if(a.type()>b.type())return false;
+        if(a.reached_ends<b.reached_ends)return true;
+        return false;
+}
+
 
 bool operator==(Climb::Input_reader,Climb::Input_reader){ return true; }
 bool operator==(Climb::Output_applicator,Climb::Output_applicator){ return true; }
@@ -127,12 +134,7 @@ std::set<Climb::Goal> examples(Climb::Goal*){
 }
 
 std::set<Climb::Status_detail> examples(Climb::Status_detail*){
-	std::set<Climb::Status_detail> a;
-	a.insert(Climb::Status_detail::mid());
-	a.insert(Climb::Status_detail::top());
-	a.insert(Climb::Status_detail::bottom());
-	a.insert(Climb::Status_detail::error());
-	return a;
+	return {Climb::Status_detail::top(),Climb::Status_detail::mid(),Climb::Status_detail::bottom(),Climb::Status_detail::error()};
 }
 
 Climb::Output control(Climb::Status_detail status,Climb::Goal goal){
