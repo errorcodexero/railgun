@@ -6,3 +6,4 @@ tobj/
 *~
 *.tmp
 t.mk
+*.swp

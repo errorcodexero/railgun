@@ -7,7 +7,7 @@
 struct Panel{
 	bool in_use;
    	//Buttons:
-	bool control_tilt;
+	bool control_angle;
 	bool eject;
 	bool collect;
 	bool reflect;
