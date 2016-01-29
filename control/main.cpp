@@ -22,7 +22,7 @@ ostream& operator<<(ostream& o,Main::Mode a){
 Main::Main():mode(Mode::TELEOP),autonomous_start(0),button_mode(Button_mode::MANUAL){}
 
 double set_drive_speed(double a,double boost,double slow){
-	static const float DEFAULT_SPEED=.35;//Change these value to change the default speed
+	static const float DEFAULT_SPEED=.75;//Change these value to change the default speed
 	static const float SLOW_BY=.5;//Change this value to change the percentage of the default speed the slow button slows
 	return pow(a,3)*((DEFAULT_SPEED+(1-DEFAULT_SPEED)*boost)-((DEFAULT_SPEED*SLOW_BY)*slow));
 }
