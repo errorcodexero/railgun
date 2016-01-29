@@ -129,7 +129,7 @@ Panel interpret(Joystick_data d){
 			else AXIS_RANGE(climb, STOP, EXTEND, 1.5, p.climber, Panel::Climber::EXTEND)
 		}
 		{
-			float front = d.axis[8];
+			float front = d.axis[5];
 			static const float IN=-1, OFF=0, OUT=1;
 			p.front = Panel::Collector::IN;
 			AXIS_RANGE(front, IN, OFF, OUT, p.front, Panel::Collector::OFF)
