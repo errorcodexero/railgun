@@ -1,8 +1,8 @@
 #include "climb.h"
 #include <stdlib.h>
 
-#define CLIMB_ADDRESS 2
-
+#define CLIMB_ADDRESS 3
+#define CLIMB_SPEED 1
 Climb::Status_detail::Type Climb::Status_detail::type()const{ return type_; }
 
 Climb::Status_detail::Status_detail():reached_ends(std::make_pair(false,false)),type_(Climb::Status_detail::Type::MID){}
@@ -103,9 +103,9 @@ Robot_inputs Climb::Input_reader::operator()(Robot_inputs r,Climb::Input in)cons
 }
 
 Climb::Output Climb::Output_applicator::operator()(Robot_outputs r)const{
-	double power=r.talon_srx[CLIMB_ADDRESS].power_level;
-	if(power==1)return Climb::Output::UP;
-	else if(power==-1)return Climb::Output::DOWN;
+	double power=r.pwm[CLIMB_ADDRESS];
+	if(power==CLIMB_SPEED)return Climb::Output::UP;
+	else if(power==-CLIMB_SPEED)return Climb::Output::DOWN;
 	return Climb::Output::STOP;
 }
 
@@ -113,15 +113,15 @@ Robot_outputs Climb::Output_applicator::operator()(Robot_outputs r,Climb::Output
 	double power=0;
 	switch(out){
 		case Climb::Output::UP: 
-			power=1;
+			power=CLIMB_SPEED;
 			break;
 		case Climb::Output::DOWN:
-			power=-1;
+			power=-CLIMB_SPEED;
 			break;
 		default:
 			power=0;
 	}
-	r.talon_srx[CLIMB_ADDRESS].power_level=power;
+	r.pwm[CLIMB_ADDRESS]=power;
 	return r;
 }
 
