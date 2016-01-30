@@ -1,9 +1,10 @@
 HIGH PRIORITY
+	- Change tilt motor controller from talon srx to victor - Anyone
 	- Check/change manipulator IOs when they're decided on for sure - Anyone 
 	- Write shooter code (Need to wait until shooter design for completion) - Matthew/Logan
 	- Add automation option for collector modes - Anyone
 	- Write climber, collector, and shooter code into main - Anyone
-	- OI code - Matthew/Logan/Adrian DUE JAN 30 
+	- OI code - Matthew/Logan/Adrian DUE FED 06 
 	
 
 NOT AS HIGH PRIORITY:
