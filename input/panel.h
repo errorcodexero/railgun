@@ -27,7 +27,7 @@ struct Panel{
 	enum class Auto_mode{NOTHING,MOVE,SHOOT};
 	Auto_mode auto_mode;
 	//Dials
-	double angle;
+	float angle;
 	Panel();
 };
 

@@ -106,9 +106,10 @@ Panel interpret(Joystick_data d){
 		Volt auto_mode=d.axis[0];
 		p.auto_mode=auto_mode_convert(interpret_10_turn_pot(auto_mode));
 	}
-	p.collector_auto = d.button[0];
+	p.collector_auto = d.button[1];
+	p.control_angle = d.button[0];
 	{
-		float op = d.axis[1];
+		float op = d.axis[3];
 		static const float DEFAULT=-1, COLLECT=-.7, REFLECT=-.4, EJECT=0, STOW=.4, PORTCULLIS=.7, CHEVAL=1;
 		#define X(button) p.button = 0;
 		X(collect) X(reflect) X(eject) X(stow) X(open_portcullis) X(lower_cheval)
@@ -120,36 +121,35 @@ Panel interpret(Joystick_data d){
 		else AXIS_RANGE(op, STOW, PORTCULLIS, CHEVAL, p.open_portcullis, 1)
 		else AXIS_RANGE(op, PORTCULLIS, CHEVAL, 1.5, p.lower_cheval, 1)
 	}
-	if (p.collector_auto) {
-		{
-			float climb = d.axis[3];
-			static const float RETRACT=-1, STOP=0, EXTEND=1;
-			p.climber = Panel::Climber::RETRACT;
-			AXIS_RANGE(climb, RETRACT, STOP, EXTEND, p.climber, Panel::Climber::STOP)
-			else AXIS_RANGE(climb, STOP, EXTEND, 1.5, p.climber, Panel::Climber::EXTEND)
-		}
-		{
-			float front = d.axis[5];
-			static const float IN=-1, OFF=0, OUT=1;
-			p.front = Panel::Collector::IN;
-			AXIS_RANGE(front, IN, OFF, OUT, p.front, Panel::Collector::OFF)
-			else AXIS_RANGE(front, OFF, OUT, 1.5, p.front, Panel::Collector::OUT)
-		}
-		{
-			float sides = d.axis[6];
-                        static const float IN=-1, OFF=0, OUT=1;
-                        p.sides = Panel::Collector::IN;
-                        AXIS_RANGE(sides, IN, OFF, OUT, p.sides, Panel::Collector::OFF)
-                        else AXIS_RANGE(sides, OFF, OUT, 1.5, p.sides, Panel::Collector::OUT)
-		}
-		{
-			float tilt = d.axis[5];
-			static const float DOWN=-1, STOP=0, UP=1;
-			p.tilt = Panel::Tilt::DOWN;
-			AXIS_RANGE(tilt, DOWN, STOP, UP, p.tilt, Panel::Tilt::STOP)
-			else AXIS_RANGE(tilt, STOP, UP, 1.5, p.tilt, Panel::Tilt::UP);
-		}
+	{
+		float climb = d.axis[3];
+		static const float RETRACT=-1, STOP=0, EXTEND=1;
+		p.climber = Panel::Climber::RETRACT;
+		AXIS_RANGE(climb, RETRACT, STOP, EXTEND, p.climber, Panel::Climber::STOP)
+		else AXIS_RANGE(climb, STOP, EXTEND, 1.5, p.climber, Panel::Climber::EXTEND)
 	}
+	{
+		float front = d.axis[7];
+		static const float IN=-1, OFF=0, OUT=1;
+		p.front = Panel::Collector::IN;
+		AXIS_RANGE(front, IN, OFF, OUT, p.front, Panel::Collector::OFF)
+		else AXIS_RANGE(front, OFF, OUT, 1.5, p.front, Panel::Collector::OUT)
+	}
+	{
+		float sides = d.axis[5];
+                static const float IN=-1, OFF=0, OUT=1;
+                p.sides = Panel::Collector::IN;
+                AXIS_RANGE(sides, IN, OFF, OUT, p.sides, Panel::Collector::OFF)
+                else AXIS_RANGE(sides, OFF, OUT, 1.5, p.sides, Panel::Collector::OUT)
+	}
+	{
+		float tilt = d.axis[4];
+		static const float DOWN=-1, STOP=0, UP=1;
+		p.tilt = Panel::Tilt::DOWN;
+		AXIS_RANGE(tilt, DOWN, STOP, UP, p.tilt, Panel::Tilt::STOP)
+		else AXIS_RANGE(tilt, STOP, UP, 1.5, p.tilt, Panel::Tilt::UP);
+	}
+	p.angle = d.axis[6];
 	#undef AXIS_RANGE
 	return p;
 }
