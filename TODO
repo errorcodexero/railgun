@@ -1,4 +1,5 @@
 HIGH PRIORITY
+	- Check/change manipulator IOs when they're decided on for sure - Anyone 
 	- Write shooter code (Need to wait until shooter design for completion) - Matthew/Logan
 	- Add automation option for collector modes - Anyone
 	- Write climber, collector, and shooter code into main - Anyone
@@ -6,6 +7,7 @@ HIGH PRIORITY
 	
 
 NOT AS HIGH PRIORITY:
+	- Write estimator into manipulators - Anyone
 	- Bug Fixes - EVERYONE
 	- Logger & Diagnostics
 	- Autonomous* - Tristan/Matthew DUE FEB 13
