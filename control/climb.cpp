@@ -43,7 +43,7 @@ std::ostream& operator<<(std::ostream& o,Climb::Status_detail::Type a){
 
 std::ostream& operator<<(std::ostream& o,Climb::Goal a){
 	#define X(name) if(a==Climb::Goal::name)return o<<"Climb::Goal("#name")";
-	X(UP) X(STOP) X(DOWN)
+	X(EXTEND) X(STOP) X(RETRACT)
 	#undef X
 	assert(0);
 }
@@ -65,7 +65,7 @@ bool operator!=(Climb::Input a,Climb::Input b){ return !(a==b); }
 bool operator<(Climb::Input a,Climb::Input b){ return (a.top<b.top && a.bottom<b.bottom); }
 
 bool operator<(Climb::Goal a,Climb::Goal b){
-	return ((b==Climb::Goal::UP && a!=b) || (b==Climb::Goal::STOP && a==Climb::Goal::DOWN));
+	return ((b==Climb::Goal::EXTEND && a!=b) || (b==Climb::Goal::STOP && a==Climb::Goal::RETRACT));
 }
 bool operator==(Climb::Status_detail a,Climb::Status_detail b){ return (a.type()==b.type() && a.reached_ends==b.reached_ends); }
 bool operator!=(Climb::Status_detail a,Climb::Status_detail b){ return !(a==b); }
@@ -105,18 +105,18 @@ Robot_inputs Climb::Input_reader::operator()(Robot_inputs r,Climb::Input in)cons
 
 Climb::Output Climb::Output_applicator::operator()(Robot_outputs r)const{
 	double power=r.pwm[CLIMB_ADDRESS];
-	if(power==CLIMB_SPEED)return Climb::Output::UP;
-	else if(power==-CLIMB_SPEED)return Climb::Output::DOWN;
+	if(power==CLIMB_SPEED)return Climb::Output::EXTEND;
+	else if(power==-CLIMB_SPEED)return Climb::Output::RETRACT;
 	return Climb::Output::STOP;
 }
 
 Robot_outputs Climb::Output_applicator::operator()(Robot_outputs r,Climb::Output out)const{
 	double power=0;
 	switch(out){
-		case Climb::Output::UP: 
+		case Climb::Output::EXTEND: 
 			power=CLIMB_SPEED;
 			break;
-		case Climb::Output::DOWN:
+		case Climb::Output::RETRACT:
 			power=-CLIMB_SPEED;
 			break;
 		default:
@@ -131,7 +131,7 @@ std::set<Climb::Input> examples(Climb::Input*){
 }
 
 std::set<Climb::Goal> examples(Climb::Goal*){
-	return {Climb::Goal::UP,Climb::Goal::STOP,Climb::Goal::DOWN};
+	return {Climb::Goal::EXTEND,Climb::Goal::STOP,Climb::Goal::RETRACT};
 }
 
 std::set<Climb::Status_detail> examples(Climb::Status_detail*){
@@ -140,8 +140,8 @@ std::set<Climb::Status_detail> examples(Climb::Status_detail*){
 
 Climb::Output control(Climb::Status_detail status,Climb::Goal goal){
 	switch(goal){
-		case Climb::Goal::UP: return status.type()==Climb::Status_detail::Type::TOP? Climb::Output::STOP : Climb::Output::UP;
-		case Climb::Goal::DOWN: return status.type()==Climb::Status_detail::Type::BOTTOM? Climb::Output::STOP : Climb::Output::DOWN;	
+		case Climb::Goal::EXTEND: return status.type()==Climb::Status_detail::Type::TOP? Climb::Output::STOP : Climb::Output::EXTEND;
+		case Climb::Goal::RETRACT: return status.type()==Climb::Status_detail::Type::BOTTOM? Climb::Output::STOP : Climb::Output::RETRACT;	
 		default: return Climb::Output::STOP;
 	}
 }
@@ -152,8 +152,8 @@ Climb::Status status(Climb::Status_detail a){
 
 bool ready(Climb::Status status,Climb::Goal goal){
 	switch(goal){
-		case Climb::Goal::UP: return status.type()==Climb::Status::Type::TOP;
-		case Climb::Goal::DOWN: return status.type()==Climb::Status::Type::BOTTOM;
+		case Climb::Goal::EXTEND: return status.type()==Climb::Status::Type::TOP;
+		case Climb::Goal::RETRACT: return status.type()==Climb::Status::Type::BOTTOM;
 		case Climb::Goal::STOP: return true;			
 		default: assert(0);
 	}

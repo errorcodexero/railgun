@@ -323,7 +323,7 @@ Tilt::Status_detail Tilt::Estimator::get()const {
 #include "formal.h"
 
 int main(){
-	Tilt a(1);
+	Tilt a(0);
 	tester(a);	
 }
 #endif

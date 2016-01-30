@@ -8,7 +8,7 @@
 #include "../util/driver_station_interface.h"
 
 struct Climb{
-	enum class Goal{UP,STOP,DOWN};
+	enum class Goal{EXTEND,STOP,RETRACT};
 	
 	class Status_detail{
                 public:
