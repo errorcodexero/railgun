@@ -80,7 +80,7 @@ try:
 		sp=sp[:-1]
 
 		for elem in sp:
-			if 'out:' in elem:
+			if 'CLEAR' in elem:
 				os.system('clear')
 				for ele in group:
 					print ele

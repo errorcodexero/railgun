@@ -22,9 +22,9 @@ ostream& operator<<(ostream& o,Main::Mode a){
 Main::Main():mode(Mode::TELEOP),autonomous_start(0),button_mode(Button_mode::MANUAL){}
 
 double set_drive_speed(double a,double boost,double slow){
-	static const float DEFAULT_SPEED=.75;//Change these value to change the default speed
+	static const float DEFAULT_SPEED=.5;//Change these value to change the default speed
 	static const float SLOW_BY=.5;//Change this value to change the percentage of the default speed the slow button slows
-	return pow(a,3)*((DEFAULT_SPEED+(1-DEFAULT_SPEED)*boost)-((DEFAULT_SPEED*SLOW_BY)*slow));
+	return (pow(a,3)*((DEFAULT_SPEED+(1-DEFAULT_SPEED)*boost)-((DEFAULT_SPEED*SLOW_BY)*slow)));
 }
 
 template<typename T>//Compares two types to see if one is within a range
@@ -49,32 +49,36 @@ Toplevel::Goal Main::teleop(
 ){
 	Toplevel::Goal goals;
 
-	static const float Y_NUDGE_POWER=.2;// ROTATE_NUDGE_POWER=.5;//nudge amounts 
-	static const double turbo_button=main_joystick.axis[Gamepad_axis::LTRIGGER], slow_button=main_joystick.axis[Gamepad_axis::RTRIGGER];//turbo and slow buttons	
+	//static const float Y_NUDGE_POWER=.2;// ROTATE_NUDGE_POWER=.5;//nudge amounts 
+	double turbo_button=main_joystick.axis[Gamepad_axis::LTRIGGER], slow_button=main_joystick.axis[Gamepad_axis::RTRIGGER];//turbo and slow buttons		
 	
 	Drivebase::Goal &goal=goals.drive;
-	if(!nudges[0].timer.done()){
+	/*if(!nudges[0].timer.done()){
 		goal.left=-Y_NUDGE_POWER;
 		goal.right=-Y_NUDGE_POWER;
 	}
 	else if(!nudges[1].timer.done()){
 		goal.left=Y_NUDGE_POWER;
 		goal.right=Y_NUDGE_POWER;
-	}
-	else{
+	}*/
+	//else{
 		goal.left=set_drive_speed(main_joystick.axis[Gamepad_axis::LEFTY],turbo_button,slow_button);
-		goal.right=set_drive_speed(main_joystick.axis[Gamepad_axis::RIGHTY],turbo_button,slow_button);
-	}
-	
-	static const double TURNING=.75;
-	double real_turning = main_joystick.button[Gamepad_button::LB] ? TURNING : (main_joystick.button[Gamepad_button::RB] ? -TURNING : 0); 
-	const float LIMIT=0.005;
-	const float SLOW_TURNING=.8;
+		goal.right=set_drive_speed(main_joystick.axis[Gamepad_axis::LEFTY],turbo_button,slow_button);
+	//}	
 
-	if(fabs(goal.left)<LIMIT && fabs(goal.right)<LIMIT && nudges[2].timer.done() && nudges[3].timer.done()){
+	//static const double TURNING=.75;
+	//double real_turning = main_joystick.button[Gamepad_button::LB] ? TURNING : (main_joystick.button[Gamepad_button::RB] ? -TURNING : 0); 
+	//const float LIMIT=0.005;
+	//const float SLOW_TURNING=.8;
+
+	if(fabs(main_joystick.axis[Gamepad_axis::RIGHTX])>.01){
+		goal.right+=set_drive_speed(main_joystick.axis[Gamepad_axis::RIGHTX],turbo_button,slow_button);
+		goal.left+=set_drive_speed(-main_joystick.axis[Gamepad_axis::RIGHTX],turbo_button,slow_button);
+	}
+	/*if(fabs(goal.left)<LIMIT && fabs(goal.right)<LIMIT && nudges[2].timer.done() && nudges[3].timer.done()){
 		goal.left=(set_drive_speed(real_turning,turbo_button,slow_button))*SLOW_TURNING;
 		goal.right=(set_drive_speed(-real_turning,turbo_button,slow_button))*SLOW_TURNING;
-	}
+	}*/
 
 	static const bool normal_nudge_enable=turbo_button<.25;	
 	static const auto NUDGE_CCW_BUTTON=Gamepad_button::X,NUDGE_CW_BUTTON=Gamepad_button::B;

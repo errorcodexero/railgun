@@ -485,6 +485,7 @@ public:
 			cout<<"in:"<<in<<"\n";
 			cout<<"main: "<<main<<"\n";
 			cout<<"out:"<<out<<"\n";
+			cout<<"CLEAR\n";
 		}
 		int x=set_outputs(out,in.robot_mode.enabled);
 		if(x) cout<<"x was:"<<x<<"\n";
