@@ -11,22 +11,22 @@ struct Climb{
 	enum class Goal{EXTEND,STOP,RETRACT};
 	
 	class Status_detail{
-                public:
+		public:
 		enum class Type{TOP,BOTTOM,MID,ERRORS};
-                std::pair<bool,bool> reached_ends;
+		std::pair<bool,bool> reached_ends;
 
-                private:
-                Status_detail();
+		private:
+		Status_detail();
 
-                Type type_;
+		Type type_;
 
-                public:
-                Type type()const;
+		public:
+		Type type()const;
 
-                static Status_detail top();
-                static Status_detail mid();
-                static Status_detail bottom();
-                static Status_detail error();	
+		static Status_detail top();
+		static Status_detail mid();
+		static Status_detail bottom();
+		static Status_detail error();	
 	};
 
 	typedef Status_detail Status;

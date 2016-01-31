@@ -27,24 +27,24 @@ Tilt::Tilt(int can_address):
 {}
 
 Robot_inputs Tilt::Input_reader::operator()(Robot_inputs all,Tilt::Input in)const{
-        auto &t=all.talon_srx[can_address];
-        t.fwd_limit_switch=in.top;
-        t.rev_limit_switch=in.bottom;
-        t.encoder_position=in.ticks;
-        t.current=in.current;
-        all.digital_io.in[6]=in.has_ball? Digital_in::_1 : Digital_in::_0;
+	auto &t=all.talon_srx[can_address];
+	t.fwd_limit_switch=in.top;
+	t.rev_limit_switch=in.bottom;
+	t.encoder_position=in.ticks;
+	t.current=in.current;
+	all.digital_io.in[6]=in.has_ball? Digital_in::_1 : Digital_in::_0;
 	return all;
 }
 
 Tilt::Input Tilt::Input_reader::operator()(Robot_inputs all)const{
-        auto &t=all.talon_srx[can_address];
-        return Tilt::Input{
-                t.fwd_limit_switch,
-                t.rev_limit_switch,
+	auto &t=all.talon_srx[can_address];
+	return Tilt::Input{
+	t.fwd_limit_switch,
+	t.rev_limit_switch,
 		all.digital_io.in[6]==Digital_in::_1,
-                t.encoder_position,
-                t.current
-        };
+		t.encoder_position,
+		t.current
+	};
 }
 
 Tilt::Output Tilt::Output_applicator::operator()(Robot_outputs r)const{
@@ -61,8 +61,8 @@ Tilt::Goal::Mode Tilt::Goal::mode()const{
 }
 
 Tilt::Estimator::Estimator():
-        last(Tilt::Status_detail::error()),
-        timer_start_angle(0)
+	last(Tilt::Status_detail::error()),
+	timer_start_angle(0)
 {}
 
 std::array<double,3> Tilt::Goal::angle()const{
@@ -215,7 +215,7 @@ bool operator==(Tilt a, Tilt b){ return (a.output_applicator==b.output_applicato
 bool operator!=(Tilt a, Tilt b){ return !(a==b); }
 
 std::set<Tilt::Input> examples(Tilt::Input*){ 
-	return  {
+	return {
 		Tilt::Input{0,0,0,0,0},
 		Tilt::Input{0,1,0,0,0},
 		Tilt::Input{1,0,0,0,0},

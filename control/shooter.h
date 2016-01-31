@@ -24,8 +24,8 @@ struct Shooter{
 	typedef Goal Output;
 	
 	struct Output_applicator{
-	Shooter::Output operator()(Robot_outputs)const;
-	Robot_outputs operator()(Robot_outputs,Shooter::Output)const;
+		Shooter::Output operator()(Robot_outputs)const;
+		Robot_outputs operator()(Robot_outputs,Shooter::Output)const;
 	};
 
 	struct Estimator{

@@ -57,7 +57,7 @@ struct Tilt{
 
 	typedef Status_detail Status;
 
-	#define TILT_INPUT(X) X(bool,top) X(bool,bottom) X(int,ticks) X(double,current)
+	#define TILT_INPUT(X) X(bool,top) X(bool,bottom) X(bool,has_ball) X(int,ticks) X(double,current)
 	struct Input{
 		bool top, bottom, has_ball;
 		int ticks;
