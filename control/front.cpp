@@ -5,6 +5,9 @@ using namespace std;
 
 #define nyi { cout<<"\nnyi "<<__LINE__<<"\n"; exit(44); }
 #define FRONT_ADDRESS 3
+#ifndef BALL_SENSOR_ADDRESS
+#define BALL_SENSOR_ADDRESS 6
+#endif
 #define FRONT_SPEED 1
 
 Front::Status_detail::Status_detail():has_ball(0){}
@@ -40,11 +43,11 @@ bool operator==(Front a, Front b){ return (a.input_reader==b.input_reader && a.e
 bool operator!=(Front a, Front b){ return !(a==b);}
 
 Front::Input Front::Input_reader::operator()(Robot_inputs r)const{
-	return (r.digital_io.in[6]==Digital_in::_1)? Front::Input{1} : Front::Input{0};
+	return (r.digital_io.in[BALL_SENSOR_ADDRESS]==Digital_in::_1)? Front::Input{1} : Front::Input{0};
 }
 
 Robot_inputs Front::Input_reader::operator()(Robot_inputs a, Front::Input in)const{
-	a.digital_io.in[6]=in.has_ball? Digital_in::_1 : Digital_in::_0;
+	a.digital_io.in[BALL_SENSOR_ADDRESS]=in.has_ball? Digital_in::_1 : Digital_in::_0;
 	return a;
 }
 
