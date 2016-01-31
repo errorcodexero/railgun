@@ -6,6 +6,12 @@
 
 using namespace std;
 
+bool operator==(Motor_check a, Motor_check b){
+	return (a.get()==b.get() && a.seen()==b.seen());
+}
+
+bool operator!=(Motor_check a,Motor_check b){ return !(a==b); }
+
 Maybe_inline<Motor_check::Status> Motor_check::run(Time time,Amps current,double set_power_level){
 	static const Maybe_inline<Status> NO_CHECK;
 	//assert(current>=0);

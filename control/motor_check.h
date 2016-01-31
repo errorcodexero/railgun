@@ -27,6 +27,9 @@ class Motor_check{
 	std::set<Status> const& seen()const;
 };
 
+bool operator==(Motor_check,Motor_check);
+bool operator!=(Motor_check,Motor_check);
+
 std::ostream& operator<<(std::ostream& o,Motor_check::Status);
 
 #endif

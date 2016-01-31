@@ -11,12 +11,14 @@ unsigned pdb_location(Drivebase::Motor m){
 	#define X(NAME,INDEX) if(m==Drivebase::NAME) return INDEX;
 	//WILL NEED CORRECT VALUES
 	X(LEFT1,0)
-        X(LEFT2,1)
-	X(RIGHT1,2)
-	X(RIGHT2,3)
-        #undef X
-        assert(0);
-        //assert(m>=0 && m<Drivebase::MOTORS);
+	X(LEFT2,1)
+	X(LEFT3,2)
+	X(RIGHT1,3)
+	X(RIGHT2,4)
+	X(RIGHT3,5)
+	#undef X
+	assert(0);
+	//assert(m>=0 && m<Drivebase::MOTORS);
 }
 
 Robot_inputs Drivebase::Input_reader::operator()(Robot_inputs all,Input in)const{
@@ -126,8 +128,10 @@ double get_output(Drivebase::Output out,Drivebase::Motor m){
 	#define X(NAME,POSITION) if(m==Drivebase::NAME) return out.POSITION;
 	X(LEFT1,l)
 	X(LEFT2,l)
+	X(LEFT3,l)
 	X(RIGHT1,r)
 	X(RIGHT2,r)
+	X(RIGHT3,r)
 	#undef X
 	assert(0);
 }
@@ -155,11 +159,14 @@ Drivebase::Output Drivebase::Output_applicator::operator()(Robot_outputs robot)c
 }
 
 bool operator==(Drivebase::Output_applicator const&,Drivebase::Output_applicator const&){
-	return 1;
+	return true;
 }
 
-bool operator==(Drivebase::Estimator const&,Drivebase::Estimator const&){
-	return 1;
+bool operator==(Drivebase::Estimator const& a,Drivebase::Estimator const& b){
+	for(unsigned i=0; i<Drivebase::MOTORS; i++){
+		if(a.motor_check[i]!=b.motor_check[i])return false;
+	}
+	return true;
 }
 
 bool operator!=(Drivebase::Estimator const& a,Drivebase::Estimator const& b){
