@@ -88,11 +88,14 @@ bool operator!=(Climb::Estimator a,Climb::Estimator b){ return !(a==b); }
 bool operator==(Climb a,Climb b){ return (a.input_reader==b.input_reader && a.estimator==b.estimator && a.output_applicator==b.output_applicator); }
 bool operator!=(Climb a,Climb b){ return !(a==b); }
 
-Climb::Status_detail Climb::Estimator::get()const{
-	return last;
-}
+Climb::Status_detail Climb::Estimator::get()const{ return last; }
 
-void Climb::Estimator::update(Time,Climb::Input,Climb::Output){}
+void Climb::Estimator::update(Time,Climb::Input in,Climb::Output){
+	if(in.top) last = Climb::Status_detail::top();
+	if(in.bottom) last = Climb::Status_detail::bottom();
+	if(!(in.top || in.bottom)) last = Climb::Status_detail::mid();
+	last = Climb::Status_detail::error();
+}
 
 Climb::Input Climb::Input_reader::operator()(Robot_inputs r)const{
 	return {r.digital_io.in[4]==Digital_in::_1,r.digital_io.in[5]==Digital_in::_1};
