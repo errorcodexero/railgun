@@ -228,10 +228,10 @@ class To_crio
 	//Gyro *gyro;
 	PowerDistributionPanel *power;
 	Compressor *compressor;
-	CANTalon test1;
-	CANTalon test2;
+	//CANTalon test1;
+	//CANTalon test2;
 public:
-	To_crio():error_code(0),skipped(0),test1(0),test2(1)//,gyro(NULL)
+	To_crio():error_code(0),skipped(0)//,test1(0),test2(1)//,gyro(NULL)
 	{
 		power = new PowerDistributionPanel();
 		// Wake the NUC by sending a Wake-on-LAN magic UDP packet:
@@ -408,9 +408,9 @@ public:
 		digital_io.set(out.digital_io);
 
 		//test.Set(1);
-		test1.Set(out.talon_srx[0].power_level);
-		test2.Set(out.talon_srx[1].power_level);
-		test2.SetSensorDirection(0);
+		//test1.Set(out.talon_srx[0].power_level);
+		//test2.Set(out.talon_srx[1].power_level);
+		//test2.SetSensorDirection(0);
 		{
 			/*DriverStation *ds=DriverStation::GetInstance();
 			if(ds){
@@ -482,9 +482,9 @@ public:
 		static int print_out_speed=0;
 		Robot_outputs out=main(in);
 		if((print_out_speed%10)==0){
-			cout<<"in:"<<in<<"\n";
+			cout<<"in: "<<in<<"\n";
 			cout<<"main: "<<main<<"\n";
-			cout<<"out:"<<out<<"\n";
+			cout<<"out: "<<out<<"\n";
 			cout<<"CLEAR\n";
 		}
 		int x=set_outputs(out,in.robot_mode.enabled);
@@ -532,7 +532,7 @@ public:
 			//in.digital_io[i]=digital_io[i].get();
 		}
 		in.digital_io=digital_io.get();
-		auto f=[&](int index,CANTalon& test) {
+		/*auto f=[&](int index,CANTalon& test) {
 			in.talon_srx[index].fwd_limit_switch=test.IsFwdLimitSwitchClosed();
 			in.talon_srx[index].rev_limit_switch=test.IsRevLimitSwitchClosed();
 			if(index==0){
@@ -544,9 +544,9 @@ public:
 			}
 			in.talon_srx[index].a=test.GetPinStateQuadA();
 			in.talon_srx[index].b=test.GetPinStateQuadB();
-		};
-		f(0,test1);
-		f(1,test2);
+		};*/
+		//f(0,test1);
+		//f(1,test2);
 		//cout<<"in:"<<in<<"\n";
 		//}
 		/*if(gyro){

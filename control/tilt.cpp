@@ -179,7 +179,19 @@ std::ostream& operator<<(std::ostream& o, Tilt a){
 
 #define CMP(name) if(a.name<b.name) return 1; if(b.name<a.name) return 0;
 
-CMP_OPS(Tilt::Input,TILT_INPUT)
+bool operator==(Tilt::Input const& a,Tilt::Input const& b){
+	return (a.top==b.top && a.bottom==b.bottom && a.has_ball==b.has_ball && a.ticks==b.ticks && a.current==b.current);	
+}
+
+bool operator!=(Tilt::Input const& a,Tilt::Input const& b){ return !(a==b); }
+
+bool operator<(Tilt::Input const& a,Tilt::Input const& b){
+	if(a.bottom && !b.bottom)return true;
+	if(b.top && !a.top)return true;
+	return a.ticks<b.ticks;
+}
+
+std::ostream& operator<<(std::ostream& o,Tilt::Input const& a){ return o<<"Tilt::Input( top:"<<a.top<<" bottom:"<<a.bottom<<" has_ball:"<<a.has_ball<<" ticks:"<<a.ticks<<" current:"<<a.current<<")"; }
 
 bool operator<(Tilt::Status_detail a, Tilt::Status_detail b){
 	CMP(type())

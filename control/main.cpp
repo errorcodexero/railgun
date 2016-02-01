@@ -22,9 +22,10 @@ ostream& operator<<(ostream& o,Main::Mode a){
 Main::Main():mode(Mode::TELEOP),autonomous_start(0),button_mode(Button_mode::MANUAL){}
 
 double set_drive_speed(double a,double boost,double slow){
-	static const float DEFAULT_SPEED=.5;//Change these value to change the default speed
+	static const float MAX_SPEED=1;//Change this value to change the max speed the robot will achieve with full boost
+	static const float DEFAULT_SPEED=.5;//Change this value to change the default speed
 	static const float SLOW_BY=.5;//Change this value to change the percentage of the default speed the slow button slows
-	return (pow(a,3)*((DEFAULT_SPEED+(1-DEFAULT_SPEED)*boost)-((DEFAULT_SPEED*SLOW_BY)*slow)));
+	return (pow(a,3)*((DEFAULT_SPEED+(MAX_SPEED-DEFAULT_SPEED)*boost)-((DEFAULT_SPEED*SLOW_BY)*slow)));
 }
 
 template<typename T>//Compares two types to see if one is within a range
@@ -43,8 +44,8 @@ array<double,LEN> floats_to_doubles(array<float,LEN> a){
 Toplevel::Goal Main::teleop(
 	Robot_inputs const& in,
 	Joystick_data const& main_joystick,
-	Joystick_data const& /*gunner_joystick*/,
-	Panel const&  /*oi_panel*/,
+	Joystick_data const& gunner_joystick,
+	Panel const&  oi_panel,
 	Toplevel::Status_detail& /*toplevel_status*/
 ){
 	Toplevel::Goal goals;
@@ -89,8 +90,18 @@ Toplevel::Goal Main::teleop(
 		if(start)nudges[i].timer.set(.1);
 		nudges[i].timer.update(in.now,1);
 	}	
-
-	goals.drive=goal;
+	goals.drive=goal;	
+	goals.front=[&]{
+		if (gunner_joystick.button[Gamepad_button::X]) return Front::Goal::IN;
+		else if (gunner_joystick.button[Gamepad_button::B]) return Front::Goal::OUT;
+		else if (oi_panel.in_use) {
+			#define X(name) if(oi_panel.front==Panel::Collector::name)return Front::Goal::name;
+			X(IN) X(OUT) X(OFF)
+			#undef X
+			assert(0);
+		}
+		else return Front::Goal::OFF;
+	}();
 	return goals;
 }
 
@@ -127,8 +138,12 @@ Robot_outputs Main::operator()(Robot_inputs in,ostream&){
 	Joystick_data main_joystick=in.joystick[0];
 	Joystick_data gunner_joystick=in.joystick[1];
 	Panel oi_panel=interpret(in.joystick[2]);
-	//if(!in.robot_mode.enabled || in.robot_mode.autonomous);//todo: set oi to do nothing/stop
-		
+
+	if(oi_panel.in_use && (!in.robot_mode.enabled || in.robot_mode.autonomous)){
+		Panel empty;
+		oi_panel=empty;
+	}
+
 	force.update(
 		main_joystick.button[Gamepad_button::A],
 		main_joystick.button[Gamepad_button::LB],
@@ -141,7 +156,7 @@ Robot_outputs Main::operator()(Robot_inputs in,ostream&){
 	Toplevel::Status_detail toplevel_status=toplevel.estimator.get();
 	
 	static int print_out_speed=0;	
-	if(print_out_speed%300==0)cout<<"panel: "<<oi_panel<<"\n";	
+	if(print_out_speed%10==0)cout<<"panel: "<<oi_panel<<"\n";	
 	print_out_speed++;
 	
 	if (in.digital_io.encoder[0]) cout<<"Wheel 1: "<<*in.digital_io.encoder[0]<<"\n";
@@ -213,12 +228,6 @@ ostream& operator<<(ostream& o,Main m){
 	o<<m.perf;
 	o<<m.toplevel;
 	o<<m.since_switch;
-	//since_auto_start
-	//o<<m.control;
-	//ball collector
-	//print button
-	//relative
-	//field relative
 	return o<<")";
 }
 
