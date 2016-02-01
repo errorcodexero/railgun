@@ -101,6 +101,7 @@ Panel interpret(Joystick_data d){
 			}
 			return false;
 		}();
+		if (!p.in_use) return p;
 	}
 	{
 		Volt auto_mode=d.axis[0];
@@ -129,11 +130,11 @@ Panel interpret(Joystick_data d){
 		else AXIS_RANGE(climb, STOP, EXTEND, 1.5, p.climber, Panel::Climber::EXTEND)
 	}
 	{
-		float front = d.axis[7];
-		static const float IN=-1, OFF=0, OUT=1;
-		p.front = Panel::Collector::IN;
-		AXIS_RANGE(front, IN, OFF, OUT, p.front, Panel::Collector::OFF)
-		else AXIS_RANGE(front, OFF, OUT, 1.5, p.front, Panel::Collector::OUT)
+		float front = d.axis[4];
+		static const float OFF=-1, OUT=.48, IN=1;
+		p.front = Panel::Collector::OFF;
+		AXIS_RANGE(front, OFF, OUT, IN, p.front, Panel::Collector::OUT)
+		else AXIS_RANGE(front, OUT, IN, 1.5, p.front, Panel::Collector::IN)
 	}
 	{
 		float sides = d.axis[5];
@@ -143,7 +144,7 @@ Panel interpret(Joystick_data d){
                 else AXIS_RANGE(sides, OFF, OUT, 1.5, p.sides, Panel::Collector::OUT)
 	}
 	{
-		float tilt = d.axis[4];
+		float tilt = d.axis[7];
 		static const float DOWN=-1, STOP=0, UP=1;
 		p.tilt = Panel::Tilt::DOWN;
 		AXIS_RANGE(tilt, DOWN, STOP, UP, p.tilt, Panel::Tilt::STOP)
