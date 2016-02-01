@@ -1,6 +1,9 @@
 #include "tilt.h"
 #include <stdlib.h>
 
+#ifndef BALL_SENSOR_ADDRESS
+#define BALL_SENSOR_ADDRESS 6
+#endif
 #define nyi { std::cout<<"\nnyi "<<__LINE__<<"\n"; exit(44); }
 
 Tilt::Status_detail::Status_detail(): 
@@ -32,7 +35,7 @@ Robot_inputs Tilt::Input_reader::operator()(Robot_inputs all,Tilt::Input in)cons
 	t.rev_limit_switch=in.bottom;
 	t.encoder_position=in.ticks;
 	t.current=in.current;
-	all.digital_io.in[6]=in.has_ball? Digital_in::_1 : Digital_in::_0;
+	all.digital_io.in[BALL_SENSOR_ADDRESS]=in.has_ball? Digital_in::_1 : Digital_in::_0;
 	return all;
 }
 
@@ -41,7 +44,7 @@ Tilt::Input Tilt::Input_reader::operator()(Robot_inputs all)const{
 	return Tilt::Input{
 	t.fwd_limit_switch,
 	t.rev_limit_switch,
-		all.digital_io.in[6]==Digital_in::_1,
+		all.digital_io.in[BALL_SENSOR_ADDRESS]==Digital_in::_1,
 		t.encoder_position,
 		t.current
 	};
