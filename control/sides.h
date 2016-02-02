@@ -4,16 +4,14 @@
 #include <iostream>
 #include <set>
 #include "../util/interface.h"
+#include "front.h"
 
 using namespace std;
 
 struct Sides{
 	enum class Goal{IN,OFF,OUT};
 	
-	struct Status_detail{
-		bool has_ball;
-		Status_detail();
-	};
+	typedef Front::Status_detail Status_detail;
 
 	typedef Status_detail Status;
 
@@ -45,16 +43,11 @@ struct Sides{
 
 ostream& operator<<(ostream&,Sides::Goal);
 ostream& operator<<(ostream&,Sides);
-ostream& operator<<(ostream&,Sides::Status_detail);
 ostream& operator<<(ostream&,Sides::Input);
 
 bool operator==(Sides::Input,Sides::Input);
 bool operator!=(Sides::Input,Sides::Input);
 bool operator<(Sides::Input, Sides::Input);
-
-bool operator<(Sides::Status_detail, Sides::Status_detail);
-bool operator==(Sides::Status_detail, Sides::Status_detail);
-bool operator!=(Sides::Status_detail, Sides::Status_detail);
 
 bool operator==(Sides::Input_reader,Sides::Input_reader);
 bool operator<(Sides::Input_reader, Sides::Input_reader);

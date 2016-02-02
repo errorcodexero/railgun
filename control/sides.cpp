@@ -10,8 +10,6 @@ using namespace std;
 #endif
 #define SIDES_SPEED 1
 
-Sides::Status_detail::Status_detail():has_ball(0){}
-
 ostream& operator<<(ostream& o, Sides::Goal a){
 	#define X(name) if(a==Sides::Goal::name)return o<<"Sides::Goal("#name")";
 	X(IN) X(OUT) X(OFF)
@@ -19,17 +17,12 @@ ostream& operator<<(ostream& o, Sides::Goal a){
 	assert(0);
 }
 
-ostream& operator<<(ostream& o, Sides::Status a){ return o<<"Sides::Status( has_ball:"<<a.has_ball<<")";}
 ostream& operator<<(ostream& o, Sides::Input a){ return o<<"Sides::Input( has_ball:"<<a.has_ball<<")";}
 ostream& operator<<(ostream& o, Sides){ return o<<"Sides()";}
 
 bool operator==(Sides::Input a, Sides::Input b){ return a.has_ball==b.has_ball;}
 bool operator!=(Sides::Input a, Sides::Input b){ return !(a==b);}
 bool operator<(Sides::Input a, Sides::Input b){ return a.has_ball<b.has_ball;}
-
-bool operator<(Sides::Status_detail a, Sides::Status_detail b){ return a.has_ball<b.has_ball;}
-bool operator==(Sides::Status_detail a, Sides::Status_detail b){ return a.has_ball==b.has_ball;}
-bool operator!=(Sides::Status_detail a, Sides::Status_detail b){ return !(a==b);} 
 
 bool operator==(Sides::Input_reader,Sides::Input_reader){ return 1;}
 bool operator<(Sides::Input_reader, Sides::Input_reader){ return 0;}
@@ -75,23 +68,12 @@ set<Sides::Goal> examples(Sides::Goal*){
 	return {Sides::Goal::OUT,Sides::Goal::OFF,Sides::Goal::IN};
 }
 
-set<Sides::Status_detail> examples(Sides::Status_detail*){ 
-	set<Sides::Status_detail> a;
-	Sides::Status_detail b;
-	a.insert(b);
-	b.has_ball=1;
-	a.insert(b);
-	return a;
-}
-
 Sides::Output control(Sides::Status_detail, Sides::Goal goal){
 	if(goal==Sides::Goal::OUT)return Sides::Output::OUT;
 	if(goal==Sides::Goal::OFF)return Sides::Output::OFF;
 	if(goal==Sides::Goal::IN)return Sides::Output::IN;
 	assert(0);
 }
-
-Sides::Status status(Sides::Status_detail a){ return a;}
 
 bool ready(Sides::Status, Sides::Goal){ return 1;}
 
