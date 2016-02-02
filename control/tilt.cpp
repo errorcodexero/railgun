@@ -1,9 +1,11 @@
 #include "tilt.h"
 #include <stdlib.h>
+#include <cmath>
 
 #ifndef BALL_SENSOR_ADDRESS
 #define BALL_SENSOR_ADDRESS 6
 #endif
+#define TICKS_PER_DEGREE 100 //Assumed for now
 #define nyi { std::cout<<"\nnyi "<<__LINE__<<"\n"; exit(44); }
 
 Tilt::Status_detail::Status_detail(): 
@@ -326,8 +328,35 @@ bool ready(Tilt::Status status, Tilt::Goal goal){
 	}
 }
 
-void Tilt::Estimator::update(Time, Tilt::Input, Tilt::Output) {
+void Tilt::Estimator::update(Time time, Tilt::Input in, Tilt::Output) {
+	if(in.top) top=in.ticks;
+	if(in.bottom) bottom=in.ticks;
 
+	unsigned int bottom_loc=bottom?*bottom:0;
+	float angle=(in.ticks-bottom_loc)/TICKS_PER_DEGREE;
+	stall_timer.update(time,true);
+	if(stall_timer.done()) last.stalled=true;
+	if(in.current<10 || fabs(angle-timer_start_angle)<1){//Assumed current for now
+		last.stalled=0;
+		stall_timer.set(1);
+		timer_start_angle=angle;
+	}
+
+	if(in.top){
+		if(in.bottom){
+			last=Tilt::Status_detail::error();
+		} else{
+			last=Tilt::Status_detail::top();                       
+			top=in.ticks;
+		}
+	} else{
+		if(in.bottom){
+			last=Tilt::Status_detail::bottom();
+			bottom=in.ticks;
+		} else{
+			last=Tilt::Status_detail::mid(angle);
+		}
+	}
 }
 
 Tilt::Status_detail Tilt::Estimator::get()const {
