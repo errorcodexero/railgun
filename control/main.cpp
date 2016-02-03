@@ -90,17 +90,29 @@ Toplevel::Goal Main::teleop(
 		if(start)nudges[i].timer.set(.1);
 		nudges[i].timer.update(in.now,1);
 	}	
-	goals.drive=goal;	
+	goals.drive=goal;
+
 	goals.front=[&]{
-		if (gunner_joystick.button[Gamepad_button::X]) return Front::Goal::IN;
-		else if (gunner_joystick.button[Gamepad_button::B]) return Front::Goal::OUT;
-		else if (oi_panel.in_use) {
-			#define X(name) if(oi_panel.front==Panel::Collector::name)return Front::Goal::name;
+		if(gunner_joystick.button[Gamepad_button::X]) return Front::Goal::IN;
+		else if(gunner_joystick.button[Gamepad_button::B]) return Front::Goal::OUT;
+		else if(oi_panel.in_use) {
+			#define X(name) if(oi_panel.front==Panel::Collector::name) return Front::Goal::name;
 			X(IN) X(OUT) X(OFF)
 			#undef X
 			assert(0);
 		}
 		else return Front::Goal::OFF;
+	}();
+	goals.sides=[&]{
+		if(gunner_joystick.button[Gamepad_button::Y]) return Sides::Goal::IN;
+		else if(gunner_joystick.button[Gamepad_button::A]) return Sides::Goal::OUT;
+		else if(oi_panel.in_use){
+			#define X(name) if(oi_panel.sides==Panel::Collector::name) return Sides::Goal::name;
+			X(IN) X(OUT) X(OFF)
+			#undef X
+			assert(0);
+		}
+		else return Sides::Goal::OFF;
 	}();
 	return goals;
 }
