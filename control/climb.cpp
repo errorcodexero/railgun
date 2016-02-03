@@ -63,11 +63,15 @@ std::ostream& operator<<(std::ostream& o,Climb){
 bool operator==(Climb::Input a,Climb::Input b){ return (a.top==b.top && a.bottom==b.bottom); }
 bool operator!=(Climb::Input a,Climb::Input b){ return !(a==b); }
 bool operator<(Climb::Input a,Climb::Input b){
+	if (a.top && a.bottom) return false;
+	if (b.top && b.bottom) return true;	
 	return ((b.top && !a.top) || (a.bottom && !b.bottom));
 }
+
 bool operator<(Climb::Goal a,Climb::Goal b){
 	return ((b==Climb::Goal::EXTEND && a!=b) || (b==Climb::Goal::STOP && a==Climb::Goal::RETRACT));
 }
+
 bool operator==(Climb::Status_detail a,Climb::Status_detail b){ return (a.type()==b.type()); }
 bool operator!=(Climb::Status_detail a,Climb::Status_detail b){ return !(a==b); }
 

@@ -34,7 +34,7 @@ struct Tilt{
 	
 	class Status_detail{
 		public:
-		enum class Type{TOP,BOTTOM,MID,ERRORS};
+		enum class Type{BOTTOM,MID,TOP,ERRORS};
 		std::pair<bool,bool> reached_ends;
 		bool stalled;
 		

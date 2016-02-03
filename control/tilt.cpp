@@ -188,8 +188,9 @@ bool operator==(Tilt::Input const& a,Tilt::Input const& b){
 bool operator!=(Tilt::Input const& a,Tilt::Input const& b){ return !(a==b); }
 
 bool operator<(Tilt::Input const& a,Tilt::Input const& b){
-	if(a.bottom && !b.bottom)return true;
-	if(b.top && !a.top)return true;
+	if(a.top && a.bottom)return false;
+	if(b.top && b.bottom)return true;
+	if((b.top && !a.top) || (a.bottom && !b.bottom)) return true;
 	return a.ticks<b.ticks;
 }
 
