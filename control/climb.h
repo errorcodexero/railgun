@@ -8,12 +8,17 @@
 #include "../util/driver_station_interface.h"
 
 struct Climb{
-	enum class Goal{EXTEND,STOP,RETRACT};
+	#define CLIMB_GOALS \
+		X(EXTEND) \
+		X(STOP) \
+		X(RETRACT)
+	#define X(name) name,
+	enum class Goal{CLIMB_GOALS};
+	#undef X
 	
 	class Status_detail{
 		public:
 		enum class Type{TOP,BOTTOM,MID,ERRORS};
-		std::pair<bool,bool> reached_ends;
 
 		private:
 		Status_detail();
