@@ -6,7 +6,7 @@
 
 Climb::Status_detail::Type Climb::Status_detail::type()const{ return type_; }
 
-Climb::Status_detail::Status_detail():reached_ends(std::make_pair(false,false)),type_(Climb::Status_detail::Type::MID){}
+Climb::Status_detail::Status_detail():type_(Climb::Status_detail::Type::MID){}
 
 Climb::Status_detail Climb::Status_detail::top(){
 	Climb::Status_detail a;
@@ -43,7 +43,7 @@ std::ostream& operator<<(std::ostream& o,Climb::Status_detail::Type a){
 
 std::ostream& operator<<(std::ostream& o,Climb::Goal a){
 	#define X(name) if(a==Climb::Goal::name)return o<<"Climb::Goal("#name")";
-	X(EXTEND) X(STOP) X(RETRACT)
+	CLIMB_GOALS	
 	#undef X
 	assert(0);
 }
@@ -53,7 +53,7 @@ std::ostream& operator<<(std::ostream& o,Climb::Input a){
 }
 
 std::ostream& operator<<(std::ostream& o,Climb::Status_detail a){
-	return o<<"Climb::Status_detail( type:"<<a.type()<<" reached_ends:"<<a.reached_ends<<")";
+	return o<<"Climb::Status_detail( type:"<<a.type()<<")";
 }
 
 std::ostream& operator<<(std::ostream& o,Climb){
@@ -68,14 +68,13 @@ bool operator<(Climb::Input a,Climb::Input b){
 bool operator<(Climb::Goal a,Climb::Goal b){
 	return ((b==Climb::Goal::EXTEND && a!=b) || (b==Climb::Goal::STOP && a==Climb::Goal::RETRACT));
 }
-bool operator==(Climb::Status_detail a,Climb::Status_detail b){ return (a.type()==b.type() && a.reached_ends==b.reached_ends); }
+bool operator==(Climb::Status_detail a,Climb::Status_detail b){ return (a.type()==b.type()); }
 bool operator!=(Climb::Status_detail a,Climb::Status_detail b){ return !(a==b); }
 
 bool operator<(Climb::Status_detail a, Climb::Status_detail b){
         if(a.type()<b.type())return true;
 	if(a.type()>b.type())return false;
-        if(a.reached_ends<b.reached_ends)return true;
-        return false;
+	return false;
 }
 
 
@@ -135,7 +134,9 @@ std::set<Climb::Input> examples(Climb::Input*){
 }
 
 std::set<Climb::Goal> examples(Climb::Goal*){
-	return {Climb::Goal::EXTEND,Climb::Goal::STOP,Climb::Goal::RETRACT};
+	#define X(name) Climb::Goal::name,
+	return {CLIMB_GOALS};
+	#undef X
 }
 
 std::set<Climb::Status_detail> examples(Climb::Status_detail*){
