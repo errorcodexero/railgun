@@ -114,6 +114,24 @@ Toplevel::Goal Main::teleop(
 		}
 		else return Sides::Goal::OFF;
 	}();
+	goals.tilt=[&]{
+		if(gunner_joystick.button[Gamepad_button::LB]) return Tilt::Goal::up();
+		else if(gunner_joystick.button[Gamepad_button::RB]) return Tilt::Goal::down();
+		else if(oi_panel.in_use){
+			switch(oi_panel.tilt){
+				case Panel::Tilt::UP: return Tilt::Goal::up();
+				case Panel::Tilt::DOWN: return Tilt::Goal::down();
+				case Panel::Tilt::STOP: return Tilt::Goal::stop();
+				default: assert(0);
+			}
+			if(oi_panel.control_angle){
+				array<double,3> angles={oi_panel.angle-2,oi_panel.angle,oi_panel.angle+2};//Assuming tolerances for now
+				return Tilt::Goal::go_to_angle(angles);
+			}
+			return Tilt::Goal::stop();
+		}
+		else return Tilt::Goal::stop();
+	}();
 	return goals;
 }
 
