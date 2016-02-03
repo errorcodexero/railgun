@@ -165,10 +165,33 @@ bool ready(Climb::Status status,Climb::Goal goal){
 }
 
 #ifdef CLIMB_TEST
+#include<iostream>
 #include "formal.h"
+
+using namespace std;
+
+template<typename T>
+void test_comparison(T *t){
+	auto e=examples(t);
+	for(auto a:e){
+		for(auto b:e){
+			auto al=a<b;
+			auto bl=b<a;
+			auto eq=(a==b);
+			auto total=al+bl+eq;
+			if(total!=1){
+				cout<<a<<b<<"\n";
+				cout<<al<<bl<<eq<<"\n";
+			}
+			assert(total==1);
+		}
+	}
+}
 
 int main(){
 	Climb a;
 	tester(a);
+
+	test_comparison((Climb::Input*)nullptr);
 }
 #endif
