@@ -21,11 +21,11 @@ ostream& operator<<(ostream& o,Main::Mode a){
 //todo: at some point, might want to make this whatever is right to start autonomous mode.
 Main::Main():mode(Mode::TELEOP),autonomous_start(0),button_mode(Button_mode::MANUAL){}
 
-double set_drive_speed(double a,double boost,double slow){
+double set_drive_speed(double a,double boost,double /*slow*/){
 	static const float MAX_SPEED=1;//Change this value to change the max speed the robot will achieve with full boost
-	static const float DEFAULT_SPEED=.5;//Change this value to change the default speed
-	static const float SLOW_BY=.5;//Change this value to change the percentage of the default speed the slow button slows
-	return (pow(a,3)*((DEFAULT_SPEED+(MAX_SPEED-DEFAULT_SPEED)*boost)-((DEFAULT_SPEED*SLOW_BY)*slow)));
+	static const float DEFAULT_SPEED=.2;//Change this value to change the default speed
+	//static const float SLOW_BY=.5;//Change this value to change the percentage of the default speed the slow button slows
+	return (pow(a,3)*((DEFAULT_SPEED+(MAX_SPEED-DEFAULT_SPEED)*boost)));//-((DEFAULT_SPEED*SLOW_BY)*slow)));
 }
 
 template<typename T>//Compares two types to see if one is within a range
