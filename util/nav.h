@@ -1,5 +1,6 @@
 #ifndef MAZE_h
 #define MAZE_H
+
 #include <vector>
 #define MAPWIDTH 160
 #define MAPLENGTH 162//add.5
@@ -23,7 +24,7 @@ struct point{
 };
 
 
-std::vector<std::pair<int,movedir>> solvemaze(point start,point end,direction startdir,direction enddir);
+std::vector<std::pair<int,movedir>> solvemaze(point,point,direction,direction);
 
 
 

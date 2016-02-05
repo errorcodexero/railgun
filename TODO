@@ -18,6 +18,7 @@ NOT AS HIGH PRIORITY:
 
 
 NICE THINGS TO HAVE:
+	- Update test version of the c++ compiler to use c++14
 	- IMU - Calvin
 	- Clean-up stuff:
 		- Use enum class more places

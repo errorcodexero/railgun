@@ -555,6 +555,7 @@ vector<pair<int,movedir>> solvemaze(point start,point end,direction startdir,dir
 }
 
 #ifdef NAV_TEST
+
 int main(){
 	point a;
 	point b;
@@ -577,4 +578,5 @@ int main(){
 
 
 }
+
 #endif
