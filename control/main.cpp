@@ -7,6 +7,7 @@
 #include "toplevel.h"
 #include "../util/util.h"
 #include "../input/util.h"
+#include "../util/nav.h"
 
 using namespace std;
 
