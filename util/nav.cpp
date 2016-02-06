@@ -582,12 +582,10 @@ int main(){
 	FinalInstructions = solvemaze(a,b,c,d);
 
 	cout << "Final:" << endl << FinalInstructions << endl;
-<<<<<<< HEAD
+
 
 */
 
-=======
->>>>>>> a9763e83542bbc1f98013981af1913fefcbff65f
 }
 
 #endif
