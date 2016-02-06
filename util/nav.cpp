@@ -9,7 +9,8 @@
 #include <assert.h>
 #include <unistd.h>
 
-
+#define MAPWIDTH 160
+#define MAPLENGTH 162//add.5
 
 #define STARTONE 1
 #define STARTTWO 45
@@ -26,6 +27,12 @@ using namespace std;
 // All Structures
 /////////////////////////////////////////////////////////////////////////////
 
+
+struct mapstruct {
+	int width;
+	int length;
+	bool walls[MAPWIDTH][MAPLENGTH];
+};
  
 struct list{
 	point pt;
@@ -556,6 +563,7 @@ vector<pair<int,movedir>> solvemaze(point start,point end,direction startdir,dir
 
 #ifdef NAV_TEST
 int main(){
+/*
 	point a;
 	point b;
 	direction c=LEFT;
@@ -574,7 +582,7 @@ int main(){
 
 	cout << "Final:" << endl << FinalInstructions << endl;
 
-
+*/
 
 }
 #endif

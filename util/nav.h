@@ -1,14 +1,7 @@
 #ifndef MAZE_h
 #define MAZE_H
 #include <vector>
-#define MAPWIDTH 160
-#define MAPLENGTH 162//add.5
 
-struct mapstruct {
-	int width;
-	int length;
-	bool walls[MAPWIDTH][MAPLENGTH];
-};
 ///////////////////////////////////////////////////////////////////////////////
 //enums
 //
