@@ -402,11 +402,13 @@ vector<pair<int,direction>> findlist(vector<direction> v){
 		
 		p.first=0;
 		p.second = FCE;
-		while(v[i] == FCE && i < v.size()){//finds common positions in secsession		
+		int counter=0;
+		while(i < v.size() && v[i]==FCE){//finds common positions in secsession		
 			p.first++;
 			i++;
+			counter++;
 		}
-		i--; //the for loop incerments too far so you need to go back to account for all of the elements
+		i-=counter; //the for loop incerments too far so you need to go back to account for all of the elements
 		pairs.push_back(p);
 	}
 
@@ -563,8 +565,6 @@ int main(){
 	direction  d=RIGHT;
 	vector<pair<int,movedir>> FinalInstructions;
 	
-
-	
 	a.x = STARTONE;
 	a.y = STARTTWO;
 	
@@ -574,9 +574,6 @@ int main(){
 	FinalInstructions = solvemaze(a,b,c,d);
 
 	cout << "Final:" << endl << FinalInstructions << endl;
-
-
-
 }
 
 #endif
