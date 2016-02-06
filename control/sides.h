@@ -49,6 +49,10 @@ bool operator==(Sides::Input,Sides::Input);
 bool operator!=(Sides::Input,Sides::Input);
 bool operator<(Sides::Input, Sides::Input);
 
+bool operator<(Sides::Status_detail,Sides::Status_detail);
+bool operator==(Sides::Status_detail,Sides::Status_detail);
+bool operator!=(Sides::Status_detail,Sides::Status_detail);
+
 bool operator==(Sides::Input_reader,Sides::Input_reader);
 bool operator<(Sides::Input_reader, Sides::Input_reader);
 
