@@ -22,16 +22,11 @@ ostream& operator<<(ostream& o,Main::Mode a){
 //todo: at some point, might want to make this whatever is right to start autonomous mode.
 Main::Main():mode(Mode::TELEOP),autonomous_start(0),button_mode(Button_mode::MANUAL){}
 
-double set_drive_speed(double a,double boost,double /*slow*/){
+double set_drive_speed(double axis,double boost,double /*slow*/){
 	static const float MAX_SPEED=1;//Change this value to change the max speed the robot will achieve with full boost
 	static const float DEFAULT_SPEED=.2;//Change this value to change the default speed
 	//static const float SLOW_BY=.5;//Change this value to change the percentage of the default speed the slow button slows
-	return (pow(a,3)*((DEFAULT_SPEED+(MAX_SPEED-DEFAULT_SPEED)*boost)));//-((DEFAULT_SPEED*SLOW_BY)*slow)));
-}
-
-template<typename T>//Compares two types to see if one is within a range
-bool in_range(T a,T b,T c){
-	return a<b+c&&a>b-c;
+	return (pow(axis,3)*((DEFAULT_SPEED+(MAX_SPEED-DEFAULT_SPEED)*boost)));//-((DEFAULT_SPEED*SLOW_BY)*slow)));
 }
 
 template<size_t LEN>
@@ -40,7 +35,6 @@ array<double,LEN> floats_to_doubles(array<float,LEN> a){
 	for(size_t i=0;i<LEN;i++) r[i]=a[i];
 	return r;
 }
-
 
 Toplevel::Goal Main::teleop(
 	Robot_inputs const& in,
@@ -62,21 +56,22 @@ Toplevel::Goal Main::teleop(
 	else if(!nudges[1].timer.done()){
 		goal.left=Y_NUDGE_POWER;
 		goal.right=Y_NUDGE_POWER;
-	}*/
-	//else{
+	}
+	else{*/
 		goal.left=set_drive_speed(main_joystick.axis[Gamepad_axis::LEFTY],turbo_button,slow_button);
 		goal.right=set_drive_speed(main_joystick.axis[Gamepad_axis::LEFTY],turbo_button,slow_button);
 	//}	
 
-	//static const double TURNING=.75;
-	//double real_turning = main_joystick.button[Gamepad_button::LB] ? TURNING : (main_joystick.button[Gamepad_button::RB] ? -TURNING : 0); 
-	//const float LIMIT=0.005;
-	//const float SLOW_TURNING=.8;
+	/*static const double TURNING=.75;
+	double real_turning = main_joystick.button[Gamepad_button::LB] ? TURNING : (main_joystick.button[Gamepad_button::RB] ? -TURNING : 0); 
+	const float LIMIT=0.005;
+	const float SLOW_TURNING=.8;*/
 
 	if(fabs(main_joystick.axis[Gamepad_axis::RIGHTX])>.01){
 		goal.right+=set_drive_speed(main_joystick.axis[Gamepad_axis::RIGHTX],turbo_button,slow_button);
 		goal.left+=set_drive_speed(-main_joystick.axis[Gamepad_axis::RIGHTX],turbo_button,slow_button);
 	}
+
 	/*if(fabs(goal.left)<LIMIT && fabs(goal.right)<LIMIT && nudges[2].timer.done() && nudges[3].timer.done()){
 		goal.left=(set_drive_speed(real_turning,turbo_button,slow_button))*SLOW_TURNING;
 		goal.right=(set_drive_speed(-real_turning,turbo_button,slow_button))*SLOW_TURNING;
@@ -91,6 +86,7 @@ Toplevel::Goal Main::teleop(
 		if(start)nudges[i].timer.set(.1);
 		nudges[i].timer.update(in.now,1);
 	}	
+	
 	goals.drive=goal;
 
 	goals.front=[&]{
@@ -132,6 +128,15 @@ Toplevel::Goal Main::teleop(
 			return Tilt::Goal::stop();
 		}
 		else return Tilt::Goal::stop();
+	}();
+	goals.climb=[&]{
+		if(oi_panel.in_use){
+			#define X(name) if(oi_panel.climber==Panel::Climber::name) return Climb::Goal::name;
+			X(EXTEND) X(STOP) X(RETRACT)
+			#undef X
+			assert(0);	
+		}
+		else return Climb::Goal::STOP;
 	}();
 	return goals;
 }
@@ -190,9 +195,6 @@ Robot_outputs Main::operator()(Robot_inputs in,ostream&){
 	if(print_out_speed%10==0)cout<<"panel: "<<oi_panel<<"\n";	
 	print_out_speed++;
 	
-	if (in.digital_io.encoder[0]) cout<<"Wheel 1: "<<*in.digital_io.encoder[0]<<"\n";
-	if (in.digital_io.encoder[1]) cout<<"Wheel 2: "<<*in.digital_io.encoder[1]<<"\n";
-	if (in.digital_io.encoder[2]) cout<<"Wheel 3: "<<*in.digital_io.encoder[2]<<"\n";
 	bool autonomous_start_now=autonomous_start(in.robot_mode.autonomous && in.robot_mode.enabled);
 	since_auto_start.update(in.now,autonomous_start_now);
 		
@@ -214,12 +216,7 @@ Robot_outputs Main::operator()(Robot_inputs in,ostream&){
 	mode=next;
 
 	Toplevel::Output r_out=control(toplevel_status,goals); 
-
-	/*auto lb=gunner_joystick.button[Gamepad_button::LB];
-	auto rb=gunner_joystick.button[Gamepad_button::RB];
-	r_out.arm=lb?Arm::Output::UP:(rb?Arm::Output::DOWN:Arm::Output::OFF);*/
 	auto r=toplevel.output_applicator(Robot_outputs{},r_out);
-
 	r=force(r);
 	auto input=toplevel.input_reader(in);
 
@@ -283,6 +280,6 @@ vector<T> uniq(vector<T> v){
 	return r;
 }
 
-int main(){
-}
+int main(){}
+
 #endif

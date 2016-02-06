@@ -2,8 +2,8 @@ HIGH PRIORITY
 	- Update wpilib on all software computers - Calvin
 	- Check/change manipulator IOs when they're decided on for sure 
 	- Write shooter code (Need to wait until shooter design for completion) - Matthew/Logan
-	- Add automation option for collector modes 
-	- Write climber and shooter code into main 
+	- Add automation option for collector modes in main 
+	- Write shooter into main 
 	- OI code - Matthew/Logan/Adrian DUE FED 06 
 	
 
