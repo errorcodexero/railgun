@@ -409,13 +409,11 @@ vector<pair<int,direction>> findlist(vector<direction> v){
 		
 		p.first=0;
 		p.second = FCE;
-		int counter=0;
 		while(i < v.size() && v[i]==FCE){//finds common positions in secsession		
 			p.first++;
 			i++;
-			counter++;
 		}
-		i-=counter; //the for loop incerments too far so you need to go back to account for all of the elements
+		i--; //the for loop incerments too far so you need to go back to account for all of the elements
 		pairs.push_back(p);
 	}
 
@@ -562,29 +560,50 @@ vector<pair<int,movedir>> solvemaze(point start,point end,direction startdir,dir
 		
 	return pear2;	
 }
+ 
+point randpoint(mapstruct map){
+	point a;
+	
+	while (true){
+		a.x = rand() % 119;
+		a.y = rand() % MAPLENGTH-1;
+		if(valid(a,map))
+			return a;
+	}
+	
+	
+	
+
+
+
+
+
+}
 
 #ifdef NAV_TEST
 
 int main(){
-/*
+
 	point a;
 	point b;
 	direction c=LEFT;
 	direction  d=RIGHT;
 	vector<pair<int,movedir>> FinalInstructions;
-	
-	a.x = STARTONE;
-	a.y = STARTTWO;
-	
-	b.x = ENDONE;
-	b.y = ENDTWO;
+	mapstruct map;
+
+	loadmap(map);
+
+	for(int i=1;i<10;i++){
+	a = randpoint(map);
+	b = randpoint(map);
+	cout << "point :" << a << endl << "POINT 2:" << b << endl;
 
 	FinalInstructions = solvemaze(a,b,c,d);
 
 	cout << "Final:" << endl << FinalInstructions << endl;
 
 
-*/
+	}
 
 }
 

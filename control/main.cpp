@@ -7,7 +7,9 @@
 #include "toplevel.h"
 #include "../util/util.h"
 #include "../input/util.h"
-#include "../util/nav.h"
+#include <vector>
+#include <assert.h>
+
 
 using namespace std;
 
@@ -18,6 +20,54 @@ ostream& operator<<(ostream& o,Main::Mode a){
 	assert(0);
 }
 
+vector<Main::NavS> Main::loadnav() {
+	vector<NavS> nav;
+	NavS navelement;
+	navinput start;
+	navinput end;
+	vector<pair<int,movedir>> v;
+
+	//assign start information
+	start.navpt.x = 5;
+	start.navpt.y = 150;
+	start.navdir = RIGHT;
+	//assign end information
+	end.navpt.x = 110;
+	end.navpt.y = 90;
+	end.navdir = RIGHT;
+	
+	v = solvemaze(start.navpt,end.navpt,start.navdir,end.navdir);
+	
+	//something to note is that doing a 180 or going back is going to be the same as turning exept that it is going to be for longer so that it can go as far  
+	for (unsigned int i=0;i<v.size();i++){
+		if(v[i].second == MFORWARD){
+			navelement.left = .45;
+			navelement.right = .45;
+			navelement.amount = v[i].first;
+		}
+		else if(v[i].second == MLEFT){
+			navelement.left = -.45;
+			navelement.right = .45;
+			navelement.amount = 1;
+		}
+		else if(v[i].second == MRIGHT){
+			navelement.left= .45;
+			navelement.right= -.45;
+			navelement.amount= 1;
+		}
+		else if(v[i].second == MBACK){
+			navelement.left= .45;
+			navelement.right= -.45;
+			navelement.amount= 2;
+		}
+		else
+			assert(0);
+
+		nav.push_back(navelement);
+	}
+	return nav;
+	
+}
 
 //todo: at some point, might want to make this whatever is right to start autonomous mode.
 Main::Main():mode(Mode::TELEOP),autonomous_start(0),button_mode(Button_mode::MANUAL){}
@@ -136,7 +186,7 @@ Toplevel::Goal Main::teleop(
 	return goals;
 }
 
-Main::Mode next_mode(Main::Mode m,bool autonomous,bool autonomous_start,Toplevel::Status_detail /*status*/,Time since_switch, Panel /*oi_panel*/){
+Main::Mode next_mode(Main::Mode m,bool autonomous,bool autonomous_start,Toplevel::Status_detail /*status*/,Time since_switch, Panel /*oi_panel*/,unsigned int navindex,std::vector<Main::NavS> NavV){
 	switch(m){
 		case Main::Mode::TELEOP:
 			if(autonomous_start){
@@ -159,7 +209,17 @@ Main::Mode next_mode(Main::Mode m,bool autonomous,bool autonomous_start,Toplevel
 		case Main::Mode::AUTO_MOVE:
 			//encoders? going to use time for now
 			if(!autonomous || since_switch>1) return Main::Mode::TELEOP;
-			return m;	
+			return m;
+		case Main::Mode::AUTO_NAV_LOAD:
+			return Main::Mode::AUTO_NAV;
+		case Main::Mode::AUTO_NAV:
+				
+			if(navindex==NavV.size())
+			return Main::Mode::TELEOP;
+			if(since_switch>NavV[navindex].amount){ 
+				navindex++; 
+			}
+			return Main::Mode::AUTO_NAV;
 		default: assert(0);
 	}
 }
@@ -206,10 +266,18 @@ Robot_outputs Main::operator()(Robot_inputs in,ostream&){
 		case Mode::AUTO_MOVE:
 			goals.drive.left=.45;
 			goals.drive.right=.45;
+
+		case Mode::AUTO_NAV_LOAD:	
+			NavV = loadnav();
+			navindex = 0;
+		case Mode::AUTO_NAV:
+			goals.drive.left=NavV[navindex].left;
+			goals.drive.right=NavV[navindex].right;
+			
 			break;	
 		default: assert(0);
 	}
-	auto next=next_mode(mode,in.robot_mode.autonomous,autonomous_start_now,toplevel_status,since_switch.elapsed(),oi_panel);
+	auto next=next_mode(mode,in.robot_mode.autonomous,autonomous_start_now,toplevel_status,since_switch.elapsed(),oi_panel,navindex,NavV);
 	since_switch.update(in.now,mode!=next);
 	mode=next;
 

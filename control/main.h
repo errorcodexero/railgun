@@ -8,20 +8,37 @@
 #include "../util/countup_timer.h"
 #include "toplevel.h"
 #include "../input/panel.h"
+#include "../util/nav.h"
 
 struct Main{
-	#define MODES X(TELEOP) X(AUTO_MOVE) 
+	#define MODES X(TELEOP) X(AUTO_MOVE) X(AUTO_NAV) X(AUTO_NAV_LOAD)
 	enum class Mode{
 		#define X(NAME) NAME,
 		MODES
 		#undef X
+	};
+
+
+	struct NavS{
+		int left;
+		int right;
+		int amount;
+	};
+	struct navinput{
+		point navpt;
+		direction navdir;
+
 	};
 	Mode mode;
 	
 	Force_interface force;
 	Perf_tracker perf;
 	Toplevel toplevel;
-
+	unsigned int navindex;
+	std::vector<NavS> NavV;
+		
+	vector<NavS> loadnav();
+	
 	Countup_timer since_switch,since_auto_start;
 
 	Posedge_trigger autonomous_start;
