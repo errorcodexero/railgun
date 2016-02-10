@@ -20,7 +20,7 @@ struct Main{
 
 	Mode mode;
 
-	struct NavS{
+/*	struct NavS{
 		int left, right, amount;
 	};
 	struct navinput{
@@ -31,7 +31,7 @@ struct Main{
 	std::vector<NavS> NavV;
 		
 	vector<NavS> loadnav();	
-	
+*/	
 	Force_interface force;
 	Perf_tracker perf;
 	Toplevel toplevel;
