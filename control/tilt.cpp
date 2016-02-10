@@ -2,9 +2,6 @@
 #include <stdlib.h>
 #include <cmath>
 
-#ifndef BALL_SENSOR_ADDRESS
-#define BALL_SENSOR_ADDRESS 6
-#endif
 #define TICKS_PER_DEGREE 100 //Assumed for now
 #define nyi { std::cout<<"\nnyi "<<__LINE__<<"\n"; exit(44); }
 
@@ -12,8 +9,7 @@ Tilt::Status_detail::Status_detail():
 	reached_ends(std::make_pair(0,0)),
 	stalled(0),
 	type_(Tilt::Status_detail::Type::MID),
-	angle(0),
-	has_ball(0)
+	angle(0)
 {}
 
 Tilt::Goal::Goal():mode_(Tilt::Goal::Mode::STOP),angle_min(0),angle_target(0),angle_max(0){}
@@ -37,16 +33,14 @@ Robot_inputs Tilt::Input_reader::operator()(Robot_inputs all,Tilt::Input in)cons
 	t.rev_limit_switch=in.bottom;
 	t.encoder_position=in.ticks;
 	t.current=in.current;
-	all.digital_io.in[BALL_SENSOR_ADDRESS]=in.has_ball? Digital_in::_1 : Digital_in::_0;
 	return all;
 }
 
 Tilt::Input Tilt::Input_reader::operator()(Robot_inputs all)const{
 	auto &t=all.talon_srx[can_address];
 	return Tilt::Input{
-	t.fwd_limit_switch,
-	t.rev_limit_switch,
-		all.digital_io.in[BALL_SENSOR_ADDRESS]==Digital_in::_1,
+		t.fwd_limit_switch,
+		t.rev_limit_switch,
 		t.encoder_position,
 		t.current
 	};
@@ -182,7 +176,7 @@ std::ostream& operator<<(std::ostream& o, Tilt a){
 #define CMP(name) if(a.name<b.name) return 1; if(b.name<a.name) return 0;
 
 bool operator==(Tilt::Input const& a,Tilt::Input const& b){
-	return (a.top==b.top && a.bottom==b.bottom && a.has_ball==b.has_ball && a.ticks==b.ticks && a.current==b.current);	
+	return (a.top==b.top && a.bottom==b.bottom && a.ticks==b.ticks && a.current==b.current);	
 }
 
 bool operator!=(Tilt::Input const& a,Tilt::Input const& b){ return !(a==b); }
@@ -194,7 +188,7 @@ bool operator<(Tilt::Input const& a,Tilt::Input const& b){
 	return a.ticks<b.ticks;
 }
 
-std::ostream& operator<<(std::ostream& o,Tilt::Input const& a){ return o<<"Tilt::Input( top:"<<a.top<<" bottom:"<<a.bottom<<" has_ball:"<<a.has_ball<<" ticks:"<<a.ticks<<" current:"<<a.current<<")"; }
+std::ostream& operator<<(std::ostream& o,Tilt::Input const& a){ return o<<"Tilt::Input( top:"<<a.top<<" bottom:"<<a.bottom<<" ticks:"<<a.ticks<<" current:"<<a.current<<")"; }
 
 bool operator<(Tilt::Status_detail a, Tilt::Status_detail b){
 	CMP(type())
@@ -234,14 +228,10 @@ bool operator!=(Tilt a, Tilt b){ return !(a==b); }
 
 std::set<Tilt::Input> examples(Tilt::Input*){ 
 	return {
-		Tilt::Input{0,0,0,0,0},
-		Tilt::Input{0,1,0,0,0},
-		Tilt::Input{1,0,0,0,0},
-		Tilt::Input{1,1,0,0,0},
-		Tilt::Input{0,0,1,0,0},
-		Tilt::Input{0,1,1,0,0},
-		Tilt::Input{1,0,1,0,0},
-		Tilt::Input{1,1,1,0,0}
+		Tilt::Input{0,0,0,0},
+		Tilt::Input{0,1,0,0},
+		Tilt::Input{1,0,0,0},
+		Tilt::Input{1,1,0,0}
 	};
 }
 std::set<Tilt::Goal> examples(Tilt::Goal*){

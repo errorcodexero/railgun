@@ -10,16 +10,11 @@ using namespace std;
 struct Front{
 	enum class Goal{IN,OFF,OUT};
 	
-	struct Status_detail{
-		bool has_ball;
-		Status_detail();
-	};
+	struct Status_detail{};
 
 	typedef Status_detail Status;
 
-	struct Input{
-		bool has_ball;
-	};
+	struct Input{};
 	
 	struct Input_reader{
 		Front::Input operator()(Robot_inputs)const;

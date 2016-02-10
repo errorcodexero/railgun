@@ -332,8 +332,8 @@ set<Toplevel::Input> examples(Toplevel::Input*){
 		Pump::Input{},
 		Tote_sensors::Input{0,0,0},
 		*examples((Tilt::Input*)0).begin(),
-		Sides::Input{0},
-		Front::Input{0},
+		Sides::Input{},
+		Front::Input{},
 		Climb::Input{0,0}
 	};
 	return {a};

@@ -1,8 +1,11 @@
 HIGH PRIORITY
+	- Check out drive encoders 
+	- Work on inout
+	- Update wpilib on all software computers - Calvin
 	- Check/change manipulator IOs when they're decided on for sure 
 	- Write shooter code (Need to wait until shooter design for completion) - Matthew/Logan
-	- Add automation option for collector modes 
-	- Write climber and shooter code into main 
+	- Add automation option for collector modes in main 
+	- Write shooter into main 
 	- OI code - Matthew/Logan/Adrian DUE FED 06 
 	
 
@@ -18,7 +21,7 @@ NOT AS HIGH PRIORITY:
 
 
 NICE THINGS TO HAVE:
-	- Update test version of the c++ compiler to use c++14
+	- Update c++ compiler to use c++14 for tests in runall2
 	- IMU - Calvin
 	- Clean-up stuff:
 		- Use enum class more places
