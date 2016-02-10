@@ -15,9 +15,7 @@ struct Sides{
 
 	typedef Status_detail Status;
 
-	struct Input{
-		bool has_ball;
-	};
+	struct Input{};
 	
 	struct Input_reader{
 		Sides::Input operator()(Robot_inputs)const;

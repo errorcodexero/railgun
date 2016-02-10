@@ -10,8 +10,6 @@ using namespace std;
 #endif
 #define FRONT_SPEED 1
 
-Front::Status_detail::Status_detail():has_ball(0){}
-
 ostream& operator<<(ostream& o, Front::Goal a){
 	#define X(name) if(a==Front::Goal::name)return o<<"Front::Goal("#name")";
 	X(IN) X(OUT) X(OFF)
@@ -19,16 +17,16 @@ ostream& operator<<(ostream& o, Front::Goal a){
 	assert(0);
 }
 
-ostream& operator<<(ostream& o, Front::Status a){ return o<<"Front::Status( has_ball:"<<a.has_ball<<")";}
-ostream& operator<<(ostream& o, Front::Input a){ return o<<"Front::Input( has_ball:"<<a.has_ball<<")";}
+ostream& operator<<(ostream& o, Front::Status){ return o<<"Front::Status()";}
+ostream& operator<<(ostream& o, Front::Input){ return o<<"Front::Input()";}
 ostream& operator<<(ostream& o, Front){ return o<<"Front()";}
 
-bool operator==(Front::Input a, Front::Input b){ return a.has_ball==b.has_ball;}
+bool operator==(Front::Input, Front::Input){ return true;}
 bool operator!=(Front::Input a, Front::Input b){ return !(a==b);}
-bool operator<(Front::Input a, Front::Input b){ return a.has_ball<b.has_ball;}
+bool operator<(Front::Input, Front::Input){ return false;}
 
-bool operator<(Front::Status_detail a, Front::Status_detail b){ return a.has_ball<b.has_ball;}
-bool operator==(Front::Status_detail a, Front::Status_detail b){ return a.has_ball==b.has_ball;}
+bool operator<(Front::Status_detail, Front::Status_detail){ return false;}
+bool operator==(Front::Status_detail, Front::Status_detail){ return true;}
 bool operator!=(Front::Status_detail a, Front::Status_detail b){ return !(a==b);} 
 
 bool operator==(Front::Input_reader,Front::Input_reader){ return 1;}
@@ -42,14 +40,9 @@ bool operator==(Front::Output_applicator, Front::Output_applicator){return 1;}
 bool operator==(Front a, Front b){ return (a.input_reader==b.input_reader && a.estimator==b.estimator && a.output_applicator==b.output_applicator);}
 bool operator!=(Front a, Front b){ return !(a==b);}
 
-Front::Input Front::Input_reader::operator()(Robot_inputs r)const{
-	return (r.digital_io.in[BALL_SENSOR_ADDRESS]==Digital_in::_1)? Front::Input{1} : Front::Input{0};
-}
+Front::Input Front::Input_reader::operator()(Robot_inputs)const{ return {}; }
 
-Robot_inputs Front::Input_reader::operator()(Robot_inputs a, Front::Input in)const{
-	a.digital_io.in[BALL_SENSOR_ADDRESS]=in.has_ball? Digital_in::_1 : Digital_in::_0;
-	return a;
-}
+Robot_inputs Front::Input_reader::operator()(Robot_inputs a, Front::Input)const{ return a; }
 
 Robot_outputs Front::Output_applicator::operator()(Robot_outputs r, Front::Output out)const{
 	r.relay[FRONT_ADDRESS]=[&]{
@@ -77,22 +70,13 @@ Front::Output Front::Output_applicator::operator()(Robot_outputs r)const{
 	assert(0);
 }
 	
-set<Front::Input> examples(Front::Input*){
-	return set<Front::Input>{Front::Input{0},Front::Input{1}};
-}
+set<Front::Input> examples(Front::Input*){ return {{}}; }
 
 set<Front::Goal> examples(Front::Goal*){ 
 	return {Front::Goal::OUT,Front::Goal::OFF,Front::Goal::IN};
 }
 
-set<Front::Status_detail> examples(Front::Status_detail*){ 
-	set<Front::Status_detail> a;
-	Front::Status_detail b;
-	a.insert(b);
-	b.has_ball=1;
-	a.insert(b);
-	return a;
-}
+set<Front::Status_detail> examples(Front::Status_detail*){ return {{}}; }
 
 Front::Output control(Front::Status_detail, Front::Goal goal){
 	if(goal==Front::Goal::OUT)return Front::Output::OUT;

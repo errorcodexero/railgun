@@ -5,9 +5,6 @@ using namespace std;
 
 #define nyi { cout<<"\nnyi "<<__LINE__<<"\n"; exit(44); }
 #define SIDES_ADDRESS 2
-#ifndef BALL_SENSOR_ADDRESS
-#define BALL_SENSOR_ADDRESS 6
-#endif
 #define SIDES_SPEED 1
 
 ostream& operator<<(ostream& o, Sides::Goal a){
@@ -17,12 +14,12 @@ ostream& operator<<(ostream& o, Sides::Goal a){
 	assert(0);
 }
 
-ostream& operator<<(ostream& o, Sides::Input a){ return o<<"Sides::Input( has_ball:"<<a.has_ball<<")";}
+ostream& operator<<(ostream& o, Sides::Input){ return o<<"Sides::Input()";}
 ostream& operator<<(ostream& o, Sides){ return o<<"Sides()";}
 
-bool operator==(Sides::Input a, Sides::Input b){ return a.has_ball==b.has_ball;}
+bool operator==(Sides::Input, Sides::Input){ return true; }
 bool operator!=(Sides::Input a, Sides::Input b){ return !(a==b);}
-bool operator<(Sides::Input a, Sides::Input b){ return a.has_ball<b.has_ball;}
+bool operator<(Sides::Input, Sides::Input){ return false;}
 
 bool operator==(Sides::Input_reader,Sides::Input_reader){ return 1;}
 bool operator<(Sides::Input_reader, Sides::Input_reader){ return 0;}
@@ -35,14 +32,9 @@ bool operator==(Sides::Output_applicator, Sides::Output_applicator){return 1;}
 bool operator==(Sides a, Sides b){ return (a.input_reader==b.input_reader && a.estimator==b.estimator && a.output_applicator==b.output_applicator);}
 bool operator!=(Sides a, Sides b){ return !(a==b);}
 
-Sides::Input Sides::Input_reader::operator()(Robot_inputs r)const{
-	return (r.digital_io.in[BALL_SENSOR_ADDRESS]==Digital_in::_1)? Sides::Input{1} : Sides::Input{0};
-}
-
-Robot_inputs Sides::Input_reader::operator()(Robot_inputs a, Sides::Input in)const{
-	a.digital_io.in[BALL_SENSOR_ADDRESS]=in.has_ball? Digital_in::_1 : Digital_in::_0;
-	return a;
-}
+Sides::Input Sides::Input_reader::operator()(Robot_inputs)const{ return {}; }
+	
+Robot_inputs Sides::Input_reader::operator()(Robot_inputs a, Sides::Input)const{ return a; }
 
 Robot_outputs Sides::Output_applicator::operator()(Robot_outputs r, Sides::Output out)const{
 	if(out==Sides::Output::OUT) r.pwm[SIDES_ADDRESS]=1;
@@ -60,9 +52,7 @@ Sides::Output Sides::Output_applicator::operator()(Robot_outputs r)const{
 	assert(0);
 }
 	
-set<Sides::Input> examples(Sides::Input*){
-	return set<Sides::Input>{Sides::Input{0},Sides::Input{1}};
-}
+set<Sides::Input> examples(Sides::Input*){ return {{}}; }	
 
 set<Sides::Goal> examples(Sides::Goal*){ 
 	return {Sides::Goal::OUT,Sides::Goal::OFF,Sides::Goal::IN};
