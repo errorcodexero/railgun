@@ -18,26 +18,23 @@ struct Main{
 		#undef X
 	};
 
+	Mode mode;
 
 	struct NavS{
-		int left;
-		int right;
-		int amount;
+		int left, right, amount;
 	};
 	struct navinput{
 		point navpt;
 		direction navdir;
-
 	};
-	Mode mode;
+	unsigned int navindex;
+	std::vector<NavS> NavV;
+		
+	vector<NavS> loadnav();	
 	
 	Force_interface force;
 	Perf_tracker perf;
 	Toplevel toplevel;
-	unsigned int navindex;
-	std::vector<NavS> NavV;
-		
-	vector<NavS> loadnav();
 	
 	Countup_timer since_switch,since_auto_start;
 

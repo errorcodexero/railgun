@@ -20,23 +20,26 @@ ostream& operator<<(ostream& o,Main::Mode a){
 	assert(0);
 }
 
-vector<Main::NavS> Main::loadnav() {
+//todo: at some point, might want to make this whatever is right to start autonomous mode.
+Main::Main():mode(Mode::TELEOP),autonomous_start(0),button_mode(Button_mode::MANUAL){}
+
+vector<Main::NavS> Main::loadnav(){
 	vector<NavS> nav;
 	NavS navelement;
-	navinput start;
-	navinput end;
+	navinput start, end;
 	vector<pair<int,movedir>> v;
 
 	//assign start information
 	start.navpt.x = 5;
 	start.navpt.y = 150;
 	start.navdir = RIGHT;
+	
 	//assign end information
 	end.navpt.x = 110;
 	end.navpt.y = 90;
 	end.navdir = RIGHT;
 	
-	v = solvemaze(start.navpt,end.navpt,start.navdir,end.navdir);
+	v=solvemaze(start.navpt,end.navpt,start.navdir,end.navdir);
 	
 	//something to note is that doing a 180 or going back is going to be the same as turning exept that it is going to be for longer so that it can go as far  
 	for (unsigned int i=0;i<v.size();i++){
@@ -60,17 +63,11 @@ vector<Main::NavS> Main::loadnav() {
 			navelement.right= -.45;
 			navelement.amount= 2;
 		}
-		else
-			assert(0);
-
+		else assert(0);
 		nav.push_back(navelement);
 	}
 	return nav;
-	
 }
-
-//todo: at some point, might want to make this whatever is right to start autonomous mode.
-Main::Main():mode(Mode::TELEOP),autonomous_start(0),button_mode(Button_mode::MANUAL){}
 
 double set_drive_speed(double axis,double boost,double /*slow*/){
 	static const float MAX_SPEED=1;//Change this value to change the max speed the robot will achieve with full boost
@@ -218,12 +215,8 @@ Main::Mode next_mode(Main::Mode m,bool autonomous,bool autonomous_start,Toplevel
 		case Main::Mode::AUTO_NAV_LOAD:
 			return Main::Mode::AUTO_NAV;
 		case Main::Mode::AUTO_NAV:
-				
-			if(navindex==NavV.size())
-			return Main::Mode::TELEOP;
-			if(since_switch>NavV[navindex].amount){ 
-				navindex++; 
-			}
+			if(navindex==NavV.size()) return Main::Mode::TELEOP;
+			if(since_switch>NavV[navindex].amount) navindex++; 
 			return Main::Mode::AUTO_NAV;
 		default: assert(0);
 	}
@@ -268,14 +261,14 @@ Robot_outputs Main::operator()(Robot_inputs in,ostream&){
 		case Mode::AUTO_MOVE:
 			goals.drive.left=.45;
 			goals.drive.right=.45;
-
+			break;
 		case Mode::AUTO_NAV_LOAD:	
 			NavV = loadnav();
 			navindex = 0;
+			break;
 		case Mode::AUTO_NAV:
 			goals.drive.left=NavV[navindex].left;
 			goals.drive.right=NavV[navindex].right;
-			
 			break;	
 		default: assert(0);
 	}

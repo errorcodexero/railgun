@@ -70,3 +70,5 @@ float timetowall(float value,float speed){
 void getDistance(float value){
 	cout<<converttodistance(value)<<"m\n";
 }
+
+int main(){}
