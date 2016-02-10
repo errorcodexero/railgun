@@ -19,6 +19,7 @@ g++ -Wall -Werror -std=c++0x --short-enums -DMAIN_TEST -I.. main.cpp \
 	../util/countup_timer.cpp \
 	../util/negedge_trigger.cpp \
 	../input/util.cpp \
+	../util/nav.cpp \
 	../util/jag_interface.cpp \
 	../util/driver_station_interface.cpp \
 	monitor.cpp \

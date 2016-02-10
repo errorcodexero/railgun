@@ -72,5 +72,4 @@ Inout::Output control(Inout::Status_detail,Inout::Goal);
 Inout::Status status(Inout::Status_detail);
 bool ready(Inout::Status,Inout::Goal);
 
-
 #endif
