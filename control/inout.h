@@ -1,5 +1,5 @@
-#ifndef SHOOTER_H
-#define SHOOTER_H
+#ifndef INOUT_H
+#define INOUT_H
 
 #include <iostream>
 #include <set>
