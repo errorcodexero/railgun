@@ -17,16 +17,13 @@
 #define ENDONE 1
 #define ENDTWO 120
 
-
 using namespace std;
-
 
 //////////////////////////////////////////////////////////////////////////////
 // Structures
 //
 // All Structures
 /////////////////////////////////////////////////////////////////////////////
-
 
 struct mapstruct {
 	int width;
@@ -49,20 +46,13 @@ bool operator!=(point a,point b){
 }
 
 ostream&operator<<(ostream& o, point a){
-	
 	o<< a.x << "," << a.y << endl;
-
 	return o;
 }
 
-
 bool operator==(point a,point b){
-	if ((a.x == b.x) & (a.y == b.y))
-		return true;
-	else
-		return false;
-	
-	
+	if ((a.x == b.x) & (a.y == b.y))return true;
+	return false;
 }
 
 template<typename A, typename B>
@@ -72,25 +62,15 @@ ostream&operator<<(ostream& o, pair<A,B> const& p){
 }
 template<typename A, typename B>
 ostream&operator<<(ostream& o, vector<A,B> const& p){
-	for (unsigned int i=0; i < p.size();i++)
-		o << "v: " << p[i] << endl; 
-
+	for (unsigned int i=0; i < p.size();i++)o << "v: " << p[i] << endl; 
 	return o;
 }
 
-
-
-
 ostream&operator<<(ostream& o, movedir const& p){
-	if(p==MFORWARD)
-		o<< "Forward";
-	else if( p==MRIGHT)
-		o<< "Right";
-	else if (p==MLEFT)
-		o<<"Left";
-	else if (p==MBACK)
-		o<<"Back";
-	 
+	if(p==MFORWARD)o<< "Forward";
+	else if( p==MRIGHT)o<< "Right";
+	else if (p==MLEFT)o<<"Left";
+	else if (p==MBACK)o<<"Back"; 
 	return o;
 }
 //////////////////////////////////////////////////////////////////////////////
@@ -99,10 +79,8 @@ ostream&operator<<(ostream& o, movedir const& p){
 //Takes in a boolian variable and returns a string that is ether TRUE or FALSE
 //////////////////////////////////////////////////////////////////////////////
 string pbool(bool b){
-	if(b)
-		return "true";
-	else 
-		return "false";
+	if(b) return "true";
+	return "false";
 }
 ///////////////////////////////////////////////////////////////////////////////////////////
 //pmovedir
@@ -111,16 +89,11 @@ string pbool(bool b){
 ///////////////////////////////////////////////////////////////////////////////////////////
 string pmovedir(movedir a){
 	string b;
-	if(a == MLEFT)
-		return "Left";
-	else if(a == MRIGHT)
-		return "Right";
-	else if(a == MFORWARD)
-		return "Forward";
-	else if(a == MBACK)
-		return "Back";
-	else
-		return "nothing was entered";
+	if(a == MLEFT) return "Left";
+	else if(a == MRIGHT) return "Right";
+	else if(a == MFORWARD) return "Forward";
+	else if(a == MBACK) return "Back";
+	return "nothing was entered";
 }
 	
 /////////////////////////////////////////////////////////////////////////////
@@ -169,7 +142,6 @@ bool validpoint(vector<list>  const& v,point q,mapstruct const& map){
 			p = true;
 			break;
 		}
-		
 	}
 		
 	return valid(q,map) && !p;
@@ -208,9 +180,7 @@ int nextp(vector<list> const& v){
 	max = v.size();
 
 	for (i=0; i<max; i++){
-		if( !v[i].v){
-			break;
-		}
+		if( !v[i].v)break;
 	}
 
 	assert(i<max);
@@ -263,14 +233,9 @@ vector<point> getpoint(vector<list> const& v,point p,mapstruct const& map){
 int findpoint(vector<list> const& v,point q){
 	int max;
 	int i;
-
 	max = v.size();
-
 	for (i=0; i<max; i++){
-		if( v[i].pt == q){
-
-			break;
-		}
+		if( v[i].pt == q)break;
 	}
 	assert(i<max);
 	return i;
@@ -296,25 +261,29 @@ void loadmap(mapstruct & a){
 	a.width = MAPWIDTH;
 	a.length = MAPLENGTH;
 
-	for(int i=0; i < a.width; i++)
-		for(int j=0; j < a.length; j++)
+	for(int i=0; i < a.width; i++){
+		for(int j=0; j < a.length; j++){
 			a.walls[i][j] = false;
-
-
+		}
+	}
 	 //blocks off secret passage.
-	for(int i=0; i < 144; i++)
-		for(int j=0; j < 30; j++)
+	for(int i=0; i < 144; i++){
+		for(int j=0; j < 30; j++){
 			a.walls[i][j] = true;
-
+		}
+	}
 	//blocks of outerworks.
-	for(int i=95; i < 120.5; i++)
-		for(int j=30.5; j < a.length; j++)
+	for(int i=95; i < 120.5; i++){
+		for(int j=30.5; j < a.length; j++){
 			a.walls[i][j] = true;
-
+		}
+	}
 	// blocks of tower.
-	for(int i=0; i < 34.5; i++)
-		for(int j=46.5; j < 119; j++)
+	for(int i=0; i < 34.5; i++){
+		for(int j=46.5; j < 119; j++){
 			a.walls[i][j] = true;
+		}
+	}
 	
 }
 /////////////////////////////////////////////////////////////////////////////////////////////
@@ -323,16 +292,10 @@ void loadmap(mapstruct & a){
 //takes in two points and determines dirction reletive to the first point and returns an enum
 /////////////////////////////////////////////////////////////////////////////////////////////
 direction whatdir(point a,point b){
-
-	if (a.x > b.x)
-		return LEFT;
-	else if (a.x < b.x)
-		return RIGHT;
-	else if (a.y > b.y)
-		return UP;
-	else if (a.y < b.y)
-		return DOWN;
-
+	if (a.x > b.x)return LEFT;
+	else if (a.x < b.x)return RIGHT;
+	else if (a.y > b.y)return UP;
+	else if (a.y < b.y)return DOWN;
 	assert(0);
 	
 }
@@ -342,23 +305,16 @@ direction whatdir(point a,point b){
 //takes in two directions and then finds orentation based on that
 ////////////////////////////////////////////////////////////////////////////
 movedir whatmove(direction one, direction two){
-	if(one == two)
-		return MFORWARD;
+	if(one == two)	return MFORWARD;
 	else if(one == RIGHT){
-		if(two == UP)
-			 return MLEFT;
-		else if (two == DOWN)
-			return MRIGHT;
-		else if (two == LEFT)
-			return MBACK;
+		if(two == UP)return MLEFT;
+		else if (two == DOWN)return MRIGHT;
+		else if (two == LEFT)return MBACK;
 	}
 	else if(one == LEFT){
-		if(two == UP)
-			return MRIGHT;
-		else if(two == DOWN)
-			return MLEFT;
-		else if(two == RIGHT)
-			return MBACK;
+		if(two == UP)return MRIGHT;
+		else if(two == DOWN)return MLEFT;
+		else if(two == RIGHT)return MBACK;
 	}
 	else if(one == UP){
 		if (two == RIGHT)
@@ -378,9 +334,6 @@ movedir whatmove(direction one, direction two){
 	}
 
 	assert(0);
-	
-
-
 }
 /////////////////////////////////////////////////////////////////////////////
 //invertvector
@@ -430,8 +383,6 @@ vector<pair<int,movedir>> findlist2(direction crdir,vector<pair<int,direction>> 
 	direction LCD = crdir;
 	movedir turn;
 
-	
-
 	for(unsigned int i=0; i < v.size(); i++){//loops throught the vector.
 		turn = whatmove(LCD,v[i].second);//figures out orentation
 
@@ -450,7 +401,6 @@ vector<pair<int,movedir>> findlist2(direction crdir,vector<pair<int,direction>> 
 		p.second = whatmove(LCD,enddir);
 		pairs.push_back(p);
 	}
-	
 	
 	return pairs;
 }
@@ -523,8 +473,7 @@ vector<pair<int,movedir>> solvemaze(point start,point end,direction startdir,dir
 
 			info.push_back(log); // store all the stored point
 		}	
-			
-	
+				
 		info[lineofvector].v = true; // set the visited status to visited
 			
 	}
@@ -542,7 +491,6 @@ vector<pair<int,movedir>> solvemaze(point start,point end,direction startdir,dir
 	}
 
 	ipath = invertvector(path); ////invert path
-	
 
 	//for (unsigned int i=0; i<ipath.size(); i++)	
 		//cout << ">>" << ipath[i] << endl;
@@ -551,11 +499,9 @@ vector<pair<int,movedir>> solvemaze(point start,point end,direction startdir,dir
 		nextdir = whatdir(ipath[i],ipath[i+1]); //figures out direction
 		//cout << nextdir << endl;
 		vnextdir.push_back(nextdir);
-		
 	}
 	
 	pear = findlist(vnextdir);
-	
 	pear2 = findlist2(startdir,pear,enddir);
 		
 	return pear2;	
@@ -567,17 +513,8 @@ point randpoint(mapstruct map){
 	while (true){
 		a.x = rand() % 119;
 		a.y = rand() % MAPLENGTH-1;
-		if(valid(a,map))
-			return a;
+		if(valid(a,map))return a;
 	}
-	
-	
-	
-
-
-
-
-
 }
 
 #ifdef NAV_TEST
@@ -602,9 +539,7 @@ int main(){
 
 	cout << "Final:" << endl << FinalInstructions << endl;
 
-
 	}
-
 }
 
 #endif

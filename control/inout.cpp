@@ -70,7 +70,6 @@ Inout::Output control(Inout::Status_detail,Inout::Goal goal){
 Inout::Status status(Inout::Status_detail a){ return a; }
 bool ready(Inout::Status,Inout::Goal){ return true; }
 
-
 #ifdef INOUT_TEST
 #include "formal.h"
 
