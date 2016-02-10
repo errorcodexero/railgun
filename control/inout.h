@@ -3,12 +3,13 @@
 
 #include <iostream>
 #include <set>
+#include "../util/countdown_timer.h"
 #include "../util/interface.h"
 #include "../util/util.h"
 #include "../util/driver_station_interface.h"
 
 struct Inout{
-	enum class Goal{};
+	enum class Goal{IN,STOP,OUT};
 	
 	struct Status_detail{};
 	
@@ -24,6 +25,7 @@ struct Inout{
 	typedef Goal Output;
 	
 	struct Output_applicator{
+		Countdown_timer timer;
 		Inout::Output operator()(Robot_outputs)const;
 		Robot_outputs operator()(Robot_outputs,Inout::Output)const;
 	};

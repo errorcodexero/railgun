@@ -1,5 +1,6 @@
 g++ --std=c++11 -Wall -Werror -DINOUT_TEST \
 	inout.cpp \
+	../util/countdown_timer.cpp \
 	../util/interface.cpp \
 	../util/driver_station_interface.cpp \
 	../util/util.cpp \
