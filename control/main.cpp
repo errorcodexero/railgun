@@ -21,7 +21,7 @@ ostream& operator<<(ostream& o,Main::Mode a){
 }
 
 //todo: at some point, might want to make this whatever is right to start autonomous mode.
-Main::Main():mode(Mode::TELEOP),autonomous_start(0),button_mode(Button_mode::MANUAL){}
+Main::Main():mode(Mode::TELEOP),autonomous_start(0),driver_collector_control(0){}
 
 vector<Main::NavS> Main::loadnav(){
 	vector<NavS> nav;
@@ -90,6 +90,8 @@ Toplevel::Goal Main::teleop(
 	Panel const&  oi_panel,
 	Toplevel::Status_detail& /*toplevel_status*/
 ){
+	//bool has_ball=(in.digital_io.in[6]==Digital_in::_1);
+
 	Toplevel::Goal goals;
 
 	//static const float Y_NUDGE_POWER=.2;// ROTATE_NUDGE_POWER=.5;//nudge amounts 
@@ -136,7 +138,7 @@ Toplevel::Goal Main::teleop(
 	
 	goals.drive=goal;
 
-	
+	//driver_collector_control=main_joystick.button[Gamepad_button::LB];
 
 	goals.front=[&]{
 		if(gunner_joystick.button[Gamepad_button::X]) return Front::Goal::IN;
