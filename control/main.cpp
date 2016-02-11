@@ -22,7 +22,7 @@ ostream& operator<<(ostream& o,Main::Mode a){
 
 //todo: at some point, might want to make this whatever is right to start autonomous mode.
 Main::Main():mode(Mode::TELEOP),autonomous_start(0),button_mode(Button_mode::MANUAL){}
-/*
+
 vector<Main::NavS> Main::loadnav(){
 	vector<NavS> nav;
 	NavS navelement;
@@ -67,7 +67,7 @@ vector<Main::NavS> Main::loadnav(){
 		nav.push_back(navelement);
 	}
 	return nav;
-}*/
+}
 
 double set_drive_speed(double axis,double boost,double /*slow*/){
 	static const float MAX_SPEED=1;//Change this value to change the max speed the robot will achieve with full boost
@@ -188,7 +188,7 @@ Toplevel::Goal Main::teleop(
 	return goals;
 }
 
-Main::Mode next_mode(Main::Mode m,bool autonomous,bool autonomous_start,Toplevel::Status_detail /*status*/,Time since_switch, Panel /*oi_panel*/){//,unsigned int navindex,std::vector<Main::NavS> NavV){
+Main::Mode next_mode(Main::Mode m,bool autonomous,bool autonomous_start,Toplevel::Status_detail /*status*/,Time since_switch, Panel /*oi_panel*/,unsigned int navindex,std::vector<Main::NavS> NavV){
 	switch(m){
 		case Main::Mode::TELEOP:
 			if(autonomous_start){
@@ -212,12 +212,12 @@ Main::Mode next_mode(Main::Mode m,bool autonomous,bool autonomous_start,Toplevel
 			//encoders? going to use time for now
 			if(!autonomous || since_switch>1) return Main::Mode::TELEOP;
 			return m;
-		/*case Main::Mode::AUTO_NAV_LOAD:
+		case Main::Mode::AUTO_NAV_LOAD:
 			return Main::Mode::AUTO_NAV;
 		case Main::Mode::AUTO_NAV:
 			if(navindex==NavV.size()) return Main::Mode::TELEOP;
 			if(since_switch>NavV[navindex].amount) navindex++; 
-			return Main::Mode::AUTO_NAV;*/
+			return Main::Mode::AUTO_NAV;
 		default: assert(0);
 	}
 }
@@ -262,17 +262,17 @@ Robot_outputs Main::operator()(Robot_inputs in,ostream&){
 			goals.drive.left=.45;
 			goals.drive.right=.45;
 			break;
-		/*case Mode::AUTO_NAV_LOAD:	
+		case Mode::AUTO_NAV_LOAD:	
 			NavV = loadnav();
 			navindex = 0;
 			break;
 		case Mode::AUTO_NAV:
 			goals.drive.left=NavV[navindex].left;
 			goals.drive.right=NavV[navindex].right;
-			break;*/	
+			break;
 		default: assert(0);
 	}
-	auto next=next_mode(mode,in.robot_mode.autonomous,autonomous_start_now,toplevel_status,since_switch.elapsed(),oi_panel);//,navindex,NavV);
+	auto next=next_mode(mode,in.robot_mode.autonomous,autonomous_start_now,toplevel_status,since_switch.elapsed(),oi_panel,navindex,NavV);
 	since_switch.update(in.now,mode!=next);
 	mode=next;
 
