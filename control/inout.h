@@ -11,7 +11,7 @@
 struct Inout{
 	enum class Goal{IN,STOP,OUT};
 	
-	struct Status_detail{};
+	enum class Status_detail{IN,OUT,UNKNOWN};
 	
 	typedef Status_detail Status;
 
@@ -25,14 +25,17 @@ struct Inout{
 	typedef Goal Output;
 	
 	struct Output_applicator{
-		Countdown_timer timer;
 		Inout::Output operator()(Robot_outputs)const;
 		Robot_outputs operator()(Robot_outputs,Inout::Output)const;
 	};
 
 	struct Estimator{
+		Status_detail last;
+		Countdown_timer timer;
+		Inout::Output last_output;
 		Inout::Status_detail get()const;
 		void update(Time,Inout::Input,Inout::Output);
+		Estimator();
 	};
 
 	Input_reader input_reader;
@@ -43,15 +46,12 @@ struct Inout{
 std::ostream& operator<<(std::ostream&,Inout::Goal);
 std::ostream& operator<<(std::ostream&,Inout::Input);
 std::ostream& operator<<(std::ostream&,Inout::Status_detail);
+std::ostream& operator<<(std::ostream&,Inout::Estimator);
 std::ostream& operator<<(std::ostream&,Inout);
 
 bool operator==(Inout::Input,Inout::Input);
 bool operator!=(Inout::Input,Inout::Input);
 bool operator<(Inout::Input,Inout::Input);
-
-bool operator<(Inout::Status_detail,Inout::Status_detail);
-bool operator==(Inout::Status_detail,Inout::Status_detail);
-bool operator!=(Inout::Status_detail,Inout::Status_detail);
 
 bool operator==(Inout::Input_reader,Inout::Input_reader);
 bool operator<(Inout::Input_reader,Inout::Input_reader);
