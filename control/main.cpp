@@ -136,6 +136,8 @@ Toplevel::Goal Main::teleop(
 	
 	goals.drive=goal;
 
+	
+
 	goals.front=[&]{
 		if(gunner_joystick.button[Gamepad_button::X]) return Front::Goal::IN;
 		else if(gunner_joystick.button[Gamepad_button::B]) return Front::Goal::OUT;
