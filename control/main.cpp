@@ -21,7 +21,7 @@ ostream& operator<<(ostream& o,Main::Mode a){
 }
 
 //todo: at some point, might want to make this whatever is right to start autonomous mode.
-Main::Main():mode(Mode::TELEOP),autonomous_start(0),driver_collector_control(0){}
+Main::Main():mode(Mode::TELEOP),autonomous_start(0),collector_mode(Collector_mode::NOTHING){}
 
 vector<Main::NavS> Main::loadnav(){
 	vector<NavS> nav;
@@ -90,7 +90,7 @@ Toplevel::Goal Main::teleop(
 	Panel const&  oi_panel,
 	Toplevel::Status_detail& /*toplevel_status*/
 ){
-	//bool has_ball=(in.digital_io.in[6]==Digital_in::_1);
+	bool has_ball=(in.digital_io.in[6]==Digital_in::_1);
 
 	Toplevel::Goal goals;
 
@@ -138,7 +138,37 @@ Toplevel::Goal Main::teleop(
 	
 	goals.drive=goal;
 
-	//driver_collector_control=main_joystick.button[Gamepad_button::LB];
+	if(has_ball){
+		collector_mode=Collector_mode::REFLECT;
+	}
+
+	switch(collector_mode){
+		case Collector_mode::COLLECT:
+			goals.front=Front::Goal::IN;
+			goals.sides=Sides::Goal::IN;
+			goals.tilt=Tilt::Goal::down();
+		case Collector_mode::STOW:
+			goals.front=Front::Goal::OFF;
+			goals.sides=Sides::Goal::OFF;
+			goals.tilt=Tilt::Goal::up();
+			break;
+		case Collector_mode::REFLECT:
+			goals.front=Front::Goal::OUT;
+			goals.sides=Sides::Goal::OUT;
+			break;
+		case Collector_mode::EJECT:
+			break;
+		case Collector_mode::TERRAIN:
+			break;
+		case Collector_mode::LOW_BAR:
+			break;
+		case Collector_mode::NOTHING:
+			goals.front=Front::Goal::OFF;
+			goals.sides=Sides::Goal::OFF;
+			goals.tilt=Tilt::Goal::stop();
+			break;
+		default: assert(0);
+	}
 
 	goals.front=[&]{
 		if(gunner_joystick.button[Gamepad_button::X]) return Front::Goal::IN;
