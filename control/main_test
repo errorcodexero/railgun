@@ -16,6 +16,7 @@ g++ -Wall -Werror -std=c++0x --short-enums -DMAIN_TEST -I.. main.cpp \
 	front.cpp \
 	sides.cpp \
 	climb.cpp \
+	inout.cpp \
 	../util/countup_timer.cpp \
 	../util/negedge_trigger.cpp \
 	../input/util.cpp \

@@ -140,7 +140,8 @@ Toplevel::Status::Status():
 	tilt(Tilt::Status::mid(0)),
 	sides(Sides::Status{}),
 	front(Front::Status{}),
-	climb(Climb::Status::mid())
+	climb(Climb::Status::mid()),
+	inout(Inout::Status::UNKNOWN)
 {}
 
 bool operator==(Toplevel::Status a,Toplevel::Status b){
@@ -314,7 +315,8 @@ set<Toplevel::Status_detail> examples(Toplevel::Status_detail*){
 		*examples((Tilt::Status_detail*)0).begin(),
 		*examples((Sides::Status_detail*)0).begin(),
 		*examples((Front::Status_detail*)0).begin(),
-		*examples((Climb::Status_detail*)0).begin()
+		*examples((Climb::Status_detail*)0).begin(),
+		*examples((Inout::Status_detail*)0).begin()
 	}};
 }
 
@@ -334,7 +336,8 @@ set<Toplevel::Input> examples(Toplevel::Input*){
 		*examples((Tilt::Input*)0).begin(),
 		Sides::Input{},
 		Front::Input{},
-		Climb::Input{0,0}
+		Climb::Input{0,0},
+		Inout::Input{}
 	};
 	return {a};
 }
