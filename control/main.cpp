@@ -35,8 +35,8 @@ vector<Main::NavS> Main::loadnav(){
 	start.navdir = RIGHT;
 	
 	//assign end information
-	end.navpt.x = 110;
-	end.navpt.y = 90;
+	end.navpt.x = 5;
+	end.navpt.y = 200;
 	end.navdir = RIGHT;
 	
 	v=solvemaze(start.navpt,end.navpt,start.navdir,end.navdir);
@@ -192,6 +192,7 @@ Main::Mode next_mode(Main::Mode m,bool autonomous,bool autonomous_start,Toplevel
 	switch(m){
 		case Main::Mode::TELEOP:
 			if(autonomous_start){
+				return Main::Mode::AUTO_NAV_LOAD;//just for testing purposes
 				/*if (oi_panel.in_use) {
 					switch(oi_panel.auto_mode){ 
 						case Panel::Auto_mode::CAN_GRAB:
