@@ -14,8 +14,16 @@ Panel::Panel():
 	collect(0),
 	reflect(0),
 	stow(0),
-	open_portcullis(0),
-	lower_cheval(0),
+	terrain(0),
+	low_bar(0),
+	prep_cheval(0),
+	prep_drawbridge(0),
+	prep_sally(0),
+	prep_portcullis(0),
+	execute_prep(0),
+	cancel_prep(0),
+	prep_shoot(0),
+	shoot(0),
 	collector_auto(0),
 	climber(Climber::STOP),
 	front(Collector::OFF),
@@ -65,8 +73,16 @@ ostream& operator<<(ostream& o,Panel p){
 	o<<", collect:"<<p.collect;
 	o<<", reflect:"<<p.reflect;
 	o<<", stow:"<<p.stow;
-	o<<", open_portcullis:"<<p.open_portcullis;
-	o<<", lower_cheval:"<<p.lower_cheval;
+	o<<", terrain:"<<p.terrain;
+	o<<", low_bar:"<<p.low_bar;
+	o<<", prep_cheval:"<<p.prep_cheval;
+	o<<", prep_drawbridge:"<<p.prep_drawbridge;
+	o<<", prep_sally:"<<p.prep_sally;
+	o<<", prep_portcullis:"<<p.prep_portcullis;
+	o<<", execute_prep:"<<p.execute_prep;
+	o<<", cancel_prep:"<<p.cancel_prep;
+	o<<", prep_shoot:"<<p.prep_shoot;
+	o<<", shoot:"<<p.shoot;
 	o<<", collector_auto:"<<p.collector_auto;
 	o<<", climber:"<<p.climber;
 	o<<", front:"<<p.front;
@@ -89,7 +105,7 @@ Panel::Auto_mode auto_mode_convert(int potin){
 }
 
 Panel interpret(Joystick_data d){
-	#define AXIS_RANGE(axis, last, curr, next, var, val) if (axis > curr-(curr-last)/2 && axis < curr+(next-curr)) var = val;
+	#define AXIS_RANGE(axis, last, curr, next, var, val) if (axis > curr-(curr-last)/2 && axis < curr+(next-curr)/2) var = val;
 	Panel p;
 	{
 		p.in_use=[&](){
@@ -111,26 +127,34 @@ Panel interpret(Joystick_data d){
 	p.control_angle = d.button[0];
 	{
 		float op = d.axis[3];
-		static const float DEFAULT=-1, COLLECT=-.7, REFLECT=-.4, EJECT=0, STOW=.4, PORTCULLIS=.7, CHEVAL=1;
+		static const float DEFAULT=-1, COLLECT=-.86, REFLECT=-.72, EJECT=-.58, STOW=-.44, TERRAIN=-.3, LOW_BAR=-.15, CHEVAL=0, DRAWBRIDGE=.15, SALLY=.3, PORTCULLIS=.44, EXECUTE=.58, CANCEL=.72, PREP_SHOOT=.86, SHOOT=1;
 		#define X(button) p.button = 0;
-		X(collect) X(reflect) X(eject) X(stow) X(open_portcullis) X(lower_cheval)
+		X(collect) X(reflect) X(eject) X(stow) X(terrain) X(low_bar) X(prep_cheval) X(prep_drawbridge) X(prep_sally) X(prep_portcullis) X(execute_prep) X(cancel_prep) X(prep_shoot) X(shoot)
 		#undef X
 		AXIS_RANGE(op, DEFAULT, COLLECT, REFLECT, p.collect, 1)
 		else AXIS_RANGE(op, COLLECT, REFLECT, EJECT, p.reflect, 1)
 		else AXIS_RANGE(op, REFLECT, EJECT, STOW, p.eject, 1)
-		else AXIS_RANGE(op, EJECT, STOW, PORTCULLIS, p.stow, 1)
-		else AXIS_RANGE(op, STOW, PORTCULLIS, CHEVAL, p.open_portcullis, 1)
-		else AXIS_RANGE(op, PORTCULLIS, CHEVAL, 1.5, p.lower_cheval, 1)
+		else AXIS_RANGE(op, EJECT, STOW, TERRAIN, p.stow, 1)
+		else AXIS_RANGE(op, STOW, TERRAIN, LOW_BAR, p.terrain, 1)
+		else AXIS_RANGE(op, TERRAIN, LOW_BAR, CHEVAL, p.low_bar, 1)
+		else AXIS_RANGE(op, LOW_BAR, CHEVAL, DRAWBRIDGE, p.prep_cheval, 1)
+		else AXIS_RANGE(op, CHEVAL, DRAWBRIDGE, SALLY, p.prep_drawbridge, 1)
+		else AXIS_RANGE(op, DRAWBRIDGE, SALLY, PORTCULLIS, p.prep_sally, 1)
+		else AXIS_RANGE(op, SALLY, PORTCULLIS, EXECUTE, p.prep_portcullis, 1)
+		else AXIS_RANGE(op, PORTCULLIS, EXECUTE, CANCEL, p.execute_prep, 1)
+		else AXIS_RANGE(op, EXECUTE, CANCEL, PREP_SHOOT, p.cancel_prep, 1)
+		else AXIS_RANGE(op, CANCEL, PREP_SHOOT, SHOOT, p.prep_shoot, 1)
+		else AXIS_RANGE(op, PREP_SHOOT, SHOOT, 1.28, p.shoot, 1)
 	}
 	{
-		float climb = d.axis[3];
+		float climb = d.axis[2];
 		static const float RETRACT=-1, STOP=0, EXTEND=1;
 		p.climber = Panel::Climber::RETRACT;
 		AXIS_RANGE(climb, RETRACT, STOP, EXTEND, p.climber, Panel::Climber::STOP)
 		else AXIS_RANGE(climb, STOP, EXTEND, 1.5, p.climber, Panel::Climber::EXTEND)
 	}
 	{
-		float front = d.axis[4];
+		float front = d.axis[7];
 		static const float OFF=-1, OUT=.48, IN=1;
 		p.front = Panel::Collector::OFF;
 		AXIS_RANGE(front, OFF, OUT, IN, p.front, Panel::Collector::OUT)
@@ -144,7 +168,7 @@ Panel interpret(Joystick_data d){
                 else AXIS_RANGE(sides, OFF, OUT, 1.5, p.sides, Panel::Collector::OUT)
 	}
 	{
-		float tilt = d.axis[7];
+		float tilt = d.axis[4];
 		static const float DOWN=-1, STOP=0, UP=1;
 		p.tilt = Panel::Tilt::DOWN;
 		AXIS_RANGE(tilt, DOWN, STOP, UP, p.tilt, Panel::Tilt::STOP)

@@ -17,7 +17,6 @@ struct Main{
 		MODES
 		#undef X
 	};
-
 	Mode mode;
 
 	struct NavS{
@@ -47,9 +46,10 @@ struct Main{
 		Countdown_timer timer;
 	};
 	Nudge nudges[4];//Forward, Backward, Clockwise, Counter-clockwise
-		
-	enum class Button_mode{MANUAL,AUTO_UP,AUTO_DOWN};
-	Button_mode button_mode;
+	
+	Posedge_toggle driver_collector_control;
+	enum class Collector_mode{NOTHING,COLLECT,STOW,EJECT,REFLECT,TERRAIN,LOW_BAR};
+	Collector_mode collector_mode;
 
 	Toplevel::Goal teleop(Robot_inputs const&,Joystick_data const&,Joystick_data const&,Panel const&,Toplevel::Status_detail&);
 	Main();

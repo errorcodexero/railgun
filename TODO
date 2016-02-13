@@ -1,17 +1,22 @@
 HIGH PRIORITY
+	- Add driver collector control button(s) (toggle)
 	- Check out drive encoders 
-	- Work on inout
+	- Figure out what's going on with climber
 	- Update wpilib on all software computers - Calvin
-	- Check/change manipulator IOs when they're decided on for sure 
-	- Write shooter code (Need to wait until shooter design for completion) - Matthew/Logan
-	- Add automation option for collector modes in main 
+	- Write shooter code (Need to wait until shooter design for completion) - Matthew/Logan 
 	- Write shooter into main 
-	- OI code - Matthew/Logan/Adrian DUE FED 06 
-	
+	- OI code - Matthew/Logan/Adrian 
+	- Decide on which computers to use as Driver Stations and update them.
+	- Update mainpulators based on new information
+	- Shooter:
+		Vertical/Horizontal Activation
+		Shooter wheel spin up etc.
+		Ball injector	
+
 
 NOT AS HIGH PRIORITY: 
 	- Bug Fixes - EVERYONE
-	- Logger & Diagnostics 
+	- Logger & Diagnostics - Jacob
 	- Autonomous* - Tristan/Matthew DUE FEB 13
 	- Vision - Nick DUE FEB 18
 	- Laptop configuration - Adrian

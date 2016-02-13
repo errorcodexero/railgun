@@ -10,23 +10,27 @@ std::ostream& operator<<(std::ostream& o,Inout::Goal a){
 	assert(0);
 }
 
-std::ostream& operator<<(std::ostream& o,Inout::Input){ return o<<"Inout::Input{}"; }
-std::ostream& operator<<(std::ostream& o,Inout::Status_detail){ return o<<"Inout::Status_detail"; }
-std::ostream& operator<<(std::ostream& o,Inout){ return o<<"Inout{}"; }
+std::ostream& operator<<(std::ostream& o,Inout::Input){ return o<<"Inout::Input()"; }
+std::ostream& operator<<(std::ostream& o,Inout::Status_detail a){
+	#define X(name) if(a==Inout::Status_detail::name) return o<<"Inout::Status_detail("#name")";
+	X(IN) X(OUT) X(UNKNOWN)
+	#undef X
+	assert(0);
+}
+std::ostream& operator<<(std::ostream& o,Inout::Estimator a){ return o<<"Inout::Estimator( last:"<<a.last<<" timer:"<<a.timer<<" last_output:"<<a.last_output<<")"; }
+std::ostream& operator<<(std::ostream& o,Inout a){ return o<<"Inout("<<a.estimator<<")"; }
+
+Inout::Estimator::Estimator():last(Inout::Status_detail::UNKNOWN),timer(),last_output(Inout::Output::STOP){}
 
 bool operator==(Inout::Input,Inout::Input){ return true; }
 bool operator!=(Inout::Input,Inout::Input){ return false; }
 bool operator<(Inout::Input,Inout::Input){ return false; }
 
-bool operator<(Inout::Status_detail,Inout::Status_detail){ return false; }
-bool operator==(Inout::Status_detail,Inout::Status_detail){ return true; }
-bool operator!=(Inout::Status_detail,Inout::Status_detail){ return false; }
-
 bool operator==(Inout::Input_reader,Inout::Input_reader){ return true; }
 bool operator<(Inout::Input_reader,Inout::Input_reader){ return false; }
 
-bool operator==(Inout::Estimator,Inout::Estimator){ return true; }
-bool operator!=(Inout::Estimator,Inout::Estimator){ return false; }
+bool operator==(Inout::Estimator a,Inout::Estimator b){ return a.last==b.last && a.timer==b.timer && a.last_output==b.last_output; }
+bool operator!=(Inout::Estimator a,Inout::Estimator b){ return !(a==b); }
 
 bool operator==(Inout::Output_applicator,Inout::Output_applicator){ return true; }
 
@@ -53,19 +57,29 @@ Robot_outputs Inout::Output_applicator::operator()(Robot_outputs r,Inout::Output
 }
 
 Inout::Status_detail Inout::Estimator::get()const{ return {}; }
-void Inout::Estimator::update(Time,Inout::Input,Inout::Output){} 
+void Inout::Estimator::update(Time time,Inout::Input,Inout::Output output){
+	timer.update(time,true);
+	if(output!=last_output && (output==Inout::Output::OUT || output==Inout::Output::IN)){
+		timer.set(1);
+	}
+	if(timer.done()){
+		if(output==Inout::Output::IN)last=Inout::Status_detail::IN;
+		else if(output==Inout::Output::OUT)last=Inout::Status_detail::OUT;
+	}
+	last_output=output;
+} 
 
 std::set<Inout::Input> examples(Inout::Input*){ return {{}}; }
 std::set<Inout::Goal> examples(Inout::Goal*){ return {Inout::Goal::IN,Inout::Goal::STOP,Inout::Goal::OUT}; }
-std::set<Inout::Status_detail> examples(Inout::Status_detail*){ return {{}}; }
+std::set<Inout::Status_detail> examples(Inout::Status_detail*){ return {Inout::Status_detail::IN,Inout::Status_detail::OUT,Inout::Status_detail::UNKNOWN}; }
 
 Inout::Output control(Inout::Status_detail,Inout::Goal goal){
 	switch(goal){
 		case Inout::Goal::IN: return Inout::Output::IN;
 		case Inout::Goal::OUT: return Inout::Output::OUT;
-		default: return Inout::Output::STOP;
+		case Inout::Goal::STOP: return Inout::Output::STOP;
+		default: assert(0);
 	}
-	assert(0);
 }
 Inout::Status status(Inout::Status_detail a){ return a; }
 bool ready(Inout::Status,Inout::Goal){ return true; }

@@ -45,28 +45,26 @@ Front::Input Front::Input_reader::operator()(Robot_inputs)const{ return {}; }
 Robot_inputs Front::Input_reader::operator()(Robot_inputs a, Front::Input)const{ return a; }
 
 Robot_outputs Front::Output_applicator::operator()(Robot_outputs r, Front::Output out)const{
-	r.relay[FRONT_ADDRESS]=[&]{
+	/*r.relay[FRONT_ADDRESS]=[&]{
 		switch(out){
 			case Front::Output::OUT: return Relay_output::_01;
 			case Front::Output::IN: return Relay_output::_10;
 			default: return Relay_output::_00;
 		}
-	}();
-	/*
+	}();*/
 	if(out==Front::Output::OUT) r.pwm[FRONT_ADDRESS]=FRONT_SPEED;
 	else if(out==Front::Output::OFF) r.pwm[FRONT_ADDRESS]=0;
 	else if(out==Front::Output::IN) r.pwm[FRONT_ADDRESS]=-FRONT_SPEED;
-	*/
 	return r;
 }
 
 Front::Status_detail Front::Estimator::get()const{ return Front::Status_detail{};}
 
 Front::Output Front::Output_applicator::operator()(Robot_outputs r)const{
-	return (r.relay[FRONT_ADDRESS]==Relay_output::_01? Front::Output::OUT : (r.relay[FRONT_ADDRESS]==Relay_output::_10? Front::Output::IN : Front::Output::OFF));
-	/*if(r.pwm[FRONT_ADDRESS]==FRONT_SPEED)return Front::Output::OUT;
+	//return (r.relay[FRONT_ADDRESS]==Relay_output::_01? Front::Output::OUT : (r.relay[FRONT_ADDRESS]==Relay_output::_10? Front::Output::IN : Front::Output::OFF));
+	if(r.pwm[FRONT_ADDRESS]==FRONT_SPEED)return Front::Output::OUT;
 	if(r.pwm[FRONT_ADDRESS]==0)return Front::Output::OFF;
-	if(r.pwm[FRONT_ADDRESS]==-FRONT_SPEED)return Front::Output::IN;*/
+	if(r.pwm[FRONT_ADDRESS]==-FRONT_SPEED)return Front::Output::IN;
 	assert(0);
 }
 	

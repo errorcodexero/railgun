@@ -12,8 +12,16 @@ struct Panel{
 	bool collect;
 	bool reflect;
 	bool stow;
-	bool open_portcullis;
-	bool lower_cheval;
+	bool terrain;
+	bool low_bar;
+	bool prep_cheval;
+	bool prep_drawbridge;
+	bool prep_sally;
+	bool prep_portcullis;
+	bool execute_prep;
+	bool cancel_prep;
+	bool prep_shoot;
+	bool shoot;
 	//2 position swicthes:
 	bool collector_auto;
 	//3 position switches: 
