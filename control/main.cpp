@@ -144,51 +144,51 @@ Toplevel::Goal Main::teleop(
 	}	
 	
 	goals.drive=goal;
-
-	driver_collector_control.update(main_joystick.button[Gamepad_button::START]);
-
-	if(main_joystick.button[Gamepad_button::BACK])collector_mode=Collector_mode::NOTHING;
-	if(driver_collector_control.get())collector_mode=Collector_mode::COLLECT;
-	else collector_mode=Collector_mode::STOW;
-
-	if(has_ball && collector_mode==Collector_mode::COLLECT) collector_mode=Collector_mode::REFLECT;
-
-	switch(collector_mode){
-		case Collector_mode::COLLECT:
-			goals.front=Front::Goal::IN;
-			goals.sides=Sides::Goal::IN;
-			goals.tilt=Tilt::Goal::down();
-		case Collector_mode::STOW:
-			goals.front=Front::Goal::OFF;
-			goals.sides=Sides::Goal::OFF;
-			goals.tilt=Tilt::Goal::up();
-			break;
-		case Collector_mode::REFLECT:
-			goals.front=Front::Goal::OUT;
-			goals.sides=Sides::Goal::OUT;
-			goals.tilt=Tilt::Goal::down();
-			break;
-		case Collector_mode::EJECT:
-			goals.front=Front::Goal::OUT;
-			goals.sides=Sides::Goal::IN;
-			goals.tilt=Tilt::Goal::down();
-			break;
-		case Collector_mode::TERRAIN:
-			goals.front=Front::Goal::OFF;
-			goals.sides=Sides::Goal::OFF;
-			goals.tilt=Tilt::Goal::up();
-			break;
-		case Collector_mode::LOW_BAR:
-			goals.front=Front::Goal::OFF;
-			goals.sides=Sides::Goal::OFF;
-			goals.tilt=Tilt::Goal::down();
-			break;
-		case Collector_mode::NOTHING:
-			goals.front=Front::Goal::OFF;
-			goals.sides=Sides::Goal::OFF;
-			goals.tilt=Tilt::Goal::stop();
-			break;
-		default: assert(0);
+	
+	if (!oi_panel.in_use || (oi_panel.in_use && oi_panel.collector_auto)) {
+		if(main_joystick.button[Gamepad_button::BACK])collector_mode=Collector_mode::NOTHING;
+		if(main_joystick.button[Gamepad_button::START]) {
+			collector_mode=false/*tilt is at top*/ ? (has_ball ? Collector_mode::REFLECT : Collector_mode::COLLECT) : Collector_mode::STOW;
+			//driver_collector_stowed = !driver_collector_stowed;
+		}
+		
+		switch(collector_mode){
+			case Collector_mode::COLLECT:
+				goals.front=Front::Goal::IN;
+				goals.sides=Sides::Goal::IN;
+				goals.tilt=Tilt::Goal::down();
+			case Collector_mode::STOW:
+				goals.front=Front::Goal::OFF;
+				goals.sides=Sides::Goal::OFF;
+				goals.tilt=Tilt::Goal::up();
+				break;
+			case Collector_mode::REFLECT:
+				goals.front=Front::Goal::OUT;
+				goals.sides=Sides::Goal::OUT;
+				goals.tilt=Tilt::Goal::down();
+				break;
+			case Collector_mode::EJECT:
+				goals.front=Front::Goal::OUT;
+				goals.sides=Sides::Goal::IN;
+				goals.tilt=Tilt::Goal::down();
+				break;
+			case Collector_mode::TERRAIN:
+				goals.front=Front::Goal::OFF;
+				goals.sides=Sides::Goal::OFF;
+				goals.tilt=Tilt::Goal::up();
+				break;
+			case Collector_mode::LOW_BAR:
+				goals.front=Front::Goal::OFF;
+				goals.sides=Sides::Goal::OFF;
+				goals.tilt=Tilt::Goal::down();
+				break;
+			case Collector_mode::NOTHING:
+				goals.front=Front::Goal::OFF;
+				goals.sides=Sides::Goal::OFF;
+				goals.tilt=Tilt::Goal::stop();
+				break;
+			default: assert(0);
+		}
 	}
 
 	goals.front=[&]{
