@@ -1,1 +1,39 @@
+Driver:
+ A -
+ B -
+ X -
+ Y -
+ Start -
+ Back -
+ RB -
+ LB -
+ RT -
+ LT -
+ LJoystick:
+  X Axis -
+  Y Axis -
+  Pushed In -
+ RJoystick:
+  X Axis -
+  Y Axis -
+  Pushed In -
 
+Gunner:
+ A -
+ B -
+ X -
+ Y -
+ Start -
+ Back -
+ RB -
+ LB -
+ RT -
+ LT -
+ LJoystick:
+  X Axis -
+  Y Axis -
+  Pushed In -
+ RJoystick:
+  X Axis -
+  Y Axis -
+  Pushed In -
