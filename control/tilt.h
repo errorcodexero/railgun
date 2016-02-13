@@ -9,6 +9,13 @@
 #include "../util/quick.h"
 #include <set>
 
+#define TILT_POT_TOP 70
+#define TILT_POT_BOT 0
+#define TILT_PDB_LOC 8
+#define TILT_POT_LOC 7
+#define TILT_ADDRESS 5
+#define TILT_SPEED 1
+
 struct Tilt{
 	class Goal{
 		public: 
@@ -57,23 +64,17 @@ struct Tilt{
 	typedef Status_detail Status;
 
 	struct Input{
-		bool top, bottom;
-		int ticks;
+		float pot_value;
 		double current;
 	};
 	
 	struct Input_reader{
-		int can_address;
-
-		explicit Input_reader(int);
 		Input operator()(Robot_inputs)const;
 		Robot_inputs operator()(Robot_inputs,Input)const;
 	};
 	
 	struct Estimator{
 		Status_detail last;
-		Maybe_inline<int> top,bottom;
-		Maybe_inline<double> range()const;
 
 		public: 
 		Estimator();
@@ -86,9 +87,6 @@ struct Tilt{
 	};
 	
 	struct Output_applicator{
-		int can_address;
-		
-		explicit Output_applicator(int);
 		Output operator()(Robot_outputs)const;
 		Robot_outputs operator()(Robot_outputs,Output)const;
 	};	
@@ -96,7 +94,6 @@ struct Tilt{
 	Output_applicator output_applicator;
 	Input_reader input_reader;
 	Estimator estimator;
-	explicit Tilt(int);
 };
 
 

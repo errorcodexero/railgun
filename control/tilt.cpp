@@ -2,7 +2,7 @@
 #include <stdlib.h>
 #include <cmath>
 
-#define TICKS_PER_DEGREE 100 //Assumed for now
+#define VALUE_PER_DEGREE 100 //Assumed for now
 #define nyi { std::cout<<"\nnyi "<<__LINE__<<"\n"; exit(44); }
 
 Tilt::Status_detail::Status_detail(): 
@@ -14,44 +14,22 @@ Tilt::Status_detail::Status_detail():
 
 Tilt::Goal::Goal():mode_(Tilt::Goal::Mode::STOP),angle_min(0),angle_target(0),angle_max(0){}
 
-Tilt::Output_applicator::Output_applicator(int a):can_address(a){
-	assert(can_address>=0 && (unsigned)can_address<Robot_outputs::TALON_SRX_OUTPUTS);
+Robot_inputs Tilt::Input_reader::operator()(Robot_inputs r,Tilt::Input in)const{
+	r.current[TILT_PDB_LOC]=in.current;
+	r.analog[TILT_POT_LOC]=in.pot_value;
+	return r;
 }
 
-Tilt::Input_reader::Input_reader(int a):can_address(a){
-	assert(can_address>=0 && (unsigned)can_address<Robot_outputs::TALON_SRX_OUTPUTS);
-}
-
-Tilt::Tilt(int can_address):
-	output_applicator(can_address),
-	input_reader(can_address)
-{}
-
-Robot_inputs Tilt::Input_reader::operator()(Robot_inputs all,Tilt::Input in)const{
-	auto &t=all.talon_srx[can_address];
-	t.fwd_limit_switch=in.top;
-	t.rev_limit_switch=in.bottom;
-	t.encoder_position=in.ticks;
-	t.current=in.current;
-	return all;
-}
-
-Tilt::Input Tilt::Input_reader::operator()(Robot_inputs all)const{
-	auto &t=all.talon_srx[can_address];
-	return Tilt::Input{
-		t.fwd_limit_switch,
-		t.rev_limit_switch,
-		t.encoder_position,
-		t.current
-	};
+Tilt::Input Tilt::Input_reader::operator()(Robot_inputs r)const{
+	return {r.analog[TILT_POT_LOC],r.current[TILT_PDB_LOC]};
 }
 
 Tilt::Output Tilt::Output_applicator::operator()(Robot_outputs r)const{
-	return r.talon_srx[can_address].power_level;
+	return r.pwm[TILT_ADDRESS];
 }
 
 Robot_outputs Tilt::Output_applicator::operator()(Robot_outputs r, Tilt::Output out)const{
-	r.talon_srx[can_address].power_level=out;
+	r.pwm[TILT_ADDRESS]=out;
 	return r;
 }
 
@@ -176,19 +154,16 @@ std::ostream& operator<<(std::ostream& o, Tilt a){
 #define CMP(name) if(a.name<b.name) return 1; if(b.name<a.name) return 0;
 
 bool operator==(Tilt::Input const& a,Tilt::Input const& b){
-	return (a.top==b.top && a.bottom==b.bottom && a.ticks==b.ticks && a.current==b.current);	
+	return a.pot_value==b.pot_value && a.current==b.current;	
 }
 
 bool operator!=(Tilt::Input const& a,Tilt::Input const& b){ return !(a==b); }
 
 bool operator<(Tilt::Input const& a,Tilt::Input const& b){
-	if(a.top && a.bottom)return false;
-	if(b.top && b.bottom)return true;
-	if((b.top && !a.top) || (a.bottom && !b.bottom)) return true;
-	return a.ticks<b.ticks;
+	return a.pot_value<b.pot_value;
 }
 
-std::ostream& operator<<(std::ostream& o,Tilt::Input const& a){ return o<<"Tilt::Input( top:"<<a.top<<" bottom:"<<a.bottom<<" ticks:"<<a.ticks<<" current:"<<a.current<<")"; }
+std::ostream& operator<<(std::ostream& o,Tilt::Input const& a){ return o<<"Tilt::Input( pot_value:"<<a.pot_value<<" current:"<<a.current<<")"; }
 
 bool operator<(Tilt::Status_detail a, Tilt::Status_detail b){
 	CMP(type())
@@ -218,21 +193,16 @@ bool operator<(Tilt::Goal a, Tilt::Goal b){
 	return a.mode()<b.mode();
 }
 
-bool operator==(Tilt::Output_applicator a,Tilt::Output_applicator b){ return a.can_address==b.can_address; }
-bool operator==(Tilt::Input_reader a,Tilt::Input_reader b){ return a.can_address==b.can_address; }
-bool operator==(Tilt::Estimator a,Tilt::Estimator b){ return (a.last==b.last && a.top==b.top && a.bottom==b.bottom); }
+bool operator==(Tilt::Output_applicator a,Tilt::Output_applicator b){ return true; }
+bool operator==(Tilt::Input_reader a,Tilt::Input_reader b){ return true; }
+bool operator==(Tilt::Estimator a,Tilt::Estimator b){ return a.last==b.last; }
 bool operator!=(Tilt::Estimator a,Tilt::Estimator b){ return !(a==b); }
 
 bool operator==(Tilt a, Tilt b){ return (a.output_applicator==b.output_applicator && a.input_reader==b.input_reader && a.estimator==b.estimator); }
 bool operator!=(Tilt a, Tilt b){ return !(a==b); }
 
 std::set<Tilt::Input> examples(Tilt::Input*){ 
-	return {
-		Tilt::Input{0,0,0,0},
-		Tilt::Input{0,1,0,0},
-		Tilt::Input{1,0,0,0},
-		Tilt::Input{1,1,0,0}
-	};
+	return {{0,0}};
 }
 std::set<Tilt::Goal> examples(Tilt::Goal*){
 	return {
@@ -320,11 +290,7 @@ bool ready(Tilt::Status status, Tilt::Goal goal){
 }
 
 void Tilt::Estimator::update(Time time, Tilt::Input in, Tilt::Output) {
-	if(in.top) top=in.ticks;
-	if(in.bottom) bottom=in.ticks;
-
-	unsigned int bottom_loc=bottom?*bottom:0;
-	float angle=(in.ticks-bottom_loc)/TICKS_PER_DEGREE;
+	float angle=(in.pot_value-TILT_POT_BOT)/VALUE_PER_DEGREE;
 	stall_timer.update(time,true);
 	if(stall_timer.done()) last.stalled=true;
 	if(in.current<10 || fabs(angle-timer_start_angle)<1){//Assumed current for now
@@ -333,17 +299,15 @@ void Tilt::Estimator::update(Time time, Tilt::Input in, Tilt::Output) {
 		timer_start_angle=angle;
 	}
 
-	if(in.top){
-		if(in.bottom){
+	if(in.pot_value==TILT_POT_TOP){
+		if(in.pot_value==TILT_POT_BOT){
 			last=Tilt::Status_detail::error();
 		} else{
 			last=Tilt::Status_detail::top();                       
-			top=in.ticks;
 		}
 	} else{
-		if(in.bottom){
+		if(in.pot_value==TILT_POT_BOT){
 			last=Tilt::Status_detail::bottom();
-			bottom=in.ticks;
 		} else{
 			last=Tilt::Status_detail::mid(angle);
 		}
@@ -358,7 +322,7 @@ Tilt::Status_detail Tilt::Estimator::get()const {
 #include "formal.h"
 
 int main(){
-	Tilt a(0);
+	Tilt a;
 	tester(a);	
 }
 #endif

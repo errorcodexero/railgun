@@ -7,7 +7,6 @@
 using namespace std;
 
 Toplevel::Toplevel():
-	tilt(1),
 	input_reader(this),
 	estimator(this),
 	output_applicator(this)
