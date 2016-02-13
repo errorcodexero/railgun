@@ -193,8 +193,8 @@ bool operator<(Tilt::Goal a, Tilt::Goal b){
 	return a.mode()<b.mode();
 }
 
-bool operator==(Tilt::Output_applicator a,Tilt::Output_applicator b){ return true; }
-bool operator==(Tilt::Input_reader a,Tilt::Input_reader b){ return true; }
+bool operator==(Tilt::Output_applicator,Tilt::Output_applicator){ return true; }
+bool operator==(Tilt::Input_reader,Tilt::Input_reader){ return true; }
 bool operator==(Tilt::Estimator a,Tilt::Estimator b){ return a.last==b.last; }
 bool operator!=(Tilt::Estimator a,Tilt::Estimator b){ return !(a==b); }
 
