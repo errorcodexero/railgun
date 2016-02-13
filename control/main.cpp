@@ -138,9 +138,13 @@ Toplevel::Goal Main::teleop(
 	
 	goals.drive=goal;
 
-	if(has_ball){
-		collector_mode=Collector_mode::REFLECT;
-	}
+	driver_collector_control.update(main_joystick.button[Gamepad_button::START]);
+
+	if(main_joystick.button[Gamepad_button::BACK])collector_mode=Collector_mode::NOTHING;
+	if(driver_collector_control.get())collector_mode=Collector_mode::COLLECT;
+	else collector_mode=Collector_mode::STOW;
+
+	if(has_ball && collector_mode==Collector_mode::COLLECT) collector_mode=Collector_mode::REFLECT;
 
 	switch(collector_mode){
 		case Collector_mode::COLLECT:
@@ -155,12 +159,22 @@ Toplevel::Goal Main::teleop(
 		case Collector_mode::REFLECT:
 			goals.front=Front::Goal::OUT;
 			goals.sides=Sides::Goal::OUT;
+			goals.tilt=Tilt::Goal::down();
 			break;
 		case Collector_mode::EJECT:
+			goals.front=Front::Goal::OUT;
+			goals.sides=Sides::Goal::OUT;
+			goals.tilt=Tilt::Goal::down();
 			break;
 		case Collector_mode::TERRAIN:
+			goals.front=Front::Goal::OFF;
+			goals.sides=Sides::Goal::OFF;
+			goals.tilt=Tilt::Goal::up();
 			break;
 		case Collector_mode::LOW_BAR:
+			goals.front=Front::Goal::OFF;
+			goals.sides=Sides::Goal::OFF;
+			goals.tilt=Tilt::Goal::down();
 			break;
 		case Collector_mode::NOTHING:
 			goals.front=Front::Goal::OFF;

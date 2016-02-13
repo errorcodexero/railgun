@@ -1,17 +1,18 @@
 HIGH PRIORITY
-	- Add driver collector control button(s) (toggle)
-	- Check out drive encoders 
+	- Finalize collector modes in main
+	- Add driver collector control button(s) (toggle) - Logan
+	- Check out drive encoders - Tristan
 	- Figure out what's going on with climber
 	- Update wpilib on all software computers - Calvin
-	- Write shooter code (Need to wait until shooter design for completion) - Matthew/Logan 
-	- Write shooter into main 
 	- OI code - Matthew/Logan/Adrian 
 	- Decide on which computers to use as Driver Stations and update them.
 	- Update mainpulators based on new information
 	- Shooter:
-		Vertical/Horizontal Activation
-		Shooter wheel spin up etc.
-		Ball injector	
+		- Vertical/Horizontal Activation
+		- Shooter wheel spin up etc.
+		- Ball injector
+		- Add control into main
+	
 
 
 NOT AS HIGH PRIORITY: 
