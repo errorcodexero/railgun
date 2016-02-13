@@ -20,6 +20,13 @@ ostream& operator<<(ostream& o,Main::Mode a){
 	assert(0);
 }
 
+ostream& operator<<(ostream& o,Main::Collector_mode a){
+	#define X(name) if(a==Main::Collector_mode::name) return o<<"Main::Collector_mode("#name")";
+	COLLECTOR_MODES
+	#undef X
+	assert(0);
+}
+
 //todo: at some point, might want to make this whatever is right to start autonomous mode.
 Main::Main():mode(Mode::TELEOP),autonomous_start(0),collector_mode(Collector_mode::NOTHING){}
 
@@ -163,7 +170,7 @@ Toplevel::Goal Main::teleop(
 			break;
 		case Collector_mode::EJECT:
 			goals.front=Front::Goal::OUT;
-			goals.sides=Sides::Goal::OUT;
+			goals.sides=Sides::Goal::IN;
 			goals.tilt=Tilt::Goal::down();
 			break;
 		case Collector_mode::TERRAIN:
