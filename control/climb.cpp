@@ -1,7 +1,7 @@
 #include "climb.h"
 #include <stdlib.h>
 
-#define CLIMB_ADDRESS 4
+#define CLIMB_ADDRESS 10 //TODO CHANGE
 #define CLIMB_SPEED 1
 
 Climb::Status_detail::Type Climb::Status_detail::type()const{ return type_; }

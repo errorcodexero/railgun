@@ -301,7 +301,7 @@ public:
 		int error=0;
 		for(unsigned i=0;i<Robot_inputs::ANALOG_INPUTS;i++){
 			if(analog_in[i]){
-				r.analog[i]=.666;//analog_in[i]->GetVoltage();
+				r.analog[i]=analog_in[i]->GetVoltage();
 			}else{
 				error=64;
 			}

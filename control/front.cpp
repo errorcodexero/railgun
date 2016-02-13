@@ -4,7 +4,7 @@
 using namespace std;
 
 #define nyi { cout<<"\nnyi "<<__LINE__<<"\n"; exit(44); }
-#define FRONT_ADDRESS 3
+#define FRONT_ADDRESS 2
 #ifndef BALL_SENSOR_ADDRESS
 #define BALL_SENSOR_ADDRESS 6
 #endif

@@ -2,7 +2,7 @@
 #include <stdlib.h>
 #include <cmath>
 
-#define VALUE_PER_DEGREE 100 //Assumed for now
+#define VALUE_PER_DEGREE .019
 #define nyi { std::cout<<"\nnyi "<<__LINE__<<"\n"; exit(44); }
 
 Tilt::Status_detail::Status_detail(): 
@@ -54,6 +54,7 @@ Tilt::Goal Tilt::Goal::up(){
 }
 
 Tilt::Goal Tilt::Goal::go_to_angle(std::array<double,3> angles){
+	assert(angles[0]>=((TILT_POT_TOP-TILT_POT_OFFSET)/VALUE_PER_DEGREE) && angles[2]<=((TILT_POT_BOT-TILT_POT_OFFSET)/VALUE_PER_DEGREE));
 	Tilt::Goal a;
 	a.mode_=Tilt::Goal::Mode::GO_TO_ANGLE;
 	a.angle_min=angles[0];
@@ -290,7 +291,7 @@ bool ready(Tilt::Status status, Tilt::Goal goal){
 }
 
 void Tilt::Estimator::update(Time time, Tilt::Input in, Tilt::Output) {
-	float angle=(in.pot_value-TILT_POT_BOT)/VALUE_PER_DEGREE;
+	float angle=(in.pot_value-TILT_POT_TOP)/VALUE_PER_DEGREE;
 	stall_timer.update(time,true);
 	if(stall_timer.done()) last.stalled=true;
 	if(in.current<10 || fabs(angle-timer_start_angle)<1){//Assumed current for now
