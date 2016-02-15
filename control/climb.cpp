@@ -69,7 +69,8 @@ bool operator<(Climb::Input a,Climb::Input b){
 }
 
 bool operator<(Climb::Goal a,Climb::Goal b){
-	return ((b==Climb::Goal::EXTEND && a!=b) || (b==Climb::Goal::STOP && a==Climb::Goal::RETRACT));
+	if(b==Climb::Goal::EXTEND && a!=b)return true;
+	return b==Climb::Goal::STOP && a==Climb::Goal::RETRACT;
 }
 
 bool operator==(Climb::Status_detail a,Climb::Status_detail b){ return (a.type()==b.type()); }

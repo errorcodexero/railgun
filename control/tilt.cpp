@@ -160,20 +160,15 @@ bool operator==(Tilt::Input const& a,Tilt::Input const& b){
 
 bool operator!=(Tilt::Input const& a,Tilt::Input const& b){ return !(a==b); }
 
-bool operator<(Tilt::Input const& a,Tilt::Input const& b){
-	return a.pot_value<b.pot_value;
-}
+bool operator<(Tilt::Input const& a,Tilt::Input const& b){ return a.pot_value<b.pot_value; }
 
 std::ostream& operator<<(std::ostream& o,Tilt::Input const& a){ return o<<"Tilt::Input( pot_value:"<<a.pot_value<<" current:"<<a.current<<")"; }
 
 bool operator<(Tilt::Status_detail a, Tilt::Status_detail b){
 	CMP(type())
+	if(a.type()==Tilt::Status_detail::Type::MID)return a.get_angle()<b.get_angle();
 	CMP(reached_ends)
-	CMP(stalled)
-	if(a.type()==Tilt::Status_detail::Type::MID){
-		return a.get_angle()<b.get_angle();
-	}
-	return 0;
+	return !a.stalled && b.stalled;
 }
 
 bool operator==(Tilt::Status_detail a,Tilt::Status_detail b){
@@ -187,11 +182,10 @@ bool operator==(Tilt::Goal a, Tilt::Goal b){ return (a.mode()==b.mode() && a.ang
 bool operator!=(Tilt::Goal a, Tilt::Goal b){ return !(a==b); }
 
 bool operator<(Tilt::Goal a, Tilt::Goal b){
-	if(a.mode()==b.mode()) {
-		if(a.mode()==Tilt::Goal::Mode::GO_TO_ANGLE) return a.angle()<b.angle();
-		return 0;
-	}
-	return a.mode()<b.mode();
+	if(a.mode()<b.mode())return true;
+	if(b.mode()>a.mode())return false;
+	if(a.mode()==Tilt::Goal::Mode::GO_TO_ANGLE && a.mode()==b.mode())return a.angle()<b.angle();
+	return false;
 }
 
 bool operator==(Tilt::Output_applicator,Tilt::Output_applicator){ return true; }
@@ -203,7 +197,7 @@ bool operator==(Tilt a, Tilt b){ return (a.output_applicator==b.output_applicato
 bool operator!=(Tilt a, Tilt b){ return !(a==b); }
 
 std::set<Tilt::Input> examples(Tilt::Input*){ 
-	return {{0,0}};//todo: add examples after pot has been tested
+	return {{.19,0},{.69,0},{1.19,0},{1.69,0},{2.19,0}};
 }
 std::set<Tilt::Goal> examples(Tilt::Goal*){
 	return {
@@ -290,6 +284,11 @@ bool ready(Tilt::Status status, Tilt::Goal goal){
 	}
 }
 
+template<typename T>
+bool in_range(T a, T b, T c){//returns if a is in a range of +/- c from b
+	return a>(b-c) && a<(b+c);
+}
+
 void Tilt::Estimator::update(Time time, Tilt::Input in, Tilt::Output) {
 	float angle=(in.pot_value-TILT_POT_TOP)/VALUE_PER_DEGREE;
 	stall_timer.update(time,true);
@@ -299,15 +298,15 @@ void Tilt::Estimator::update(Time time, Tilt::Input in, Tilt::Output) {
 		stall_timer.set(1);
 		timer_start_angle=angle;
 	}
-
-	if(in.pot_value==TILT_POT_TOP){
-		if(in.pot_value==TILT_POT_BOT){
+	const float ALLOWED_TOLERANCE=.03;
+	if(in_range(in.pot_value,(float)TILT_POT_TOP,ALLOWED_TOLERANCE)){
+		if(in_range(in.pot_value,(float)TILT_POT_BOT,ALLOWED_TOLERANCE)){
 			last=Tilt::Status_detail::error();
 		} else{
 			last=Tilt::Status_detail::top();                       
 		}
 	} else{
-		if(in.pot_value==TILT_POT_BOT){
+		if(in_range(in.pot_value,(float)TILT_POT_BOT,ALLOWED_TOLERANCE)){
 			last=Tilt::Status_detail::bottom();
 		} else{
 			last=Tilt::Status_detail::mid(angle);
