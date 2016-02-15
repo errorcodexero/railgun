@@ -148,7 +148,7 @@ Toplevel::Goal Main::teleop(
 	if (!oi_panel.in_use || (oi_panel.in_use && oi_panel.collector_auto)) {
 		if(main_joystick.button[Gamepad_button::BACK])collector_mode=Collector_mode::NOTHING;
 		if(main_joystick.button[Gamepad_button::START]) {
-			collector_mode=false/*tilt is at top*/ ? (has_ball ? Collector_mode::REFLECT : Collector_mode::COLLECT) : Collector_mode::STOW;
+			collector_mode=toplevel_status.tilt==Tilt::Status_detail::top() ? (has_ball ? Collector_mode::REFLECT : Collector_mode::COLLECT) : Collector_mode::STOW;
 			//driver_collector_stowed = !driver_collector_stowed;
 		}
 		

@@ -290,6 +290,11 @@ bool ready(Tilt::Status status, Tilt::Goal goal){
 	}
 }
 
+template<typename T>
+bool in_range(T a, T b, T c){//returns if a is in a range of +/- c from b
+	return a>(b-c) && a<(b+c);
+}
+
 void Tilt::Estimator::update(Time time, Tilt::Input in, Tilt::Output) {
 	float angle=(in.pot_value-TILT_POT_TOP)/VALUE_PER_DEGREE;
 	stall_timer.update(time,true);
@@ -299,15 +304,15 @@ void Tilt::Estimator::update(Time time, Tilt::Input in, Tilt::Output) {
 		stall_timer.set(1);
 		timer_start_angle=angle;
 	}
-
-	if(in.pot_value==TILT_POT_TOP){
-		if(in.pot_value==TILT_POT_BOT){
+	const float ALLOWED_TOLERANCE=.03;
+	if(in_range(in.pot_value,(float)TILT_POT_TOP,ALLOWED_TOLERANCE)){
+		if(in_range(in.pot_value,(float)TILT_POT_BOT,ALLOWED_TOLERANCE)){
 			last=Tilt::Status_detail::error();
 		} else{
 			last=Tilt::Status_detail::top();                       
 		}
 	} else{
-		if(in.pot_value==TILT_POT_BOT){
+		if(in_range(in.pot_value,(float)TILT_POT_BOT,ALLOWED_TOLERANCE)){
 			last=Tilt::Status_detail::bottom();
 		} else{
 			last=Tilt::Status_detail::mid(angle);
