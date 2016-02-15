@@ -160,20 +160,15 @@ bool operator==(Tilt::Input const& a,Tilt::Input const& b){
 
 bool operator!=(Tilt::Input const& a,Tilt::Input const& b){ return !(a==b); }
 
-bool operator<(Tilt::Input const& a,Tilt::Input const& b){
-	return a.pot_value<b.pot_value;
-}
+bool operator<(Tilt::Input const& a,Tilt::Input const& b){ return a.pot_value<b.pot_value; }
 
 std::ostream& operator<<(std::ostream& o,Tilt::Input const& a){ return o<<"Tilt::Input( pot_value:"<<a.pot_value<<" current:"<<a.current<<")"; }
 
 bool operator<(Tilt::Status_detail a, Tilt::Status_detail b){
 	CMP(type())
+	if(a.type()==Tilt::Status_detail::Type::MID)return a.get_angle()<b.get_angle();
 	CMP(reached_ends)
-	CMP(stalled)
-	if(a.type()==Tilt::Status_detail::Type::MID){
-		return a.get_angle()<b.get_angle();
-	}
-	return 0;
+	return !a.stalled && b.stalled;
 }
 
 bool operator==(Tilt::Status_detail a,Tilt::Status_detail b){
@@ -187,11 +182,10 @@ bool operator==(Tilt::Goal a, Tilt::Goal b){ return (a.mode()==b.mode() && a.ang
 bool operator!=(Tilt::Goal a, Tilt::Goal b){ return !(a==b); }
 
 bool operator<(Tilt::Goal a, Tilt::Goal b){
-	if(a.mode()==b.mode()) {
-		if(a.mode()==Tilt::Goal::Mode::GO_TO_ANGLE) return a.angle()<b.angle();
-		return 0;
-	}
-	return a.mode()<b.mode();
+	if(a.mode()<b.mode())return true;
+	if(b.mode()>a.mode())return false;
+	if(a.mode()==Tilt::Goal::Mode::GO_TO_ANGLE && a.mode()==b.mode())return a.angle()<b.angle();
+	return false;
 }
 
 bool operator==(Tilt::Output_applicator,Tilt::Output_applicator){ return true; }
