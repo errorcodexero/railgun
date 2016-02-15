@@ -110,7 +110,7 @@ Toplevel::Goal Main::teleop(
 	Joystick_data const& main_joystick,
 	Joystick_data const& gunner_joystick,
 	Panel const&  oi_panel,
-	Toplevel::Status_detail& toplevel_status
+	Toplevel::Status_detail& //toplevel_status
 ){
 	//bool has_ball=(in.digital_io.in[6]==Digital_in::_1);
 
@@ -254,7 +254,7 @@ Toplevel::Goal Main::teleop(
 			}
 			else return Climb::Goal::STOP;
 		}();
-		cout<<" \nANGLE:"<<toplevel_status.tilt<<"\n";
+		//cout<<" \nANGLE:"<<toplevel_status.tilt<<"\n";
 	}	
 	return goals;
 }
