@@ -11,10 +11,9 @@ NOT AS HIGH PRIORITY:
 		- Shooter wheel spin up etc.
 		- Ball injector
 		- Add control into main
-	- Bug Fixes - EVERYONE
 	- Logger & Diagnostics - Jacob
-	- Autonomous* - Tristan/Matthew DUE FEB 13
-	- Vision - Nick DUE FEB 18
+	- Autonomous* - Tristan
+	- Vision - Nick 
 	- Laptop configuration - Adrian
 		-ssh config:
 			-Fix the "rm ~/.ssh/known_hosts" problem
