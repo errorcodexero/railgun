@@ -145,7 +145,7 @@ Toplevel::Goal Main::teleop(
 	
 	goals.drive=goal;
 	
-	/*controller_auto.update(gunner_joystick.button[Gamepad_button::START]);		
+	/*controller_auto.update(gunner_joystick.button[Gamepad_button::START]);
 	if (!oi_panel.in_use || (oi_panel.in_use && oi_panel.collector_auto) || controller_auto.get()) {
 		if(main_joystick.button[Gamepad_button::BACK])collector_mode=Collector_mode::NOTHING;
 		if(main_joystick.button[Gamepad_button::START]) {
