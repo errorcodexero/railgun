@@ -197,7 +197,7 @@ bool operator==(Tilt a, Tilt b){ return (a.output_applicator==b.output_applicato
 bool operator!=(Tilt a, Tilt b){ return !(a==b); }
 
 std::set<Tilt::Input> examples(Tilt::Input*){ 
-	return {{0,0}};//todo: add examples after pot has been tested
+	return {{.19,0},{.69,0},{1.19,0},{1.69,0},{2.19,0}};
 }
 std::set<Tilt::Goal> examples(Tilt::Goal*){
 	return {
