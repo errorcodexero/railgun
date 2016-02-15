@@ -91,11 +91,11 @@ vector<Main::NavS> Main::loadnav(){
 	return nav;
 }
 
-double set_drive_speed(double axis,double boost,double /*slow*/){
+double set_drive_speed(double axis,double boost,double slow){
 	static const float MAX_SPEED=1;//Change this value to change the max speed the robot will achieve with full boost
-	static const float DEFAULT_SPEED=.2;//Change this value to change the default speed
-	//static const float SLOW_BY=.5;//Change this value to change the percentage of the default speed the slow button slows
-	return (pow(axis,3)*((DEFAULT_SPEED+(MAX_SPEED-DEFAULT_SPEED)*boost)));//-((DEFAULT_SPEED*SLOW_BY)*slow)));
+	static const float DEFAULT_SPEED=.5;//Change this value to change the default speed
+	static const float SLOW_BY=.5;//Change this value to change the percentage of the default speed the slow button slows
+	return (pow(axis,3)*((DEFAULT_SPEED+(MAX_SPEED-DEFAULT_SPEED)*boost)-((DEFAULT_SPEED*SLOW_BY)*slow)));
 }
 
 template<size_t LEN>
@@ -230,6 +230,8 @@ Toplevel::Goal Main::teleop(
 		goals.tilt=[&]{
 			if(gunner_joystick.button[Gamepad_button::LB]) return Tilt::Goal::down();
 			else if(gunner_joystick.button[Gamepad_button::RB]) return Tilt::Goal::up();
+			else if(gunner_joystick.button[Gamepad_button::BACK]) return Tilt::Goal::stop();
+			else if(gunner_joystick.button[Gamepad_button::R_JOY]) return Tilt::Goal::go_to_angle(array<double,3>{18,20,22});
 			else if(oi_panel.in_use){
 				switch(oi_panel.tilt){
 					case Panel::Tilt::UP: return Tilt::Goal::up();
@@ -241,9 +243,8 @@ Toplevel::Goal Main::teleop(
 					array<double,3> angles={oi_panel.angle-2,oi_panel.angle,oi_panel.angle+2};//Assuming tolerances for now
 					return Tilt::Goal::go_to_angle(angles);
 				}
-				return Tilt::Goal::stop();
 			}
-			else return Tilt::Goal::stop();
+			return goals.tilt;
 		}();
 		goals.climb=[&]{
 			if(oi_panel.in_use){
@@ -254,7 +255,6 @@ Toplevel::Goal Main::teleop(
 			}
 			else return Climb::Goal::STOP;
 		}();
-		//cout<<" \nANGLE:"<<toplevel_status.tilt<<"\n";
 	}	
 	return goals;
 }

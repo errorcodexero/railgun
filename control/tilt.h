@@ -59,6 +59,7 @@ struct Tilt{
 	struct Input{
 		float pot_value;
 		double current;
+		bool top;
 	};
 	
 	struct Input_reader{

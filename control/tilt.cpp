@@ -7,6 +7,7 @@
 #define TILT_POT_BOT 2.00
 #define TILT_PDB_LOC 8
 #define TILT_POT_LOC 0
+#define TILT_LIM_LOC 1
 #define TILT_ADDRESS 4
 
 #define VALUE_PER_DEGREE ((TILT_POT_LEVEL-TILT_POT_TOP)/90)
@@ -24,11 +25,12 @@ Tilt::Goal::Goal():mode_(Tilt::Goal::Mode::STOP),angle_min(0),angle_target(0),an
 Robot_inputs Tilt::Input_reader::operator()(Robot_inputs r,Tilt::Input in)const{
 	r.current[TILT_PDB_LOC]=in.current;
 	r.analog[TILT_POT_LOC]=in.pot_value;
+	r.digital_io.in[TILT_LIM_LOC]=in.top ? Digital_in::_1 : Digital_in::_0;
 	return r;
 }
 
 Tilt::Input Tilt::Input_reader::operator()(Robot_inputs r)const{
-	return {r.analog[TILT_POT_LOC],r.current[TILT_PDB_LOC]};
+	return {r.analog[TILT_POT_LOC],r.current[TILT_PDB_LOC],r.digital_io.in[TILT_LIM_LOC]==Digital_in::_1};
 }
 
 Tilt::Output Tilt::Output_applicator::operator()(Robot_outputs r)const{
@@ -149,7 +151,7 @@ std::ostream& operator<<(std::ostream& o, Tilt::Goal a){
 
 std::ostream& operator<<(std::ostream& o, Tilt::Output_applicator){ return o<<"Tilt::Output_applicator()";} 
 std::ostream& operator<<(std::ostream& o, Tilt::Input_reader){ return o<<"Tilt::Input_reader()";}
-std::ostream& operator<<(std::ostream& o, Tilt::Estimator){ return o<<"Tilt::Estimator()";} 
+std::ostream& operator<<(std::ostream& o, Tilt::Estimator a){ return o<<"Tilt::Estimator( last:"<<a.get()<<" stall_timer:"<<a.stall_timer<<" timer_start_angle:"<<a.timer_start_angle<<")";} 
  
 std::ostream& operator<<(std::ostream& o, Tilt a){
 	o<<"Tilt(";
@@ -162,14 +164,14 @@ std::ostream& operator<<(std::ostream& o, Tilt a){
 #define CMP(name) if(a.name<b.name) return 1; if(b.name<a.name) return 0;
 
 bool operator==(Tilt::Input const& a,Tilt::Input const& b){
-	return a.pot_value==b.pot_value && a.current==b.current;	
+	return a.pot_value==b.pot_value && a.current==b.current && a.top==b.top;	
 }
 
 bool operator!=(Tilt::Input const& a,Tilt::Input const& b){ return !(a==b); }
 
 bool operator<(Tilt::Input const& a,Tilt::Input const& b){ return a.pot_value<b.pot_value; }
 
-std::ostream& operator<<(std::ostream& o,Tilt::Input const& a){ return o<<"Tilt::Input( pot_value:"<<a.pot_value<<" current:"<<a.current<<")"; }
+std::ostream& operator<<(std::ostream& o,Tilt::Input const& a){ return o<<"Tilt::Input( pot_value:"<<a.pot_value<<" current:"<<a.current<<" top:"<<a.top<<")"; }
 
 bool operator<(Tilt::Status_detail a, Tilt::Status_detail b){
 	CMP(type())
@@ -204,7 +206,7 @@ bool operator==(Tilt a, Tilt b){ return (a.output_applicator==b.output_applicato
 bool operator!=(Tilt a, Tilt b){ return !(a==b); }
 
 std::set<Tilt::Input> examples(Tilt::Input*){ 
-	return {{0,0},{.5,0},{1,0},{1.5,0},{2,0}};
+	return {{0,0,0},{.5,0,0},{1,0,0},{1.5,0,0},{2,0,0},{0,0,1},{.5,0,1},{1,0,1},{1.5,0,1},{2,0,1}};
 }
 std::set<Tilt::Goal> examples(Tilt::Goal*){
 	return {
@@ -256,16 +258,18 @@ Tilt::Output control(Tilt::Status_detail status, Tilt::Goal goal){
 				switch (status.type()) {
 					case Tilt::Status_detail::Type::MID:
 						{
-							double error=goal.angle()[1]-status.get_angle();
+							if(status.get_angle()>=goal.angle()[0] && status.get_angle()<=goal.angle()[2])return 0.0;
+							std::cout<<status.get_angle()<<std::endl;
+							double error=-(goal.angle()[1]-(status.get_angle()/VALUE_PER_DEGREE));
 							double desired_power=error*SLOW;
 							if(desired_power>POWER)return POWER;
 							if(desired_power<-POWER)return -POWER;
 							return desired_power;
 						}
 					case Tilt::Status_detail::Type::TOP:
-						return -POWER;
-					case Tilt::Status_detail::Type::BOTTOM:
 						return POWER;
+					case Tilt::Status_detail::Type::BOTTOM:
+						return -POWER;
 					case Tilt::Status_detail::Type::ERRORS:
 						return 0.0;
 					default:
