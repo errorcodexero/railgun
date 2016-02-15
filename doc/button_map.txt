@@ -1,32 +1,32 @@
 Driver:
- A -
- B -
- X -
- Y -
+ A - Backward Nudge
+ B - Clockwise Nudge
+ X - Counter-Clockwise Nudge
+ Y - Forward Nudge
  Start -
  Back -
  RB -
  LB -
- RT -
- LT -
+ RT - Slow
+ LT - Turbo
  LJoystick:
   X Axis -
-  Y Axis -
+  Y Axis - Forward/Backward
   Pushed In -
  RJoystick:
-  X Axis -
+  X Axis - Turning
   Y Axis -
   Pushed In -
 
 Gunner:
- A -
- B -
- X -
- Y -
+ A - Sides Belt Out
+ B - Front Belt Out
+ X - Front Belt In
+ Y - Sides Belt In
  Start -
  Back -
- RB -
- LB -
+ RB - Collector Down
+ LB - Collector Up
  RT -
  LT -
  LJoystick:

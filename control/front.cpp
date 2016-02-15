@@ -4,9 +4,6 @@
 using namespace std;
 
 #define FRONT_ADDRESS 2
-#ifndef BALL_SENSOR_ADDRESS
-#define BALL_SENSOR_ADDRESS 6
-#endif
 #define FRONT_SPEED 1
 
 ostream& operator<<(ostream& o, Front::Goal a){

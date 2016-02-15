@@ -95,9 +95,9 @@ Toplevel::Goal Main::teleop(
 	Joystick_data const& main_joystick,
 	Joystick_data const& gunner_joystick,
 	Panel const&  oi_panel,
-	Toplevel::Status_detail& toplevel_status
+	Toplevel::Status_detail& //toplevel_status
 ){
-	bool has_ball=(in.digital_io.in[6]==Digital_in::_1);
+	//bool has_ball=(in.digital_io.in[6]==Digital_in::_1);
 
 	Toplevel::Goal goals;
 
@@ -145,11 +145,11 @@ Toplevel::Goal Main::teleop(
 	
 	goals.drive=goal;
 	
-	if (!oi_panel.in_use || (oi_panel.in_use && oi_panel.collector_auto)) {
+	/*controller_auto.update(gunner_joystick.button[Gamepad_button::START]);		
+	if (!oi_panel.in_use || (oi_panel.in_use && oi_panel.collector_auto) || controller_auto.get()) {
 		if(main_joystick.button[Gamepad_button::BACK])collector_mode=Collector_mode::NOTHING;
 		if(main_joystick.button[Gamepad_button::START]) {
-			collector_mode=false/*tilt is at top*/ ? (has_ball ? Collector_mode::REFLECT : Collector_mode::COLLECT) : Collector_mode::STOW;
-			//driver_collector_stowed = !driver_collector_stowed;
+			collector_mode=(toplevel_status.tilt.type() == Tilt::Status_detail::Type::TOP) ? (has_ball ? Collector_mode::REFLECT : Collector_mode::COLLECT) : Collector_mode::STOW;
 		}
 		
 		switch(collector_mode){
@@ -189,58 +189,58 @@ Toplevel::Goal Main::teleop(
 				break;
 			default: assert(0);
 		}
-	}
-
-	goals.front=[&]{
-		if(gunner_joystick.button[Gamepad_button::X]) return Front::Goal::IN;
-		else if(gunner_joystick.button[Gamepad_button::B]) return Front::Goal::OUT;
-		else if(oi_panel.in_use) {
-			#define X(name) if(oi_panel.front==Panel::Collector::name) return Front::Goal::name;
-			X(IN) X(OUT) X(OFF)
-			#undef X
-			assert(0);
-		}
-		else return Front::Goal::OFF;
-	}();
-	goals.sides=[&]{
-		if(gunner_joystick.button[Gamepad_button::Y]) return Sides::Goal::IN;
-		else if(gunner_joystick.button[Gamepad_button::A]) return Sides::Goal::OUT;
-		else if(oi_panel.in_use){
-			#define X(name) if(oi_panel.sides==Panel::Collector::name) return Sides::Goal::name;
-			X(IN) X(OUT) X(OFF)
-			#undef X
-			assert(0);
-		}
-		else return Sides::Goal::OFF;
-	}();
-	goals.tilt=[&]{
-		if(gunner_joystick.button[Gamepad_button::LB]) return Tilt::Goal::up();
-		else if(gunner_joystick.button[Gamepad_button::RB]) return Tilt::Goal::down();
-		else if(oi_panel.in_use){
-			switch(oi_panel.tilt){
-				case Panel::Tilt::UP: return Tilt::Goal::up();
-				case Panel::Tilt::DOWN: return Tilt::Goal::down();
-				case Panel::Tilt::STOP: return Tilt::Goal::stop();
-				default: assert(0);
+	} else*/ {
+		goals.front=[&]{
+			if(gunner_joystick.button[Gamepad_button::X]) return Front::Goal::IN;
+			else if(gunner_joystick.button[Gamepad_button::B]) return Front::Goal::OUT;
+			else if(oi_panel.in_use) {
+				#define X(name) if(oi_panel.front==Panel::Collector::name) return Front::Goal::name;
+				X(IN) X(OUT) X(OFF)
+				#undef X
+				assert(0);
 			}
-			if(oi_panel.control_angle){
-				array<double,3> angles={oi_panel.angle-2,oi_panel.angle,oi_panel.angle+2};//Assuming tolerances for now
-				return Tilt::Goal::go_to_angle(angles);
+			else return Front::Goal::OFF;
+		}();
+		goals.sides=[&]{
+			if(gunner_joystick.button[Gamepad_button::Y]) return Sides::Goal::IN;
+			else if(gunner_joystick.button[Gamepad_button::A]) return Sides::Goal::OUT;
+			else if(oi_panel.in_use){
+				#define X(name) if(oi_panel.sides==Panel::Collector::name) return Sides::Goal::name;
+				X(IN) X(OUT) X(OFF)
+				#undef X
+				assert(0);
 			}
-			return Tilt::Goal::stop();
-		}
-		else return Tilt::Goal::stop();
-	}();
-	goals.climb=[&]{
-		if(oi_panel.in_use){
-			#define X(name) if(oi_panel.climber==Panel::Climber::name) return Climb::Goal::name;
-			X(EXTEND) X(STOP) X(RETRACT)
-			#undef X
-			assert(0);	
-		}
-		else return Climb::Goal::STOP;
-	}();
-	cout<<" \nANGLE:"<<toplevel_status.tilt<<"\n";
+			else return Sides::Goal::OFF;
+		}();
+		goals.tilt=[&]{
+			if(gunner_joystick.button[Gamepad_button::LB]) return Tilt::Goal::up();
+			else if(gunner_joystick.button[Gamepad_button::RB]) return Tilt::Goal::down();
+			else if(oi_panel.in_use){
+				switch(oi_panel.tilt){
+					case Panel::Tilt::UP: return Tilt::Goal::up();
+					case Panel::Tilt::DOWN: return Tilt::Goal::down();
+					case Panel::Tilt::STOP: return Tilt::Goal::stop();
+					default: assert(0);
+				}
+				if(oi_panel.control_angle){
+					array<double,3> angles={oi_panel.angle-2,oi_panel.angle,oi_panel.angle+2};//Assuming tolerances for now
+					return Tilt::Goal::go_to_angle(angles);
+				}
+				return Tilt::Goal::stop();
+			}
+			else return Tilt::Goal::stop();
+		}();
+		goals.climb=[&]{
+			if(oi_panel.in_use){
+				#define X(name) if(oi_panel.climber==Panel::Climber::name) return Climb::Goal::name;
+				X(EXTEND) X(STOP) X(RETRACT)
+				#undef X
+				assert(0);	
+			}
+			else return Climb::Goal::STOP;
+		}();
+		//cout<<" \nANGLE:"<<toplevel_status.tilt<<"\n";
+	}	
 	return goals;
 }
 
