@@ -4,22 +4,20 @@
 #include<vector>
 #include "pump.h"
 #include "drivebase.h"
-#include "tote_sensors.h"
 #include "tilt.h"
 #include "sides.h"
 #include "front.h"
 #include "climb.h"
-#include "inout.h"
+#include "climb_release.h"
 
 #define TOPLEVEL_ITEMS\
 	X(Drivebase,drive,)\
 	X(Pump,pump,Pump::Goal::AUTO)\
-	X(Tote_sensors,tote_sensors,Tote_sensors::Goal{})\
 	X(Tilt,tilt,Tilt::Goal::stop())\
 	X(Sides,sides,Sides::Goal::OFF)\
 	X(Front,front,Front::Goal::OFF) \
 	X(Climb,climb,Climb::Goal::STOP) \
-	X(Inout,inout,Inout::Goal::STOP)
+	X(Climb_release,climb_release,Climb_release::Goal::STOP)
 
 class Toplevel{
 	public:

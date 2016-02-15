@@ -40,8 +40,6 @@ struct Main{
 	Countup_timer since_switch,since_auto_start;
 
 	Posedge_trigger autonomous_start;
-
-	Posedge_toggle piston;
 	
 	struct Nudge{
 		Posedge_trigger trigger;
@@ -49,8 +47,13 @@ struct Main{
 	};
 	Nudge nudges[4];//Forward, Backward, Clockwise, Counter-clockwise
 	
-	Posedge_toggle driver_collector_control;
-	enum class Collector_mode{NOTHING,COLLECT,STOW,EJECT,REFLECT,TERRAIN,LOW_BAR};
+	Posedge_toggle controller_auto;
+	#define COLLECTOR_MODES X(NOTHING) X(COLLECT) X(STOW) X(EJECT) X(REFLECT) X(TERRAIN) X(LOW_BAR)
+	enum class Collector_mode{
+		#define X(name) name,
+		COLLECTOR_MODES
+		#undef X
+	};
 	Collector_mode collector_mode;
 
 	Toplevel::Goal teleop(Robot_inputs const&,Joystick_data const&,Joystick_data const&,Panel const&,Toplevel::Status_detail&);

@@ -1,7 +1,7 @@
 #include "climb.h"
 #include <stdlib.h>
 
-#define CLIMB_ADDRESS 4
+#define CLIMB_ADDRESS 10 //TODO CHANGE
 #define CLIMB_SPEED 1
 
 Climb::Status_detail::Type Climb::Status_detail::type()const{ return type_; }
@@ -69,7 +69,8 @@ bool operator<(Climb::Input a,Climb::Input b){
 }
 
 bool operator<(Climb::Goal a,Climb::Goal b){
-	return ((b==Climb::Goal::EXTEND && a!=b) || (b==Climb::Goal::STOP && a==Climb::Goal::RETRACT));
+	if(b==Climb::Goal::EXTEND && a!=b)return true;
+	return b==Climb::Goal::STOP && a==Climb::Goal::RETRACT;
 }
 
 bool operator==(Climb::Status_detail a,Climb::Status_detail b){ return (a.type()==b.type()); }
