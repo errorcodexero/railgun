@@ -189,10 +189,10 @@ Toplevel::Goal Main::teleop(
 				break;
 			default: assert(0);
 		}
-	} else*/ {
+	} else */{
 		goals.front=[&]{
-			if(gunner_joystick.button[Gamepad_button::X]) return Front::Goal::IN;
-			else if(gunner_joystick.button[Gamepad_button::B]) return Front::Goal::OUT;
+			if(gunner_joystick.button[Gamepad_button::A]) return Front::Goal::IN;
+			else if(gunner_joystick.button[Gamepad_button::Y]) return Front::Goal::OUT;
 			else if(oi_panel.in_use) {
 				#define X(name) if(oi_panel.front==Panel::Collector::name) return Front::Goal::name;
 				X(IN) X(OUT) X(OFF)
@@ -202,8 +202,8 @@ Toplevel::Goal Main::teleop(
 			else return Front::Goal::OFF;
 		}();
 		goals.sides=[&]{
-			if(gunner_joystick.button[Gamepad_button::Y]) return Sides::Goal::IN;
-			else if(gunner_joystick.button[Gamepad_button::A]) return Sides::Goal::OUT;
+			if(gunner_joystick.button[Gamepad_button::X]) return Sides::Goal::IN;
+			else if(gunner_joystick.button[Gamepad_button::B]) return Sides::Goal::OUT;
 			else if(oi_panel.in_use){
 				#define X(name) if(oi_panel.sides==Panel::Collector::name) return Sides::Goal::name;
 				X(IN) X(OUT) X(OFF)
