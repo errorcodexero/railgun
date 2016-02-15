@@ -95,9 +95,9 @@ Toplevel::Goal Main::teleop(
 	Joystick_data const& main_joystick,
 	Joystick_data const& gunner_joystick,
 	Panel const&  oi_panel,
-	Toplevel::Status_detail& toplevel_status
+	Toplevel::Status_detail& //toplevel_status
 ){
-	bool has_ball=(in.digital_io.in[6]==Digital_in::_1);
+	//bool has_ball=(in.digital_io.in[6]==Digital_in::_1);
 
 	Toplevel::Goal goals;
 
@@ -145,7 +145,7 @@ Toplevel::Goal Main::teleop(
 	
 	goals.drive=goal;
 	
-	controller_auto.update(gunner_joystick.button[Gamepad_button::START]);		
+	/*controller_auto.update(gunner_joystick.button[Gamepad_button::START]);		
 	if (!oi_panel.in_use || (oi_panel.in_use && oi_panel.collector_auto) || controller_auto.get()) {
 		if(main_joystick.button[Gamepad_button::BACK])collector_mode=Collector_mode::NOTHING;
 		if(main_joystick.button[Gamepad_button::START]) {
@@ -189,7 +189,7 @@ Toplevel::Goal Main::teleop(
 				break;
 			default: assert(0);
 		}
-	} else {
+	} else*/ {
 		goals.front=[&]{
 			if(gunner_joystick.button[Gamepad_button::X]) return Front::Goal::IN;
 			else if(gunner_joystick.button[Gamepad_button::B]) return Front::Goal::OUT;
@@ -239,7 +239,7 @@ Toplevel::Goal Main::teleop(
 			}
 			else return Climb::Goal::STOP;
 		}();
-		cout<<" \nANGLE:"<<toplevel_status.tilt<<"\n";
+		//cout<<" \nANGLE:"<<toplevel_status.tilt<<"\n";
 	}	
 	return goals;
 }
