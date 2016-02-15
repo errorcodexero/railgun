@@ -21,6 +21,9 @@ unsigned pdb_location(Drivebase::Motor m){
 	//assert(m>=0 && m<Drivebase::MOTORS);
 }
 
+#define leftEncoderPorts 0,1
+#define rightEncoderPorts 2,3
+
 Robot_inputs Drivebase::Input_reader::operator()(Robot_inputs all,Input in)const{
 	for(unsigned i=0;i<MOTORS;i++){
 		all.current[pdb_location((Motor)i)]=in.current[i];
@@ -32,8 +35,8 @@ Robot_inputs Drivebase::Input_reader::operator()(Robot_inputs all,Input in)const
 		set(a,e.first);
 		set(b,e.second);
 	};
-	encoder(0,1,in.left);
-	encoder(2,3,in.right);
+	encoder(leftEncoderPorts,in.left);
+	encoder(rightEncoderPorts,in.right);
 	return all;
 }
 
@@ -50,8 +53,8 @@ Drivebase::Input Drivebase::Input_reader::operator()(Robot_inputs in)const{
 			}
 			return r;
 		}(),
-		encoder_info(0,1),
-		encoder_info(2,3)
+		encoder_info(leftEncoderPorts),
+		encoder_info(rightEncoderPorts)
 	};
 }
 
