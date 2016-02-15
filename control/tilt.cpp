@@ -2,7 +2,15 @@
 #include <stdlib.h>
 #include <cmath>
 
-#define VALUE_PER_DEGREE .019
+#define TILT_POT_TOP 0.00
+#define TILT_POT_OFFSET TILT_POT_TOP
+#define TILT_POT_LEVEL 1.15
+#define TILT_POT_BOT 1.77
+#define TILT_PDB_LOC 8
+#define TILT_POT_LOC 0
+#define TILT_ADDRESS 4
+
+#define VALUE_PER_DEGREE ((TILT_POT_LEVEL-TILT_POT_TOP)/90)
 #define nyi { std::cout<<"\nnyi "<<__LINE__<<"\n"; exit(44); }
 
 Tilt::Status_detail::Status_detail(): 
@@ -221,6 +229,7 @@ std::set<Tilt::Output> examples(Tilt::Output*){
 	return {-1,0,1};
 }
 Tilt::Output control(Tilt::Status_detail status, Tilt::Goal goal){
+	const double POWER=1;
 	switch(goal.mode()){
 		case Tilt::Goal::Mode::UP:
 			switch(status.type()){
@@ -229,7 +238,7 @@ Tilt::Output control(Tilt::Status_detail status, Tilt::Goal goal){
 					return 0;
 				case Tilt::Status_detail::Type::BOTTOM:
 				case Tilt::Status_detail::Type::MID:
-					return 1;
+					return -POWER;
 				default: assert(0);
 			}
 		case Tilt::Goal::Mode::DOWN:
@@ -239,12 +248,11 @@ Tilt::Output control(Tilt::Status_detail status, Tilt::Goal goal){
 					return 0;
 				case Tilt::Status_detail::Type::TOP:
 				case Tilt::Status_detail::Type::MID:
-					return -1;
+					return POWER;
 				default: assert(0);
 			}
 		case Tilt::Goal::Mode::GO_TO_ANGLE:
 			{
-				const double POWER=1;
 				const double SLOW=(POWER/5);
 				switch (status.type()) {
 					case Tilt::Status_detail::Type::MID:
@@ -298,15 +306,15 @@ void Tilt::Estimator::update(Time time, Tilt::Input in, Tilt::Output) {
 		stall_timer.set(1);
 		timer_start_angle=angle;
 	}
-	const float ALLOWED_TOLERANCE=.03;
-	if(in_range(in.pot_value,(float)TILT_POT_TOP,ALLOWED_TOLERANCE)){
-		if(in_range(in.pot_value,(float)TILT_POT_BOT,ALLOWED_TOLERANCE)){
+	const float ALLOWED_TOLERANCE=1*VALUE_PER_DEGREE;
+	if(in.pot_value<=TILT_POT_TOP+ALLOWED_TOLERANCE){
+		if(in.pot_value>=TILT_POT_BOT-ALLOWED_TOLERANCE){
 			last=Tilt::Status_detail::error();
 		} else{
 			last=Tilt::Status_detail::top();                       
 		}
 	} else{
-		if(in_range(in.pot_value,(float)TILT_POT_BOT,ALLOWED_TOLERANCE)){
+		if(in.pot_value>=TILT_POT_BOT-ALLOWED_TOLERANCE){
 			last=Tilt::Status_detail::bottom();
 		} else{
 			last=Tilt::Status_detail::mid(angle);

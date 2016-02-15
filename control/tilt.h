@@ -9,15 +9,6 @@
 #include "../util/quick.h"
 #include <set>
 
-#define TILT_POT_TOP .19
-#define TILT_POT_OFFSET .19
-#define TILT_POT_LEVEL 1.90
-#define TILT_POT_BOT 2.51
-#define TILT_PDB_LOC 8
-#define TILT_POT_LOC 0
-#define TILT_ADDRESS 4
-#define TILT_SPEED 1
-
 struct Tilt{
 	class Goal{
 		public: 
