@@ -57,6 +57,7 @@ Robot_outputs Climb_release::Output_applicator::operator()(Robot_outputs r,Climb
 }
 
 Climb_release::Status_detail Climb_release::Estimator::get()const{ return {}; }
+
 void Climb_release::Estimator::update(Time time,Climb_release::Input,Climb_release::Output output){
 	timer.update(time,true);
 	if(output!=last_output && (output==Climb_release::Output::OUT || output==Climb_release::Output::IN)){

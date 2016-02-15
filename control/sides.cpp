@@ -3,7 +3,6 @@
 
 using namespace std;
 
-#define nyi { cout<<"\nnyi "<<__LINE__<<"\n"; exit(44); }
 #define SIDES_ADDRESS 3
 #define SIDES_SPEED 1
 
