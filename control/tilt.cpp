@@ -3,9 +3,8 @@
 #include <cmath>
 
 #define TILT_POT_TOP 0.00
-#define TILT_POT_OFFSET TILT_POT_TOP
-#define TILT_POT_LEVEL 1.15
-#define TILT_POT_BOT 1.77
+#define TILT_POT_LEVEL 1.00
+#define TILT_POT_BOT 2.00
 #define TILT_PDB_LOC 8
 #define TILT_POT_LOC 0
 #define TILT_ADDRESS 4
@@ -62,7 +61,7 @@ Tilt::Goal Tilt::Goal::up(){
 }
 
 Tilt::Goal Tilt::Goal::go_to_angle(std::array<double,3> angles){
-	assert(angles[0]>=((TILT_POT_TOP-TILT_POT_OFFSET)/VALUE_PER_DEGREE) && angles[2]<=((TILT_POT_BOT-TILT_POT_OFFSET)/VALUE_PER_DEGREE));
+	assert(angles[0]>=((TILT_POT_TOP-TILT_POT_TOP)/VALUE_PER_DEGREE) && angles[2]<=((TILT_POT_BOT-TILT_POT_TOP)/VALUE_PER_DEGREE));
 	Tilt::Goal a;
 	a.mode_=Tilt::Goal::Mode::GO_TO_ANGLE;
 	a.angle_min=angles[0];
@@ -205,7 +204,7 @@ bool operator==(Tilt a, Tilt b){ return (a.output_applicator==b.output_applicato
 bool operator!=(Tilt a, Tilt b){ return !(a==b); }
 
 std::set<Tilt::Input> examples(Tilt::Input*){ 
-	return {{.19,0},{.69,0},{1.19,0},{1.69,0},{2.19,0}};
+	return {{0,0},{.5,0},{1,0},{1.5,0},{2,0}};
 }
 std::set<Tilt::Goal> examples(Tilt::Goal*){
 	return {

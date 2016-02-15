@@ -2,16 +2,15 @@ HIGH PRIORITY
 	- Check out drive encoders
 	- OI code - Matthew/Logan/Adrian 
 	- Decide on which computers to use as Driver Stations and update them.
-	- Update mainpulators based on new information
+	- Work on climber
+
+
+NOT AS HIGH PRIORITY: 
 	- Shooter:
 		- Vertical/Horizontal Activation
 		- Shooter wheel spin up etc.
 		- Ball injector
 		- Add control into main
-	
-
-
-NOT AS HIGH PRIORITY: 
 	- Bug Fixes - EVERYONE
 	- Logger & Diagnostics - Jacob
 	- Autonomous* - Tristan/Matthew DUE FEB 13
