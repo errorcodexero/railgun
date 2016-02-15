@@ -45,7 +45,7 @@ struct Main{
 	};
 	Nudge nudges[4];//Forward, Backward, Clockwise, Counter-clockwise
 	
-	//bool driver_collector_stowed;
+	Posedge_toggle controller_auto;
 	#define COLLECTOR_MODES X(NOTHING) X(COLLECT) X(STOW) X(EJECT) X(REFLECT) X(TERRAIN) X(LOW_BAR)
 	enum class Collector_mode{
 		#define X(name) name,
