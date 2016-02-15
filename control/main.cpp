@@ -9,9 +9,12 @@
 #include "../input/util.h"
 #include <vector>
 #include <assert.h>
+#include <fstream> 
 
 
 using namespace std;
+
+ofstream myfile2;
 
 ostream& operator<<(ostream& o,Main::Mode a){
 	#define X(NAME) if(a==Main::Mode::NAME) return o<<""#NAME;
@@ -35,34 +38,38 @@ vector<Main::NavS> Main::loadnav(){
 	NavS navelement;
 	navinput start, end;
 	vector<pair<int,movedir>> v;
-
+	ofstream myfile;
+	myfile.open("/home/lvuser/logs/navlog.txt");
+	myfile << "hi" << "\n";
+	myfile.flush();
 	//assign start information
 	start.navpt.x = 5;
 	start.navpt.y = 150;
-	start.navdir = RIGHT;
+	start.navdir = DOWN;
 	
 	//assign end information
 	end.navpt.x = 5;
-	end.navpt.y = 200;
-	end.navdir = RIGHT;
+	end.navpt.y = 155;
+	end.navdir = DOWN;
 	
 	v=solvemaze(start.navpt,end.navpt,start.navdir,end.navdir);
-	
+	myfile << "size: " << v.size() << "\n"; 
 	//something to note is that doing a 180 or going back is going to be the same as turning exept that it is going to be for longer so that it can go as far  
 	for (unsigned int i=0;i<v.size();i++){
+		myfile << "Processing " << i <<  "\n";
 		if(v[i].second == MFORWARD){
-			navelement.left = .45;
-			navelement.right = .45;
+			navelement.left = -.45;
+			navelement.right = -.45;
 			navelement.amount = v[i].first;
 		}
 		else if(v[i].second == MLEFT){
-			navelement.left = -.45;
-			navelement.right = .45;
+			navelement.left = .45;
+			navelement.right = -.45;
 			navelement.amount = 1;
 		}
 		else if(v[i].second == MRIGHT){
-			navelement.left= .45;
-			navelement.right= -.45;
+			navelement.left= -.45;
+			navelement.right= .45;
 			navelement.amount= 1;
 		}
 		else if(v[i].second == MBACK){
@@ -71,8 +78,16 @@ vector<Main::NavS> Main::loadnav(){
 			navelement.amount= 2;
 		}
 		else assert(0);
+		myfile << "Pushing " << "navelm.left " << navelement.left << " navelm.right " << navelement.right << " amount " << navelement.amount << endl;
 		nav.push_back(navelement);
+
+		navelement.left= 0;
+		navelement.right= 0;
+		navelement.amount= 1;
+		nav.push_back(navelement);
+		myfile << "Pushing " << "navelm.left " << navelement.left << " navelm.right " << navelement.right << " amount " << navelement.amount << endl;
 	}
+	myfile.close();
 	return nav;
 }
 
@@ -245,10 +260,12 @@ Toplevel::Goal Main::teleop(
 }
 
 Main::Mode next_mode(Main::Mode m,bool autonomous,bool autonomous_start,Toplevel::Status_detail /*status*/,Time since_switch, Panel /*oi_panel*/,unsigned int navindex,std::vector<Main::NavS> NavV){
+	
 	switch(m){
+
 		case Main::Mode::TELEOP:
 			if(autonomous_start){
-				return Main::Mode::AUTO_NAV_LOAD;//just for testing purposes
+				return Main::Mode::AUTO_NAV;//just for testing purposes
 				/*if (oi_panel.in_use) {
 					switch(oi_panel.auto_mode){ 
 						case Panel::Auto_mode::CAN_GRAB:
@@ -269,12 +286,20 @@ Main::Mode next_mode(Main::Mode m,bool autonomous,bool autonomous_start,Toplevel
 			//encoders? going to use time for now
 			if(!autonomous || since_switch>1) return Main::Mode::TELEOP;
 			return m;
-		case Main::Mode::AUTO_NAV_LOAD:
-			return Main::Mode::AUTO_NAV;
 		case Main::Mode::AUTO_NAV:
-			if(navindex==NavV.size()) return Main::Mode::TELEOP;
-			if(since_switch>NavV[navindex].amount) navindex++; 
-			return Main::Mode::AUTO_NAV;
+			return Main::Mode::AUTO_NAV_RUN;
+		case Main::Mode::AUTO_NAV_RUN:
+			if(since_switch>NavV[navindex].amount) {
+				navindex++;
+				myfile2 << "navindex:" << navindex << endl;
+				myfile2.flush();
+			} 
+			if(navindex==NavV.size()) {
+				myfile2 << "done" << endl;
+				myfile2.flush();
+				return Main::Mode::TELEOP;
+			}
+			return Main::Mode::AUTO_NAV_RUN;
 		default: assert(0);
 	}
 }
@@ -319,11 +344,14 @@ Robot_outputs Main::operator()(Robot_inputs in,ostream&){
 			goals.drive.left=.45;
 			goals.drive.right=.45;
 			break;
-		case Mode::AUTO_NAV_LOAD:	
+		case Mode::AUTO_NAV:
+			myfile2.open("/home/lvuser/logs/navlog2.txt");
 			NavV = loadnav();
 			navindex = 0;
+			myfile2 << "Nav loaded:" << NavV.size() << endl;
+			myfile2.flush();
 			break;
-		case Mode::AUTO_NAV:
+		case Mode::AUTO_NAV_RUN:
 			goals.drive.left=NavV[navindex].left;
 			goals.drive.right=NavV[navindex].right;
 			break;

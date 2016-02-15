@@ -11,7 +11,7 @@
 #include "../util/nav.h"
 
 struct Main{
-	#define MODES X(TELEOP) X(AUTO_MOVE) X(AUTO_NAV) X(AUTO_NAV_LOAD)
+	#define MODES X(TELEOP) X(AUTO_MOVE) X(AUTO_NAV) X(AUTO_NAV_RUN)
 	enum class Mode{
 		#define X(NAME) NAME,
 		MODES
@@ -20,7 +20,9 @@ struct Main{
 	Mode mode;
 
 	struct NavS{
-		int left, right, amount;
+		float left; 
+		float right;
+		int amount;
 	};
 	struct navinput{
 		point navpt;
