@@ -12,21 +12,28 @@
 struct Tilt{
 	class Goal{
 		public: 
-		enum class Mode{DOWN,GO_TO_ANGLE,STOP,UP};
-		
+		#define TILT_GOAL_MODES \
+			X(DOWN) \
+			X(STOP) \
+			X(LOW) \
+			X(LEVEL) \
+			X(UP)
+		#define X(name) name,
+		enum class Mode{TILT_GOAL_MODES};	
+		#undef X
+	
 		private:
 		Goal();
 
 		Mode mode_;
-		double angle_min,angle_target,angle_max;	
 	
 		public:
 		Mode mode()const;
-		std::array<double,3> angle()const;
 		
 		static Goal up();
 		static Goal down();
-		static Goal go_to_angle(std::array<double,3>);
+		static Goal low();
+		static Goal level();
 		static Goal stop();
 	};
 	
@@ -42,11 +49,11 @@ struct Tilt{
 		Status_detail();
 
 		Type type_;
-		double angle;
+		double pot_value;
 		
 		public:
 		Type type()const;
-		double get_angle()const;		
+		double get_pot_value()const;
 
 		static Status_detail top();
 		static Status_detail mid(double);
@@ -74,7 +81,7 @@ struct Tilt{
 		Estimator();
 		
 		Countdown_timer stall_timer;
-		double timer_start_angle;
+		double timer_start_pot_value;
 		
 		void update(Time,Input,Output);
 		Status_detail get()const;
@@ -127,5 +134,7 @@ std::set<Tilt::Output> examples(Tilt::Output*);
 Tilt::Output control(Tilt::Status_detail, Tilt::Goal);
 Tilt::Status status(Tilt::Status_detail);
 bool ready(Tilt::Status, Tilt::Goal);
+
+void learn(float value,Tilt::Goal::Mode);
 
 #endif

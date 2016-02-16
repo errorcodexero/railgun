@@ -38,8 +38,7 @@ vector<Main::NavS> Main::loadnav(){
 	NavS navelement;
 	navinput start, end;
 	vector<pair<int,movedir>> v;
-	ofstream myfile;
-	myfile.open("/home/lvuser/logs/navlog.txt");
+	ofstream myfile("/home/lvuser/logs/navlog.txt");
 	myfile << "hi" << "\n";
 	myfile.flush();
 	//assign start information
@@ -144,15 +143,16 @@ Toplevel::Goal Main::teleop(
 		nudges[i].timer.update(in.now,1);
 	}
 		
-	//bool has_ball=(in.digital_io.in[6]==Digital_in::_1);
+	/*bool has_ball=(in.digital_io.in[6]==Digital_in::_0);
 
-	/*controller_auto.update(gunner_joystick.button[Gamepad_button::START]);
+	controller_auto.update(gunner_joystick.button[Gamepad_button::START]);
+	cout<<"controller_auto: "<<controller_auto<<"\n";
 	if (!oi_panel.in_use || (oi_panel.in_use && oi_panel.collector_auto) || controller_auto.get()) {
 		if(main_joystick.button[Gamepad_button::BACK])collector_mode=Collector_mode::NOTHING;
-		if(main_joystick.button[Gamepad_button::START]) {
+		else if(main_joystick.button[Gamepad_button::START]) {
 			collector_mode=(toplevel_status.tilt.type() == Tilt::Status_detail::Type::TOP) ? (has_ball ? Collector_mode::REFLECT : Collector_mode::COLLECT) : Collector_mode::STOW;
 		}
-		
+		cout<<"collector_mode: "<<collector_mode<<"\n";
 		switch(collector_mode){
 			case Collector_mode::COLLECT:
 				goals.front=Front::Goal::IN;
@@ -246,9 +246,7 @@ Toplevel::Goal Main::teleop(
 }
 
 Main::Mode next_mode(Main::Mode m,bool autonomous,bool autonomous_start,Toplevel::Status_detail /*status*/,Time since_switch, Panel /*oi_panel*/,unsigned int navindex,std::vector<Main::NavS> NavV){
-	
 	switch(m){
-
 		case Main::Mode::TELEOP:
 			if(autonomous_start){
 				return Main::Mode::AUTO_NAV;//just for testing purposes
@@ -296,7 +294,7 @@ Robot_outputs Main::operator()(Robot_inputs in,ostream&){
 	Joystick_data gunner_joystick=in.joystick[1];
 	Panel oi_panel=interpret(in.joystick[2]);
 
-	/*if(oi_panel.in_use && (!in.robot_mode.enabled || in.robot_mode.autonomous)){
+	/*if(!oi_panel.in_use && (!in.robot_mode.enabled || in.robot_mode.autonomous)){
 		Panel empty;
 		oi_panel=empty;
 	}*/
@@ -353,14 +351,6 @@ Robot_outputs Main::operator()(Robot_inputs in,ostream&){
 	toplevel.estimator.update(
 		in.now,
 		input,
-		/*Toplevel::Input{
-			{can_input,tote_input},
-			Kicker::Input{},
-			drive_in,
-			Pump::Input::NOT_FULL,
-			Can_grabber::Input{1}, //todo: make this actually ready from a digital io
-			Tote_sensors::Input{0,0,0}
-		},*/
 		toplevel.output_applicator(r)
 	);
 	return r;
