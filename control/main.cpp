@@ -116,19 +116,19 @@ Toplevel::Goal Main::teleop(
 
 	bool spin=fabs(main_joystick.axis[Gamepad_axis::RIGHTX])>.01,boost=main_joystick.axis[Gamepad_axis::LTRIGGER],slow=main_joystick.axis[Gamepad_axis::RTRIGGER];//spin, turbo, and slow buttons	
 	
-	//static const float Y_NUDGE_POWER=.2;
+	//static const float NUDGE_POWER=.2;
 	goals.drive.left=[&]{
 		double power=set_drive_speed(main_joystick.axis[Gamepad_axis::LEFTY],boost,slow);
 		if(spin) power+=set_drive_speed(-main_joystick.axis[Gamepad_axis::RIGHTX],boost,slow);
-		/*if(!nudges[0].timer.done()) power=-Y_NUDGE_POWER;
-		else if(!nudges[1].timer.done()) power=Y_NUDGE_POWER;*/
+		/*if(!nudges[0].timer.done()) power=-NUDGE_POWER;
+		else if(!nudges[1].timer.done()) power=NUDGE_POWER;*/
 		return power;
 	}();
 	goals.drive.right=[&]{
 		double power=set_drive_speed(main_joystick.axis[Gamepad_axis::LEFTY],boost,slow);
 		if(spin) power+=set_drive_speed(main_joystick.axis[Gamepad_axis::RIGHTX],boost,slow);
-		/*if(!nudges[0].timer.done()) power=-Y_NUDGE_POWER;
-		else if(!nudges[1].timer.done()) power=Y_NUDGE_POWER;*/
+		/*if(!nudges[0].timer.done()) power=-NUDGE_POWER;
+		else if(!nudges[1].timer.done()) power=NUDGE_POWER;*/
 		return power;
 	}();
 
