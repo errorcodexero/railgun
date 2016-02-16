@@ -116,12 +116,15 @@ Toplevel::Goal Main::teleop(
 
 	bool spin=fabs(main_joystick.axis[Gamepad_axis::RIGHTX])>.01,boost=main_joystick.axis[Gamepad_axis::LTRIGGER],slow=main_joystick.axis[Gamepad_axis::RTRIGGER];//spin, turbo, and slow buttons	
 	
-	static const float NUDGE_POWER=.2;
+	static const double NUDGE_POWER=.4,NUDGE_CW_POWER=.4,NUDGE_CCW_POWER=-.4;
+ 
 	goals.drive.left=[&]{
 		double power=set_drive_speed(main_joystick.axis[Gamepad_axis::LEFTY],boost,slow);
 		if(spin) power+=set_drive_speed(-main_joystick.axis[Gamepad_axis::RIGHTX],boost,slow);
 		if(!nudges[Nudges::FORWARD].timer.done()) power=-NUDGE_POWER;
 		else if(!nudges[Nudges::BACKWARD].timer.done()) power=NUDGE_POWER;
+		else if(!nudges[Nudges::CLOCKWISE].timer.done()) power=-NUDGE_CW_POWER;
+		else if(!nudges[Nudges::COUNTERCLOCKWISE].timer.done()) power=-NUDGE_CCW_POWER;
 		return power;
 	}();
 	goals.drive.right=[&]{
@@ -129,13 +132,14 @@ Toplevel::Goal Main::teleop(
 		if(spin) power+=set_drive_speed(main_joystick.axis[Gamepad_axis::RIGHTX],boost,slow);
 		if(!nudges[Nudges::FORWARD].timer.done()) power=-NUDGE_POWER;
 		else if(!nudges[Nudges::BACKWARD].timer.done()) power=NUDGE_POWER;
+		else if(!nudges[Nudges::CLOCKWISE].timer.done()) power=NUDGE_CW_POWER;
+		else if(!nudges[Nudges::COUNTERCLOCKWISE].timer.done()) power=NUDGE_CCW_POWER;
 		return power;
 	}();
 
-	static const unsigned int nudge_buttons[NUDGES]={Gamepad_button::X,Gamepad_button::B,Gamepad_button::Y,Gamepad_button::A};//Forward, backward, clockwise, counter-clockwise
-	for(int i=0;i<4;i++){
-		bool normal_nudge_enable=boost<.25;
-		bool start=nudges[i].trigger(normal_nudge_enable && main_joystick.button[nudge_buttons[i]]);
+	static const unsigned int nudge_buttons[NUDGES]={Gamepad_button::Y,Gamepad_button::A,Gamepad_button::B,Gamepad_button::X};//Forward, backward, clockwise, counter-clockwise
+	for(int i=0;i<Nudges::NUDGES;i++){
+		bool start=nudges[i].trigger(boost<.25 && main_joystick.button[nudge_buttons[i]]);
 		if(start)nudges[i].timer.set(.1);
 		nudges[i].timer.update(in.now,1);
 	}
@@ -292,10 +296,10 @@ Robot_outputs Main::operator()(Robot_inputs in,ostream&){
 	Joystick_data gunner_joystick=in.joystick[1];
 	Panel oi_panel=interpret(in.joystick[2]);
 
-	if(oi_panel.in_use && (!in.robot_mode.enabled || in.robot_mode.autonomous)){
+	/*if(oi_panel.in_use && (!in.robot_mode.enabled || in.robot_mode.autonomous)){
 		Panel empty;
 		oi_panel=empty;
-	}
+	}*/
 
 	force.update(
 		main_joystick.button[Gamepad_button::A],
@@ -308,10 +312,8 @@ Robot_outputs Main::operator()(Robot_inputs in,ostream&){
 	
 	Toplevel::Status_detail toplevel_status=toplevel.estimator.get();
 	
-	static int print_out_speed=0;	
-	if(print_out_speed%10==0)cout<<"panel: "<<oi_panel<<"\n";	
-	print_out_speed++;
-	
+	cout<<"panel: "<<oi_panel<<"\n";	
+		
 	bool autonomous_start_now=autonomous_start(in.robot_mode.autonomous && in.robot_mode.enabled);
 	since_auto_start.update(in.now,autonomous_start_now);
 		

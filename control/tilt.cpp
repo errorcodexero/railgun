@@ -260,7 +260,7 @@ Tilt::Output control(Tilt::Status_detail status, Tilt::Goal goal){
 						{
 							if(status.get_angle()>=goal.angle()[0] && status.get_angle()<=goal.angle()[2])return 0.0;
 							std::cout<<status.get_angle()<<std::endl;
-							double corrected_power=(goal.angle()[1]-status.get_angle())*SLOW;
+							double corrected_power=-(goal.angle()[1]-status.get_angle())*SLOW;
 							if(corrected_power>POWER)return POWER;
 							if(corrected_power<-POWER)return -POWER;
 							return corrected_power;
