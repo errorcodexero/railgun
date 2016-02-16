@@ -230,7 +230,7 @@ std::set<Tilt::Output> examples(Tilt::Output*){
 	return {-1,0,1};
 }
 Tilt::Output control(Tilt::Status_detail status, Tilt::Goal goal){
-	const double POWER=1;
+	const double POWER=1;//negative goes up, positive goes down
 	switch(goal.mode()){
 		case Tilt::Goal::Mode::UP:
 			switch(status.type()){
@@ -260,11 +260,10 @@ Tilt::Output control(Tilt::Status_detail status, Tilt::Goal goal){
 						{
 							if(status.get_angle()>=goal.angle()[0] && status.get_angle()<=goal.angle()[2])return 0.0;
 							std::cout<<status.get_angle()<<std::endl;
-							double error=-(goal.angle()[1]-(status.get_angle()/VALUE_PER_DEGREE));
-							double desired_power=error*SLOW;
-							if(desired_power>POWER)return POWER;
-							if(desired_power<-POWER)return -POWER;
-							return desired_power;
+							double corrected_power=(goal.angle()[1]-status.get_angle())*SLOW;
+							if(corrected_power>POWER)return POWER;
+							if(corrected_power<-POWER)return -POWER;
+							return corrected_power;
 						}
 					case Tilt::Status_detail::Type::TOP:
 						return POWER;

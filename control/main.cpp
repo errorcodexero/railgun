@@ -112,54 +112,37 @@ Toplevel::Goal Main::teleop(
 	Panel const&  oi_panel,
 	Toplevel::Status_detail& //toplevel_status
 ){
-	//bool has_ball=(in.digital_io.in[6]==Digital_in::_1);
-
 	Toplevel::Goal goals;
 
-	//static const float Y_NUDGE_POWER=.2;// ROTATE_NUDGE_POWER=.5;//nudge amounts 
-	double turbo_button=main_joystick.axis[Gamepad_axis::LTRIGGER], slow_button=main_joystick.axis[Gamepad_axis::RTRIGGER];//turbo and slow buttons		
+	bool spin=fabs(main_joystick.axis[Gamepad_axis::RIGHTX])>.01,boost=main_joystick.axis[Gamepad_axis::LTRIGGER],slow=main_joystick.axis[Gamepad_axis::RTRIGGER];//spin, turbo, and slow buttons	
 	
-	Drivebase::Goal &goal=goals.drive;
-	/*if(!nudges[0].timer.done()){
-		goal.left=-Y_NUDGE_POWER;
-		goal.right=-Y_NUDGE_POWER;
-	}
-	else if(!nudges[1].timer.done()){
-		goal.left=Y_NUDGE_POWER;
-		goal.right=Y_NUDGE_POWER;
-	}
-	else{*/
-		goal.left=set_drive_speed(main_joystick.axis[Gamepad_axis::LEFTY],turbo_button,slow_button);
-		goal.right=set_drive_speed(main_joystick.axis[Gamepad_axis::LEFTY],turbo_button,slow_button);
-	//}	
+	//static const float Y_NUDGE_POWER=.2;
+	goals.drive.left=[&]{
+		double power=set_drive_speed(main_joystick.axis[Gamepad_axis::LEFTY],boost,slow);
+		if(spin) power+=set_drive_speed(-main_joystick.axis[Gamepad_axis::RIGHTX],boost,slow);
+		/*if(!nudges[0].timer.done()) power=-Y_NUDGE_POWER;
+		else if(!nudges[1].timer.done()) power=Y_NUDGE_POWER;*/
+		return power;
+	}();
+	goals.drive.right=[&]{
+		double power=set_drive_speed(main_joystick.axis[Gamepad_axis::LEFTY],boost,slow);
+		if(spin) power+=set_drive_speed(main_joystick.axis[Gamepad_axis::RIGHTX],boost,slow);
+		/*if(!nudges[0].timer.done()) power=-Y_NUDGE_POWER;
+		else if(!nudges[1].timer.done()) power=Y_NUDGE_POWER;*/
+		return power;
+	}();
 
-	/*static const double TURNING=.75;
-	double real_turning = main_joystick.button[Gamepad_button::LB] ? TURNING : (main_joystick.button[Gamepad_button::RB] ? -TURNING : 0); 
-	const float LIMIT=0.005;
-	const float SLOW_TURNING=.8;*/
-
-	if(fabs(main_joystick.axis[Gamepad_axis::RIGHTX])>.01){
-		goal.right+=set_drive_speed(main_joystick.axis[Gamepad_axis::RIGHTX],turbo_button,slow_button);
-		goal.left+=set_drive_speed(-main_joystick.axis[Gamepad_axis::RIGHTX],turbo_button,slow_button);
-	}
-
-	/*if(fabs(goal.left)<LIMIT && fabs(goal.right)<LIMIT && nudges[2].timer.done() && nudges[3].timer.done()){
-		goal.left=(set_drive_speed(real_turning,turbo_button,slow_button))*SLOW_TURNING;
-		goal.right=(set_drive_speed(-real_turning,turbo_button,slow_button))*SLOW_TURNING;
-	}*/
-
-	static const bool normal_nudge_enable=turbo_button<.25;	
-	static const auto NUDGE_CCW_BUTTON=Gamepad_button::X,NUDGE_CW_BUTTON=Gamepad_button::B;
-	static const auto NUDGE_FWD_BUTTON=Gamepad_button::Y,NUDGE_BACK_BUTTON=Gamepad_button::A;
+	static const bool normal_nudge_enable=boost<.25;	
+	static const unsigned int NUDGE_CCW_BUTTON=Gamepad_button::X,NUDGE_CW_BUTTON=Gamepad_button::B,NUDGE_FWD_BUTTON=Gamepad_button::Y,NUDGE_BACK_BUTTON=Gamepad_button::A;
 	static const unsigned int nudge_buttons[4]={NUDGE_FWD_BUTTON,NUDGE_BACK_BUTTON,NUDGE_CCW_BUTTON,NUDGE_CW_BUTTON};
 	for(int i=0;i<4;i++){
 		bool start=nudges[i].trigger(normal_nudge_enable && main_joystick.button[nudge_buttons[i]]);
 		if(start)nudges[i].timer.set(.1);
 		nudges[i].timer.update(in.now,1);
-	}	
-	
-	goals.drive=goal;
-	
+	}
+		
+	//bool has_ball=(in.digital_io.in[6]==Digital_in::_1);
+
 	/*controller_auto.update(gunner_joystick.button[Gamepad_button::START]);
 	if (!oi_panel.in_use || (oi_panel.in_use && oi_panel.collector_auto) || controller_auto.get()) {
 		if(main_joystick.button[Gamepad_button::BACK])collector_mode=Collector_mode::NOTHING;
