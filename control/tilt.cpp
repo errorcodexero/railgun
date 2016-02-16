@@ -338,7 +338,10 @@ bool in_range(T a, T b, T c){//returns if a is in a range of +/- c from b
 }
 
 void Tilt::Estimator::update(Time time, Tilt::Input in, Tilt::Output) {
-	if(in.top)TILT_POT_TOP=in.pot_value;
+	if(in.top){
+		TILT_POT_TOP=in.pot_value;
+		learn(in.pot_value,Tilt::Goal::Mode::UP);
+	}
 	float angle=(in.pot_value-TILT_POT_TOP)/VALUE_PER_DEGREE;
 	stall_timer.update(time,true);
 	if(stall_timer.done()) last.stalled=true;
@@ -375,7 +378,6 @@ void learn(float pot_in,Tilt::Goal::Mode a){
 	#undef X
 	std::string line;
 	std::ifstream file(TILT_POSITIONS);
-	std::ostringstream out;
 	std::vector<std::string> go_out;
 	while(!file.eof()){ 
 		std::string edit; 
@@ -383,6 +385,7 @@ void learn(float pot_in,Tilt::Goal::Mode a){
 		for(char c:line){ 
 			if(c==':'){ 
 				if(edit==mode){ 
+					std::ostringstream out;
 					out<<pot_in; 
 					edit+=":"+out.str(); 
 					break; 
@@ -399,6 +402,34 @@ void learn(float pot_in,Tilt::Goal::Mode a){
 		if(i+1<go_out.size())file2<<"\n";
 	}
 	file2.close();
+}
+
+float get_value(Tilt::Goal::Mode a){
+	assert(a!=Tilt::Goal::Mode::STOP && a!=Tilt::Goal::Mode::GO_TO_ANGLE);
+	std::string mode;
+	#define X(name) if(a==Tilt::Goal::Mode::name) mode=""#name;
+	TILT_GOAL_MODES
+	#undef X
+	std::string line;
+	std::ifstream file(TILT_POSITIONS);
+	while(!file.eof()){ 
+		std::string edit; 
+		std::getline(file,line); 
+		for(char c:line){ 
+			if(c==':'){ 
+				if(edit==mode){ 
+					file.close();
+					std::istringstream in(line.substr(edit.size()+1));
+					float value;
+					in>>value;
+					return value;
+				} 
+			} 
+			edit+=c; 
+		} 
+	} 
+	file.close();
+	assert(0);
 }
 
 #ifdef TILT_TEST
