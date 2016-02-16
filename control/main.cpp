@@ -116,26 +116,25 @@ Toplevel::Goal Main::teleop(
 
 	bool spin=fabs(main_joystick.axis[Gamepad_axis::RIGHTX])>.01,boost=main_joystick.axis[Gamepad_axis::LTRIGGER],slow=main_joystick.axis[Gamepad_axis::RTRIGGER];//spin, turbo, and slow buttons	
 	
-	//static const float NUDGE_POWER=.2;
+	static const float NUDGE_POWER=.2;
 	goals.drive.left=[&]{
 		double power=set_drive_speed(main_joystick.axis[Gamepad_axis::LEFTY],boost,slow);
 		if(spin) power+=set_drive_speed(-main_joystick.axis[Gamepad_axis::RIGHTX],boost,slow);
-		/*if(!nudges[0].timer.done()) power=-NUDGE_POWER;
-		else if(!nudges[1].timer.done()) power=NUDGE_POWER;*/
+		if(!nudges[Nudges::FORWARD].timer.done()) power=-NUDGE_POWER;
+		else if(!nudges[Nudges::BACKWARD].timer.done()) power=NUDGE_POWER;
 		return power;
 	}();
 	goals.drive.right=[&]{
 		double power=set_drive_speed(main_joystick.axis[Gamepad_axis::LEFTY],boost,slow);
 		if(spin) power+=set_drive_speed(main_joystick.axis[Gamepad_axis::RIGHTX],boost,slow);
-		/*if(!nudges[0].timer.done()) power=-NUDGE_POWER;
-		else if(!nudges[1].timer.done()) power=NUDGE_POWER;*/
+		if(!nudges[Nudges::FORWARD].timer.done()) power=-NUDGE_POWER;
+		else if(!nudges[Nudges::BACKWARD].timer.done()) power=NUDGE_POWER;
 		return power;
 	}();
 
-	static const bool normal_nudge_enable=boost<.25;	
-	static const unsigned int NUDGE_CCW_BUTTON=Gamepad_button::X,NUDGE_CW_BUTTON=Gamepad_button::B,NUDGE_FWD_BUTTON=Gamepad_button::Y,NUDGE_BACK_BUTTON=Gamepad_button::A;
-	static const unsigned int nudge_buttons[4]={NUDGE_FWD_BUTTON,NUDGE_BACK_BUTTON,NUDGE_CCW_BUTTON,NUDGE_CW_BUTTON};
+	static const unsigned int nudge_buttons[NUDGES]={Gamepad_button::X,Gamepad_button::B,Gamepad_button::Y,Gamepad_button::A};//Forward, backward, clockwise, counter-clockwise
 	for(int i=0;i<4;i++){
+		bool normal_nudge_enable=boost<.25;
 		bool start=nudges[i].trigger(normal_nudge_enable && main_joystick.button[nudge_buttons[i]]);
 		if(start)nudges[i].timer.set(.1);
 		nudges[i].timer.update(in.now,1);
