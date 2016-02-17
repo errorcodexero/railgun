@@ -10,26 +10,36 @@ std::ostream& operator<<(std::ostream& o,Climb_release::Goal a){
 	assert(0);
 }
 
-std::ostream& operator<<(std::ostream& o,Climb_release::Input){ return o<<"Climb_release::Input()"; }
+std::ostream& operator<<(std::ostream& o,Climb_release::Input a){
+	o<<"Climb_release::Input(";
+	o<<a.enabled;
+	return o<<")";
+}
+
 std::ostream& operator<<(std::ostream& o,Climb_release::Status_detail a){
 	#define X(name) if(a==Climb_release::Status_detail::name) return o<<"Climb_release::Status_detail("#name")";
 	X(IN) X(OUT) X(UNKNOWN)
 	#undef X
 	assert(0);
 }
-std::ostream& operator<<(std::ostream& o,Climb_release::Estimator a){ return o<<"Climb_release::Estimator( last:"<<a.last<<" timer:"<<a.timer<<" last_output:"<<a.last_output<<")"; }
+
+std::ostream& operator<<(std::ostream& o,Climb_release::Estimator a){
+	return o<<"Climb_release::Estimator( last:"<<a.last<<" timer:"<<a.timer<<" last_output:"<<a.last_output<<")";
+}
+
 std::ostream& operator<<(std::ostream& o,Climb_release a){ return o<<"Climb_release("<<a.estimator<<")"; }
 
-Climb_release::Estimator::Estimator():last(Climb_release::Status_detail::UNKNOWN),timer(),last_output(Climb_release::Output::STOP){}
-
-bool operator==(Climb_release::Input,Climb_release::Input){ return true; }
-bool operator!=(Climb_release::Input,Climb_release::Input){ return false; }
-bool operator<(Climb_release::Input,Climb_release::Input){ return false; }
+bool operator==(Climb_release::Input a,Climb_release::Input b){ return a.enabled==b.enabled; }
+bool operator!=(Climb_release::Input a,Climb_release::Input b){ return !(a==b); }
+bool operator<(Climb_release::Input a,Climb_release::Input b){ return a.enabled<b.enabled; }
 
 bool operator==(Climb_release::Input_reader,Climb_release::Input_reader){ return true; }
 bool operator<(Climb_release::Input_reader,Climb_release::Input_reader){ return false; }
 
-bool operator==(Climb_release::Estimator a,Climb_release::Estimator b){ return a.last==b.last && a.timer==b.timer && a.last_output==b.last_output; }
+bool operator==(Climb_release::Estimator a,Climb_release::Estimator b){
+	return a.last==b.last && a.timer==b.timer && a.last_output==b.last_output;
+}
+
 bool operator!=(Climb_release::Estimator a,Climb_release::Estimator b){ return !(a==b); }
 
 bool operator==(Climb_release::Output_applicator,Climb_release::Output_applicator){ return true; }
@@ -37,11 +47,18 @@ bool operator==(Climb_release::Output_applicator,Climb_release::Output_applicato
 bool operator==(Climb_release a,Climb_release b){ return (a.input_reader==b.input_reader && a.estimator==b.estimator && a.output_applicator==b.output_applicator); }
 bool operator!=(Climb_release a,Climb_release b){ return !(a==b); }
 
-Climb_release::Input Climb_release::Input_reader::operator()(Robot_inputs)const{ return {}; }
-Robot_inputs Climb_release::Input_reader::operator()(Robot_inputs r,Climb_release::Input)const{ return r; }
+Climb_release::Input Climb_release::Input_reader::operator()(Robot_inputs a)const{
+	return {a.robot_mode.enabled};
+}
+
+Robot_inputs Climb_release::Input_reader::operator()(Robot_inputs r,Climb_release::Input a)const{
+	r.robot_mode.enabled=a.enabled;
+	return r;
+}
 
 Climb_release::Output Climb_release::Output_applicator::operator()(Robot_outputs r)const{
-	return (r.relay[INOUT_ADDRESS]==Relay_output::_01? Climb_release::Output::OUT : (r.relay[INOUT_ADDRESS]==Relay_output::_10? Climb_release::Output::IN : Climb_release::Output::STOP));
+	auto v=r.relay[INOUT_ADDRESS];
+	return (v==Relay_output::_01? Climb_release::Output::OUT : (v==Relay_output::_10? Climb_release::Output::IN : Climb_release::Output::STOP));
 }
 
 Robot_outputs Climb_release::Output_applicator::operator()(Robot_outputs r,Climb_release::Output out)const{
@@ -56,34 +73,63 @@ Robot_outputs Climb_release::Output_applicator::operator()(Robot_outputs r,Climb
 	return r;
 }
 
-Climb_release::Status_detail Climb_release::Estimator::get()const{ return {}; }
+Climb_release::Estimator::Estimator():last(Climb_release::Status_detail::UNKNOWN),timer(),last_output(Climb_release::Output::STOP){}
 
-void Climb_release::Estimator::update(Time time,Climb_release::Input,Climb_release::Output output){
-	timer.update(time,true);
+Climb_release::Status_detail Climb_release::Estimator::get()const{ return last; }
+
+void Climb_release::Estimator::update(Time time,Climb_release::Input in,Climb_release::Output output){
+	timer.update(time,in.enabled);
 	if(output!=last_output && (output==Climb_release::Output::OUT || output==Climb_release::Output::IN)){
-		timer.set(1);
+		static const float MOVE_TIME=1;
+		timer.set(MOVE_TIME);
 	}
 	if(timer.done()){
 		if(output==Climb_release::Output::IN)last=Climb_release::Status_detail::IN;
 		else if(output==Climb_release::Output::OUT)last=Climb_release::Status_detail::OUT;
 	}
 	last_output=output;
-} 
+}
 
-std::set<Climb_release::Input> examples(Climb_release::Input*){ return {{}}; }
+std::set<Climb_release::Input> examples(Climb_release::Input*){ return {{0},{1}}; }
+
 std::set<Climb_release::Goal> examples(Climb_release::Goal*){ return {Climb_release::Goal::IN,Climb_release::Goal::STOP,Climb_release::Goal::OUT}; }
-std::set<Climb_release::Status_detail> examples(Climb_release::Status_detail*){ return {Climb_release::Status_detail::IN,Climb_release::Status_detail::OUT,Climb_release::Status_detail::UNKNOWN}; }
 
-Climb_release::Output control(Climb_release::Status_detail,Climb_release::Goal goal){
+std::set<Climb_release::Status_detail> examples(Climb_release::Status_detail*){
+	return {Climb_release::Status_detail::IN,Climb_release::Status_detail::OUT,Climb_release::Status_detail::UNKNOWN};
+}
+
+Climb_release::Output control(Climb_release::Status_detail status,Climb_release::Goal goal){
 	switch(goal){
-		case Climb_release::Goal::IN: return Climb_release::Output::IN;
-		case Climb_release::Goal::OUT: return Climb_release::Output::OUT;
+		case Climb_release::Goal::IN:
+			if(status==Climb_release::Status_detail::IN){
+				return Climb_release::Output::STOP;
+			}
+			return Climb_release::Output::IN;
+		case Climb_release::Goal::OUT:
+			if(status==Climb_release::Status_detail::OUT){
+				return Climb_release::Output::STOP;
+			}
+			return Climb_release::Output::OUT;
 		case Climb_release::Goal::STOP: return Climb_release::Output::STOP;
 		default: assert(0);
 	}
 }
+
 Climb_release::Status status(Climb_release::Status_detail a){ return a; }
-bool ready(Climb_release::Status,Climb_release::Goal){ return true; }
+
+bool ready(Climb_release::Status status,Climb_release::Goal goal){
+	switch(goal){
+		case Climb_release::Goal::IN:
+			return status==Climb_release::Status::IN;
+		case Climb_release::Goal::OUT:
+			return status==Climb_release::Status::OUT;
+		case Climb_release::Goal::STOP:
+			return 1;
+		default:
+			assert(0);
+	}
+	return true;
+}
 
 #ifdef CLIMB_RELEASE_TEST
 #include "formal.h"
@@ -94,4 +140,3 @@ int main(){
 }
 
 #endif
-
