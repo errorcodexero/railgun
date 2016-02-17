@@ -44,12 +44,12 @@ vector<Main::NavS> Main::loadnav(){
 	myfile.flush();
 	//assign start information
 	start.navpt.x = 5;
-	start.navpt.y = 125;
+	start.navpt.y = 35;
 	start.navdir = RIGHT;
 	
 	//assign end information
-	end.navpt.x = 29;
-	end.navpt.y = 150;
+	end.navpt.x = 5;
+	end.navpt.y = 125;
 	end.navdir = DOWN;
 	
 	v=solvemaze(start.navpt,end.navpt,start.navdir,end.navdir);
@@ -249,12 +249,8 @@ Toplevel::Goal Main::teleop(
 	return goals;
 }
 
-<<<<<<< HEAD
-Main::Mode next_mode(Main::Mode m,bool autonomous,bool autonomous_start,Toplevel::Status_detail /*status*/,Time since_switch, Panel /*oi_panel*/,unsigned int & navindex,std::vector<Main::NavS> NavV){
-	
-=======
 Main::Mode next_mode(Main::Mode m,bool autonomous,bool autonomous_start,Toplevel::Status_detail /*status*/,Time since_switch, Panel /*oi_panel*/,unsigned int navindex,std::vector<Main::NavS> NavV){
->>>>>>> 7149f6b58b5b15af9857bc1c8e6758d6dcc086bb
+
 	switch(m){
 		case Main::Mode::TELEOP:
 			if(autonomous_start){

@@ -102,8 +102,8 @@ string pmovedir(movedir a){
 // returns true if p is in the grid
 /////////////////////////////////////////////////////////////////////////////
 bool bounderies(point p,mapstruct const& map){
-	bool xvalid = p.x >=0 && p.x < map.width;
-	bool yvalid = p.y >=0 && p.y < map.length;
+	bool xvalid = p.x >=0+ROBOTSPACE && p.x < map.width;
+	bool yvalid = p.y >=0+ROBOTSPACE && p.y < map.length;
 	return xvalid && yvalid;
 }
 
