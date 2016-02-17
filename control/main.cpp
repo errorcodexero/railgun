@@ -11,6 +11,9 @@
 #include <assert.h>
 #include <fstream> 
 
+//test
+#include "../util/tagger.h"
+//test
 
 using namespace std;
 
@@ -55,6 +58,7 @@ vector<Main::NavS> Main::loadnav(){
 	v=solvemaze(start.navpt,end.navpt,start.navdir,end.navdir);
 	myfile << "size: " << v.size() << "\n"; 
 	//something to note is that doing a 180 or going back is going to be the same as turning exept that it is going to be for longer so that it can go as far  
+
 	for (unsigned int i=0;i<v.size();i++){
 		myfile << "Processing " << i <<  "\n";
 		if(v[i].second == MFORWARD){
@@ -339,6 +343,10 @@ Robot_outputs Main::operator()(Robot_inputs in,ostream&){
 	switch(mode){
 		case Mode::TELEOP:
 			goals=teleop(in,main_joystick,gunner_joystick,oi_panel,toplevel_status);
+//test
+			tagThis("Line 347: switch(mode) teleop", __FILE__);
+			//cout<<"$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$tag!";
+//test			
 			break;
 		case Mode::AUTO_MOVE:
 			goals.drive.left=.45;
