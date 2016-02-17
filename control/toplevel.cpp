@@ -314,7 +314,9 @@ set<Toplevel::Status_detail> examples(Toplevel::Status_detail*){
 		*examples((Sides::Status_detail*)0).begin(),
 		*examples((Front::Status_detail*)0).begin(),
 		*examples((Climb::Status_detail*)0).begin(),
-		*examples((Climb_release::Status_detail*)0).begin()
+		*examples((Climb_release::Status_detail*)0).begin(),
+                *examples((Winch::Status_detail*)0).begin()
+
 	}};
 }
 
@@ -334,7 +336,8 @@ set<Toplevel::Input> examples(Toplevel::Input*){
 		Sides::Input{},
 		Front::Input{},
 		Climb::Input{0,0},
-		Climb_release::Input{}
+		Climb_release::Input{0},
+		Winch::Input{}
 	};
 	return {a};
 }

@@ -15,7 +15,9 @@ struct Climb_release{
 	
 	typedef Status_detail Status;
 
-	struct Input{};
+	struct Input{
+		bool enabled;
+	};
 	
 	struct Input_reader{
 		Climb_release::Input operator()(Robot_inputs)const;
