@@ -3,10 +3,10 @@
 
 #include <iosfwd>
 #include <bitset>
-#include <array>
 #include "jag_interface.h"
 #include "driver_station_interface.h"
 #include "maybe_inline.h"
+#include "checked_array.h"
 
 typedef double Time;//Seconds
 typedef double Pwm_output;
@@ -71,22 +71,22 @@ bool operator!=(Digital_out,Digital_out);
 
 struct Robot_outputs{
 	static const unsigned PWMS=10;//Number of ports on the digital sidecar; roboRIO headers say 20 but there aren't that many ports on the board.
-	std::array<Pwm_output,PWMS> pwm;
+	Checked_array<Pwm_output,PWMS> pwm;
 	
 	static const unsigned SOLENOIDS=8;
-	std::array<Solenoid_output,SOLENOIDS> solenoid;
+	Checked_array<Solenoid_output,SOLENOIDS> solenoid;
 	
 	static const unsigned RELAYS=8;
-	std::array<Relay_output,RELAYS> relay;
+	Checked_array<Relay_output,RELAYS> relay;
 	
 	static const unsigned DIGITAL_IOS=10;//there are really 14 on the cRIO and the roboRIO headers say 26.
-	std::array<Digital_out,DIGITAL_IOS> digital_io;
+	Checked_array<Digital_out,DIGITAL_IOS> digital_io;
 	
 	static const unsigned TALON_SRX_OUTPUTS=3;
-	std::array<Talon_srx_output, TALON_SRX_OUTPUTS> talon_srx;
+	Checked_array<Talon_srx_output, TALON_SRX_OUTPUTS> talon_srx;
 	
 	static const unsigned CAN_JAGUARS=0;
-	std::array<Jaguar_output,CAN_JAGUARS> jaguar;
+	Checked_array<Jaguar_output,CAN_JAGUARS> jaguar;
 	
 	//could add in some setup for the analog inputs
 	
@@ -110,7 +110,7 @@ std::ostream& operator<<(std::ostream& o,Robot_outputs);
 #define JOY_BUTTONS 12
 
 struct Joystick_data{
-	std::array<double,JOY_AXES> axis;
+	Checked_array<double,JOY_AXES> axis;
 	std::bitset<JOY_BUTTONS> button;
 	
 	Joystick_data();
@@ -138,9 +138,9 @@ std::ostream& operator<<(std::ostream&,Digital_in);
 typedef int Encoder_output;
 
 struct Digital_inputs{
-	std::array<Digital_in,Robot_outputs::DIGITAL_IOS> in;
+	Checked_array<Digital_in,Robot_outputs::DIGITAL_IOS> in;
 	static const unsigned ENCODERS=Robot_outputs::DIGITAL_IOS/2;
-	std::array<Maybe_inline<Encoder_output>,ENCODERS> encoder;
+	Checked_array<Maybe_inline<Encoder_output>,ENCODERS> encoder;
 
 	Digital_inputs();
 };
@@ -156,23 +156,23 @@ struct Robot_inputs{
 	Time now;//time since boot.
 
 	static const unsigned JOYSTICKS=3; //limitation of FRC coms was 4, now highter
-	std::array<Joystick_data,JOYSTICKS> joystick;
+	Checked_array<Joystick_data,JOYSTICKS> joystick;
 
 	//std::array<Digital_in,Robot_outputs::DIGITAL_IOS> digital_io;
 	Digital_inputs digital_io;	
 
 	static const unsigned ANALOG_INPUTS=4;
-	std::array<Volt,ANALOG_INPUTS> analog;
+	Checked_array<Volt,ANALOG_INPUTS> analog;
 
 	static const unsigned TALON_SRX_INPUTS=2;
-	std::array<Talon_srx_input, TALON_SRX_INPUTS> talon_srx;
+	Checked_array<Talon_srx_input, TALON_SRX_INPUTS> talon_srx;
 	
-	std::array<Jaguar_input,Robot_outputs::CAN_JAGUARS> jaguar;
+	Checked_array<Jaguar_input,Robot_outputs::CAN_JAGUARS> jaguar;
 	Driver_station_input driver_station;
 	Rad orientation;
 		
 	static const unsigned CURRENT =16;
-	std::array<double,CURRENT> current;
+	Checked_array<double,CURRENT> current;
 	bool pump;
 
 	Robot_inputs();
