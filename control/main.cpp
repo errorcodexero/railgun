@@ -11,10 +11,6 @@
 #include <assert.h>
 #include <fstream> 
 
-//test
-#include "../util/tagger.h"
-//test
-
 using namespace std;
 
 ofstream myfile2;
@@ -331,7 +327,7 @@ Robot_outputs Main::operator()(Robot_inputs in,ostream&){
 		case Mode::TELEOP:
 			goals=teleop(in,main_joystick,gunner_joystick,oi_panel,toplevel_status);
 //test
-			tagThis("Line 347: switch(mode) teleop", __FILE__);
+			//tagThis("Line 347: switch(mode) teleop", __FILE__);
 			//cout<<"$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$tag!";
 //test			
 			break;
