@@ -1,8 +1,9 @@
 HIGH PRIORITY
-	- Collector 1000000000% working - Logan
-	- Check out drive encoders - Tristan
+	- Collector 100% working - Logan/Matthew - DUE ASAP
+	- Check out drive encoders
 	- OI code - Matthew
 	- Work on climber - Calvin
+	- Autonomous* - Tristan
 
 
 NOT AS HIGH PRIORITY: 
@@ -12,9 +13,8 @@ NOT AS HIGH PRIORITY:
 		- Ball injector
 		- Add control into main
 	- Logger & Diagnostics - Jacob
-	- Autonomous* - Tristan
 	- Vision - Nick 
-	- Laptop configuration - Adrian
+	- Laptop configuration
 		-ssh config:
 			-Fix the "rm ~/.ssh/known_hosts" problem
 			-add "StrictHostKeyChecking no/UserKnownHostsFile=/dev/null" for robot

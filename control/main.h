@@ -22,12 +22,13 @@ struct Main{
 	struct NavS{
 		float left; 
 		float right;
-		int amount;
+		float amount;
 	};
 	struct navinput{
 		point navpt;
 		direction navdir;
 	};
+	
 	unsigned int navindex;
 	std::vector<NavS> NavV;
 		
@@ -40,12 +41,13 @@ struct Main{
 	Countup_timer since_switch,since_auto_start;
 
 	Posedge_trigger autonomous_start;
-	
+
+	enum Nudges{FORWARD,BACKWARD,CLOCKWISE,COUNTERCLOCKWISE,NUDGES};	
 	struct Nudge{
 		Posedge_trigger trigger;
 		Countdown_timer timer;
 	};
-	Nudge nudges[4];//Forward, Backward, Clockwise, Counter-clockwise
+	Nudge nudges[NUDGES];
 	
 	Posedge_toggle controller_auto;
 	#define COLLECTOR_MODES X(NOTHING) X(COLLECT) X(STOW) X(EJECT) X(REFLECT) X(TERRAIN) X(LOW_BAR)
