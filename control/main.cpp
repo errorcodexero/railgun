@@ -34,6 +34,7 @@ ostream& operator<<(ostream& o,Main::Collector_mode a){
 Main::Main():mode(Mode::TELEOP),autonomous_start(0),collector_mode(Collector_mode::NOTHING){}
 
 vector<Main::NavS> Main::loadnav(){
+	float amount = 0;
 	vector<NavS> nav;
 	NavS navelement;
 	navinput start, end;
@@ -44,12 +45,12 @@ vector<Main::NavS> Main::loadnav(){
 	myfile.flush();
 	//assign start information
 	start.navpt.x = 5;
-	start.navpt.y = 150;
-	start.navdir = DOWN;
+	start.navpt.y = 125;
+	start.navdir = RIGHT;
 	
 	//assign end information
-	end.navpt.x = 5;
-	end.navpt.y = 155;
+	end.navpt.x = 29;
+	end.navpt.y = 150;
 	end.navdir = DOWN;
 	
 	v=solvemaze(start.navpt,end.navpt,start.navdir,end.navdir);
@@ -60,30 +61,33 @@ vector<Main::NavS> Main::loadnav(){
 		if(v[i].second == MFORWARD){
 			navelement.left = -.45;
 			navelement.right = -.45;
-			navelement.amount = v[i].first;
+			amount += v[i].first / 29.0;
 		}
 		else if(v[i].second == MLEFT){
 			navelement.left = .45;
 			navelement.right = -.45;
-			navelement.amount = 1;
+			amount += .65;
 		}
 		else if(v[i].second == MRIGHT){
 			navelement.left= -.45;
 			navelement.right= .45;
-			navelement.amount= 1;
+			amount += .65;
 		}
 		else if(v[i].second == MBACK){
 			navelement.left= .45;
 			navelement.right= -.45;
-			navelement.amount= 2;
+			amount+= 1.1;
 		}
 		else assert(0);
+		navelement.amount = amount;
+
 		myfile << "Pushing " << "navelm.left " << navelement.left << " navelm.right " << navelement.right << " amount " << navelement.amount << endl;
 		nav.push_back(navelement);
 
 		navelement.left= 0;
 		navelement.right= 0;
-		navelement.amount= 1;
+		amount += 1;
+		navelement.amount = amount;
 		nav.push_back(navelement);
 		myfile << "Pushing " << "navelm.left " << navelement.left << " navelm.right " << navelement.right << " amount " << navelement.amount << endl;
 	}
@@ -259,7 +263,7 @@ Toplevel::Goal Main::teleop(
 	return goals;
 }
 
-Main::Mode next_mode(Main::Mode m,bool autonomous,bool autonomous_start,Toplevel::Status_detail /*status*/,Time since_switch, Panel /*oi_panel*/,unsigned int navindex,std::vector<Main::NavS> NavV){
+Main::Mode next_mode(Main::Mode m,bool autonomous,bool autonomous_start,Toplevel::Status_detail /*status*/,Time since_switch, Panel /*oi_panel*/,unsigned int & navindex,std::vector<Main::NavS> NavV){
 	
 	switch(m){
 
@@ -292,6 +296,7 @@ Main::Mode next_mode(Main::Mode m,bool autonomous,bool autonomous_start,Toplevel
 			if(since_switch>NavV[navindex].amount) {
 				navindex++;
 				myfile2 << "navindex:" << navindex << endl;
+				myfile2 << "SS: " << since_switch << endl;
 				myfile2.flush();
 			} 
 			if(navindex==NavV.size()) {

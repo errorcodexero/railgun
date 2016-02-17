@@ -22,12 +22,13 @@ struct Main{
 	struct NavS{
 		float left; 
 		float right;
-		int amount;
+		float amount;
 	};
 	struct navinput{
 		point navpt;
 		direction navdir;
 	};
+	
 	unsigned int navindex;
 	std::vector<NavS> NavV;
 		
