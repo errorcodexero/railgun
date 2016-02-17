@@ -140,6 +140,6 @@ Tilt::Status status(Tilt::Status_detail);
 bool ready(Tilt::Status, Tilt::Goal);
 
 void learn(float value,Tilt::Goal::Mode);
-float get_value(Tilt::Goal::Mode);
+float update_positions(Tilt::Goal::Mode);
 
 #endif
