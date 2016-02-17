@@ -1,0 +1,4 @@
+UP:0
+DOWN:2
+LEVEL:1
+LOW:2.67

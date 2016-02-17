@@ -1,22 +1,20 @@
 HIGH PRIORITY
+	- Collector 100% working - Logan
 	- Check out drive encoders
-	- OI code - Matthew/Logan/Adrian 
-	- Decide on which computers to use as Driver Stations and update them.
-	- Update mainpulators based on new information
+	- OI code - Matthew
+	- Work on climber - Calvin
+	- Autonomous* - Tristan
+
+
+NOT AS HIGH PRIORITY: 
 	- Shooter:
 		- Vertical/Horizontal Activation
 		- Shooter wheel spin up etc.
 		- Ball injector
 		- Add control into main
-	
-
-
-NOT AS HIGH PRIORITY: 
-	- Bug Fixes - EVERYONE
 	- Logger & Diagnostics - Jacob
-	- Autonomous* - Tristan/Matthew DUE FEB 13
-	- Vision - Nick DUE FEB 18
-	- Laptop configuration - Adrian
+	- Vision - Nick 
+	- Laptop configuration
 		-ssh config:
 			-Fix the "rm ~/.ssh/known_hosts" problem
 			-add "StrictHostKeyChecking no/UserKnownHostsFile=/dev/null" for robot

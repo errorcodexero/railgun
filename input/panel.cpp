@@ -127,7 +127,7 @@ Panel interpret(Joystick_data d){
 	p.control_angle = d.button[0];
 	{
 		float op = d.axis[3];
-		static const float DEFAULT=-1, COLLECT=-.86, REFLECT=-.72, EJECT=-.58, STOW=-.44, TERRAIN=-.3, LOW_BAR=-.15, CHEVAL=0, DRAWBRIDGE=.15, SALLY=.3, PORTCULLIS=.44, EXECUTE=.58, CANCEL=.72, PREP_SHOOT=.86, SHOOT=1;
+		static const float DEFAULT=-1, COLLECT=-.87, REFLECT=-.76, EJECT=-.66, STOW=-.56, TERRAIN=-.47, LOW_BAR=-.37, CHEVAL=-.27, DRAWBRIDGE=-.16, SALLY=-.04, PORTCULLIS=.1, EXECUTE=.26, CANCEL=.45, PREP_SHOOT=.69, SHOOT=1;
 		#define X(button) p.button = 0;
 		X(collect) X(reflect) X(eject) X(stow) X(terrain) X(low_bar) X(prep_cheval) X(prep_drawbridge) X(prep_sally) X(prep_portcullis) X(execute_prep) X(cancel_prep) X(prep_shoot) X(shoot)
 		#undef X

@@ -39,8 +39,7 @@ vector<Main::NavS> Main::loadnav(){
 	NavS navelement;
 	navinput start, end;
 	vector<pair<int,movedir>> v;
-	ofstream myfile;
-	myfile.open("/home/lvuser/logs/navlog.txt");
+	ofstream myfile("/home/lvuser/logs/navlog.txt");
 	myfile << "hi" << "\n";
 	myfile.flush();
 	//assign start information
@@ -95,11 +94,11 @@ vector<Main::NavS> Main::loadnav(){
 	return nav;
 }
 
-double set_drive_speed(double axis,double boost,double /*slow*/){
+double set_drive_speed(double axis,double boost,double slow){
 	static const float MAX_SPEED=1;//Change this value to change the max speed the robot will achieve with full boost
-	static const float DEFAULT_SPEED=.2;//Change this value to change the default speed
-	//static const float SLOW_BY=.5;//Change this value to change the percentage of the default speed the slow button slows
-	return (pow(axis,3)*((DEFAULT_SPEED+(MAX_SPEED-DEFAULT_SPEED)*boost)));//-((DEFAULT_SPEED*SLOW_BY)*slow)));
+	static const float DEFAULT_SPEED=.5;//Change this value to change the default speed
+	static const float SLOW_BY=.5;//Change this value to change the percentage of the default speed the slow button slows
+	return (pow(axis,3)*((DEFAULT_SPEED+(MAX_SPEED-DEFAULT_SPEED)*boost)-((DEFAULT_SPEED*SLOW_BY)*slow)));
 }
 
 template<size_t LEN>
@@ -116,61 +115,48 @@ Toplevel::Goal Main::teleop(
 	Panel const&  oi_panel,
 	Toplevel::Status_detail& //toplevel_status
 ){
-	//bool has_ball=(in.digital_io.in[6]==Digital_in::_1);
-
 	Toplevel::Goal goals;
 
-	//static const float Y_NUDGE_POWER=.2;// ROTATE_NUDGE_POWER=.5;//nudge amounts 
-	double turbo_button=main_joystick.axis[Gamepad_axis::LTRIGGER], slow_button=main_joystick.axis[Gamepad_axis::RTRIGGER];//turbo and slow buttons		
+	bool spin=fabs(main_joystick.axis[Gamepad_axis::RIGHTX])>.01,boost=main_joystick.axis[Gamepad_axis::LTRIGGER],slow=main_joystick.axis[Gamepad_axis::RTRIGGER];//spin, turbo, and slow buttons	
 	
-	Drivebase::Goal &goal=goals.drive;
-	/*if(!nudges[0].timer.done()){
-		goal.left=-Y_NUDGE_POWER;
-		goal.right=-Y_NUDGE_POWER;
-	}
-	else if(!nudges[1].timer.done()){
-		goal.left=Y_NUDGE_POWER;
-		goal.right=Y_NUDGE_POWER;
-	}
-	else{*/
-		goal.left=set_drive_speed(main_joystick.axis[Gamepad_axis::LEFTY],turbo_button,slow_button);
-		goal.right=set_drive_speed(main_joystick.axis[Gamepad_axis::LEFTY],turbo_button,slow_button);
-	//}	
+	static const double NUDGE_POWER=.4,NUDGE_CW_POWER=.4,NUDGE_CCW_POWER=-.4;
+ 
+	goals.drive.left=[&]{
+		double power=set_drive_speed(main_joystick.axis[Gamepad_axis::LEFTY],boost,slow);
+		if(spin) power+=set_drive_speed(-main_joystick.axis[Gamepad_axis::RIGHTX],boost,slow);
+		if(!nudges[Nudges::FORWARD].timer.done()) power=-NUDGE_POWER;
+		else if(!nudges[Nudges::BACKWARD].timer.done()) power=NUDGE_POWER;
+		else if(!nudges[Nudges::CLOCKWISE].timer.done()) power=-NUDGE_CW_POWER;
+		else if(!nudges[Nudges::COUNTERCLOCKWISE].timer.done()) power=-NUDGE_CCW_POWER;
+		return power;
+	}();
+	goals.drive.right=[&]{
+		double power=set_drive_speed(main_joystick.axis[Gamepad_axis::LEFTY],boost,slow);
+		if(spin) power+=set_drive_speed(main_joystick.axis[Gamepad_axis::RIGHTX],boost,slow);
+		if(!nudges[Nudges::FORWARD].timer.done()) power=-NUDGE_POWER;
+		else if(!nudges[Nudges::BACKWARD].timer.done()) power=NUDGE_POWER;
+		else if(!nudges[Nudges::CLOCKWISE].timer.done()) power=NUDGE_CW_POWER;
+		else if(!nudges[Nudges::COUNTERCLOCKWISE].timer.done()) power=NUDGE_CCW_POWER;
+		return power;
+	}();
 
-	/*static const double TURNING=.75;
-	double real_turning = main_joystick.button[Gamepad_button::LB] ? TURNING : (main_joystick.button[Gamepad_button::RB] ? -TURNING : 0); 
-	const float LIMIT=0.005;
-	const float SLOW_TURNING=.8;*/
-
-	if(fabs(main_joystick.axis[Gamepad_axis::RIGHTX])>.01){
-		goal.right+=set_drive_speed(main_joystick.axis[Gamepad_axis::RIGHTX],turbo_button,slow_button);
-		goal.left+=set_drive_speed(-main_joystick.axis[Gamepad_axis::RIGHTX],turbo_button,slow_button);
-	}
-
-	/*if(fabs(goal.left)<LIMIT && fabs(goal.right)<LIMIT && nudges[2].timer.done() && nudges[3].timer.done()){
-		goal.left=(set_drive_speed(real_turning,turbo_button,slow_button))*SLOW_TURNING;
-		goal.right=(set_drive_speed(-real_turning,turbo_button,slow_button))*SLOW_TURNING;
-	}*/
-
-	static const bool normal_nudge_enable=turbo_button<.25;	
-	static const auto NUDGE_CCW_BUTTON=Gamepad_button::X,NUDGE_CW_BUTTON=Gamepad_button::B;
-	static const auto NUDGE_FWD_BUTTON=Gamepad_button::Y,NUDGE_BACK_BUTTON=Gamepad_button::A;
-	static const unsigned int nudge_buttons[4]={NUDGE_FWD_BUTTON,NUDGE_BACK_BUTTON,NUDGE_CCW_BUTTON,NUDGE_CW_BUTTON};
-	for(int i=0;i<4;i++){
-		bool start=nudges[i].trigger(normal_nudge_enable && main_joystick.button[nudge_buttons[i]]);
+	static const unsigned int nudge_buttons[NUDGES]={Gamepad_button::Y,Gamepad_button::A,Gamepad_button::B,Gamepad_button::X};//Forward, backward, clockwise, counter-clockwise
+	for(int i=0;i<Nudges::NUDGES;i++){
+		bool start=nudges[i].trigger(boost<.25 && main_joystick.button[nudge_buttons[i]]);
 		if(start)nudges[i].timer.set(.1);
 		nudges[i].timer.update(in.now,1);
-	}	
-	
-	goals.drive=goal;
-	
-	/*controller_auto.update(gunner_joystick.button[Gamepad_button::START]);
+	}
+		
+	/*bool has_ball=(in.digital_io.in[6]==Digital_in::_0);
+
+	controller_auto.update(gunner_joystick.button[Gamepad_button::START]);
+	cout<<"controller_auto: "<<controller_auto<<"\n";
 	if (!oi_panel.in_use || (oi_panel.in_use && oi_panel.collector_auto) || controller_auto.get()) {
 		if(main_joystick.button[Gamepad_button::BACK])collector_mode=Collector_mode::NOTHING;
-		if(main_joystick.button[Gamepad_button::START]) {
+		else if(main_joystick.button[Gamepad_button::START]) {
 			collector_mode=(toplevel_status.tilt.type() == Tilt::Status_detail::Type::TOP) ? (has_ball ? Collector_mode::REFLECT : Collector_mode::COLLECT) : Collector_mode::STOW;
 		}
-		
+		cout<<"collector_mode: "<<collector_mode<<"\n";
 		switch(collector_mode){
 			case Collector_mode::COLLECT:
 				goals.front=Front::Goal::IN;
@@ -232,8 +218,10 @@ Toplevel::Goal Main::teleop(
 			else return Sides::Goal::OFF;
 		}();
 		goals.tilt=[&]{
-			if(gunner_joystick.button[Gamepad_button::LB]) return Tilt::Goal::up();
-			else if(gunner_joystick.button[Gamepad_button::RB]) return Tilt::Goal::down();
+			if(gunner_joystick.button[Gamepad_button::LB]) return Tilt::Goal::down();
+			else if(gunner_joystick.button[Gamepad_button::RB]) return Tilt::Goal::up();
+			else if(gunner_joystick.button[Gamepad_button::BACK]) return Tilt::Goal::stop();
+			else if(gunner_joystick.button[Gamepad_button::R_JOY]) return Tilt::Goal::go_to_angle(array<double,3>{18,20,22});
 			else if(oi_panel.in_use){
 				switch(oi_panel.tilt){
 					case Panel::Tilt::UP: return Tilt::Goal::up();
@@ -245,9 +233,8 @@ Toplevel::Goal Main::teleop(
 					array<double,3> angles={oi_panel.angle-2,oi_panel.angle,oi_panel.angle+2};//Assuming tolerances for now
 					return Tilt::Goal::go_to_angle(angles);
 				}
-				return Tilt::Goal::stop();
 			}
-			else return Tilt::Goal::stop();
+			return goals.tilt;
 		}();
 		goals.climb=[&]{
 			if(oi_panel.in_use){
@@ -258,15 +245,17 @@ Toplevel::Goal Main::teleop(
 			}
 			else return Climb::Goal::STOP;
 		}();
-		//cout<<" \nANGLE:"<<toplevel_status.tilt<<"\n";
 	}	
 	return goals;
 }
 
+<<<<<<< HEAD
 Main::Mode next_mode(Main::Mode m,bool autonomous,bool autonomous_start,Toplevel::Status_detail /*status*/,Time since_switch, Panel /*oi_panel*/,unsigned int & navindex,std::vector<Main::NavS> NavV){
 	
+=======
+Main::Mode next_mode(Main::Mode m,bool autonomous,bool autonomous_start,Toplevel::Status_detail /*status*/,Time since_switch, Panel /*oi_panel*/,unsigned int navindex,std::vector<Main::NavS> NavV){
+>>>>>>> 7149f6b58b5b15af9857bc1c8e6758d6dcc086bb
 	switch(m){
-
 		case Main::Mode::TELEOP:
 			if(autonomous_start){
 				return Main::Mode::AUTO_NAV;//just for testing purposes
@@ -315,10 +304,10 @@ Robot_outputs Main::operator()(Robot_inputs in,ostream&){
 	Joystick_data gunner_joystick=in.joystick[1];
 	Panel oi_panel=interpret(in.joystick[2]);
 
-	if(oi_panel.in_use && (!in.robot_mode.enabled || in.robot_mode.autonomous)){
+	/*if(!oi_panel.in_use && (!in.robot_mode.enabled || in.robot_mode.autonomous)){
 		Panel empty;
 		oi_panel=empty;
-	}
+	}*/
 
 	force.update(
 		main_joystick.button[Gamepad_button::A],
@@ -331,10 +320,8 @@ Robot_outputs Main::operator()(Robot_inputs in,ostream&){
 	
 	Toplevel::Status_detail toplevel_status=toplevel.estimator.get();
 	
-	static int print_out_speed=0;	
-	if(print_out_speed%10==0)cout<<"panel: "<<oi_panel<<"\n";	
-	print_out_speed++;
-	
+	cout<<"panel: "<<oi_panel<<"\n";	
+		
 	bool autonomous_start_now=autonomous_start(in.robot_mode.autonomous && in.robot_mode.enabled);
 	since_auto_start.update(in.now,autonomous_start_now);
 		
@@ -374,14 +361,6 @@ Robot_outputs Main::operator()(Robot_inputs in,ostream&){
 	toplevel.estimator.update(
 		in.now,
 		input,
-		/*Toplevel::Input{
-			{can_input,tote_input},
-			Kicker::Input{},
-			drive_in,
-			Pump::Input::NOT_FULL,
-			Can_grabber::Input{1}, //todo: make this actually ready from a digital io
-			Tote_sensors::Input{0,0,0}
-		},*/
 		toplevel.output_applicator(r)
 	);
 	return r;
