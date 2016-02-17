@@ -73,12 +73,18 @@ Robot_outputs Climb_release::Output_applicator::operator()(Robot_outputs r,Climb
 	return r;
 }
 
+<<<<<<< HEAD
 Climb_release::Estimator::Estimator():last(Climb_release::Status_detail::UNKNOWN),timer(),last_output(Climb_release::Output::STOP){}
 
 Climb_release::Status_detail Climb_release::Estimator::get()const{ return last; }
 
 void Climb_release::Estimator::update(Time time,Climb_release::Input in,Climb_release::Output output){
 	timer.update(time,in.enabled);
+=======
+Climb_release::Status_detail Climb_release::Estimator::get()const{ return last; }
+void Climb_release::Estimator::update(Time time,Climb_release::Input,Climb_release::Output output){
+	timer.update(time,true);
+>>>>>>> 0713219730f94861707b323e641f2c2d582c96c9
 	if(output!=last_output && (output==Climb_release::Output::OUT || output==Climb_release::Output::IN)){
 		static const float MOVE_TIME=1;
 		timer.set(MOVE_TIME);

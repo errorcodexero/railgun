@@ -36,18 +36,18 @@ Sides::Input Sides::Input_reader::operator()(Robot_inputs)const{ return {}; }
 Robot_inputs Sides::Input_reader::operator()(Robot_inputs a, Sides::Input)const{ return a; }
 
 Robot_outputs Sides::Output_applicator::operator()(Robot_outputs r, Sides::Output out)const{
-	if(out==Sides::Output::OUT) r.pwm[SIDES_ADDRESS]=1;
+	if(out==Sides::Output::OUT) r.pwm[SIDES_ADDRESS]=-SIDES_SPEED;
 	else if(out==Sides::Output::OFF) r.pwm[SIDES_ADDRESS]=0;
-	else if(out==Sides::Output::IN) r.pwm[SIDES_ADDRESS]=-1;
+	else if(out==Sides::Output::IN) r.pwm[SIDES_ADDRESS]=SIDES_SPEED;
 	return r;
 }
 
 Sides::Status_detail Sides::Estimator::get()const{ return Sides::Status_detail{};}
 
 Sides::Output Sides::Output_applicator::operator()(Robot_outputs r)const{
-	if(r.pwm[SIDES_ADDRESS]==SIDES_SPEED)return Sides::Output::OUT;
+	if(r.pwm[SIDES_ADDRESS]==-SIDES_SPEED)return Sides::Output::OUT;
 	if(r.pwm[SIDES_ADDRESS]==0)return Sides::Output::OFF;
-	if(r.pwm[SIDES_ADDRESS]==-SIDES_SPEED)return Sides::Output::IN;
+	if(r.pwm[SIDES_ADDRESS]==SIDES_SPEED)return Sides::Output::IN;
 	assert(0);
 }
 	

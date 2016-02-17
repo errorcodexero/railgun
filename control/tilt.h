@@ -9,25 +9,25 @@
 #include "../util/quick.h"
 #include <set>
 
-#define TILT_POT_TOP .19
-#define TILT_POT_OFFSET .19
-#define TILT_POT_LEVEL 1.90
-#define TILT_POT_BOT 2.51
-#define TILT_PDB_LOC 8
-#define TILT_POT_LOC 0
-#define TILT_ADDRESS 4
-#define TILT_SPEED 1
-
 struct Tilt{
 	class Goal{
 		public: 
-		enum class Mode{DOWN,GO_TO_ANGLE,STOP,UP};
-		
+		#define TILT_GOAL_MODES \
+			X(DOWN) \
+			X(STOP) \
+			X(LOW) \
+			X(LEVEL) \
+			X(UP) \
+			X(GO_TO_ANGLE)
+		#define X(name) name,
+		enum class Mode{TILT_GOAL_MODES};	
+		#undef X
+	
 		private:
 		Goal();
 
 		Mode mode_;
-		double angle_min,angle_target,angle_max;	
+		double angle_min,angle_target,angle_max;
 	
 		public:
 		Mode mode()const;
@@ -35,6 +35,8 @@ struct Tilt{
 		
 		static Goal up();
 		static Goal down();
+		static Goal low();
+		static Goal level();
 		static Goal go_to_angle(std::array<double,3>);
 		static Goal stop();
 	};
@@ -55,7 +57,7 @@ struct Tilt{
 		
 		public:
 		Type type()const;
-		double get_angle()const;		
+		double get_angle()const;
 
 		static Status_detail top();
 		static Status_detail mid(double);
@@ -68,6 +70,7 @@ struct Tilt{
 	struct Input{
 		float pot_value;
 		double current;
+		bool top;
 	};
 	
 	struct Input_reader{
@@ -135,5 +138,8 @@ std::set<Tilt::Output> examples(Tilt::Output*);
 Tilt::Output control(Tilt::Status_detail, Tilt::Goal);
 Tilt::Status status(Tilt::Status_detail);
 bool ready(Tilt::Status, Tilt::Goal);
+
+void learn(float value,Tilt::Goal::Mode);
+float update_positions(Tilt::Goal::Mode);
 
 #endif
