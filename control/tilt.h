@@ -101,7 +101,6 @@ struct Tilt{
 	Estimator estimator;
 };
 
-
 std::ostream& operator<<(std::ostream&, Tilt::Status_detail::Type);
 std::ostream& operator<<(std::ostream&, Tilt::Goal::Mode);
 std::ostream& operator<<(std::ostream&, Tilt::Status_detail);
@@ -123,7 +122,9 @@ bool operator!=(Tilt::Goal,Tilt::Goal);
 bool operator<(Tilt::Goal,Tilt::Goal);
 
 bool operator==(Tilt::Output_applicator,Tilt::Output_applicator);
+
 bool operator==(Tilt::Input_reader,Tilt::Input_reader);
+
 bool operator==(Tilt::Estimator,Tilt::Estimator);
 bool operator!=(Tilt::Estimator,Tilt::Estimator);
 

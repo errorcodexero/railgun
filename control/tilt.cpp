@@ -9,8 +9,8 @@
 enum Positions{UP,LEVEL,LOW,DOWN,POSITIONS};
 std::array<float,Positions::POSITIONS> positions={0.00,1.00,1.30,2.00};
 static const std::array<std::string,Positions::POSITIONS> POSITION_NAMES={"UP","LEVEL","LOW","DOWN"};	
-static const std::string POSITIONS_FILE="tilt_positions.txt";
-#define VALUE_PER_DEGREE ((positions[Positions::LEVEL]-positions[Positions::UP])/90)
+static const std::string POSITIONS_FILE="tilt_positions.txt";//save to this for now, fix later
+#define VOLTS_PER_DEGREE .02//((positions[Positions::LEVEL]-positions[Positions::UP])/90)
 
 #define TILT_PDB_LOC 8
 #define TILT_POT_LOC 0
@@ -69,7 +69,7 @@ Tilt::Goal Tilt::Goal::up(){
 }
 
 Tilt::Goal Tilt::Goal::go_to_angle(std::array<double,3> angles){
-	assert(angles[0]>=((positions[Positions::UP]-positions[Positions::UP])/VALUE_PER_DEGREE) && angles[2]<=((positions[Positions::DOWN]-positions[Positions::UP])/VALUE_PER_DEGREE));
+	assert(angles[0]>=((positions[Positions::UP]-positions[Positions::UP])/VOLTS_PER_DEGREE) && angles[2]<=((positions[Positions::DOWN]-positions[Positions::UP])/VOLTS_PER_DEGREE));
 	Tilt::Goal a;
 	a.mode_=Tilt::Goal::Mode::GO_TO_ANGLE;
 	a.angle_min=angles[0];
@@ -154,13 +154,14 @@ std::ostream& operator<<(std::ostream& o, Tilt::Status_detail a){
 	o<<" stalled:"<<a.stalled;
 	o<<" reached_ends:"<<a.reached_ends;
 	o<<" type:"<<a.type();
-	if(a.type()==Tilt::Status_detail::Type::MID)o<<" "<<a.get_angle();
+	if(a.type()==Tilt::Status_detail::Type::MID)o<<"("<<a.get_angle()<<")";
 	return o<<")";
 }
 
 std::ostream& operator<<(std::ostream& o, Tilt::Goal a){ 
 	o<<"Tilt::Goal(";
 	o<<" mode:"<<a.mode();
+	if(a.mode()==Tilt::Goal::Mode::GO_TO_ANGLE)o<<"("<<a.angle()<<")";
 	return o<<")";
 }
 
@@ -217,7 +218,7 @@ bool operator==(Tilt a, Tilt b){ return (a.output_applicator==b.output_applicato
 bool operator!=(Tilt a, Tilt b){ return !(a==b); }
 
 std::set<Tilt::Input> examples(Tilt::Input*){ 
-	return {{0,0,0},{.5,0,0},{1,0,0},{1.5,0,0},{2,0,0},{0,0,1},{.5,0,1},{1,0,1},{1.5,0,1},{2,0,1}};
+	return {{0,0,0},{.5,0,0},{1,0,0},{1.5,0,0},{2,0,0},{0,0,1},{.5,0,1},{1,0,1},{1.5,0,1},{2,0,1}};//Assumed values, may not me realistic
 }
 
 std::set<Tilt::Goal> examples(Tilt::Goal*){
@@ -334,9 +335,9 @@ bool ready(Tilt::Status status, Tilt::Goal goal){
 void Tilt::Estimator::update(Time time, Tilt::Input in, Tilt::Output) {
 	if(in.top){
 		positions[Positions::UP]=in.pot_value;
-		tilt_learn(in.pot_value,Tilt::Goal::Mode::UP);
+		//tilt_learn(in.pot_value,Tilt::Goal::Mode::UP);
 	}
-	float angle=(in.pot_value-positions[Positions::UP])/VALUE_PER_DEGREE;
+	float angle=(in.pot_value-positions[Positions::UP])/VOLTS_PER_DEGREE;
 	stall_timer.update(time,true);
 	if(stall_timer.done()) last.stalled=true;
 	if(in.current<10 || fabs(angle-timer_start_angle)<1){//Assumed current for now
@@ -429,6 +430,7 @@ void tilt_learn(float pot_in,Tilt::Goal::Mode a){
 #include "formal.h"
 
 int main(){
+	//update_positions();
 	Tilt a;
 	tester(a);
 }

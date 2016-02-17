@@ -19,22 +19,19 @@ std::set<Winch::Goal> examples(Winch::Goal*){
 }
 
 std::ostream& operator<<(std::ostream& o,Winch const&){
-	return o<<"Winch[Test]";
+	return o<<"Winch()";
 }
 
 std::ostream& operator<<(std::ostream& o,Winch::Goal g){
-        o<<"\n-Goal: ";
-	if(g==Winch::Goal::IN)
-		return o<<"IN";
-	else if(g==Winch::Goal::OUT)
-		return o<<"OUT";
-	else if(g==Winch::Goal::STOP)
-		return o<<"STOP";
+        o<<"Goal(";
+	if(g==Winch::Goal::IN)return o<<"IN)";
+	else if(g==Winch::Goal::OUT)return o<<"OUT)";
+	else if(g==Winch::Goal::STOP)return o<<"STOP)";
 	assert(0);
 }
 
 std::ostream& operator<<(std::ostream& o,Winch::Status){
-	return o<<"\n-Status: ";
+	return o<<"Status()";
 }
 
 bool operator<(Winch::Status,Winch::Status){
@@ -61,8 +58,8 @@ bool ready(Winch::Status,Winch::Goal){
 	return 1;
 }
 
-Winch::Output control(Winch::Status,Winch::Goal g){
-	return g;
+Winch::Output control(Winch::Status,Winch::Goal goal){
+	return goal;
 }
 
 void Winch::Estimator::update(Time,Winch::Status,Winch::Goal){
@@ -88,12 +85,9 @@ static const int WINCH_PWM = 5;
 static const float WINCH_POWER = .5;
 
 Robot_outputs Winch::Output_applicator::operator()(Robot_outputs ro ,Output o)const{
-	if(o==Winch::Goal::OUT)
-		ro.pwm[WINCH_PWM]=WINCH_POWER;
-	else if(o==Winch::Goal::IN)
-		ro.pwm[WINCH_PWM]=-WINCH_POWER;
-	else
-		ro.pwm[WINCH_PWM]=0;
+	if(o==Winch::Goal::OUT)ro.pwm[WINCH_PWM]=WINCH_POWER;
+	else if(o==Winch::Goal::IN)ro.pwm[WINCH_PWM]=-WINCH_POWER;
+	else ro.pwm[WINCH_PWM]=0;
 	return ro;
 }
 
