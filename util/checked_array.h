@@ -13,6 +13,11 @@ struct Checked_array{
 
 	Inner inner;
 
+	Checked_array& operator=(std::array<T,LEN> const& a){
+		inner=a;
+		return *this;
+	}
+
 	T& operator[](size_t i){
 		assert(i<LEN);
 		return inner[i];
