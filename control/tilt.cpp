@@ -9,8 +9,8 @@
 enum Positions{UP,LEVEL,LOW,DOWN,POSITIONS};
 std::array<float,Positions::POSITIONS> positions={0.00,1.00,1.30,2.00};
 static const std::array<std::string,Positions::POSITIONS> POSITION_NAMES={"UP","LEVEL","LOW","DOWN"};	
-static const std::string POSITIONS_FILE="tilt_positions.txt";//save to this for now, fix later
-#define VOLTS_PER_DEGREE .02//((positions[Positions::LEVEL]-positions[Positions::UP])/90)
+static const std::string POSITIONS_FILE="tilt_positions.txt";
+#define VOLTS_PER_DEGREE .02//((positions[Positions::LEVEL]-positions[Positions::UP])/90) //Assumed for now
 
 #define ANGLE_TOLERANCE 2
 
@@ -60,7 +60,9 @@ Tilt::Estimator::Estimator():
 {}
 
 std::array<double,3> Tilt::Goal::angle()const{
-	assert(mode_==Tilt::Goal::Mode::GO_TO_ANGLE);
+	#define X(name) mode_==Tilt::Goal::Mode::name
+	assert(X(GO_TO_ANGLE) || X(LOW) || X(LEVEL));
+	#undef X
 	return std::array<double,3>{angle_min,angle_target,angle_max};
 }
 
@@ -281,14 +283,8 @@ Tilt::Output control(Tilt::Status_detail status, Tilt::Goal goal){
 		case Tilt::Goal::Mode::GO_TO_ANGLE:
 			switch (status.type()) {
 				case Tilt::Status_detail::Type::MID:
-					{
-						const double SLOW=(POWER/4);
-						if(status.get_angle()>=goal.angle()[0] && status.get_angle()<=goal.angle()[2])return 0.0;
-						double corrected_power=-(goal.angle()[1]-status.get_angle())*SLOW;
-						if(corrected_power>POWER)return POWER;
-						if(corrected_power<-POWER)return -POWER;
-						return corrected_power;
-					}
+					if(status.get_angle()>=goal.angle()[0] && status.get_angle()<=goal.angle()[2])return 0.0;
+					return -std::min((goal.angle()[1]-status.get_angle())*(POWER/4), POWER);
 				case Tilt::Status_detail::Type::TOP:
 					return POWER;
 				case Tilt::Status_detail::Type::BOTTOM:
@@ -311,9 +307,9 @@ bool ready(Tilt::Status status, Tilt::Goal goal){
 	switch(goal.mode()){
 		case Tilt::Goal::Mode::UP: return status.type()==Tilt::Status_detail::Type::TOP;
 		case Tilt::Goal::Mode::DOWN: return status.type()==Tilt::Status_detail::Type::BOTTOM;
-		case Tilt::Goal::Mode::GO_TO_ANGLE: return (status.get_angle()>goal.angle()[0] && status.get_angle()<goal.angle()[2]);
-		case Tilt::Goal::Mode::LOW: return 0;//TODO change this
-		case Tilt::Goal::Mode::LEVEL: return 0;//TODO change this
+		case Tilt::Goal::Mode::GO_TO_ANGLE:
+		case Tilt::Goal::Mode::LOW: 
+		case Tilt::Goal::Mode::LEVEL: return status.get_angle()>goal.angle()[0] && status.get_angle()<goal.angle()[2];
 		case Tilt::Goal::Mode::STOP: return 1;
 		default: assert(0);
 	}
