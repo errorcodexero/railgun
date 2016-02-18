@@ -12,6 +12,8 @@ static const std::array<std::string,Positions::POSITIONS> POSITION_NAMES={"UP","
 static const std::string POSITIONS_FILE="tilt_positions.txt";//save to this for now, fix later
 #define VOLTS_PER_DEGREE .02//((positions[Positions::LEVEL]-positions[Positions::UP])/90)
 
+#define ANGLE_TOLERANCE 2
+
 #define TILT_PDB_LOC 8
 #define TILT_POT_LOC 0
 #define TILT_LIM_LOC 9
@@ -244,8 +246,15 @@ std::set<Tilt::Status_detail> examples(Tilt::Status_detail*){
 std::set<Tilt::Output> examples(Tilt::Output*){ 
 	return {-1,0,1};
 }
+
 Tilt::Output control(Tilt::Status_detail status, Tilt::Goal goal){
 	const double POWER=1;//negative goes up, positive goes down
+	#define X(name) if(goal.mode()==Tilt::Goal::Mode::name){ \
+		float angle=positions[Positions::name]/VOLTS_PER_DEGREE; \
+		goal=Tilt::Goal::go_to_angle(make_tolerances(angle)); \
+	}
+	X(LOW) X(LEVEL)
+	#undef X
 	switch(goal.mode()){
 		case Tilt::Goal::Mode::UP:
 			switch(status.type()){
@@ -267,30 +276,8 @@ Tilt::Output control(Tilt::Status_detail status, Tilt::Goal goal){
 					return POWER;
 				default: assert(0);
 			}
-		case Tilt::Goal::Mode::LOW:
-			switch(status.type()){
-				case Tilt::Status_detail::Type::BOTTOM:
-					return -POWER;
-				case Tilt::Status_detail::Type::ERRORS:
-					return 0.0;
-				case Tilt::Status_detail::Type::TOP:
-					return POWER;
-				case Tilt::Status_detail::Type::MID:
-					return 0;//TODO change this
-				default: assert(0);
-			}
-		case Tilt::Goal::Mode::LEVEL:
-			switch(status.type()){
-				case Tilt::Status_detail::Type::BOTTOM:
-					return -POWER;
-				case Tilt::Status_detail::Type::ERRORS:
-					return 0.0;
-				case Tilt::Status_detail::Type::TOP:
-					return POWER;
-				case Tilt::Status_detail::Type::MID:
-					return 0;//TODO change this
-				default: assert(0);
-			}
+		case Tilt::Goal::Mode::LOW: assert(0);
+		case Tilt::Goal::Mode::LEVEL: assert(0);
 		case Tilt::Goal::Mode::GO_TO_ANGLE:
 			switch (status.type()) {
 				case Tilt::Status_detail::Type::MID:
@@ -335,7 +322,7 @@ bool ready(Tilt::Status status, Tilt::Goal goal){
 void Tilt::Estimator::update(Time time, Tilt::Input in, Tilt::Output) {
 	if(in.top){
 		positions[Positions::UP]=in.pot_value;
-		//tilt_learn(in.pot_value,Tilt::Goal::Mode::UP);
+		tilt_learn(in.pot_value,Tilt::Goal::Mode::UP);
 	}
 	float angle=(in.pot_value-positions[Positions::UP])/VOLTS_PER_DEGREE;
 	stall_timer.update(time,true);
@@ -348,15 +335,19 @@ void Tilt::Estimator::update(Time time, Tilt::Input in, Tilt::Output) {
 	const float ALLOWED_TOLERANCE=.05;
 	if(in.pot_value<=positions[Positions::UP]+ALLOWED_TOLERANCE){
 		if(in.pot_value>=positions[Positions::DOWN]-ALLOWED_TOLERANCE)last=Tilt::Status_detail::error();
-		last=Tilt::Status_detail::top();
+		else last=Tilt::Status_detail::top();
 	} else{
 		if(in.pot_value>=positions[Positions::DOWN]-ALLOWED_TOLERANCE)last=Tilt::Status_detail::bottom();
-		last=Tilt::Status_detail::mid(angle);
+		else last=Tilt::Status_detail::mid(angle);
 	}
 }
 
 Tilt::Status_detail Tilt::Estimator::get()const {
 	return last;
+}
+
+std::array<double,3> make_tolerances(double d){
+	return {d-ANGLE_TOLERANCE,d,d+ANGLE_TOLERANCE};
 }
 
 void populate(){
@@ -371,7 +362,11 @@ void populate(){
 
 void update_positions(){
 	std::ifstream file(POSITIONS_FILE);
-	if(file.peek()==std::ifstream::traits_type::eof())populate();
+	if(file.peek()==std::ifstream::traits_type::eof()){
+		file.close();
+		populate();
+		file.open(POSITIONS_FILE);
+	}
 	for(unsigned int i=0; i<Positions::POSITIONS; i++){
 		bool next=false;
 		std::string mode=POSITION_NAMES[i];
@@ -403,7 +398,11 @@ void tilt_learn(float pot_in,Tilt::Goal::Mode a){
 	#undef X
 	std::string line;
 	std::ifstream file(POSITIONS_FILE);
-	if(file.peek()==std::ifstream::traits_type::eof())populate();
+	if(file.peek()==std::ifstream::traits_type::eof()){
+		file.close();
+		populate();
+		file.open(POSITIONS_FILE);
+	}	
 	std::vector<std::string> go_out;
 	while(!file.eof()){ 
 		std::string edit; 
@@ -430,7 +429,7 @@ void tilt_learn(float pot_in,Tilt::Goal::Mode a){
 #include "formal.h"
 
 int main(){
-	//update_positions();
+	update_positions();
 	Tilt a;
 	tester(a);
 }

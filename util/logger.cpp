@@ -1,4 +1,3 @@
-//Author(s): Logan Traffas
 #include <iostream>
 #include <fstream>
 
