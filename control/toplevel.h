@@ -17,7 +17,6 @@
 	X(Tilt,tilt,Tilt::Goal::stop())\
 	X(Sides,sides,Sides::Goal::OFF)\
 	X(Front,front,Front::Goal::OFF) \
-	X(Climb,climb,Climb::Goal::STOP) \
 	X(Climb_release,climb_release,Climb_release::Goal::STOP)\
 	X(Winch,winch,Winch::Goal::STOP)
 

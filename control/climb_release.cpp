@@ -1,7 +1,7 @@
 #include "climb_release.h"
 #include "stdlib.h"
 
-#define INOUT_ADDRESS 4
+#define INOUT_ADDRESS 0
 
 std::ostream& operator<<(std::ostream& o,Climb_release::Goal a){ 
 	#define X(name) if(a==Climb_release::Goal::name) return o<<"Climb_release::Goal("#name")";
@@ -79,15 +79,42 @@ Climb_release::Status_detail Climb_release::Estimator::get()const{ return last; 
 
 void Climb_release::Estimator::update(Time time,Climb_release::Input in,Climb_release::Output output){
 	timer.update(time,in.enabled);
+	static const float MOVE_TIME=1;
+	switch(last){
+		case Status::IN:
+			if(output==Output::OUT){
+				last=Status::UNKNOWN;
+				timer.set(MOVE_TIME);
+			}
+			break;
+		case Status::OUT:
+			if(output==Output::IN){
+				last=Status::UNKNOWN;
+				timer.set(MOVE_TIME);
+			}
+			break;
+		case Status::UNKNOWN:
+			if(output!=last_output){
+				timer.set(MOVE_TIME);
+			}
+			if(timer.done()){
+				switch(output){
+					case Output::IN:
+						last=Status::IN;
+						break;
+					case Output::OUT:
+						last=Status::OUT;
+						break;
+					case Output::STOP:
+						break;
+					default: assert(0);
+				}
+			}
+			break;
+		default:
+			assert(0);
+	}
 
-	if(output!=last_output && (output==Climb_release::Output::OUT || output==Climb_release::Output::IN)){
-		static const float MOVE_TIME=1;
-		timer.set(MOVE_TIME);
-	}
-	if(timer.done()){
-		if(output==Climb_release::Output::IN)last=Climb_release::Status_detail::IN;
-		else if(output==Climb_release::Output::OUT)last=Climb_release::Status_detail::OUT;
-	}
 	last_output=output;
 }
 
