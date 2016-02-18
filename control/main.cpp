@@ -220,7 +220,7 @@ Toplevel::Goal Main::teleop(
 			if(gunner_joystick.button[Gamepad_button::LB]) return Tilt::Goal::down();
 			else if(gunner_joystick.button[Gamepad_button::RB]) return Tilt::Goal::up();
 			else if(gunner_joystick.button[Gamepad_button::BACK]) return Tilt::Goal::stop();
-			else if(gunner_joystick.button[Gamepad_button::R_JOY]) return Tilt::Goal::go_to_angle(array<double,3>{18,20,22});
+			else if(gunner_joystick.button[Gamepad_button::R_JOY]) return Tilt::Goal::go_to_angle(make_tolerances(20));
 			else if(oi_panel.in_use){
 				switch(oi_panel.tilt){
 					case Panel::Tilt::UP: return Tilt::Goal::up();

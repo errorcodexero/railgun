@@ -12,6 +12,8 @@ static const std::array<std::string,Positions::POSITIONS> POSITION_NAMES={"UP","
 static const std::string POSITIONS_FILE="tilt_positions.txt";//save to this for now, fix later
 #define VOLTS_PER_DEGREE .02//((positions[Positions::LEVEL]-positions[Positions::UP])/90)
 
+#define ANGLE_TOLERANCE 2
+
 #define TILT_PDB_LOC 8
 #define TILT_POT_LOC 0
 #define TILT_LIM_LOC 9
@@ -244,8 +246,15 @@ std::set<Tilt::Status_detail> examples(Tilt::Status_detail*){
 std::set<Tilt::Output> examples(Tilt::Output*){ 
 	return {-1,0,1};
 }
+
 Tilt::Output control(Tilt::Status_detail status, Tilt::Goal goal){
 	const double POWER=1;//negative goes up, positive goes down
+	#define X(name) if(goal.mode()==Tilt::Goal::Mode::name){ \
+		float angle=positions[Positions::name]/VOLTS_PER_DEGREE; \
+		goal=Tilt::Goal::go_to_angle(make_tolerances(angle)); \
+	}
+	X(LOW) X(LEVEL)
+	#undef X
 	switch(goal.mode()){
 		case Tilt::Goal::Mode::UP:
 			switch(status.type()){
@@ -267,30 +276,8 @@ Tilt::Output control(Tilt::Status_detail status, Tilt::Goal goal){
 					return POWER;
 				default: assert(0);
 			}
-		case Tilt::Goal::Mode::LOW:
-			switch(status.type()){
-				case Tilt::Status_detail::Type::BOTTOM:
-					return -POWER;
-				case Tilt::Status_detail::Type::ERRORS:
-					return 0.0;
-				case Tilt::Status_detail::Type::TOP:
-					return POWER;
-				case Tilt::Status_detail::Type::MID:
-					return 0;//TODO change this
-				default: assert(0);
-			}
-		case Tilt::Goal::Mode::LEVEL:
-			switch(status.type()){
-				case Tilt::Status_detail::Type::BOTTOM:
-					return -POWER;
-				case Tilt::Status_detail::Type::ERRORS:
-					return 0.0;
-				case Tilt::Status_detail::Type::TOP:
-					return POWER;
-				case Tilt::Status_detail::Type::MID:
-					return 0;//TODO change this
-				default: assert(0);
-			}
+		case Tilt::Goal::Mode::LOW: assert(0);
+		case Tilt::Goal::Mode::LEVEL: assert(0);
 		case Tilt::Goal::Mode::GO_TO_ANGLE:
 			switch (status.type()) {
 				case Tilt::Status_detail::Type::MID:
@@ -357,6 +344,10 @@ void Tilt::Estimator::update(Time time, Tilt::Input in, Tilt::Output) {
 
 Tilt::Status_detail Tilt::Estimator::get()const {
 	return last;
+}
+
+std::array<double,3> make_tolerances(double d){
+	return {d-ANGLE_TOLERANCE,d,d+ANGLE_TOLERANCE};
 }
 
 void populate(){
