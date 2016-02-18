@@ -139,6 +139,16 @@ Toplevel::Goal Main::teleop(
 		return power;
 	}();
 
+	goals.climb_release=[&]{
+		if(main_joystick.axis[Gamepad_axis::LTRIGGER]>.5){
+			return Climb_release::Goal::IN;
+		}
+		if(main_joystick.axis[Gamepad_axis::RTRIGGER]>.5){
+			return Climb_release::Goal::OUT;
+		}
+		return Climb_release::Goal::STOP;
+	}();
+
 	static const unsigned int nudge_buttons[NUDGES]={Gamepad_button::Y,Gamepad_button::A,Gamepad_button::B,Gamepad_button::X};//Forward, backward, clockwise, counter-clockwise
 	for(int i=0;i<Nudges::NUDGES;i++){
 		bool start=nudges[i].trigger(boost<.25 && main_joystick.button[nudge_buttons[i]]);
@@ -235,7 +245,7 @@ Toplevel::Goal Main::teleop(
 			}
 			return goals.tilt;
 		}();
-		goals.climb=[&]{
+		/*goals.climb=[&]{
 			if(oi_panel.in_use){
 				#define X(name) if(oi_panel.climber==Panel::Climber::name) return Climb::Goal::name;
 				X(EXTEND) X(STOP) X(RETRACT)
@@ -243,7 +253,7 @@ Toplevel::Goal Main::teleop(
 				assert(0);	
 			}
 			else return Climb::Goal::STOP;
-		}();
+		}();*/
 	}	
 	return goals;
 }
@@ -315,7 +325,7 @@ Robot_outputs Main::operator()(Robot_inputs in,ostream&){
 	
 	Toplevel::Status_detail toplevel_status=toplevel.estimator.get();
 	
-	cout<<"panel: "<<oi_panel<<"\n";	
+	//cout<<"panel: "<<oi_panel<<"\n";	
 		
 	bool autonomous_start_now=autonomous_start(in.robot_mode.autonomous && in.robot_mode.enabled);
 	since_auto_start.update(in.now,autonomous_start_now);
