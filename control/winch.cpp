@@ -1,21 +1,20 @@
 #include "winch.h"
 
-using namespace std;
+static const int WINCH_PWM = 5;
+static const float WINCH_POWER = .5;
 
 #define nyi {cout<<"nyi: line "<<__LINE__; exit(44); }
 
 std::set<Winch::Status> examples(Winch::Status*){
-	set<Winch::Status> x;
-	x.insert(Winch::Status{});
-	return x;
+	return {{}};
+}
+
+std::set<Winch::Input> examples(Winch::Input*){
+	return {{}};
 }
 
 std::set<Winch::Goal> examples(Winch::Goal*){
-        set<Winch::Goal> x;
-	x.insert(Winch::Goal::IN);
-	x.insert(Winch::Goal::OUT);
-	x.insert(Winch::Goal::STOP);
-        return x;
+       return {Winch::Goal::IN, Winch::Goal::OUT, Winch::Goal::STOP};
 }
 
 std::ostream& operator<<(std::ostream& o,Winch const&){
@@ -23,15 +22,34 @@ std::ostream& operator<<(std::ostream& o,Winch const&){
 }
 
 std::ostream& operator<<(std::ostream& o,Winch::Goal g){
-        o<<"Goal(";
-	if(g==Winch::Goal::IN)return o<<"IN)";
-	else if(g==Winch::Goal::OUT)return o<<"OUT)";
-	else if(g==Winch::Goal::STOP)return o<<"STOP)";
+	#define X(name) if(g==Winch::Goal::name) return o<<"Winch::Goal("#name")";
+	X(IN) X(OUT) X(STOP)
+	#undef X
 	assert(0);
 }
 
 std::ostream& operator<<(std::ostream& o,Winch::Status){
 	return o<<"Status()";
+}
+
+std::ostream& operator<<(std::ostream& o,Winch::Input){
+	return o<<"Input()";
+}
+
+bool operator<(Winch::Input,Winch::Input){
+	return 0;
+}
+
+bool operator==(Winch::Input,Winch::Input){
+	return 1;
+}
+
+bool operator==(Winch::Estimator,Winch::Estimator){
+	return 1;
+}
+
+bool operator==(Winch,Winch){
+	return 1;
 }
 
 bool operator<(Winch::Status,Winch::Status){
@@ -42,16 +60,16 @@ bool operator==(Winch::Status,Winch::Status){
         return 1;
 }
 
-Winch::Status Winch::Input_reader::operator()(Robot_inputs) const{
-	return Winch::Status{};
+Winch::Input Winch::Input_reader::operator()(Robot_inputs) const{
+	return {};
 }
 
-Robot_inputs Winch::Input_reader::operator()(Robot_inputs ri ,Winch::Status) const{
-	return ri; 
+Robot_inputs Winch::Input_reader::operator()(Robot_inputs r, Winch::Input) const{
+	return r;
 }
 
-Winch::Status status(Winch::Status x){
-	return x;
+Winch::Status status(Winch::Status s){
+	return s;
 }
 
 bool ready(Winch::Status,Winch::Goal){
@@ -62,40 +80,39 @@ Winch::Output control(Winch::Status,Winch::Goal goal){
 	return goal;
 }
 
-void Winch::Estimator::update(Time,Winch::Status,Winch::Goal){
+void Winch::Estimator::update(Time,Winch::Input,Winch::Goal){
 }
 
 Winch::Status Winch::Estimator::get()const{
 	return Winch::Status{};
 }
 
-bool operator!=(Winch,Winch){
-	return 0;
+bool operator!=(Winch a, Winch b){
+	return !(a==b);
 }
 
-bool operator!=(Winch::Status,Winch::Status){
-         return 0;
+bool operator!=(Winch::Status a, Winch::Status b){
+         return !(a==b);
 }
 
-bool operator!=(Winch::Estimator,Winch::Estimator){
-         return 0;
+bool operator!=(Winch::Estimator a, Winch::Estimator b){
+         return !(a==b);
 }
 
-static const int WINCH_PWM = 5;
-static const float WINCH_POWER = .5;
+bool operator!=(Winch::Input a, Winch::Input b){
+	return !(a==b);
+}
 
 Robot_outputs Winch::Output_applicator::operator()(Robot_outputs ro ,Output o)const{
-	if(o==Winch::Goal::OUT)ro.pwm[WINCH_PWM]=WINCH_POWER;
-	else if(o==Winch::Goal::IN)ro.pwm[WINCH_PWM]=-WINCH_POWER;
+	if(o==Winch::Goal::OUT) ro.pwm[WINCH_PWM]=WINCH_POWER;
+	else if(o==Winch::Goal::IN) ro.pwm[WINCH_PWM]=-WINCH_POWER;
 	else ro.pwm[WINCH_PWM]=0;
 	return ro;
 }
 
 Winch::Goal Winch::Output_applicator::operator()(Robot_outputs ro)const{
-	if(ro.pwm[WINCH_PWM]>0)
-		return Winch::Goal::OUT;
-	if(ro.pwm[WINCH_PWM]<0)
-		return Winch::Goal::IN;
+	if(ro.pwm[WINCH_PWM]>0)	return Winch::Goal::OUT;
+	if(ro.pwm[WINCH_PWM]<0)	return Winch::Goal::IN;
 	return Winch::Goal::STOP;
 }
 
