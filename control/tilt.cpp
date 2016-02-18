@@ -96,13 +96,15 @@ Tilt::Goal Tilt::Goal::stop(){
 
 Tilt::Goal Tilt::Goal::low(){
 	Tilt::Goal a;
-	a.mode_=Tilt::Goal::Mode::LOW;
+	float angle=positions[Positions::LOW]/VOLTS_PER_DEGREE; 
+	a=Tilt::Goal::go_to_angle(make_tolerances(angle));
 	return a;
 }
 
 Tilt::Goal Tilt::Goal::level(){
 	Tilt::Goal a;
-	a.mode_=Tilt::Goal::Mode::LEVEL;
+	float angle=positions[Positions::LEVEL]/VOLTS_PER_DEGREE; 
+	a=Tilt::Goal::go_to_angle(make_tolerances(angle));
 	return a;
 }
 
@@ -257,12 +259,12 @@ std::set<Tilt::Output> examples(Tilt::Output*){
 
 Tilt::Output control(Tilt::Status_detail status, Tilt::Goal goal){
 	const double POWER=1;//negative goes up, positive goes down
-	#define X(name) if(goal.mode()==Tilt::Goal::Mode::name){ \
+	/*#define X(name) if(goal.mode()==Tilt::Goal::Mode::name){ \
 		float angle=positions[Positions::name]/VOLTS_PER_DEGREE; \
 		goal=Tilt::Goal::go_to_angle(make_tolerances(angle)); \
 	}
 	X(LOW) X(LEVEL)
-	#undef X
+	#undef X*/
 	switch(goal.mode()){
 		case Tilt::Goal::Mode::UP:
 			switch(status.type()){
