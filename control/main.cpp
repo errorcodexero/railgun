@@ -213,7 +213,7 @@ Toplevel::Goal Main::teleop(
 				#undef X
 				assert(0);
 			}
-			else return Front::Goal::OFF;
+			return Front::Goal::OFF;
 		}();
 		goals.sides=[&]{
 			if(gunner_joystick.button[Gamepad_button::X]) return Sides::Goal::IN;
@@ -224,7 +224,7 @@ Toplevel::Goal Main::teleop(
 				#undef X
 				assert(0);
 			}
-			else return Sides::Goal::OFF;
+			return Sides::Goal::OFF;
 		}();
 		goals.tilt=[&]{
 			if(gunner_joystick.button[Gamepad_button::LB]) return Tilt::Goal::down();

@@ -12,7 +12,7 @@ static const std::array<std::string,Positions::POSITIONS> POSITION_NAMES={"UP","
 static const std::string POSITIONS_FILE="tilt_positions.txt";
 #define VOLTS_PER_DEGREE .02//((positions[Positions::LEVEL]-positions[Positions::UP])/90) //Assumed for now
 
-#define ANGLE_TOLERANCE 2
+#define ANGLE_TOLERANCE 5//in degrees
 
 #define TILT_PDB_LOC 8
 #define TILT_POT_LOC 0
@@ -222,7 +222,13 @@ bool operator==(Tilt a, Tilt b){ return (a.output_applicator==b.output_applicato
 bool operator!=(Tilt a, Tilt b){ return !(a==b); }
 
 std::set<Tilt::Input> examples(Tilt::Input*){ 
-	return {{0,0,0},{.5,0,0},{1,0,0},{1.5,0,0},{2,0,0},{0,0,1},{.5,0,1},{1,0,1},{1.5,0,1},{2,0,1}};//Assumed values, may not me realistic
+	std::set<Tilt::Input> s;
+	for(unsigned int j=0; j<2; j++){
+		for(unsigned int i=0; i<Positions::POSITIONS; i++){
+			s.insert({positions[i],0,j==1});
+		}
+	}
+	return s;
 }
 
 std::set<Tilt::Goal> examples(Tilt::Goal*){
@@ -315,6 +321,10 @@ bool ready(Tilt::Status status, Tilt::Goal goal){
 	}
 }
 
+Tilt::Status_detail Tilt::Estimator::get()const {
+	return last;
+}
+
 void Tilt::Estimator::update(Time time, Tilt::Input in, Tilt::Output) {
 	if(in.top){
 		positions[Positions::UP]=in.pot_value;
@@ -336,10 +346,6 @@ void Tilt::Estimator::update(Time time, Tilt::Input in, Tilt::Output) {
 		if(in.pot_value>=positions[Positions::DOWN]-ALLOWED_TOLERANCE)last=Tilt::Status_detail::bottom();
 		else last=Tilt::Status_detail::mid(angle);
 	}
-}
-
-Tilt::Status_detail Tilt::Estimator::get()const {
-	return last;
 }
 
 std::array<double,3> make_tolerances(double d){
