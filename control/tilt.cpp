@@ -147,7 +147,7 @@ std::ostream& operator<<(std::ostream& o, Tilt::Status_detail::Type a){
 }
 
 std::ostream& operator<<(std::ostream& o, Tilt::Goal::Mode a){
-	#define X(name) if(a==Tilt::Goal::Mode::name) return o<<""#name;
+	#define X(name) if(a==Tilt::Goal::Mode::name) return o<<"Tilt::Goal("#name")";
 	TILT_GOAL_MODES
 	#undef X
 	nyi
