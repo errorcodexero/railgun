@@ -335,7 +335,7 @@ bool ready(Tilt::Status status, Tilt::Goal goal){
 void Tilt::Estimator::update(Time time, Tilt::Input in, Tilt::Output) {
 	if(in.top){
 		positions[Positions::UP]=in.pot_value;
-		//tilt_learn(in.pot_value,Tilt::Goal::Mode::UP);
+		tilt_learn(in.pot_value,Tilt::Goal::Mode::UP);
 	}
 	float angle=(in.pot_value-positions[Positions::UP])/VOLTS_PER_DEGREE;
 	stall_timer.update(time,true);
@@ -348,10 +348,10 @@ void Tilt::Estimator::update(Time time, Tilt::Input in, Tilt::Output) {
 	const float ALLOWED_TOLERANCE=.05;
 	if(in.pot_value<=positions[Positions::UP]+ALLOWED_TOLERANCE){
 		if(in.pot_value>=positions[Positions::DOWN]-ALLOWED_TOLERANCE)last=Tilt::Status_detail::error();
-		last=Tilt::Status_detail::top();
+		else last=Tilt::Status_detail::top();
 	} else{
 		if(in.pot_value>=positions[Positions::DOWN]-ALLOWED_TOLERANCE)last=Tilt::Status_detail::bottom();
-		last=Tilt::Status_detail::mid(angle);
+		else last=Tilt::Status_detail::mid(angle);
 	}
 }
 
@@ -371,7 +371,11 @@ void populate(){
 
 void update_positions(){
 	std::ifstream file(POSITIONS_FILE);
-	if(file.peek()==std::ifstream::traits_type::eof())populate();
+	if(file.peek()==std::ifstream::traits_type::eof()){
+		file.close();
+		populate();
+		file.open(POSITIONS_FILE);
+	}
 	for(unsigned int i=0; i<Positions::POSITIONS; i++){
 		bool next=false;
 		std::string mode=POSITION_NAMES[i];
@@ -403,7 +407,11 @@ void tilt_learn(float pot_in,Tilt::Goal::Mode a){
 	#undef X
 	std::string line;
 	std::ifstream file(POSITIONS_FILE);
-	if(file.peek()==std::ifstream::traits_type::eof())populate();
+	if(file.peek()==std::ifstream::traits_type::eof()){
+		file.close();
+		populate();
+		file.open(POSITIONS_FILE);
+	}	
 	std::vector<std::string> go_out;
 	while(!file.eof()){ 
 		std::string edit; 
@@ -430,7 +438,7 @@ void tilt_learn(float pot_in,Tilt::Goal::Mode a){
 #include "formal.h"
 
 int main(){
-	//update_positions();
+	update_positions();
 	Tilt a;
 	tester(a);
 }
