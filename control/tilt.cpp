@@ -12,7 +12,7 @@ static const std::array<std::string,Positions::POSITIONS> POSITION_NAMES={"UP","
 static const std::string POSITIONS_FILE="tilt_positions.txt";
 #define VOLTS_PER_DEGREE .02//((positions[Positions::LEVEL]-positions[Positions::UP])/90) //Assumed for now
 
-#define ANGLE_TOLERANCE 5//in degrees
+#define ANGLE_TOLERANCE 5//in degrees, may want to change later
 
 #define TILT_PDB_LOC 8
 #define TILT_POT_LOC 0
@@ -148,7 +148,7 @@ Tilt::Status_detail Tilt::Status_detail::error(){
 
 std::ostream& operator<<(std::ostream& o, Tilt::Status_detail::Type a){
 	#define X(name) if(a==Tilt::Status_detail::Type::name) return o<<""#name;
-	X(ERRORS) X(TOP) X(BOTTOM) X(MID)
+	TILT_STATUS_DETAIL_TYPES
 	#undef X
 	nyi
 }
