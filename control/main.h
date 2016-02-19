@@ -11,7 +11,7 @@
 #include "../util/nav.h"
 
 struct Main{
-	#define MODES X(TELEOP) X(AUTO_MOVE) X(AUTO_NAV) X(AUTO_NAV_LOAD)
+	#define MODES X(TELEOP) X(AUTO_MOVE) X(AUTO_NAV) X(AUTO_NAV_RUN)
 	enum class Mode{
 		#define X(NAME) NAME,
 		MODES
@@ -20,12 +20,15 @@ struct Main{
 	Mode mode;
 
 	struct NavS{
-		int left, right, amount;
+		float left; 
+		float right;
+		float amount;
 	};
 	struct navinput{
 		point navpt;
 		direction navdir;
 	};
+	
 	unsigned int navindex;
 	std::vector<NavS> NavV;
 		
@@ -39,16 +42,20 @@ struct Main{
 
 	Posedge_trigger autonomous_start;
 
-	Posedge_toggle piston;
-	
+	enum Nudges{FORWARD,BACKWARD,CLOCKWISE,COUNTERCLOCKWISE,NUDGES};	
 	struct Nudge{
 		Posedge_trigger trigger;
 		Countdown_timer timer;
 	};
-	Nudge nudges[4];//Forward, Backward, Clockwise, Counter-clockwise
+	Nudge nudges[NUDGES];
 	
-	Posedge_toggle driver_collector_control;
-	enum class Collector_mode{NOTHING,COLLECT,STOW,EJECT,REFLECT,TERRAIN,LOW_BAR};
+	Posedge_toggle controller_auto;
+	#define COLLECTOR_MODES X(NOTHING) X(COLLECT) X(STOW) X(EJECT) X(REFLECT) X(TERRAIN) X(LOW_BAR)
+	enum class Collector_mode{
+		#define X(name) name,
+		COLLECTOR_MODES
+		#undef X
+	};
 	Collector_mode collector_mode;
 
 	Toplevel::Goal teleop(Robot_inputs const&,Joystick_data const&,Joystick_data const&,Panel const&,Toplevel::Status_detail&);

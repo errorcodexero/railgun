@@ -8,8 +8,9 @@ g++ -Wall -Werror -std=c++0x -DMONITOR_TEST \
 	front.cpp \
 	sides.cpp \
 	climb.cpp \
-	inout.cpp \
+	climb_release.cpp \
 	tilt.cpp \
+	winch.cpp\
 	../util/posedge_toggle.cpp \
 	force_interface.cpp \
 	drivebase.cpp \

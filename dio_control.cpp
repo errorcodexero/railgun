@@ -114,7 +114,7 @@ void DIO_controls::init(){
 }
 
 
-void DIO_controls::set(array<Digital_out,Robot_outputs::DIGITAL_IOS> const& a){
+void DIO_controls::set(Checked_array<Digital_out,Robot_outputs::DIGITAL_IOS> const& a){
 	init();
 
 	array<int,Digital_inputs::ENCODERS> channel_a,channel_b;

@@ -7,7 +7,6 @@
 using namespace std;
 
 Toplevel::Toplevel():
-	tilt(1),
 	input_reader(this),
 	estimator(this),
 	output_applicator(this)
@@ -140,8 +139,8 @@ Toplevel::Status::Status():
 	tilt(Tilt::Status::mid(0)),
 	sides(Sides::Status{}),
 	front(Front::Status{}),
-	climb(Climb::Status::mid()),
-	inout(Inout::Status::UNKNOWN)
+	//climb(Climb::Status::mid()),
+	climb_release(Climb_release::Status::UNKNOWN)
 {}
 
 bool operator==(Toplevel::Status a,Toplevel::Status b){
@@ -311,12 +310,13 @@ set<Toplevel::Status_detail> examples(Toplevel::Status_detail*){
 	return {Toplevel::Status_detail{
 		*examples((Drivebase::Status_detail*)0).begin(),
 		Pump::Status_detail{},
-		Tote_sensors::Status_detail{},
 		*examples((Tilt::Status_detail*)0).begin(),
 		*examples((Sides::Status_detail*)0).begin(),
 		*examples((Front::Status_detail*)0).begin(),
-		*examples((Climb::Status_detail*)0).begin(),
-		*examples((Inout::Status_detail*)0).begin()
+		//*examples((Climb::Status_detail*)0).begin(),
+		*examples((Climb_release::Status_detail*)0).begin(),
+                *examples((Winch::Status_detail*)0).begin()
+
 	}};
 }
 
@@ -332,12 +332,12 @@ set<Toplevel::Input> examples(Toplevel::Input*){
 	Toplevel::Input a{
 		*examples((Drivebase::Input*)0).begin(),
 		Pump::Input{},
-		Tote_sensors::Input{0,0,0},
 		*examples((Tilt::Input*)0).begin(),
 		Sides::Input{},
 		Front::Input{},
-		Climb::Input{0,0},
-		Inout::Input{}
+		//Climb::Input{0,0},
+		Climb_release::Input{0},
+		Winch::Input{}
 	};
 	return {a};
 }

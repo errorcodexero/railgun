@@ -12,13 +12,22 @@
 struct Tilt{
 	class Goal{
 		public: 
-		enum class Mode{DOWN,GO_TO_ANGLE,STOP,UP};
-		
+		#define TILT_GOAL_MODES \
+			X(DOWN) \
+			X(STOP) \
+			X(LOW) \
+			X(LEVEL) \
+			X(UP) \
+			X(GO_TO_ANGLE)
+		#define X(name) name,
+		enum class Mode{TILT_GOAL_MODES};	
+		#undef X
+	
 		private:
 		Goal();
 
 		Mode mode_;
-		double angle_min,angle_target,angle_max;	
+		double angle_min,angle_target,angle_max;
 	
 		public:
 		Mode mode()const;
@@ -26,6 +35,8 @@ struct Tilt{
 		
 		static Goal up();
 		static Goal down();
+		static Goal low();
+		static Goal level();
 		static Goal go_to_angle(std::array<double,3>);
 		static Goal stop();
 	};
@@ -34,7 +45,14 @@ struct Tilt{
 	
 	class Status_detail{
 		public:
-		enum class Type{BOTTOM,MID,TOP,ERRORS};
+		#define TILT_STATUS_DETAIL_TYPES \
+			X(TOP) \
+			X(MID) \
+			X(BOTTOM) \
+			X(ERRORS)
+		#define X(name) name, 
+		enum class Type{TILT_STATUS_DETAIL_TYPES};
+		#undef X
 		std::pair<bool,bool> reached_ends;
 		bool stalled;
 		
@@ -43,10 +61,12 @@ struct Tilt{
 
 		Type type_;
 		double angle;
+		float pot_value_;
 		
 		public:
 		Type type()const;
-		double get_angle()const;		
+		double get_angle()const;
+		float pot_value()const;
 
 		static Status_detail top();
 		static Status_detail mid(double);
@@ -57,23 +77,18 @@ struct Tilt{
 	typedef Status_detail Status;
 
 	struct Input{
-		bool top, bottom;
-		int ticks;
+		float pot_value;
 		double current;
+		bool top;
 	};
 	
 	struct Input_reader{
-		int can_address;
-
-		explicit Input_reader(int);
 		Input operator()(Robot_inputs)const;
 		Robot_inputs operator()(Robot_inputs,Input)const;
 	};
 	
 	struct Estimator{
 		Status_detail last;
-		Maybe_inline<int> top,bottom;
-		Maybe_inline<double> range()const;
 
 		public: 
 		Estimator();
@@ -86,9 +101,6 @@ struct Tilt{
 	};
 	
 	struct Output_applicator{
-		int can_address;
-		
-		explicit Output_applicator(int);
 		Output operator()(Robot_outputs)const;
 		Robot_outputs operator()(Robot_outputs,Output)const;
 	};	
@@ -96,9 +108,7 @@ struct Tilt{
 	Output_applicator output_applicator;
 	Input_reader input_reader;
 	Estimator estimator;
-	explicit Tilt(int);
 };
-
 
 std::ostream& operator<<(std::ostream&, Tilt::Status_detail::Type);
 std::ostream& operator<<(std::ostream&, Tilt::Goal::Mode);
@@ -121,7 +131,9 @@ bool operator!=(Tilt::Goal,Tilt::Goal);
 bool operator<(Tilt::Goal,Tilt::Goal);
 
 bool operator==(Tilt::Output_applicator,Tilt::Output_applicator);
+
 bool operator==(Tilt::Input_reader,Tilt::Input_reader);
+
 bool operator==(Tilt::Estimator,Tilt::Estimator);
 bool operator!=(Tilt::Estimator,Tilt::Estimator);
 
@@ -136,5 +148,9 @@ std::set<Tilt::Output> examples(Tilt::Output*);
 Tilt::Output control(Tilt::Status_detail, Tilt::Goal);
 Tilt::Status status(Tilt::Status_detail);
 bool ready(Tilt::Status, Tilt::Goal);
+
+std::array<double,3> make_tolerances(double);
+
+void tilt_learn(float value,Tilt::Goal::Mode);
 
 #endif

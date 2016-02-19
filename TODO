@@ -1,25 +1,20 @@
 HIGH PRIORITY
-	- Add driver collector control button(s) (toggle)
-	- Check out drive encoders 
-	- Figure out what's going on with climber
-	- Update wpilib on all software computers - Calvin
-	- Write shooter code (Need to wait until shooter design for completion) - Matthew/Logan 
-	- Write shooter into main 
-	- OI code - Matthew/Logan/Adrian 
-	- Decide on which computers to use as Driver Stations and update them.
-	- Update mainpulators based on new information
-	- Shooter:
-		Vertical/Horizontal Activation
-		Shooter wheel spin up etc.
-		Ball injector	
+	- Collector 100% working - Logan/Matthew - DUE ASAP
+	- OI code - Matthew
+	- Work on climber - Calvin
+	- Autonomous* - Tristan
 
 
 NOT AS HIGH PRIORITY: 
-	- Bug Fixes - EVERYONE
+	- Check out drive encoders
+	- Shooter:
+		- Vertical/Horizontal Activation
+		- Shooter wheel spin up etc.
+		- Ball injector
+		- Add control into main
 	- Logger & Diagnostics - Jacob
-	- Autonomous* - Tristan/Matthew DUE FEB 13
-	- Vision - Nick DUE FEB 18
-	- Laptop configuration - Adrian
+	- Vision - Nick 
+	- Laptop configuration
 		-ssh config:
 			-Fix the "rm ~/.ssh/known_hosts" problem
 			-add "StrictHostKeyChecking no/UserKnownHostsFile=/dev/null" for robot

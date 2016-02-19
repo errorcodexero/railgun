@@ -102,8 +102,8 @@ string pmovedir(movedir a){
 // returns true if p is in the grid
 /////////////////////////////////////////////////////////////////////////////
 bool bounderies(point p,mapstruct const& map){
-	bool xvalid = p.x >=0 && p.x < map.width;
-	bool yvalid = p.y >=0 && p.y < map.length;
+	bool xvalid = p.x >=0+ROBOTSPACE && p.x < map.width;
+	bool yvalid = p.y >=0+ROBOTSPACE && p.y < map.length;
 	return xvalid && yvalid;
 }
 
@@ -267,20 +267,20 @@ void loadmap(mapstruct & a){
 		}
 	}
 	 //blocks off secret passage.
-	for(int i=0; i < 144; i++){
-		for(int j=0; j < 30; j++){
+	for(int i=0; i < 144 + ROBOTSPACE; i++){
+		for(int j=0; j < 30+ROBOTSPACE; j++){
 			a.walls[i][j] = true;
 		}
 	}
 	//blocks of outerworks.
-	for(int i=95; i < 120.5; i++){
+	for(int i=95-ROBOTSPACE; i < 120.5+ROBOTSPACE; i++){
 		for(int j=30.5; j < a.length; j++){
 			a.walls[i][j] = true;
 		}
 	}
 	// blocks of tower.
-	for(int i=0; i < 34.5; i++){
-		for(int j=46.5; j < 119; j++){
+	for(int i=0; i < 34.5+ROBOTSPACE; i++){
+		for(int j=46.5-ROBOTSPACE; j < 119+ROBOTSPACE; j++){
 			a.walls[i][j] = true;
 		}
 	}
