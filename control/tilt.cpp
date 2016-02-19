@@ -244,7 +244,7 @@ std::set<Tilt::Goal> examples(Tilt::Goal*){
 		Tilt::Goal::stop(),
 		Tilt::Goal::low(),
 		Tilt::Goal::level(),
-		Tilt::Goal::go_to_angle(std::array<double,3>{0,0,0}),
+		Tilt::Goal::go_to_angle(make_tolerances(ANGLE_TOLERANCE)),
 		Tilt::Goal::up()
 	};
 }
