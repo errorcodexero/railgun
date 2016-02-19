@@ -2,6 +2,7 @@
 #define DIO_CONTROL_H
 
 #include "util/interface.h"
+#include "util/checked_array.h"
 
 class DigitalInput;
 class DigitalOutput;
@@ -56,7 +57,7 @@ class DIO_controls{
 	public:
 	DIO_controls();
 
-	void set(std::array<Digital_out,Robot_outputs::DIGITAL_IOS> const&);
+	void set(Checked_array<Digital_out,Robot_outputs::DIGITAL_IOS> const&);
 	Digital_inputs get();
 };
 std::ostream& operator<<(std::ostream&,DIO_controls const&);

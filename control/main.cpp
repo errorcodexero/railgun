@@ -11,7 +11,6 @@
 #include <assert.h>
 #include <fstream> 
 
-
 using namespace std;
 
 ofstream myfile2;
@@ -30,7 +29,7 @@ ostream& operator<<(ostream& o,Main::Collector_mode a){
 	assert(0);
 }
 
-//todo: at some point, might want to make this whatever is right to start autonomous mode.
+//TODO: at some point, might want to make this whatever is right to start autonomous mode.
 Main::Main():mode(Mode::TELEOP),autonomous_start(0),collector_mode(Collector_mode::NOTHING){}
 
 vector<Main::NavS> Main::loadnav(){
@@ -57,6 +56,7 @@ vector<Main::NavS> Main::loadnav(){
 	v=solvemaze(start.navpt,end.navpt,start.navdir,end.navdir);
 	myfile << "size: " << v.size() << "\n"; 
 	//something to note is that doing a 180 or going back is going to be the same as turning exept that it is going to be for longer so that it can go as far  
+
 	for (unsigned int i=0;i<v.size();i++){
 		myfile << "Processing " << i <<  "\n";
 		if(v[i].second == MFORWARD){
@@ -115,14 +115,13 @@ Toplevel::Goal Main::teleop(
 	Joystick_data const& main_joystick,
 	Joystick_data const& gunner_joystick,
 	Panel const&  oi_panel,
-	Toplevel::Status_detail& //toplevel_status
+	Toplevel::Status_detail& toplevel_status
 ){
 	Toplevel::Goal goals;
 
 	bool spin=fabs(main_joystick.axis[Gamepad_axis::RIGHTX])>.01,boost=main_joystick.axis[Gamepad_axis::LTRIGGER],slow=main_joystick.axis[Gamepad_axis::RTRIGGER];//spin, turbo, and slow buttons	
 	
-	static const double NUDGE_POWER=.4,NUDGE_CW_POWER=.4,NUDGE_CCW_POWER=-.4;
- 
+	static const double NUDGE_POWER=.4,NUDGE_CW_POWER=.4,NUDGE_CCW_POWER=-.4; 
 	goals.drive.left=[&]{
 		double power=set_drive_speed(main_joystick.axis[Gamepad_axis::LEFTY],boost,slow);
 		if(spin) power+=set_drive_speed(-main_joystick.axis[Gamepad_axis::RIGHTX],boost,slow);
@@ -140,6 +139,16 @@ Toplevel::Goal Main::teleop(
 		else if(!nudges[Nudges::CLOCKWISE].timer.done()) power=NUDGE_CW_POWER;
 		else if(!nudges[Nudges::COUNTERCLOCKWISE].timer.done()) power=NUDGE_CCW_POWER;
 		return power;
+	}();
+
+	goals.climb_release=[&]{
+		if(main_joystick.axis[Gamepad_axis::LTRIGGER]>.5){
+			return Climb_release::Goal::IN;
+		}
+		if(main_joystick.axis[Gamepad_axis::RTRIGGER]>.5){
+			return Climb_release::Goal::OUT;
+		}
+		return Climb_release::Goal::STOP;
 	}();
 
 	static const unsigned int nudge_buttons[NUDGES]={Gamepad_button::Y,Gamepad_button::A,Gamepad_button::B,Gamepad_button::X};//Forward, backward, clockwise, counter-clockwise
@@ -206,7 +215,7 @@ Toplevel::Goal Main::teleop(
 				#undef X
 				assert(0);
 			}
-			else return Front::Goal::OFF;
+			return Front::Goal::OFF;
 		}();
 		goals.sides=[&]{
 			if(gunner_joystick.button[Gamepad_button::X]) return Sides::Goal::IN;
@@ -217,13 +226,21 @@ Toplevel::Goal Main::teleop(
 				#undef X
 				assert(0);
 			}
-			else return Sides::Goal::OFF;
+			return Sides::Goal::OFF;
 		}();
 		goals.tilt=[&]{
-			if(gunner_joystick.button[Gamepad_button::LB]) return Tilt::Goal::down();
-			else if(gunner_joystick.button[Gamepad_button::RB]) return Tilt::Goal::up();
-			else if(gunner_joystick.button[Gamepad_button::BACK]) return Tilt::Goal::stop();
-			else if(gunner_joystick.button[Gamepad_button::R_JOY]) return Tilt::Goal::go_to_angle(array<double,3>{18,20,22});
+			#define X(name,bt) bool name=gunner_joystick.button[Gamepad_button::bt];
+			X(down,LB) X(up,RB) X(stop,BACK) X(learn,START) X(level,R_JOY)
+			#undef X
+			if(learn){
+				#define X(button,mode) if(button)tilt_learn(toplevel_status.tilt.get_angle(),Tilt::Goal::Mode::mode);
+				X(down,DOWN) X(up,UP) X(level,LEVEL)
+				#undef X
+			}
+			if(down) return Tilt::Goal::down();
+			else if(up) return Tilt::Goal::up();
+			else if(stop) return Tilt::Goal::stop();
+			else if(level) return Tilt::Goal::level();
 			else if(oi_panel.in_use){
 				switch(oi_panel.tilt){
 					case Panel::Tilt::UP: return Tilt::Goal::up();
@@ -231,14 +248,11 @@ Toplevel::Goal Main::teleop(
 					case Panel::Tilt::STOP: return Tilt::Goal::stop();
 					default: assert(0);
 				}
-				if(oi_panel.control_angle){
-					array<double,3> angles={oi_panel.angle-2,oi_panel.angle,oi_panel.angle+2};//Assuming tolerances for now
-					return Tilt::Goal::go_to_angle(angles);
-				}
+				if(oi_panel.control_angle)return Tilt::Goal::go_to_angle(make_tolerances(oi_panel.angle));
 			}
 			return goals.tilt;
 		}();
-		goals.climb=[&]{
+		/*goals.climb=[&]{
 			if(oi_panel.in_use){
 				#define X(name) if(oi_panel.climber==Panel::Climber::name) return Climb::Goal::name;
 				X(EXTEND) X(STOP) X(RETRACT)
@@ -246,7 +260,7 @@ Toplevel::Goal Main::teleop(
 				assert(0);	
 			}
 			else return Climb::Goal::STOP;
-		}();
+		}();*/
 	}	
 	return goals;
 }
@@ -318,7 +332,7 @@ Robot_outputs Main::operator()(Robot_inputs in,ostream&){
 	
 	Toplevel::Status_detail toplevel_status=toplevel.estimator.get();
 	
-	cout<<"panel: "<<oi_panel<<"\n";	
+	//cout<<"panel: "<<oi_panel<<"\n";	
 		
 	bool autonomous_start_now=autonomous_start(in.robot_mode.autonomous && in.robot_mode.enabled);
 	since_auto_start.update(in.now,autonomous_start_now);
@@ -329,6 +343,10 @@ Robot_outputs Main::operator()(Robot_inputs in,ostream&){
 	switch(mode){
 		case Mode::TELEOP:
 			goals=teleop(in,main_joystick,gunner_joystick,oi_panel,toplevel_status);
+//test
+			//tagThis("Line 347: switch(mode) teleop", __FILE__);
+			//cout<<"$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$tag!";
+//test			
 			break;
 		case Mode::AUTO_MOVE:
 			goals.drive.left=.45;

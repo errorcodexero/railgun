@@ -45,7 +45,14 @@ struct Tilt{
 	
 	class Status_detail{
 		public:
-		enum class Type{BOTTOM,MID,TOP,ERRORS};
+		#define TILT_STATUS_DETAIL_TYPES \
+			X(TOP) \
+			X(MID) \
+			X(BOTTOM) \
+			X(ERRORS)
+		#define X(name) name, 
+		enum class Type{TILT_STATUS_DETAIL_TYPES};
+		#undef X
 		std::pair<bool,bool> reached_ends;
 		bool stalled;
 		
@@ -54,10 +61,12 @@ struct Tilt{
 
 		Type type_;
 		double angle;
+		float pot_value_;
 		
 		public:
 		Type type()const;
 		double get_angle()const;
+		float pot_value()const;
 
 		static Status_detail top();
 		static Status_detail mid(double);
@@ -101,7 +110,6 @@ struct Tilt{
 	Estimator estimator;
 };
 
-
 std::ostream& operator<<(std::ostream&, Tilt::Status_detail::Type);
 std::ostream& operator<<(std::ostream&, Tilt::Goal::Mode);
 std::ostream& operator<<(std::ostream&, Tilt::Status_detail);
@@ -123,7 +131,9 @@ bool operator!=(Tilt::Goal,Tilt::Goal);
 bool operator<(Tilt::Goal,Tilt::Goal);
 
 bool operator==(Tilt::Output_applicator,Tilt::Output_applicator);
+
 bool operator==(Tilt::Input_reader,Tilt::Input_reader);
+
 bool operator==(Tilt::Estimator,Tilt::Estimator);
 bool operator!=(Tilt::Estimator,Tilt::Estimator);
 
@@ -139,7 +149,8 @@ Tilt::Output control(Tilt::Status_detail, Tilt::Goal);
 Tilt::Status status(Tilt::Status_detail);
 bool ready(Tilt::Status, Tilt::Goal);
 
-void learn(float value,Tilt::Goal::Mode);
-float get_value(Tilt::Goal::Mode);
+std::array<double,3> make_tolerances(double);
+
+void tilt_learn(float value,Tilt::Goal::Mode);
 
 #endif
