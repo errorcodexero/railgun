@@ -113,7 +113,7 @@ Toplevel::Goal Main::teleop(
 	Joystick_data const& main_joystick,
 	Joystick_data const& gunner_joystick,
 	Panel const&  oi_panel,
-	Toplevel::Status_detail& //toplevel_status
+	Toplevel::Status_detail& toplevel_status
 ){
 	Toplevel::Goal goals;
 
@@ -227,10 +227,18 @@ Toplevel::Goal Main::teleop(
 			return Sides::Goal::OFF;
 		}();
 		goals.tilt=[&]{
-			if(gunner_joystick.button[Gamepad_button::LB]) return Tilt::Goal::down();
-			else if(gunner_joystick.button[Gamepad_button::RB]) return Tilt::Goal::up();
-			else if(gunner_joystick.button[Gamepad_button::BACK]) return Tilt::Goal::stop();
-			else if(gunner_joystick.button[Gamepad_button::R_JOY]) return Tilt::Goal::go_to_angle(make_tolerances(20));
+			#define X(name,bt) bool name=gunner_joystick.button[Gamepad_button::bt];
+			X(down,LB) X(up,RB) X(stop,BACK) X(learn,START) X(level,R_JOY)
+			#undef X
+			if(learn){
+				#define X(button,mode) if(button)tilt_learn(toplevel_status.tilt.get_angle(),Tilt::Goal::Mode::mode);
+				X(down,DOWN) X(up,UP) X(level,LEVEL)
+				#undef X
+			}
+			if(down) return Tilt::Goal::down();
+			else if(up) return Tilt::Goal::up();
+			else if(stop) return Tilt::Goal::stop();
+			else if(level) return Tilt::Goal::level();
 			else if(oi_panel.in_use){
 				switch(oi_panel.tilt){
 					case Panel::Tilt::UP: return Tilt::Goal::up();
@@ -238,10 +246,7 @@ Toplevel::Goal Main::teleop(
 					case Panel::Tilt::STOP: return Tilt::Goal::stop();
 					default: assert(0);
 				}
-				if(oi_panel.control_angle){
-					array<double,3> angles={oi_panel.angle-2,oi_panel.angle,oi_panel.angle+2};//Assuming tolerances for now
-					return Tilt::Goal::go_to_angle(angles);
-				}
+				if(oi_panel.control_angle)return Tilt::Goal::go_to_angle(make_tolerances(oi_panel.angle));
 			}
 			return goals.tilt;
 		}();

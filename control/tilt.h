@@ -45,7 +45,14 @@ struct Tilt{
 	
 	class Status_detail{
 		public:
-		enum class Type{BOTTOM,MID,TOP,ERRORS};
+		#define TILT_STATUS_DETAIL_TYPES \
+			X(TOP) \
+			X(MID) \
+			X(BOTTOM) \
+			X(ERRORS)
+		#define X(name) name, 
+		enum class Type{TILT_STATUS_DETAIL_TYPES};
+		#undef X
 		std::pair<bool,bool> reached_ends;
 		bool stalled;
 		
@@ -54,10 +61,12 @@ struct Tilt{
 
 		Type type_;
 		double angle;
+		float pot_value_;
 		
 		public:
 		Type type()const;
 		double get_angle()const;
+		float pot_value()const;
 
 		static Status_detail top();
 		static Status_detail mid(double);
