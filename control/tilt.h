@@ -54,10 +54,12 @@ struct Tilt{
 
 		Type type_;
 		double angle;
+		float pot_value_;
 		
 		public:
 		Type type()const;
 		double get_angle()const;
+		float pot_value()const;
 
 		static Status_detail top();
 		static Status_detail mid(double);
