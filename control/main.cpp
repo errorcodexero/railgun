@@ -229,7 +229,7 @@ Toplevel::Goal Main::teleop(
 			X(down,LB) X(up,RB) X(stop,BACK) X(learn,START) X(level,R_JOY)
 			#undef X
 			if(learn){
-				#define X(button,mode) if(button)tilt_learn(toplevel_status.tilt.get_angle(),Tilt::Goal::Mode::mode);
+				#define X(button,mode) if(button)tilt_learn(toplevel_status.tilt.pot_value(),Tilt::Goal::Mode::mode);
 				X(down,DOWN) X(up,UP) X(level,LEVEL)
 				#undef X
 			}

@@ -96,17 +96,11 @@ Tilt::Goal Tilt::Goal::stop(){
 }
 
 Tilt::Goal Tilt::Goal::low(){
-	Tilt::Goal a;
-	float angle=positions[Positions::LOW]/VOLTS_PER_DEGREE; 
-	a=Tilt::Goal::go_to_angle(make_tolerances(angle));
-	return a;
+	return Tilt::Goal::go_to_angle(make_tolerances(positions[Positions::LOW]/VOLTS_PER_DEGREE));
 }
 
 Tilt::Goal Tilt::Goal::level(){
-	Tilt::Goal a;
-	float angle=positions[Positions::LEVEL]/VOLTS_PER_DEGREE; 
-	a=Tilt::Goal::go_to_angle(make_tolerances(angle));
-	return a;
+	return Tilt::Goal::go_to_angle(make_tolerances(positions[Positions::LEVEL]/VOLTS_PER_DEGREE));
 }
 
 Tilt::Status_detail::Type Tilt::Status_detail::type()const{
@@ -209,7 +203,7 @@ bool operator==(Tilt::Status_detail a,Tilt::Status_detail b){
 }
 bool operator!=(Tilt::Status_detail a,Tilt::Status_detail b){ return !(a==b); }
 
-bool operator==(Tilt::Goal a, Tilt::Goal b){ return a.mode()==b.mode() && a.angle()<b.angle(); }
+bool operator==(Tilt::Goal a, Tilt::Goal b){ return a.mode()==b.mode() && a.angle()==b.angle(); }
 bool operator!=(Tilt::Goal a, Tilt::Goal b){ return !(a==b); }
 bool operator<(Tilt::Goal a, Tilt::Goal b){
 	if(a.mode()<b.mode()) return true;
