@@ -24,6 +24,13 @@ struct Main{
 		float right;
 		float amount;
 	};
+	/*struct oiload{
+		point ptone;
+		point pttwo;
+		direction dirone;
+		direction dirtwo;
+	};
+	*/
 	struct navinput{
 		point navpt;
 		direction navdir;

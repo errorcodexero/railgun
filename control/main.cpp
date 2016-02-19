@@ -39,6 +39,8 @@ vector<Main::NavS> Main::loadnav(){
 	navinput start, end;
 	vector<pair<int,movedir>> v;
 	ofstream myfile("/home/lvuser/logs/navlog.txt");
+	//oiload oinav;
+
 	myfile << "hi" << "\n";
 	myfile.flush();
 	//assign start information
