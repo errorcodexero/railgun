@@ -34,12 +34,12 @@ Tilt::Goal::Goal():mode_(Tilt::Goal::Mode::STOP),angle_min(0),angle_target(0),an
 Robot_inputs Tilt::Input_reader::operator()(Robot_inputs r,Tilt::Input in)const{
 	r.current[TILT_PDB_LOC]=in.current;
 	r.analog[TILT_POT_LOC]=in.pot_value;
-	r.digital_io.in[TILT_LIM_LOC]=in.top ? Digital_in::_1 : Digital_in::_0;
+	r.digital_io.in[TILT_LIM_LOC]=in.top ? Digital_in::_0 : Digital_in::_1;
 	return r;
 }
 
 Tilt::Input Tilt::Input_reader::operator()(Robot_inputs r)const{
-	return {r.analog[TILT_POT_LOC],r.current[TILT_PDB_LOC],r.digital_io.in[TILT_LIM_LOC]==Digital_in::_1};
+	return {r.analog[TILT_POT_LOC],r.current[TILT_PDB_LOC],r.digital_io.in[TILT_LIM_LOC]==Digital_in::_0};
 }
 
 Tilt::Output Tilt::Output_applicator::operator()(Robot_outputs r)const{
