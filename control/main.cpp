@@ -140,12 +140,8 @@ Toplevel::Goal Main::teleop(
 	}();
 
 	goals.climb_release=[&]{
-		if(main_joystick.axis[Gamepad_axis::LTRIGGER]>.5){
-			return Climb_release::Goal::IN;
-		}
-		if(main_joystick.axis[Gamepad_axis::RTRIGGER]>.5){
-			return Climb_release::Goal::OUT;
-		}
+		if(main_joystick.axis[Gamepad_axis::LTRIGGER]>.5)return Climb_release::Goal::IN;
+		if(main_joystick.axis[Gamepad_axis::RTRIGGER]>.5)return Climb_release::Goal::OUT;
 		return Climb_release::Goal::STOP;
 	}();
 
@@ -206,8 +202,8 @@ Toplevel::Goal Main::teleop(
 	} else */{
 		goals.front=[&]{
 			if(gunner_joystick.button[Gamepad_button::A]) return Front::Goal::IN;
-			else if(gunner_joystick.button[Gamepad_button::Y]) return Front::Goal::OUT;
-			else if(oi_panel.in_use) {
+			if(gunner_joystick.button[Gamepad_button::Y]) return Front::Goal::OUT;
+			if(oi_panel.in_use) {
 				#define X(name) if(oi_panel.front==Panel::Collector::name) return Front::Goal::name;
 				X(IN) X(OUT) X(OFF)
 				#undef X
@@ -217,8 +213,8 @@ Toplevel::Goal Main::teleop(
 		}();
 		goals.sides=[&]{
 			if(gunner_joystick.button[Gamepad_button::X]) return Sides::Goal::IN;
-			else if(gunner_joystick.button[Gamepad_button::B]) return Sides::Goal::OUT;
-			else if(oi_panel.in_use){
+			if(gunner_joystick.button[Gamepad_button::B]) return Sides::Goal::OUT;
+			if(oi_panel.in_use){
 				#define X(name) if(oi_panel.sides==Panel::Collector::name) return Sides::Goal::name;
 				X(IN) X(OUT) X(OFF)
 				#undef X
@@ -236,10 +232,10 @@ Toplevel::Goal Main::teleop(
 				#undef X
 			}
 			if(down) return Tilt::Goal::down();
-			else if(up) return Tilt::Goal::up();
-			else if(stop) return Tilt::Goal::stop();
-			else if(level) return Tilt::Goal::level();
-			else if(oi_panel.in_use){
+			if(up) return Tilt::Goal::up();
+			if(stop) return Tilt::Goal::stop();
+			if(level) return Tilt::Goal::level();
+			if(oi_panel.in_use){
 				switch(oi_panel.tilt){
 					case Panel::Tilt::UP: return Tilt::Goal::up();
 					case Panel::Tilt::DOWN: return Tilt::Goal::down();
@@ -257,7 +253,7 @@ Toplevel::Goal Main::teleop(
 				#undef X
 				assert(0);	
 			}
-			else return Climb::Goal::STOP;
+			return Climb::Goal::STOP;
 		}();*/
 	}	
 	return goals;

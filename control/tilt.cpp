@@ -362,7 +362,6 @@ void populate(){
 	file.close();
 }
 
-
 void update_positions(){
 	std::ifstream file(POSITIONS_FILE);
 	if(file.peek()==std::ifstream::traits_type::eof()){
@@ -393,7 +392,7 @@ void update_positions(){
 	file.close();
 }
 
-void tilt_learn(float pot_in,Tilt::Goal::Mode a){
+void tilt_learn(float const& pot_in,Tilt::Goal::Mode const& a){
 	assert(a!=Tilt::Goal::Mode::STOP && a!=Tilt::Goal::Mode::GO_TO_ANGLE);
 	std::string mode;
 	#define X(name) if(a==Tilt::Goal::Mode::name) mode=""#name;
