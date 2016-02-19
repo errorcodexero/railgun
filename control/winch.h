@@ -35,20 +35,26 @@ struct Winch{
 	Estimator estimator;
 };
 
+std::set<Winch::Goal> examples(Winch::Goal*);
+std::set<Winch::Input> examples(Winch::Input*);
 std::set<Winch::Status> examples(Winch::Status*);
 
-std::ostream& operator<<(std::ostream&,Winch const&);
 std::ostream& operator<<(std::ostream&,Winch::Goal);
-std::ostream& operator<<(std::ostream&,Winch::Status);
 std::ostream& operator<<(std::ostream&,Winch::Input);
-bool operator<(Winch::Status,Winch::Status);
+std::ostream& operator<<(std::ostream&,Winch::Status);
+std::ostream& operator<<(std::ostream&,Winch const&);
+
 bool operator<(Winch::Input,Winch::Input);
-bool operator!=(Winch::Status,Winch::Status);
-bool operator!=(Winch::Estimator,Winch::Estimator);
-bool operator!=(Winch::Input,Winch::Input);
-bool operator==(Winch::Estimator,Winch::Estimator);
 bool operator==(Winch::Input,Winch::Input);
-bool operator==(Winch::Status,Winch::Status);
+bool operator!=(Winch::Input,Winch::Input);
+
+bool operator<(Winch::Status_detail,Winch::Status_detail);
+bool operator==(Winch::Status_detail,Winch::Status_detail);
+bool operator!=(Winch::Status_detail ,Winch::Status_detail);
+
+bool operator==(Winch::Estimator,Winch::Estimator);
+bool operator!=(Winch::Estimator,Winch::Estimator);
+
 bool operator==(Winch,Winch);
 bool operator!=(Winch,Winch);
 
