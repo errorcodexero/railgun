@@ -285,7 +285,7 @@ Tilt::Output control(Tilt::Status_detail status, Tilt::Goal goal){
 			switch (status.type()) {
 				case Tilt::Status_detail::Type::MID:
 					if(status.get_angle()>=goal.angle()[0] && status.get_angle()<=goal.angle()[2])return 0.0;
-					return -std::min((goal.angle()[1]-status.get_angle())*(POWER/4), POWER);
+					return std::min(abs(goal.angle()[1]-status.get_angle())*(POWER/4), POWER) * ((goal.angle()[1] > status.get_angle()) ? -1 : 1);
 				case Tilt::Status_detail::Type::TOP:
 					return POWER;
 				case Tilt::Status_detail::Type::BOTTOM:
