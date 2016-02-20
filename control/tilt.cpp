@@ -62,8 +62,7 @@ Tilt::Estimator::Estimator():
 {}
 
 std::array<double,3> Tilt::Goal::angle()const{
-	#define X(name) mode_==Tilt::Goal::Mode::name
-	assert(X(GO_TO_ANGLE) || X(LOW) || X(LEVEL));
+	assert(mode_==Tilt::Goal::Mode::GO_TO_ANGLE);
 	#undef X
 	return std::array<double,3>{angle_min,angle_target,angle_max};
 }
@@ -280,8 +279,6 @@ Tilt::Output control(Tilt::Status_detail status, Tilt::Goal goal){
 					return POWER;
 				default: assert(0);
 			}
-		case Tilt::Goal::Mode::LOW: assert(0);
-		case Tilt::Goal::Mode::LEVEL: assert(0);
 		case Tilt::Goal::Mode::GO_TO_ANGLE:
 			switch (status.type()) {
 				case Tilt::Status_detail::Type::MID:
@@ -309,9 +306,7 @@ bool ready(Tilt::Status status, Tilt::Goal goal){
 	switch(goal.mode()){
 		case Tilt::Goal::Mode::UP: return status.type()==Tilt::Status_detail::Type::TOP;
 		case Tilt::Goal::Mode::DOWN: return status.type()==Tilt::Status_detail::Type::BOTTOM;
-		case Tilt::Goal::Mode::GO_TO_ANGLE:
-		case Tilt::Goal::Mode::LOW: 
-		case Tilt::Goal::Mode::LEVEL: return status.get_angle()>goal.angle()[0] && status.get_angle()<goal.angle()[2];
+		case Tilt::Goal::Mode::GO_TO_ANGLE: return status.get_angle()>goal.angle()[0] && status.get_angle()<goal.angle()[2];
 		case Tilt::Goal::Mode::STOP: return 1;
 		default: assert(0);
 	}
@@ -324,7 +319,7 @@ Tilt::Status_detail Tilt::Estimator::get()const {
 void Tilt::Estimator::update(Time time, Tilt::Input in, Tilt::Output) {
 	if(in.top){
 		positions[Positions::UP]=in.pot_value;
-		tilt_learn(in.pot_value,Tilt::Goal::Mode::UP);
+		//tilt_learn(in.pot_value,POSITION_NAMES[Positions::UP]);
 	}
 	float angle=(in.pot_value-positions[Positions::UP])/VOLTS_PER_DEGREE;
 	stall_timer.update(time,true);
@@ -387,12 +382,8 @@ void update_positions(){
 	file.close();
 }
 
-void tilt_learn(float const& pot_in,Tilt::Goal::Mode const& a){
-	assert(a!=Tilt::Goal::Mode::STOP && a!=Tilt::Goal::Mode::GO_TO_ANGLE);
-	std::string mode;
-	#define X(name) if(a==Tilt::Goal::Mode::name) mode=""#name;
-	TILT_GOAL_MODES
-	#undef X
+void tilt_learn(float const& pot_in,std::string const& mode){
+	assert(mode==POSITION_NAMES[0] || mode==POSITION_NAMES[1] || mode==POSITION_NAMES[2] || mode==POSITION_NAMES[3]);
 	std::string line;
 	std::ifstream file(POSITIONS_FILE);
 	if(file.peek()==std::ifstream::traits_type::eof()){
@@ -426,7 +417,7 @@ void tilt_learn(float const& pot_in,Tilt::Goal::Mode const& a){
 #include "formal.h"
 
 int main(){
-	update_positions();
+	//update_positions();
 	Tilt a;
 	tester(a);
 }

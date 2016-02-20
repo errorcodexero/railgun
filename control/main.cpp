@@ -115,7 +115,7 @@ Toplevel::Goal Main::teleop(
 	Joystick_data const& main_joystick,
 	Joystick_data const& gunner_joystick,
 	Panel const&  oi_panel,
-	Toplevel::Status_detail& toplevel_status
+	Toplevel::Status_detail& //toplevel_status
 ){
 	Toplevel::Goal goals;
 
@@ -229,9 +229,9 @@ Toplevel::Goal Main::teleop(
 			X(down,LB) X(up,RB) X(stop,BACK) X(learn,START) X(level,R_JOY)
 			#undef X
 			if(learn){
-				#define X(button,mode) if(button)tilt_learn(toplevel_status.tilt.pot_value(),Tilt::Goal::Mode::mode);
-				X(down,DOWN) X(up,UP) X(level,LEVEL)
-				#undef X
+				//#define X(button,mode) if(button)tilt_learn(toplevel_status.tilt.pot_value(),""#mode);
+				//X(down,DOWN) X(up,UP) X(level,LEVEL)
+				//#undef X
 			}
 			if(down) return Tilt::Goal::down();
 			if(up) return Tilt::Goal::up();
@@ -246,7 +246,7 @@ Toplevel::Goal Main::teleop(
 				}
 				if(oi_panel.control_angle)return Tilt::Goal::go_to_angle(make_tolerances(oi_panel.angle));
 			}
-			return goals.tilt;
+			return Tilt::Goal::stop();
 		}();
 		/*goals.climb=[&]{
 			if(oi_panel.in_use){
