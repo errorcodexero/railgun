@@ -1,4 +1,3 @@
-
 #include "tilt.h"
 #include <stdlib.h>
 #include <cmath>
@@ -19,6 +18,8 @@ static const std::string POSITIONS_FILE=[&]{
 	return s.append("tilt_positions.txt");
 }();
 
+#define POWER 1//negative goes up, positive goes down
+
 #define VOLTS_PER_DEGREE .03// (in volts/degree) //Assumed for now
 
 #define ANGLE_TOLERANCE 10//in degrees, may want to change later
@@ -36,6 +37,10 @@ float volts_to_degrees(float f){
 
 float degrees_to_volts(float f){
 	return f*VOLTS_PER_DEGREE;
+}
+
+double degree_change_to_power(double start, double end) {
+	return ((end-start)*(POWER/volts_to_degrees(positions[Positions::DOWN])));
 }
 
 Tilt::Status_detail::Status_detail(): 
@@ -276,11 +281,16 @@ std::set<Tilt::Status_detail> examples(Tilt::Status_detail*){
 }
 
 std::set<Tilt::Output> examples(Tilt::Output*){ 
-	return {-1,-0.93,-0.8,0,1};
+	return {
+		-1,
+		0,
+		degree_change_to_power(0, volts_to_degrees(positions[Positions::LEVEL])),
+		degree_change_to_power(0, volts_to_degrees(positions[Positions::LOW])),
+		1
+	};
 }
 
 Tilt::Output control(Tilt::Status_detail status, Tilt::Goal goal){
-	const double POWER=1;//negative goes up, positive goes down
 	switch(goal.mode()){
 		case Tilt::Goal::Mode::UP:
 			switch(status.type()){
@@ -306,10 +316,8 @@ Tilt::Output control(Tilt::Status_detail status, Tilt::Goal goal){
 			switch (status.type()) {
 				case Tilt::Status_detail::Type::MID:
 					{
-						const double SCALE_DEGREE_TO_POWER=.01;
 						if(status.get_angle()>=goal.angle()[0] && status.get_angle()<=goal.angle()[2])return 0.0;
-						std::cout<<"P:"<<std::min(fabs(goal.angle()[1]-status.get_angle())*(POWER*SCALE_DEGREE_TO_POWER), POWER) * ((goal.angle()[1] > status.get_angle()) ? -1 : 1)<<"\n";
-						return std::min(abs(goal.angle()[1]-status.get_angle())*(POWER*SCALE_DEGREE_TO_POWER), POWER) * ((goal.angle()[1] > status.get_angle()) ? -1 : 1);
+						return (degree_change_to_power(status.get_angle(), goal.angle()[1]));
 					}
 				case Tilt::Status_detail::Type::TOP:
 					return POWER;
@@ -453,4 +461,3 @@ int main(){
 }
 
 #endif
-
