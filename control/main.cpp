@@ -154,14 +154,14 @@ Toplevel::Goal Main::teleop(
 		nudges[i].timer.update(in.now,1);
 	}
 		
-	/*bool has_ball=(in.digital_io.in[6]==Digital_in::_0);
+	/*bool ball=(in.digital_io.in[6]==Digital_in::_0);
 
 	controller_auto.update(gunner_joystick.button[Gamepad_button::START]);
 	cout<<"controller_auto: "<<controller_auto<<"\n";
 	if (!oi_panel.in_use || (oi_panel.in_use && oi_panel.collector_auto) || controller_auto.get()) {
 		if(main_joystick.button[Gamepad_button::BACK])collector_mode=Collector_mode::NOTHING;
 		else if(main_joystick.button[Gamepad_button::START]) {
-			collector_mode=(toplevel_status.tilt.type() == Tilt::Status_detail::Type::TOP) ? (has_ball ? Collector_mode::REFLECT : Collector_mode::COLLECT) : Collector_mode::STOW;
+			collector_mode=(toplevel_status.tilt.type() == Tilt::Status_detail::Type::TOP) ? (ball ? Collector_mode::REFLECT : Collector_mode::COLLECT) : Collector_mode::STOW;
 		}
 		cout<<"collector_mode: "<<collector_mode<<"\n";
 		switch(collector_mode){
@@ -252,6 +252,9 @@ Toplevel::Goal Main::teleop(
 				if(oi_panel.control_angle)return Tilt::Goal::go_to_angle(make_tolerances(oi_panel.angle));
 			}	
 			return Tilt::Goal::stop();
+		}();
+		goals.winch=[&]{	
+			return Winch::Goal::STOP;
 		}();
 		/*goals.climb=[&]{
 			if(oi_panel.in_use){
