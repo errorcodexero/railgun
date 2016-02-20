@@ -7,7 +7,7 @@
 #include <vector> 
 
 enum Positions{TOP,LEVEL,LOW,BOTTOM,POSITIONS};
-std::array<float,Positions::POSITIONS> positions={1.4,2.4,2.79,3.2};//in volts
+std::array<float,Positions::POSITIONS> positions={1.4,2.4,2.8,3.2};//in volts
 static const std::array<std::string,Positions::POSITIONS> POSITION_NAMES={"TOP","LEVEL","LOW","BOTTOM"};	
 static const std::string POSITIONS_PATH="/home/lvuser/";//path for use on the robot
 static const std::string POSITIONS_FILE=[&]{
