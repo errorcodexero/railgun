@@ -44,14 +44,14 @@ vector<Main::NavS> Main::loadnav(){
 	myfile << "hi" << "\n";
 	myfile.flush();
 	//assign start information
-	start.navpt.x = 5;
-	start.navpt.y = 35;
-	start.navdir = RIGHT;
+	start.navpt.x = 153;
+	start.navpt.y = 81;
+	start.navdir = LEFT;
 	
 	//assign end information
-	end.navpt.x = 5;
-	end.navpt.y = 125;
-	end.navdir = DOWN;
+	end.navpt.x = 81;
+	end.navpt.y = 81;
+	end.navdir = LEFT;
 	
 	v=solvemaze(start.navpt,end.navpt,start.navdir,end.navdir);
 	myfile << "size: " << v.size() << "\n"; 
