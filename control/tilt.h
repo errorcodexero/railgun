@@ -73,7 +73,12 @@ struct Tilt{
 		static Status_detail error();
 	};
 
-	typedef Status_detail Status;//TODO make status different
+	struct Status{
+		typedef Status_detail::Type Type;
+		Type type;
+		double angle;//in degrees
+		Status(Tilt::Status::Type,double);
+	};
 
 	struct Input{
 		float pot_value;
@@ -109,6 +114,7 @@ struct Tilt{
 	Estimator estimator;
 };
 
+std::ostream& operator<<(std::ostream&, Tilt::Status);
 std::ostream& operator<<(std::ostream&, Tilt::Status_detail::Type);
 std::ostream& operator<<(std::ostream&, Tilt::Goal::Mode);
 std::ostream& operator<<(std::ostream&, Tilt::Status_detail);
@@ -119,6 +125,10 @@ bool operator==(Tilt::Input const&,Tilt::Input const&);
 bool operator!=(Tilt::Input const&,Tilt::Input const&);
 bool operator<(Tilt::Input const&,Tilt::Input const&);
 std::ostream& operator<<(std::ostream&,Tilt::Input const&);
+
+bool operator<(Tilt::Status,Tilt::Status);
+bool operator==(Tilt::Status,Tilt::Status);
+bool operator!=(Tilt::Status,Tilt::Status);
 
 bool operator<(Tilt::Status_detail, Tilt::Status_detail);
 bool operator<(Tilt::Status_detail,Tilt::Status_detail);
@@ -142,6 +152,7 @@ bool operator!=(Tilt,Tilt);
 std::set<Tilt::Input> examples(Tilt::Input*);
 std::set<Tilt::Goal> examples(Tilt::Goal*);
 std::set<Tilt::Status_detail> examples(Tilt::Status_detail*);
+std::set<Tilt::Status> examples(Tilt::Status*);
 std::set<Tilt::Output> examples(Tilt::Output*);
 
 Tilt::Output control(Tilt::Status_detail, Tilt::Goal);

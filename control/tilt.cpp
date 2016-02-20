@@ -10,7 +10,7 @@
 enum Positions{UP,LEVEL,LOW,DOWN,POSITIONS};
 std::array<float,Positions::POSITIONS> positions={1.4,2.4,2.79,3.2};//in volts
 static const std::array<std::string,Positions::POSITIONS> POSITION_NAMES={"UP","LEVEL","LOW","DOWN"};	
-static const std::string POSITIONS_PATH="/home/lvuser/";
+static const std::string POSITIONS_PATH="/home/lvuser/";//path for use on the robot
 static const std::string POSITIONS_FILE=[&]{
 	std::string s;
 	#ifndef TILT_TEST
@@ -45,6 +45,11 @@ Tilt::Status_detail::Status_detail():
 	angle(0),
 	pot_value_(0)
 {}
+
+Tilt::Status::Status(Tilt::Status::Type type,double angle){
+	this->type=type;
+	this->angle=angle;
+}
 
 Tilt::Goal::Goal():mode_(Tilt::Goal::Mode::STOP),angle_min(0),angle_target(0),angle_max(0){}
 
@@ -163,6 +168,10 @@ std::ostream& operator<<(std::ostream& o, Tilt::Status_detail::Type a){
 	nyi
 }
 
+std::ostream& operator<<(std::ostream& o, Tilt::Status a){
+	return o<<"Tilt::Status( type:"<<a.type<<" angle:"<<a.angle<<")";
+}
+
 std::ostream& operator<<(std::ostream& o, Tilt::Goal::Mode a){
 	#define X(name) if(a==Tilt::Goal::Mode::name) return o<<"Tilt::Goal("#name")";
 	TILT_GOAL_MODES
@@ -210,6 +219,16 @@ bool operator<(Tilt::Input const& a,Tilt::Input const& b){
 	return !a.top && b.top;
 }
 std::ostream& operator<<(std::ostream& o,Tilt::Input const& a){ return o<<"Tilt::Input( pot_value:"<<a.pot_value<<" current:"<<a.current<<" top:"<<a.top<<")"; }
+
+bool operator<(Tilt::Status a, Tilt::Status b){
+	CMP(type)
+	if(a.type==Tilt::Status::Type::MID)return a.angle<b.angle;
+	return false;
+}
+bool operator==(Tilt::Status a,Tilt::Status b){
+	return a.type==b.type && (a.type==Tilt::Status::Type::MID ? a.angle==b.angle : true);
+}
+bool operator!=(Tilt::Status a,Tilt::Status b){ return !(a==b); }
 
 bool operator<(Tilt::Status_detail a, Tilt::Status_detail b){
 	CMP(type())
@@ -275,6 +294,15 @@ std::set<Tilt::Status_detail> examples(Tilt::Status_detail*){
 	};
 }
 
+std::set<Tilt::Status> examples(Tilt::Status*){
+	return {
+		{Tilt::Status::Type::TOP,0},
+		{Tilt::Status::Type::BOTTOM,0},
+		{Tilt::Status::Type::MID,0},
+		{Tilt::Status::Type::ERRORS,0}
+	}; 
+}
+
 std::set<Tilt::Output> examples(Tilt::Output*){ 
 	return {-1,-0.93,-0.8,0,1};
 }
@@ -306,10 +334,11 @@ Tilt::Output control(Tilt::Status_detail status, Tilt::Goal goal){
 			switch (status.type()) {
 				case Tilt::Status_detail::Type::MID:
 					{
-						const double SCALE_DEGREE_TO_POWER=.01;
+						const double SCALE_DEGREE_TO_POWER=.01;//scales a degree value to one between -1 and 1
 						if(status.get_angle()>=goal.angle()[0] && status.get_angle()<=goal.angle()[2])return 0.0;
-						std::cout<<"P:"<<std::min(fabs(goal.angle()[1]-status.get_angle())*(POWER*SCALE_DEGREE_TO_POWER), POWER) * ((goal.angle()[1] > status.get_angle()) ? -1 : 1)<<"\n";
-						return std::min(abs(goal.angle()[1]-status.get_angle())*(POWER*SCALE_DEGREE_TO_POWER), POWER) * ((goal.angle()[1] > status.get_angle()) ? -1 : 1);
+						int sign=goal.angle()[1]>status.get_angle() ? -1 : 1;//ensures proper direction
+						std::cout<<"P:"<<std::min(fabs(goal.angle()[1]-status.get_angle())*(POWER*SCALE_DEGREE_TO_POWER),POWER)*sign<<"\n";
+						return std::min(abs(goal.angle()[1]-status.get_angle())*(POWER*SCALE_DEGREE_TO_POWER),POWER)*sign;
 					}
 				case Tilt::Status_detail::Type::TOP:
 					return POWER;
@@ -326,14 +355,14 @@ Tilt::Output control(Tilt::Status_detail status, Tilt::Goal goal){
 }
 
 Tilt::Status status(Tilt::Status_detail a){
-	return a;
+	return {a.type(),a.get_angle()};
 }
 
 bool ready(Tilt::Status status, Tilt::Goal goal){
 	switch(goal.mode()){
-		case Tilt::Goal::Mode::UP: return status.type()==Tilt::Status_detail::Type::TOP;
-		case Tilt::Goal::Mode::DOWN: return status.type()==Tilt::Status_detail::Type::BOTTOM;
-		case Tilt::Goal::Mode::GO_TO_ANGLE: return status.get_angle()>goal.angle()[0] && status.get_angle()<goal.angle()[2];
+		case Tilt::Goal::Mode::UP: return status.type==Tilt::Status::Type::TOP;
+		case Tilt::Goal::Mode::DOWN: return status.type==Tilt::Status::Type::BOTTOM;
+		case Tilt::Goal::Mode::GO_TO_ANGLE: return status.angle>goal.angle()[0] && status.angle<goal.angle()[2];
 		case Tilt::Goal::Mode::STOP: return 1;
 		default: assert(0);
 	}
