@@ -8,6 +8,7 @@
 #include "../util/countdown_timer.h"
 #include "../util/quick.h"
 #include <set>
+#include <string>
 
 struct Tilt{
 	class Goal{
@@ -15,8 +16,6 @@ struct Tilt{
 		#define TILT_GOAL_MODES \
 			X(DOWN) \
 			X(STOP) \
-			X(LOW) \
-			X(LEVEL) \
 			X(UP) \
 			X(GO_TO_ANGLE)
 		#define X(name) name,
@@ -151,6 +150,6 @@ bool ready(Tilt::Status, Tilt::Goal);
 
 std::array<double,3> make_tolerances(double);
 
-void tilt_learn(float const& value,Tilt::Goal::Mode const&);
+void tilt_learn(float const& value,std::string const&);
 
 #endif
