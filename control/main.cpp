@@ -115,7 +115,7 @@ Toplevel::Goal Main::teleop(
 	Joystick_data const& main_joystick,
 	Joystick_data const& gunner_joystick,
 	Panel const&  oi_panel,
-	Toplevel::Status_detail& //toplevel_status
+	Toplevel::Status_detail& toplevel_status
 ){
 	Toplevel::Goal goals;
 
@@ -225,18 +225,22 @@ Toplevel::Goal Main::teleop(
 			return Sides::Goal::OFF;
 		}();
 		goals.tilt=[&]{
-			#define X(name,bt) bool name=gunner_joystick.button[Gamepad_button::bt];
-			X(down,LB) X(up,RB) X(stop,BACK) //X(learn,START) X(level,R_JOY) X(low,L_JOY)
-			#undef X
-			/*if(learn){
-				#define X(button,mode) if(button)tilt_learn(toplevel_status.tilt.pot_value(),""#mode);
-				X(down,BOTTOM) X(up,TOP) X(level,LEVEL) X(low,LOW)
+			{
+				#define X(name,bt) bool name=gunner_joystick.button[Gamepad_button::bt];
+				X(down,LB) X(up,RB) X(stop,BACK) X(learn,START) X(level,R_JOY) X(low,L_JOY)
 				#undef X
-			} else */{
-				if(down) return Tilt::Goal::down();
-				if(up) return Tilt::Goal::up();
-				if(stop) return Tilt::Goal::stop();
-				//if(level) return Tilt::Goal::level();
+				learn=false,low=false,level=false;
+				if(learn){
+					#define LEARN(button,mode) if(button)tilt_learn(toplevel_status.tilt.pot_value(),""#mode);
+					LEARN(down,BOTTOM) LEARN(up,TOP) LEARN(level,LEVEL) LEARN(low,LOW)
+					#undef LEARN
+				} else {
+					if(down) return Tilt::Goal::down();
+					if(up) return Tilt::Goal::up();
+					if(stop) return Tilt::Goal::stop();
+					if(level) return Tilt::Goal::level();
+					if(low) return Tilt::Goal::low();
+				}
 			}
 			if(oi_panel.in_use){
 				switch(oi_panel.tilt){
@@ -246,10 +250,9 @@ Toplevel::Goal Main::teleop(
 					default: assert(0);
 				}
 				if(oi_panel.control_angle)return Tilt::Goal::go_to_angle(make_tolerances(oi_panel.angle));
-			}
+			}	
 			return Tilt::Goal::stop();
 		}();
-		//cout<<"\n"<<goals.tilt<<"\n";
 		/*goals.climb=[&]{
 			if(oi_panel.in_use){
 				#define X(name) if(oi_panel.climber==Panel::Climber::name) return Climb::Goal::name;
