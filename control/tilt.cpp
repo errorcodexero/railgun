@@ -294,12 +294,11 @@ std::set<Tilt::Status_detail> examples(Tilt::Status_detail*){
 }
 
 std::set<Tilt::Status> examples(Tilt::Status*){
-	return {
-		{Tilt::Status::Type::TOP,0},
-		{Tilt::Status::Type::BOTTOM,0},
-		{Tilt::Status::Type::MID,0},
-		{Tilt::Status::Type::ERRORS,0}
-	}; 
+	std::set<Tilt::Status> s;
+	#define X(name) s.insert({Tilt::Status::Type::name,0});
+	TILT_STATUS_DETAIL_TYPES
+	#undef X
+	return s;
 }
 
 std::set<Tilt::Output> examples(Tilt::Output*){ 
