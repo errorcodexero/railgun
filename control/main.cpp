@@ -115,7 +115,7 @@ Toplevel::Goal Main::teleop(
 	Joystick_data const& main_joystick,
 	Joystick_data const& gunner_joystick,
 	Panel const&  oi_panel,
-	Toplevel::Status_detail& toplevel_status
+	Toplevel::Status_detail& //toplevel_status
 ){
 	Toplevel::Goal goals;
 
@@ -226,17 +226,17 @@ Toplevel::Goal Main::teleop(
 		}();
 		goals.tilt=[&]{
 			#define X(name,bt) bool name=gunner_joystick.button[Gamepad_button::bt];
-			X(down,LB) X(up,RB) X(stop,BACK) X(learn,START) X(level,R_JOY)
+			X(down,LB) X(up,RB) X(stop,BACK) //X(learn,START) X(level,R_JOY)
 			#undef X
-			if(learn){
+			/*if(learn){
 				#define X(button,mode) if(button)tilt_learn(toplevel_status.tilt.pot_value(),""#mode);
 				X(down,DOWN) X(up,UP) X(level,LEVEL)
 				#undef X
-			} else{
+			} else */{
 				if(down) return Tilt::Goal::down();
 				if(up) return Tilt::Goal::up();
 				if(stop) return Tilt::Goal::stop();
-				if(level) return Tilt::Goal::level();
+				//if(level) return Tilt::Goal::level();
 			}
 			if(oi_panel.in_use){
 				switch(oi_panel.tilt){
@@ -249,7 +249,7 @@ Toplevel::Goal Main::teleop(
 			}
 			return Tilt::Goal::stop();
 		}();
-		cout<<"\n"<<goals.tilt<<"\n";
+		//cout<<"\n"<<goals.tilt<<"\n";
 		/*goals.climb=[&]{
 			if(oi_panel.in_use){
 				#define X(name) if(oi_panel.climber==Panel::Climber::name) return Climb::Goal::name;

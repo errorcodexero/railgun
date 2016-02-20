@@ -26,7 +26,7 @@ struct Tilt{
 		Goal();
 
 		Mode mode_;
-		double angle_min,angle_target,angle_max;
+		double angle_min,angle_target,angle_max;//in degrees
 	
 		public:
 		Mode mode()const;
@@ -59,8 +59,8 @@ struct Tilt{
 		Status_detail();
 
 		Type type_;
-		double angle;
-		float pot_value_;
+		double angle;//in degrees
+		float pot_value_;//in volts
 		
 		public:
 		Type type()const;
@@ -73,7 +73,7 @@ struct Tilt{
 		static Status_detail error();
 	};
 
-	typedef Status_detail Status;
+	typedef Status_detail Status;//TODO make status different
 
 	struct Input{
 		float pot_value;

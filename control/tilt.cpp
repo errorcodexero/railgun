@@ -8,7 +8,7 @@
 #include <vector> 
 
 enum Positions{UP,LEVEL,LOW,DOWN,POSITIONS};
-std::array<float,Positions::POSITIONS> positions={1.43,3,3,3.2};
+std::array<float,Positions::POSITIONS> positions={1.4,2.4,2.79,3.2};//in volts
 static const std::array<std::string,Positions::POSITIONS> POSITION_NAMES={"UP","LEVEL","LOW","DOWN"};	
 static const std::string POSITIONS_PATH="/home/lvuser/";
 static const std::string POSITIONS_FILE=[&]{
@@ -19,7 +19,7 @@ static const std::string POSITIONS_FILE=[&]{
 	return s.append("tilt_positions.txt");
 }();
 
-#define VOLTS_PER_DEGREE .03//((positions[Positions::LEVEL]-positions[Positions::UP])/90) //Assumed for now
+#define VOLTS_PER_DEGREE .03// (in volts/degree) //Assumed for now
 
 #define ANGLE_TOLERANCE 10//in degrees, may want to change later
 
@@ -29,6 +29,14 @@ static const std::string POSITIONS_FILE=[&]{
 #define TILT_ADDRESS 4
 
 #define nyi { std::cout<<"\nnyi "<<__LINE__<<"\n"; exit(44); }
+
+float volts_to_degrees(float f){
+	return f/VOLTS_PER_DEGREE;
+}
+
+float degrees_to_volts(float f){
+	return f*VOLTS_PER_DEGREE;
+}
 
 Tilt::Status_detail::Status_detail(): 
 	reached_ends(std::make_pair(0,0)),
@@ -81,7 +89,7 @@ Tilt::Goal Tilt::Goal::up(){
 }
 
 Tilt::Goal Tilt::Goal::go_to_angle(std::array<double,3> angles){
-	//assert(angles[0]>=((positions[Positions::UP]-positions[Positions::UP])/VOLTS_PER_DEGREE) && angles[2]<=((positions[Positions::DOWN]-positions[Positions::UP])/VOLTS_PER_DEGREE));
+	//assert(angles[0]>=(volts_to_degrees(positions[Positions::UP]-positions[Positions::UP])) && angles[2]<=(volts_to_degrees(positions[Positions::DOWN]-positions[Positions::UP])));
 	Tilt::Goal a;
 	a.mode_=Tilt::Goal::Mode::GO_TO_ANGLE;
 	a.angle_min=angles[0];
@@ -103,11 +111,11 @@ Tilt::Goal Tilt::Goal::stop(){
 }
 
 Tilt::Goal Tilt::Goal::low(){
-	return Tilt::Goal::go_to_angle(make_tolerances(positions[Positions::LOW]/VOLTS_PER_DEGREE));
+	return Tilt::Goal::go_to_angle(make_tolerances(volts_to_degrees(positions[Positions::LOW])));
 }
 
 Tilt::Goal Tilt::Goal::level(){
-	return Tilt::Goal::go_to_angle(make_tolerances(positions[Positions::LEVEL]/VOLTS_PER_DEGREE));
+	return Tilt::Goal::go_to_angle(make_tolerances(volts_to_degrees(positions[Positions::LEVEL])));
 }
 
 Tilt::Status_detail::Type Tilt::Status_detail::type()const{
@@ -132,7 +140,7 @@ Tilt::Status_detail Tilt::Status_detail::mid(double d){
 	Tilt::Status_detail a;
 	a.type_=Tilt::Status_detail::Type::MID;
 	a.angle=d;
-	a.pot_value_=d*VOLTS_PER_DEGREE;
+	a.pot_value_=degrees_to_volts(d);
 	return a;
 }
 
@@ -268,7 +276,7 @@ std::set<Tilt::Status_detail> examples(Tilt::Status_detail*){
 }
 
 std::set<Tilt::Output> examples(Tilt::Output*){ 
-	return {-1,0,1};
+	return {-1,-0.93,-0.8,0,1};
 }
 
 Tilt::Output control(Tilt::Status_detail status, Tilt::Goal goal){
@@ -297,8 +305,12 @@ Tilt::Output control(Tilt::Status_detail status, Tilt::Goal goal){
 		case Tilt::Goal::Mode::GO_TO_ANGLE:
 			switch (status.type()) {
 				case Tilt::Status_detail::Type::MID:
-					if(status.get_angle()>=goal.angle()[0] && status.get_angle()<=goal.angle()[2])return 0.0;
-					return std::min(abs(goal.angle()[1]-status.get_angle())*(POWER*.05), POWER) * ((goal.angle()[1] > status.get_angle()) ? -1 : 1);
+					{
+						const double SCALE_DEGREE_TO_POWER=.01;
+						if(status.get_angle()>=goal.angle()[0] && status.get_angle()<=goal.angle()[2])return 0.0;
+						std::cout<<"P:"<<std::min(fabs(goal.angle()[1]-status.get_angle())*(POWER*SCALE_DEGREE_TO_POWER), POWER) * ((goal.angle()[1] > status.get_angle()) ? -1 : 1)<<"\n";
+						return std::min(abs(goal.angle()[1]-status.get_angle())*(POWER*SCALE_DEGREE_TO_POWER), POWER) * ((goal.angle()[1] > status.get_angle()) ? -1 : 1);
+					}
 				case Tilt::Status_detail::Type::TOP:
 					return POWER;
 				case Tilt::Status_detail::Type::BOTTOM:
@@ -332,13 +344,13 @@ Tilt::Status_detail Tilt::Estimator::get()const {
 }
 
 void Tilt::Estimator::update(Time time, Tilt::Input in, Tilt::Output) {
-	const float ALLOWED_TOLERANCE=ANGLE_TOLERANCE*VOLTS_PER_DEGREE;
+	const float ALLOWED_TOLERANCE=degrees_to_volts(ANGLE_TOLERANCE);
 	bool at_top=in.top, at_bottom=in.pot_value>=positions[Positions::DOWN]-ALLOWED_TOLERANCE;
 	if(in.top){
 		positions[Positions::UP]=in.pot_value;
-		tilt_learn(in.pot_value,POSITION_NAMES[Positions::UP]);
+		//tilt_learn(in.pot_value,POSITION_NAMES[Positions::UP]);
 	}
-	float angle=(in.pot_value-positions[Positions::UP])/VOLTS_PER_DEGREE;
+	float angle=volts_to_degrees(in.pot_value-positions[Positions::UP]);
 	stall_timer.update(time,true);
 	if(stall_timer.done()) last.stalled=true;
 	if(in.current<10 || fabs(angle-timer_start_angle)<1){//Assumed current for now
