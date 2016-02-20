@@ -241,7 +241,7 @@ bool operator<(Tilt::Status_detail a, Tilt::Status_detail b){
 }
 bool operator==(Tilt::Status_detail a,Tilt::Status_detail b){
 	if(a.type()!=b.type()) return 0;
-	return ((a.type()!=Tilt::Status_detail::Type::MID || (a.get_angle()==b.get_angle() && a.pot_value()==b.pot_value())) && a.reached_ends==b.reached_ends && a.stalled==b.stalled);
+	return ((a.type()==Tilt::Status_detail::Type::MID ? (a.get_angle()==b.get_angle() && a.pot_value()==b.pot_value()) : true) && a.reached_ends==b.reached_ends && a.stalled==b.stalled);
 }
 bool operator!=(Tilt::Status_detail a,Tilt::Status_detail b){ return !(a==b); }
 
@@ -374,7 +374,7 @@ Tilt::Status_detail Tilt::Estimator::get()const {
 
 void Tilt::Estimator::update(Time time, Tilt::Input in, Tilt::Output) {
 	const float ALLOWED_TOLERANCE=degrees_to_volts(ANGLE_TOLERANCE);
-	bool at_top=in.top, at_bottom=in.pot_value>=positions[Positions::DOWN]-ALLOWED_TOLERANCE;
+	bool at_top=in.pot_value<=positions[Positions::UP]+ALLOWED_TOLERANCE, at_bottom=in.pot_value>=positions[Positions::DOWN]-ALLOWED_TOLERANCE;
 	if(in.top){
 		positions[Positions::UP]=in.pot_value;
 		//tilt_learn(in.pot_value,POSITION_NAMES[Positions::UP]);
@@ -387,7 +387,7 @@ void Tilt::Estimator::update(Time time, Tilt::Input in, Tilt::Output) {
 		stall_timer.set(1);
 		timer_start_angle=angle;
 	}
-	if(at_top && in.pot_value<=positions[Positions::UP]+ALLOWED_TOLERANCE){
+	if(in.top && at_top){
 		if(at_bottom)last=Tilt::Status_detail::error();
 		else last=Tilt::Status_detail::top();
 	} else{
