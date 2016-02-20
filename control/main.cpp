@@ -230,7 +230,7 @@ Toplevel::Goal Main::teleop(
 			#undef X
 			/*if(learn){
 				#define X(button,mode) if(button)tilt_learn(toplevel_status.tilt.pot_value(),""#mode);
-				X(down,DOWN) X(up,UP) X(level,LEVEL)
+				X(down,BOTTOM) X(up,TOP) X(level,LEVEL)
 				#undef X
 			} else */{
 				if(down) return Tilt::Goal::down();

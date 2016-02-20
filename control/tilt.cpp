@@ -1,4 +1,3 @@
-
 #include "tilt.h"
 #include <stdlib.h>
 #include <cmath>
@@ -7,9 +6,9 @@
 #include <fstream> 
 #include <vector> 
 
-enum Positions{UP,LEVEL,LOW,DOWN,POSITIONS};
+enum Positions{TOP,LEVEL,LOW,BOTTOM,POSITIONS};
 std::array<float,Positions::POSITIONS> positions={1.4,2.4,2.79,3.2};//in volts
-static const std::array<std::string,Positions::POSITIONS> POSITION_NAMES={"UP","LEVEL","LOW","DOWN"};	
+static const std::array<std::string,Positions::POSITIONS> POSITION_NAMES={"TOP","LEVEL","LOW","BOTTOM"};	
 static const std::string POSITIONS_PATH="/home/lvuser/";//path for use on the robot
 static const std::string POSITIONS_FILE=[&]{
 	std::string s;
@@ -94,7 +93,7 @@ Tilt::Goal Tilt::Goal::up(){
 }
 
 Tilt::Goal Tilt::Goal::go_to_angle(std::array<double,3> angles){
-	//assert(angles[0]>=(volts_to_degrees(positions[Positions::UP]-positions[Positions::UP])) && angles[2]<=(volts_to_degrees(positions[Positions::DOWN]-positions[Positions::UP])));
+	//assert(angles[0]>=(volts_to_degrees(positions[Positions::TOP]-positions[Positions::TOP])) && angles[2]<=(volts_to_degrees(positions[Positions::BOTTOM]-positions[Positions::TOP])));
 	Tilt::Goal a;
 	a.mode_=Tilt::Goal::Mode::GO_TO_ANGLE;
 	a.angle_min=angles[0];
@@ -269,7 +268,7 @@ bool operator!=(Tilt a, Tilt b){ return !(a==b); }
 std::set<Tilt::Input> examples(Tilt::Input*){ 
 	std::set<Tilt::Input> s;
 	for(unsigned int i=0; i<Positions::POSITIONS; i++){
-		s.insert({positions[i],0,i==Positions::UP});
+		s.insert({positions[i],0,i==Positions::TOP});
 	}
 	return s;
 }
@@ -374,12 +373,12 @@ Tilt::Status_detail Tilt::Estimator::get()const {
 
 void Tilt::Estimator::update(Time time, Tilt::Input in, Tilt::Output) {
 	const float ALLOWED_TOLERANCE=degrees_to_volts(ANGLE_TOLERANCE);
-	bool at_top=in.pot_value<=positions[Positions::UP]+ALLOWED_TOLERANCE, at_bottom=in.pot_value>=positions[Positions::DOWN]-ALLOWED_TOLERANCE;
+	bool at_top=in.pot_value<=positions[Positions::TOP]+ALLOWED_TOLERANCE, at_bottom=in.pot_value>=positions[Positions::BOTTOM]-ALLOWED_TOLERANCE;
 	if(in.top){
-		positions[Positions::UP]=in.pot_value;
+		positions[Positions::TOP]=in.pot_value;
 		//tilt_learn(in.pot_value,POSITION_NAMES[Positions::UP]);
 	}
-	float angle=volts_to_degrees(in.pot_value-positions[Positions::UP]);
+	float angle=volts_to_degrees(in.pot_value-positions[Positions::TOP]);
 	stall_timer.update(time,true);
 	if(stall_timer.done()) last.stalled=true;
 	if(in.current<10 || fabs(angle-timer_start_angle)<1){//Assumed current for now
@@ -405,7 +404,7 @@ void populate(){
 	assert(test.peek()==std::ifstream::traits_type::eof());//file is empty
 	test.close();
 	std::ofstream file(POSITIONS_FILE);
-	for(unsigned int i=0; i<Positions::POSITIONS; i++)file<<POSITION_NAMES[i]<<":"<<positions[i]<<(i+1<Positions::POSITIONS ? "\n" : "");
+	for(unsigned int i=0; i<Positions::POSITIONS; i++)file<<POSITION_NAMES[i]<<":"<<positions[i]<<(i<Positions::POSITIONS ? "\n" : "");
 	file.close();
 }
 
@@ -441,7 +440,7 @@ void update_positions(){
 
 void tilt_learn(float const& pot_in,std::string const& mode){
 	std::cout<<"\nTRYING TO LEARN\n";
-	assert(mode==POSITION_NAMES[Positions::UP] || mode==POSITION_NAMES[Positions::LOW] || mode==POSITION_NAMES[Positions::LEVEL] || mode==POSITION_NAMES[Positions::DOWN]);
+	assert(mode==POSITION_NAMES[Positions::TOP] || mode==POSITION_NAMES[Positions::LOW] || mode==POSITION_NAMES[Positions::LEVEL] || mode==POSITION_NAMES[Positions::BOTTOM]);
 	std::vector<std::string> go_out;
 	{
 		std::ifstream file(POSITIONS_FILE);
@@ -467,7 +466,7 @@ void tilt_learn(float const& pot_in,std::string const& mode){
 		file.close();
 	}
 	std::ofstream file(POSITIONS_FILE);
-	for(unsigned int i=0; i<go_out.size(); i++)file<<go_out[i]<<(i+1<go_out.size() ? "\n" : "");
+	for(unsigned int i=0; i<go_out.size(); i++)file<<go_out[i]<<(i<go_out.size() ? "\n" : "");
 	file.close();
 	update_positions();
 }
