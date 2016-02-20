@@ -226,11 +226,11 @@ Toplevel::Goal Main::teleop(
 		}();
 		goals.tilt=[&]{
 			#define X(name,bt) bool name=gunner_joystick.button[Gamepad_button::bt];
-			X(down,LB) X(up,RB) X(stop,BACK) //X(learn,START) X(level,R_JOY)
+			X(down,LB) X(up,RB) X(stop,BACK) //X(learn,START) X(level,R_JOY) X(low,L_JOY)
 			#undef X
 			/*if(learn){
 				#define X(button,mode) if(button)tilt_learn(toplevel_status.tilt.pot_value(),""#mode);
-				X(down,BOTTOM) X(up,TOP) X(level,LEVEL)
+				X(down,BOTTOM) X(up,TOP) X(level,LEVEL) X(low,LOW)
 				#undef X
 			} else */{
 				if(down) return Tilt::Goal::down();
