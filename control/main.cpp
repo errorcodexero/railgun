@@ -304,6 +304,8 @@ Main::Mode next_mode(Main::Mode m,bool autonomous,bool autonomous_start,Toplevel
 				return Main::Mode::TELEOP;
 			}
 			return Main::Mode::AUTO_NAV_RUN;
+		case Main::Mode::AUTO_NAV_DAMAGE_DRIVE:
+		case Main::Mode::AUTO_NAV_DAMAGE_MANIPULATOR:
 		default: assert(0);
 	}
 }
