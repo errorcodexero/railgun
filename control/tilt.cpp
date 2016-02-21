@@ -381,7 +381,7 @@ void Tilt::Estimator::update(Time time, Tilt::Input in, Tilt::Output) {
 	bool at_top=in.pot_value<=positions[Positions::TOP]+ALLOWED_TOLERANCE, at_bottom=in.pot_value>=positions[Positions::BOTTOM]-ALLOWED_TOLERANCE;
 	if(in.top){
 		positions[Positions::TOP]=in.pot_value;
-		//tilt_learn(in.pot_value,POSITION_NAMES[Positions::UP]);
+		tilt_learn(in.pot_value,POSITION_NAMES[Positions::TOP]);
 	}
 	float angle=volts_to_degrees(in.pot_value-positions[Positions::TOP]);
 	stall_timer.update(time,true);
@@ -443,9 +443,12 @@ void update_positions(){
 	file.close();
 }
 
-void tilt_learn(float const& pot_in,std::string const& mode){
-	std::cout<<"\nTRYING TO LEARN\n";
+void tilt_learn(float pot_in,std::string const& mode){
 	assert(mode==POSITION_NAMES[Positions::TOP] || mode==POSITION_NAMES[Positions::LOW] || mode==POSITION_NAMES[Positions::LEVEL] || mode==POSITION_NAMES[Positions::BOTTOM]);
+	if(mode==POSITION_NAMES[Positions::BOTTOM]){
+		const float ALLOWED_TOLERANCE=degrees_to_volts(ANGLE_TOLERANCE),BOTTOM_SEARCH=.1;
+		if(pot_in>=positions[Positions::BOTTOM]-ALLOWED_TOLERANCE)pot_in+=BOTTOM_SEARCH;
+	}
 	std::vector<std::string> go_out;
 	{
 		std::ifstream file(POSITIONS_FILE);
