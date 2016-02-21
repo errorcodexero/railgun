@@ -136,7 +136,7 @@ Toplevel::Status::Status():
 		0
 	),
 	pump(Pump::Status::NOT_FULL),
-	tilt(Tilt::Status::mid(0)),
+	tilt(Tilt::Status::Type::MID,0),
 	sides(Sides::Status{}),
 	front(Front::Status{}),
 	//climb(Climb::Status::mid()),
