@@ -120,10 +120,10 @@ Panel interpret(Joystick_data d){
 		if (!p.in_use) return p;
 	}
 	{
-		Volt auto_mode=d.axis[0];
+		Volt auto_mode=d.axis[1];
 		p.auto_mode=auto_mode_convert(interpret_10_turn_pot(auto_mode));
 	}
-	p.collector_auto = d.button[1];
+	p.collector_auto = d.button[10];
 	p.control_angle = d.button[0];
 	{
 		float op = d.axis[3];
@@ -148,31 +148,31 @@ Panel interpret(Joystick_data d){
 	}
 	{
 		float climb = d.axis[2];
-		static const float RETRACT=-1, STOP=0, EXTEND=1;
-		p.climber = Panel::Climber::RETRACT;
-		AXIS_RANGE(climb, RETRACT, STOP, EXTEND, p.climber, Panel::Climber::STOP)
-		else AXIS_RANGE(climb, STOP, EXTEND, 1.5, p.climber, Panel::Climber::EXTEND)
+		static const float EXTEND=-1, STOP=0, RETRACT=1;
+		p.climber = Panel::Climber::EXTEND;
+		AXIS_RANGE(climb, EXTEND, STOP, RETRACT, p.climber, Panel::Climber::STOP)
+		else AXIS_RANGE(climb, STOP, RETRACT, 1.5, p.climber, Panel::Climber::RETRACT)
 	}
 	{
 		float front = d.axis[7];
-		static const float OFF=-1, OUT=.48, IN=1;
-		p.front = Panel::Collector::OFF;
-		AXIS_RANGE(front, OFF, OUT, IN, p.front, Panel::Collector::OUT)
-		else AXIS_RANGE(front, OUT, IN, 1.5, p.front, Panel::Collector::IN)
+		static const float OUT=-1, OFF=.48, IN=1;
+		p.front = Panel::Collector::OUT;
+		AXIS_RANGE(front, OUT, OFF, IN, p.front, Panel::Collector::OFF)
+		else AXIS_RANGE(front, OFF, IN, 1.5, p.front, Panel::Collector::IN)
 	}
 	{
 		float sides = d.axis[5];
-                static const float IN=-1, OFF=0, OUT=1;
-                p.sides = Panel::Collector::IN;
-                AXIS_RANGE(sides, IN, OFF, OUT, p.sides, Panel::Collector::OFF)
-                else AXIS_RANGE(sides, OFF, OUT, 1.5, p.sides, Panel::Collector::OUT)
+                static const float OUT=-1, OFF=0, IN=1;
+                p.sides = Panel::Collector::OUT;
+                AXIS_RANGE(sides, OUT, OFF, IN, p.sides, Panel::Collector::OFF)
+                else AXIS_RANGE(sides, OFF, IN, 1.5, p.sides, Panel::Collector::IN)
 	}
 	{
 		float tilt = d.axis[4];
-		static const float DOWN=-1, STOP=0, UP=1;
-		p.tilt = Panel::Tilt::DOWN;
-		AXIS_RANGE(tilt, DOWN, STOP, UP, p.tilt, Panel::Tilt::STOP)
-		else AXIS_RANGE(tilt, STOP, UP, 1.5, p.tilt, Panel::Tilt::UP);
+		static const float UP=-1, STOP=0, DOWN=1;
+		p.tilt = Panel::Tilt::UP;
+		AXIS_RANGE(tilt, UP, STOP, DOWN, p.tilt, Panel::Tilt::STOP)
+		else AXIS_RANGE(tilt, STOP, DOWN, 1.5, p.tilt, Panel::Tilt::DOWN);
 	}
 	p.angle = d.axis[6];
 	#undef AXIS_RANGE
