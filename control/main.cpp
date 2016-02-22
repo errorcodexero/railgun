@@ -229,7 +229,7 @@ Toplevel::Goal Main::teleop(
 				#define X(name,bt) bool name=gunner_joystick.button[Gamepad_button::bt];
 				X(down,LB) X(up,RB) X(stop,BACK) X(learn,START) X(level,R_JOY) X(low,L_JOY)
 				#undef X
-				learn=false,low=false,level=false;
+				learn=false,low=false,level=false;//Disable learning for now until it works
 				if(learn){
 					#define LEARN(button,mode) if(button)tilt_learn(toplevel_status.tilt.pot_value(),""#mode);
 					LEARN(down,BOTTOM) LEARN(up,TOP) LEARN(level,LEVEL) LEARN(low,LOW)

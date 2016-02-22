@@ -2,7 +2,7 @@ HIGH PRIORITY
 	- Tilt learning - Logan/Matthew
 	- Driver/gunner controls
 	- OI code - Matthew
-	- Work on climber - Calvin
+	- Climber - Calvin
 	- Autonomous* - Tristan
 
 
@@ -22,11 +22,11 @@ NOT AS HIGH PRIORITY:
 
 
 NICE THINGS TO HAVE:
-	- Update c++ compiler to use c++14 for tests in runall2
 	- IMU - Calvin
 	- Clean-up stuff:
 		- Use enum class more places
 		- Use std::array in place of C arrays in several places
+	- Update c++ compilers to use c++14 for runall2 tests	
 	- Meta IO information
 		- Add a function that will discover which IOs different parts use (and make a nice list)
 		- Make a data type to talk about different inputs

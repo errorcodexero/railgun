@@ -1,3 +1,4 @@
+#Deploy script for robot versions before the 2016 update
 ssh admin@roboRIO-1425.local rm /home/lvuser/FRCUserProgram
 # if deploy script is run on linux, rsync can be used and a backup can be created
 #if [ $(uname -s) = Linux ]

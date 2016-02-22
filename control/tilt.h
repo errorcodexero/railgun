@@ -161,6 +161,6 @@ bool ready(Tilt::Status, Tilt::Goal);
 
 std::array<double,3> make_tolerances(double);
 
-void tilt_learn(float const& value,std::string const&);
+void tilt_learn(float value,std::string const&);
 
 #endif
