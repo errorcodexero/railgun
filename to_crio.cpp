@@ -1,13 +1,15 @@
 #include "WPILib.h"
 #include "control/main.h"
 #include "dio_control.h"
-#include "jag_control.h"
 #include <netinet/in.h>
 #include <arpa/inet.h>
 #include <unistd.h>
 #include <iostream>
 
 using namespace std;
+
+
+
 
 void SendWOL (void)
 {
@@ -406,6 +408,7 @@ public:
 			if(r) error_code|=512;*/
 		}
 		digital_io.set(out.digital_io);
+		//cout << "d_io: " << digital_io << endl << "o.d.io: " << out.digital_io << endl ;
 
 		//test.Set(1);
 		//test1.Set(out.talon_srx[0].power_level);

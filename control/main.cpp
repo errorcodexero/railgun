@@ -273,6 +273,7 @@ Main::Mode next_mode(Main::Mode m,bool autonomous,bool autonomous_start,Toplevel
 
 	switch(m){
 		case Main::Mode::TELEOP:
+		
 			if(autonomous_start){
 				return Main::Mode::AUTO_NAV;//just for testing purposes
 				/*if (oi_panel.in_use) {
@@ -348,6 +349,7 @@ Robot_outputs Main::operator()(Robot_inputs in,ostream&){
 	
 	switch(mode){
 		case Mode::TELEOP:
+		cout << "ENCODER: " << in.digital_io << endl;
 			goals=teleop(in,main_joystick,gunner_joystick,oi_panel,toplevel_status);
 //test
 			//tagThis("Line 347: switch(mode) teleop", __FILE__);
