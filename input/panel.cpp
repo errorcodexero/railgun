@@ -186,7 +186,7 @@ Panel interpret(Joystick_data d){
 		else AXIS_RANGE(tilt, STOP, DOWN, 1.5, p.tilt, Panel::Tilt::DOWN);
 	}
         {
-                float winch = d.axis[3];
+                float winch = d.axis[3];//TODO: get actual number & switch +/-?
                 static const float UP=-1, STOP=0, DOWN=1;
                 p.winch = Panel::Winch::UP;
                 AXIS_RANGE(winch, UP, STOP, DOWN, p.winch, Panel::Winch::STOP)
