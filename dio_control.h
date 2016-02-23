@@ -16,7 +16,13 @@ class DIO_control{
 	int channel;
 	DigitalInput *in;
 	DigitalOutput *out;
+	
+	DIO_control(DIO_control const&) = delete;
+	DIO_control & operator= (DIO_control const&) = delete;
+	
 
+	
+	
 	public:
 	DIO_control();
 	explicit DIO_control(int);
@@ -39,11 +45,15 @@ std::ostream& operator<<(std::ostream&,DIO_control const&);
 struct Encoder_control{
 	Encoder *encoder;
 	int channel_a,channel_b;
-
+	
+	Encoder_control(Encoder_control const&) = delete;
+	Encoder_control & operator= (Encoder_control const&) = delete;
+	
+	
 	Encoder_control();
 	~Encoder_control();
 };
-
+std::ostream& operator<<(std::ostream& o, Encoder_control const& a);
 class DIO_controls{
 	std::array<DIO_control,Robot_outputs::DIGITAL_IOS> channel;
 	std::array<Encoder_control,Digital_inputs::ENCODERS> encoder;
@@ -59,6 +69,7 @@ class DIO_controls{
 
 	void set(Checked_array<Digital_out,Robot_outputs::DIGITAL_IOS> const&);
 	Digital_inputs get();
+	friend std::ostream& operator<<(std::ostream& o,DIO_controls const& a);
 };
 std::ostream& operator<<(std::ostream&,DIO_controls const&);
 

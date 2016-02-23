@@ -6,13 +6,23 @@
 #include <fstream> 
 #include <vector> 
 
-enum Positions{UP,LEVEL,LOW,DOWN,POSITIONS};
-std::array<float,Positions::POSITIONS> positions={0.00,1.00,1.30,2.00};
-static const std::array<std::string,Positions::POSITIONS> POSITION_NAMES={"UP","LEVEL","LOW","DOWN"};	
-static const std::string POSITIONS_FILE="tilt_positions.txt";
-#define VOLTS_PER_DEGREE .02//((positions[Positions::LEVEL]-positions[Positions::UP])/90) //Assumed for now
+enum Positions{TOP,LEVEL,LOW,BOTTOM,POSITIONS};
+std::array<float,Positions::POSITIONS> positions={1.4,2.4,2.8,3.2};//in volts
+static const std::array<std::string,Positions::POSITIONS> POSITION_NAMES={"TOP","LEVEL","LOW","BOTTOM"};	
+static const std::string POSITIONS_PATH="/home/lvuser/";//path for use on the robot
+static const std::string POSITIONS_FILE=[&]{
+	std::string s;
+	#ifndef TILT_TEST
+	s=POSITIONS_PATH;
+	#endif
+	return s.append("tilt_positions.txt");
+}();
 
-#define ANGLE_TOLERANCE 5//in degrees, may want to change later
+#define POWER 1//negative goes up, positive goes down
+
+#define VOLTS_PER_DEGREE .03// (in volts/degree) //Assumed for now
+
+#define ANGLE_TOLERANCE 10//in degrees, may want to change later
 
 #define TILT_PDB_LOC 8
 #define TILT_POT_LOC 0
@@ -21,6 +31,18 @@ static const std::string POSITIONS_FILE="tilt_positions.txt";
 
 #define nyi { std::cout<<"\nnyi "<<__LINE__<<"\n"; exit(44); }
 
+float volts_to_degrees(float f){
+	return f/VOLTS_PER_DEGREE;
+}
+
+float degrees_to_volts(float f){
+	return f*VOLTS_PER_DEGREE;
+}
+
+double degree_change_to_power(double start, double end) {
+	return ((end-start)*(POWER/volts_to_degrees(positions[Positions::BOTTOM])));
+}
+
 Tilt::Status_detail::Status_detail(): 
 	reached_ends(std::make_pair(0,0)),
 	stalled(0),
@@ -28,6 +50,11 @@ Tilt::Status_detail::Status_detail():
 	angle(0),
 	pot_value_(0)
 {}
+
+Tilt::Status::Status(Tilt::Status::Type type,double angle){
+	this->type=type;
+	this->angle=angle;
+}
 
 Tilt::Goal::Goal():mode_(Tilt::Goal::Mode::STOP),angle_min(0),angle_target(0),angle_max(0){}
 
@@ -62,7 +89,6 @@ Tilt::Estimator::Estimator():
 
 std::array<double,3> Tilt::Goal::angle()const{
 	assert(mode_==Tilt::Goal::Mode::GO_TO_ANGLE);
-	#undef X
 	return std::array<double,3>{angle_min,angle_target,angle_max};
 }
 
@@ -73,7 +99,7 @@ Tilt::Goal Tilt::Goal::up(){
 }
 
 Tilt::Goal Tilt::Goal::go_to_angle(std::array<double,3> angles){
-	assert(angles[0]>=((positions[Positions::UP]-positions[Positions::UP])/VOLTS_PER_DEGREE) && angles[2]<=((positions[Positions::DOWN]-positions[Positions::UP])/VOLTS_PER_DEGREE));
+	//assert(angles[0]>=(volts_to_degrees(positions[Positions::TOP]-positions[Positions::TOP])) && angles[2]<=(volts_to_degrees(positions[Positions::BOTTOM]-positions[Positions::TOP])));
 	Tilt::Goal a;
 	a.mode_=Tilt::Goal::Mode::GO_TO_ANGLE;
 	a.angle_min=angles[0];
@@ -95,11 +121,11 @@ Tilt::Goal Tilt::Goal::stop(){
 }
 
 Tilt::Goal Tilt::Goal::low(){
-	return Tilt::Goal::go_to_angle(make_tolerances(positions[Positions::LOW]/VOLTS_PER_DEGREE));
+	return Tilt::Goal::go_to_angle(make_tolerances(volts_to_degrees(positions[Positions::LOW])));
 }
 
 Tilt::Goal Tilt::Goal::level(){
-	return Tilt::Goal::go_to_angle(make_tolerances(positions[Positions::LEVEL]/VOLTS_PER_DEGREE));
+	return Tilt::Goal::go_to_angle(make_tolerances(volts_to_degrees(positions[Positions::LEVEL])));
 }
 
 Tilt::Status_detail::Type Tilt::Status_detail::type()const{
@@ -124,6 +150,7 @@ Tilt::Status_detail Tilt::Status_detail::mid(double d){
 	Tilt::Status_detail a;
 	a.type_=Tilt::Status_detail::Type::MID;
 	a.angle=d;
+	a.pot_value_=degrees_to_volts(d);
 	return a;
 }
 
@@ -144,6 +171,10 @@ std::ostream& operator<<(std::ostream& o, Tilt::Status_detail::Type a){
 	TILT_STATUS_DETAIL_TYPES
 	#undef X
 	nyi
+}
+
+std::ostream& operator<<(std::ostream& o, Tilt::Status a){
+	return o<<"Tilt::Status( type:"<<a.type<<" angle:"<<a.angle<<")";
 }
 
 std::ostream& operator<<(std::ostream& o, Tilt::Goal::Mode a){
@@ -187,22 +218,41 @@ bool operator==(Tilt::Input const& a,Tilt::Input const& b){
 	return a.pot_value==b.pot_value && a.current==b.current && a.top==b.top;	
 }
 bool operator!=(Tilt::Input const& a,Tilt::Input const& b){ return !(a==b); }
-bool operator<(Tilt::Input const& a,Tilt::Input const& b){ return a.pot_value<b.pot_value; }
+bool operator<(Tilt::Input const& a,Tilt::Input const& b){
+	CMP(pot_value)
+	CMP(current)
+	return !a.top && b.top;
+}
 std::ostream& operator<<(std::ostream& o,Tilt::Input const& a){ return o<<"Tilt::Input( pot_value:"<<a.pot_value<<" current:"<<a.current<<" top:"<<a.top<<")"; }
+
+bool operator<(Tilt::Status a, Tilt::Status b){
+	CMP(type)
+	if(a.type==Tilt::Status::Type::MID)return a.angle<b.angle;
+	return false;
+}
+bool operator==(Tilt::Status a,Tilt::Status b){
+	return a.type==b.type && (a.type==Tilt::Status::Type::MID ? a.angle==b.angle : true);
+}
+bool operator!=(Tilt::Status a,Tilt::Status b){ return !(a==b); }
 
 bool operator<(Tilt::Status_detail a, Tilt::Status_detail b){
 	CMP(type())
-	if(a.type()==Tilt::Status_detail::Type::MID)return a.pot_value()<b.pot_value() && a.get_angle()<b.get_angle();
+	if(a.type()==Tilt::Status_detail::Type::MID){
+		CMP(pot_value())
+		CMP(get_angle())
+	}
 	CMP(reached_ends)
 	return !a.stalled && b.stalled;
 }
 bool operator==(Tilt::Status_detail a,Tilt::Status_detail b){
 	if(a.type()!=b.type()) return 0;
-	return ((a.type()!=Tilt::Status_detail::Type::MID || (a.get_angle()==b.get_angle() && a.pot_value()==b.pot_value())) && a.reached_ends==b.reached_ends && a.stalled==b.stalled);
+	return ((a.type()==Tilt::Status_detail::Type::MID ? (a.get_angle()==b.get_angle() && a.pot_value()==b.pot_value()) : true) && a.reached_ends==b.reached_ends && a.stalled==b.stalled);
 }
 bool operator!=(Tilt::Status_detail a,Tilt::Status_detail b){ return !(a==b); }
 
-bool operator==(Tilt::Goal a, Tilt::Goal b){ return a.mode()==b.mode() && a.angle()==b.angle(); }
+bool operator==(Tilt::Goal a, Tilt::Goal b){ 
+	return a.mode()==b.mode() && (a.mode()==Tilt::Goal::Mode::GO_TO_ANGLE ? a.angle()==b.angle() : true );
+}
 bool operator!=(Tilt::Goal a, Tilt::Goal b){ return !(a==b); }
 bool operator<(Tilt::Goal a, Tilt::Goal b){
 	if(a.mode()<b.mode()) return true;
@@ -223,10 +273,8 @@ bool operator!=(Tilt a, Tilt b){ return !(a==b); }
 
 std::set<Tilt::Input> examples(Tilt::Input*){ 
 	std::set<Tilt::Input> s;
-	for(unsigned int j=0; j<2; j++){
-		for(unsigned int i=0; i<Positions::POSITIONS; i++){
-			s.insert({positions[i],0,j==1});
-		}
+	for(unsigned int i=0; i<Positions::POSITIONS; i++){
+		s.insert({positions[i],0,i==Positions::TOP});
 	}
 	return s;
 }
@@ -251,12 +299,25 @@ std::set<Tilt::Status_detail> examples(Tilt::Status_detail*){
 	};
 }
 
+std::set<Tilt::Status> examples(Tilt::Status*){
+	std::set<Tilt::Status> s;
+	#define X(name) s.insert({Tilt::Status::Type::name,0});
+	TILT_STATUS_DETAIL_TYPES
+	#undef X
+	return s;
+}
+
 std::set<Tilt::Output> examples(Tilt::Output*){ 
-	return {-1,0,1};
+	return {
+		-1,
+		0,
+		degree_change_to_power(0, volts_to_degrees(positions[Positions::LEVEL])),
+		degree_change_to_power(0, volts_to_degrees(positions[Positions::LOW])),
+		1
+	};
 }
 
 Tilt::Output control(Tilt::Status_detail status, Tilt::Goal goal){
-	const double POWER=1;//negative goes up, positive goes down
 	switch(goal.mode()){
 		case Tilt::Goal::Mode::UP:
 			switch(status.type()){
@@ -282,7 +343,7 @@ Tilt::Output control(Tilt::Status_detail status, Tilt::Goal goal){
 			switch (status.type()) {
 				case Tilt::Status_detail::Type::MID:
 					if(status.get_angle()>=goal.angle()[0] && status.get_angle()<=goal.angle()[2])return 0.0;
-					return std::min(abs(goal.angle()[1]-status.get_angle())*(POWER/4), POWER) * ((goal.angle()[1] > status.get_angle()) ? -1 : 1);
+					return (degree_change_to_power(status.get_angle(), goal.angle()[1]));
 				case Tilt::Status_detail::Type::TOP:
 					return POWER;
 				case Tilt::Status_detail::Type::BOTTOM:
@@ -298,14 +359,14 @@ Tilt::Output control(Tilt::Status_detail status, Tilt::Goal goal){
 }
 
 Tilt::Status status(Tilt::Status_detail a){
-	return a;
+	return {a.type(),a.get_angle()};
 }
 
 bool ready(Tilt::Status status, Tilt::Goal goal){
 	switch(goal.mode()){
-		case Tilt::Goal::Mode::UP: return status.type()==Tilt::Status_detail::Type::TOP;
-		case Tilt::Goal::Mode::DOWN: return status.type()==Tilt::Status_detail::Type::BOTTOM;
-		case Tilt::Goal::Mode::GO_TO_ANGLE: return status.get_angle()>goal.angle()[0] && status.get_angle()<goal.angle()[2];
+		case Tilt::Goal::Mode::UP: return status.type==Tilt::Status::Type::TOP;
+		case Tilt::Goal::Mode::DOWN: return status.type==Tilt::Status::Type::BOTTOM;
+		case Tilt::Goal::Mode::GO_TO_ANGLE: return status.angle>goal.angle()[0] && status.angle<goal.angle()[2];
 		case Tilt::Goal::Mode::STOP: return 1;
 		default: assert(0);
 	}
@@ -316,11 +377,13 @@ Tilt::Status_detail Tilt::Estimator::get()const {
 }
 
 void Tilt::Estimator::update(Time time, Tilt::Input in, Tilt::Output) {
+	const float ALLOWED_TOLERANCE=degrees_to_volts(ANGLE_TOLERANCE);
+	bool at_top=in.pot_value<=positions[Positions::TOP]+ALLOWED_TOLERANCE, at_bottom=in.pot_value>=positions[Positions::BOTTOM]-ALLOWED_TOLERANCE;
 	if(in.top){
-		positions[Positions::UP]=in.pot_value;
-		//tilt_learn(in.pot_value,POSITION_NAMES[Positions::UP]);
+		positions[Positions::TOP]=in.pot_value;
+		tilt_learn(in.pot_value,POSITION_NAMES[Positions::TOP]);
 	}
-	float angle=(in.pot_value-positions[Positions::UP])/VOLTS_PER_DEGREE;
+	float angle=volts_to_degrees(in.pot_value-positions[Positions::TOP]);
 	stall_timer.update(time,true);
 	if(stall_timer.done()) last.stalled=true;
 	if(in.current<10 || fabs(angle-timer_start_angle)<1){//Assumed current for now
@@ -328,12 +391,11 @@ void Tilt::Estimator::update(Time time, Tilt::Input in, Tilt::Output) {
 		stall_timer.set(1);
 		timer_start_angle=angle;
 	}
-	const float ALLOWED_TOLERANCE=.05;
-	if(in.pot_value<=positions[Positions::UP]+ALLOWED_TOLERANCE){
-		if(in.pot_value>=positions[Positions::DOWN]-ALLOWED_TOLERANCE)last=Tilt::Status_detail::error();
+	if(in.top && at_top){
+		if(at_bottom)last=Tilt::Status_detail::error();
 		else last=Tilt::Status_detail::top();
 	} else{
-		if(in.pot_value>=positions[Positions::DOWN]-ALLOWED_TOLERANCE)last=Tilt::Status_detail::bottom();
+		if(at_bottom)last=Tilt::Status_detail::bottom();
 		else last=Tilt::Status_detail::mid(angle);
 	}
 }
@@ -347,7 +409,7 @@ void populate(){
 	assert(test.peek()==std::ifstream::traits_type::eof());//file is empty
 	test.close();
 	std::ofstream file(POSITIONS_FILE);
-	for(unsigned int i=0; i<Positions::POSITIONS; i++)file<<POSITION_NAMES[i]<<":"<<positions[i]<<"\n";
+	for(unsigned int i=0; i<Positions::POSITIONS; i++)file<<POSITION_NAMES[i]<<":"<<positions[i]<<(i<Positions::POSITIONS ? "\n" : "");
 	file.close();
 }
 
@@ -381,34 +443,39 @@ void update_positions(){
 	file.close();
 }
 
-void tilt_learn(float const& pot_in,std::string const& mode){
-	assert(mode==POSITION_NAMES[0] || mode==POSITION_NAMES[1] || mode==POSITION_NAMES[2] || mode==POSITION_NAMES[3]);
-	std::string line;
-	std::ifstream file(POSITIONS_FILE);
-	if(file.peek()==std::ifstream::traits_type::eof()){
-		file.close();
-		populate();
-		file.open(POSITIONS_FILE);
-	}	
+void tilt_learn(float pot_in,std::string const& mode){
+	assert(mode==POSITION_NAMES[Positions::TOP] || mode==POSITION_NAMES[Positions::LOW] || mode==POSITION_NAMES[Positions::LEVEL] || mode==POSITION_NAMES[Positions::BOTTOM]);
+	if(mode==POSITION_NAMES[Positions::BOTTOM]){
+		const float ALLOWED_TOLERANCE=degrees_to_volts(ANGLE_TOLERANCE),BOTTOM_SEARCH=.1;
+		if(pot_in>=positions[Positions::BOTTOM]-ALLOWED_TOLERANCE)pot_in+=BOTTOM_SEARCH;
+	}
 	std::vector<std::string> go_out;
-	while(!file.eof()){ 
-		std::string edit; 
-		std::getline(file,line); 
-		for(char c:line){ 
-			if(c==':' && edit==mode){ 
-				std::ostringstream out;
-				out<<pot_in; 
-				edit+=":"+out.str(); 
-				break;  
+	{
+		std::ifstream file(POSITIONS_FILE);
+		if(file.peek()==std::ifstream::traits_type::eof()){
+			file.close();
+			populate();
+			file.open(POSITIONS_FILE);
+		}
+		while(!file.eof()){ 
+			std::string edit,line; 
+			std::getline(file,line); 
+			for(char c:line){ 
+				if(c==':' && edit==mode){ 
+					std::ostringstream out;
+					out<<pot_in; 
+					edit+=":"+out.str(); 
+					break;  
+				} 
+				edit+=c; 
 			} 
-			edit+=c; 
+			go_out.push_back(edit); 
 		} 
-		go_out.push_back(edit); 
-	} 
+		file.close();
+	}
+	std::ofstream file(POSITIONS_FILE);
+	for(unsigned int i=0; i<go_out.size(); i++)file<<go_out[i]<<(i<go_out.size() ? "\n" : "");
 	file.close();
-	std::ofstream file_out(POSITIONS_FILE);
-	for(unsigned int i=0; i<go_out.size(); i++)file_out<<go_out[i]<<(i+1<go_out.size() ? "\n" : "");
-	file_out.close();
 	update_positions();
 }
 
@@ -416,7 +483,7 @@ void tilt_learn(float const& pot_in,std::string const& mode){
 #include "formal.h"
 
 int main(){
-	//update_positions();
+	update_positions();
 	Tilt a;
 	tester(a);
 }

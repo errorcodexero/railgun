@@ -3,10 +3,25 @@
 #include "DigitalOutput.h"
 #include "DigitalInput.h"
 #include "Encoder.h"
+#include "util/util.h"
 
 using namespace std;
 
 //Unfortunately, there's not a good way to test all this without WPIlib since it's just an interface to WPIlib.
+std::ostream& operator<<(std::ostream& o, Encoder_control const& a){
+	
+	o << "Encoder_control (" << "Encoder: " << a.encoder << " Channels: " << a.channel_a << "," << a.channel_b << ")";
+	
+	
+	return o;
+}
+std::ostream& operator<<(std::ostream& o,DIO_controls const& a){
+	
+
+	//cout << "channel: " << a.channel << /* "encoder: " << a.encoder << */ "init_: " << a.init_ << endl;
+	o <<"DIO controls ( "  << " channel: " << a.channel << "encoder: " << a.encoder << "init_: " << a.init_ << ")" ;
+	return o;
+}
 
 DIO_control::DIO_control():channel(-1),in(nullptr),out(nullptr){}
 DIO_control::DIO_control(int i):channel(i),in(nullptr),out(nullptr){}
@@ -120,6 +135,21 @@ void DIO_controls::set(Checked_array<Digital_out,Robot_outputs::DIGITAL_IOS> con
 	array<int,Digital_inputs::ENCODERS> channel_a,channel_b;
 	for(auto& a:channel_a) a=-1;
 	for(auto& b:channel_b) b=-1;
+	for(unsigned int i=0;i<Robot_outputs::DIGITAL_IOS;i++){
+		auto x = a[i];
+		if (x.type()==Digital_out::Type::ENCODER){
+			if(x.input_a())
+				channel_a[x.encoder_index()] = i;
+			else
+				channel_b[x.encoder_index()] = i;
+				
+				
+			
+				
+		}
+		
+		
+	}
 
 	//free encoders
 	for(unsigned i=0;i<Digital_inputs::ENCODERS;i++){

@@ -139,7 +139,8 @@ double get_output(Drivebase::Output out,Drivebase::Motor m){
 	assert(0);
 }
 
-void Drivebase::Estimator::update(Time now,Drivebase::Input in,Drivebase::Output out){
+void Drivebase::Estimator::update(Time now,Drivebase::Input in,Drivebase::Output out){\
+	cout << "Encoder in: " << in << endl;
 	for(unsigned i=0;i<MOTORS;i++){
 		Drivebase::Motor m=(Drivebase::Motor)i;
 		auto current=in.current[i];
@@ -151,6 +152,11 @@ void Drivebase::Estimator::update(Time now,Drivebase::Input in,Drivebase::Output
 Robot_outputs Drivebase::Output_applicator::operator()(Robot_outputs robot,Drivebase::Output b)const{
 	robot.pwm[0]=-pwm_convert(b.l);
 	robot.pwm[1]=pwm_convert(b.r);
+
+	robot.digital_io[0]=Digital_out::encoder(0,1);
+	robot.digital_io[1]=Digital_out::encoder(0,0);
+	robot.digital_io[2]=Digital_out::encoder(1,1);
+	robot.digital_io[3]=Digital_out::encoder(1,0);
 	return robot;
 }
 

@@ -12,10 +12,11 @@
 #define MAPWIDTH 160
 #define MAPLENGTH 162//add.5
 
-#define STARTONE 1
-#define STARTTWO 45
-#define ENDONE 1
-#define ENDTWO 120
+#define STARTONE 70
+#define STARTTWO 110
+#define ENDONE 150
+#define ENDTWO 110
+//#define NAV_TEST
 
 using namespace std;
 
@@ -272,12 +273,19 @@ void loadmap(mapstruct & a){
 			a.walls[i][j] = true;
 		}
 	}
-	//blocks of outerworks.
+	//blocks off outerworks.
 	for(int i=95-ROBOTSPACE; i < 120.5+ROBOTSPACE; i++){
 		for(int j=30.5; j < a.length; j++){
 			a.walls[i][j] = true;
 		}
 	}
+	//unblocks off lowbar.
+	for(int i=95-ROBOTSPACE; i < 120.5+ROBOTSPACE; i++){
+		for(int j=a.length-9-46+ROBOTSPACE; j < a.length-ROBOTSPACE-10; j++){
+			a.walls[i][j] = false;
+		}
+	}
+
 	// blocks of tower.
 	for(int i=0; i < 34.5+ROBOTSPACE; i++){
 		for(int j=46.5-ROBOTSPACE; j < 119+ROBOTSPACE; j++){
@@ -520,26 +528,31 @@ point randpoint(mapstruct map){
 #ifdef NAV_TEST
 
 int main(){
-/*
+
 	point a;
 	point b;
-	direction c=LEFT;
-	direction  d=RIGHT;
+	direction c=RIGHT;
+	direction  d=UP;
 	vector<pair<int,movedir>> FinalInstructions;
 	mapstruct map;
 
 	loadmap(map);
+	
+	a.x=STARTONE;
+	a.y=STARTTWO;
+	b.x=ENDONE;
+	b.y=ENDTWO;
 
-	for(int i=1;i<10;i++){
-	a = randpoint(map);
-	b = randpoint(map);
-	cout << "point :" << a << endl << "POINT 2:" << b << endl;
+	//for(int i=1;i<10;i++){
+	//a = randpoint(map);
+	//b = randpoint(map);
+	//cout << "point :" << a << endl << "POINT 2:" << b << endl;
 
 	FinalInstructions = solvemaze(a,b,c,d);
 
 	cout << "Final:" << endl << FinalInstructions << endl;
 
-	}*/
+	//}
 }
 
 #endif

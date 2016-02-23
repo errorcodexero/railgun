@@ -1,4 +1,0 @@
-UP:0
-LEVEL:1
-LOW:1.3
-DOWN:2
