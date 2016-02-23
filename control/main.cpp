@@ -224,9 +224,9 @@ Toplevel::Goal Main::teleop(
 			}
 			return Sides::Goal::OFF;
 		}();
-		if (gunner_joystick.button[Gamepad_button::BACK]) joy_collector_pos = Joy_collector_pos::STOP;
-		if (gunner_joystick.button[Gamepad_button::L_JOY]) joy_collector_pos = Joy_collector_pos::LOW;
-		if (gunner_joystick.button[Gamepad_button::R_JOY]) joy_collector_pos = Joy_collector_pos::LEVEL;
+		if(gunner_joystick.button[Gamepad_button::BACK]) joy_collector_pos = Joy_collector_pos::STOP;
+		else if(gunner_joystick.button[Gamepad_button::L_JOY]) joy_collector_pos = Joy_collector_pos::LOW;
+		else if(gunner_joystick.button[Gamepad_button::R_JOY]) joy_collector_pos = Joy_collector_pos::LEVEL;
 		goals.tilt=[&]{
 			{
 				#define X(name,bt) bool name=gunner_joystick.button[Gamepad_button::bt];
@@ -237,9 +237,13 @@ Toplevel::Goal Main::teleop(
 					#define LEARN(button,mode) if(button)tilt_learn(toplevel_status.tilt.pot_value(),""#mode);
 					LEARN(down,BOTTOM) LEARN(level,LEVEL) LEARN(low,LOW)
 					#undef LEARN
+					joy_collector_pos = Joy_collector_pos::STOP;
 				} else {
+					Joy_collector_pos last = joy_collector_pos;
+					joy_collector_pos = Joy_collector_pos::STOP;
 					if(down) return Tilt::Goal::down();
 					if(up) return Tilt::Goal::up();
+					joy_collector_pos = last;
 				}
 			}
 			if(panel.in_use){
@@ -252,12 +256,9 @@ Toplevel::Goal Main::teleop(
 				if(panel.control_angle)return Tilt::Goal::go_to_angle(make_tolerances(panel.angle));
 			}	
 			switch (joy_collector_pos) {
-				case Joy_collector_pos::STOP:
-					return Tilt::Goal::stop();
-				case Joy_collector_pos::LOW:
-					return Tilt::Goal::low();
-				case Joy_collector_pos::LEVEL:
-					return Tilt::Goal::level();
+				case Joy_collector_pos::STOP: return Tilt::Goal::stop();
+				case Joy_collector_pos::LOW: return Tilt::Goal::low();
+				case Joy_collector_pos::LEVEL: return Tilt::Goal::level();
 				default: assert(0);
 			}
 		}();

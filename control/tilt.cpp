@@ -22,7 +22,9 @@ static const std::string POSITIONS_FILE=[&]{
 
 #define VOLTS_PER_DEGREE .03// (in volts/degree) //Assumed for now
 
-#define ANGLE_TOLERANCE 10//in degrees, may want to change later
+#define ANGLE_TOLERANCE 5//in degrees, may want to change later
+
+#define PI 3.14159265
 
 #define TILT_PDB_LOC 8
 #define TILT_POT_LOC 0
@@ -39,8 +41,14 @@ float degrees_to_volts(float f){
 	return f*VOLTS_PER_DEGREE;
 }
 
-double degree_change_to_power(double start, double end) {
-	return ((end-start)*(POWER/volts_to_degrees(positions[Positions::BOTTOM])));
+double degree_change_to_power(double start, double end) { //start and end are in degrees
+	const double SCALE_DOWN=.01;
+	double error = end-start;
+	return error * SCALE_DOWN;
+}
+
+double power_to_keep_up(double angle) {
+	return -(sin(angle*PI/180) * (81.0 / 1750));
 }
 
 Tilt::Status_detail::Status_detail(): 
@@ -99,7 +107,6 @@ Tilt::Goal Tilt::Goal::up(){
 }
 
 Tilt::Goal Tilt::Goal::go_to_angle(std::array<double,3> angles){
-	//assert(angles[0]>=(volts_to_degrees(positions[Positions::TOP]-positions[Positions::TOP])) && angles[2]<=(volts_to_degrees(positions[Positions::BOTTOM]-positions[Positions::TOP])));
 	Tilt::Goal a;
 	a.mode_=Tilt::Goal::Mode::GO_TO_ANGLE;
 	a.angle_min=angles[0];
@@ -321,8 +328,8 @@ std::set<Tilt::Output> examples(Tilt::Output*){
 }
 
 Tilt::Output control(Tilt::Status_detail status, Tilt::Goal goal){
-	double SLOW_DOWN=.2;
-	if(goal.learn_bottom) return -POWER*SLOW_DOWN; 
+	const double SLOW_FULL_DESCENT=.2, SLOW=.6*POWER;
+	if(goal.learn_bottom) return -POWER*SLOW_FULL_DESCENT; 
 	switch(goal.mode()){
 		case Tilt::Goal::Mode::UP:
 			switch(status.type()){
@@ -347,18 +354,18 @@ Tilt::Output control(Tilt::Status_detail status, Tilt::Goal goal){
 		case Tilt::Goal::Mode::GO_TO_ANGLE:
 			switch (status.type()) {
 				case Tilt::Status_detail::Type::MID:
-					if(status.get_angle()>=goal.angle()[0] && status.get_angle()<=goal.angle()[2])return 0.0;
+					if(status.get_angle()>=goal.angle()[0] && status.get_angle()<=goal.angle()[2])return power_to_keep_up(goal.angle()[1]);
 					return (degree_change_to_power(status.get_angle(), goal.angle()[1]));
 				case Tilt::Status_detail::Type::TOP:
-					return POWER;
+					return SLOW;
 				case Tilt::Status_detail::Type::BOTTOM:
-					return -POWER;
+					return -SLOW;
 				case Tilt::Status_detail::Type::ERRORS:
 					return 0.0;
 				default:
 					assert(0);
 			}
-		case Tilt::Goal::Mode::STOP: return 0.0;
+		case Tilt::Goal::Mode::STOP: return power_to_keep_up(status.get_angle());
 		default: assert(0);
 	}
 }
@@ -383,7 +390,7 @@ Tilt::Status_detail Tilt::Estimator::get()const {
 
 void Tilt::Estimator::update(Time time, Tilt::Input in, Tilt::Output) {
 	update_positions();
-	const float ALLOWED_TOLERANCE=degrees_to_volts(ANGLE_TOLERANCE);
+	const float ALLOWED_TOLERANCE=degrees_to_volts(15);//15 degrees is a good tolerane for the bottom
 	bool at_top=in.pot_value<=positions[Positions::TOP]+ALLOWED_TOLERANCE, at_bottom=in.pot_value>=positions[Positions::BOTTOM]-ALLOWED_TOLERANCE;
 	if(in.top){
 		positions[Positions::TOP]=in.pot_value;
@@ -471,7 +478,6 @@ void tilt_learn(float pot_in,std::string const& mode){
 					std::ostringstream out;
 					out<<pot_in; 
 					edit+=":"+out.str(); 
-					std::cout<<"\nLearning "<<mode<<" at "<<pot_in<<"\n";
 					break;  
 				} 
 				edit+=c; 
@@ -492,7 +498,9 @@ void tilt_learn(float pot_in,std::string const& mode){
 int main(){
 	update_positions();
 	Tilt a;
-	tester(a);
+	Tester_mode t;
+	t.check_outputs_exhaustive = 0;
+	tester(a, t);
 }
 
 #endif
