@@ -114,7 +114,7 @@ Toplevel::Goal Main::teleop(
 	Robot_inputs const& in,
 	Joystick_data const& main_joystick,
 	Joystick_data const& gunner_joystick,
-	Panel const&  oi_panel,
+	Panel const&  panel,
 	Toplevel::Status_detail& toplevel_status
 ){
 	Toplevel::Goal goals;
@@ -158,7 +158,7 @@ Toplevel::Goal Main::teleop(
 
 	controller_auto.update(gunner_joystick.button[Gamepad_button::START]);
 	cout<<"controller_auto: "<<controller_auto<<"\n";
-	if (!oi_panel.in_use || (oi_panel.in_use && oi_panel.collector_auto) || controller_auto.get()) {
+	if (!panel.in_use || (panel.in_use && panel.collector_auto) || controller_auto.get()) {
 		if(main_joystick.button[Gamepad_button::BACK])collector_mode=Collector_mode::NOTHING;
 		else if(main_joystick.button[Gamepad_button::START]) {
 			collector_mode=(toplevel_status.tilt.type() == Tilt::Status_detail::Type::TOP) ? (ball ? Collector_mode::REFLECT : Collector_mode::COLLECT) : Collector_mode::STOW;
@@ -205,8 +205,8 @@ Toplevel::Goal Main::teleop(
 		goals.front=[&]{
 			if(gunner_joystick.button[Gamepad_button::A]) return Front::Goal::IN;
 			if(gunner_joystick.button[Gamepad_button::Y]) return Front::Goal::OUT;
-			if(oi_panel.in_use) {
-				#define X(name) if(oi_panel.front==Panel::Collector::name) return Front::Goal::name;
+			if(panel.in_use) {
+				#define X(name) if(panel.front==Panel::Collector::name) return Front::Goal::name;
 				X(IN) X(OUT) X(OFF)
 				#undef X
 				assert(0);
@@ -216,8 +216,8 @@ Toplevel::Goal Main::teleop(
 		goals.sides=[&]{
 			if(gunner_joystick.button[Gamepad_button::X]) return Sides::Goal::IN;
 			if(gunner_joystick.button[Gamepad_button::B]) return Sides::Goal::OUT;
-			if(oi_panel.in_use){
-				#define X(name) if(oi_panel.sides==Panel::Collector::name) return Sides::Goal::name;
+			if(panel.in_use){
+				#define X(name) if(panel.sides==Panel::Collector::name) return Sides::Goal::name;
 				X(IN) X(OUT) X(OFF)
 				#undef X
 				assert(0);
@@ -242,14 +242,14 @@ Toplevel::Goal Main::teleop(
 					if(low) return Tilt::Goal::low();
 				}
 			}
-			if(oi_panel.in_use){
-				switch(oi_panel.tilt){
+			if(panel.in_use){
+				switch(panel.tilt){
 					case Panel::Tilt::UP: return Tilt::Goal::up();
 					case Panel::Tilt::DOWN: return Tilt::Goal::down();
 					case Panel::Tilt::STOP: return Tilt::Goal::stop();
 					default: assert(0);
 				}
-				if(oi_panel.control_angle)return Tilt::Goal::go_to_angle(make_tolerances(oi_panel.angle));
+				if(panel.control_angle)return Tilt::Goal::go_to_angle(make_tolerances(panel.angle));
 			}	
 			return Tilt::Goal::stop();
 		}();
@@ -261,8 +261,8 @@ Toplevel::Goal Main::teleop(
 			if down-button
 				return IN
 			*/
-                        if(oi_panel.in_use){
-                                switch(oi_panel.winch){
+                        if(panel.in_use){
+                                switch(panel.winch){
                                         case Panel::Winch::UP: return Winch::Goal::OUT;
                                         case Panel::Winch::DOWN: return Winch::Goal::IN;
                                         case Panel::Winch::STOP: return Winch::Goal::STOP;
@@ -272,8 +272,8 @@ Toplevel::Goal Main::teleop(
 			return Winch::Goal::STOP;
 		}();
 		/*goals.climb=[&]{
-			if(oi_panel.in_use){
-				#define X(name) if(oi_panel.climber==Panel::Climber::name) return Climb::Goal::name;
+			if(panel.in_use){
+				#define X(name) if(panel.climber==Panel::Climber::name) return Climb::Goal::name;
 				X(EXTEND) X(STOP) X(RETRACT)
 				#undef X
 				assert(0);	
@@ -284,15 +284,15 @@ Toplevel::Goal Main::teleop(
 	return goals;
 }
 
-Main::Mode next_mode(Main::Mode m,bool autonomous,bool autonomous_start,Toplevel::Status_detail /*status*/,Time since_switch, Panel /*oi_panel*/,unsigned int navindex,std::vector<Main::NavS> NavV){
+Main::Mode next_mode(Main::Mode m,bool autonomous,bool autonomous_start,Toplevel::Status_detail /*status*/,Time since_switch, Panel /*panel*/,unsigned int navindex,std::vector<Main::NavS> NavV){
 
 	switch(m){
 		case Main::Mode::TELEOP:
 		
 			if(autonomous_start){
 				return Main::Mode::AUTO_NAV;//just for testing purposes
-				/*if (oi_panel.in_use) {
-					switch(oi_panel.auto_mode){ 
+				/*if (panel.in_use) {
+					switch(panel.auto_mode){ 
 						case Panel::Auto_mode::CAN_GRAB:
 							return Main::Mode::AUTO_GRAB;
 						case Panel::Auto_mode::MOVE:
@@ -336,11 +336,11 @@ Robot_outputs Main::operator()(Robot_inputs in,ostream&){
 	perf.update(in.now);
 	Joystick_data main_joystick=in.joystick[0];
 	Joystick_data gunner_joystick=in.joystick[1];
-	Panel oi_panel=interpret(in.joystick[2]);
+	Panel panel=interpret(in.joystick[2]);
 
-	/*if(!oi_panel.in_use && (!in.robot_mode.enabled || in.robot_mode.autonomous)){
+	/*if(!panel.in_use && (!in.robot_mode.enabled || in.robot_mode.autonomous)){
 		Panel empty;
-		oi_panel=empty;
+		panel=empty;
 	}*/
 
 	force.update(
@@ -354,7 +354,7 @@ Robot_outputs Main::operator()(Robot_inputs in,ostream&){
 	
 	Toplevel::Status_detail toplevel_status=toplevel.estimator.get();
 	
-	//cout<<"panel: "<<oi_panel<<"\n";	
+	//cout<<"panel: "<<panel<<"\n";	
 		
 	bool autonomous_start_now=autonomous_start(in.robot_mode.autonomous && in.robot_mode.enabled);
 	since_auto_start.update(in.now,autonomous_start_now);
@@ -365,7 +365,7 @@ Robot_outputs Main::operator()(Robot_inputs in,ostream&){
 	switch(mode){
 		case Mode::TELEOP:
 		cout << "ENCODER: " << in.digital_io << endl;
-			goals=teleop(in,main_joystick,gunner_joystick,oi_panel,toplevel_status);
+			goals=teleop(in,main_joystick,gunner_joystick,panel,toplevel_status);
 //test
 			//tagThis("Line 347: switch(mode) teleop", __FILE__);
 			//cout<<"$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$tag!";
@@ -388,7 +388,7 @@ Robot_outputs Main::operator()(Robot_inputs in,ostream&){
 			break;
 		default: assert(0);
 	}
-	auto next=next_mode(mode,in.robot_mode.autonomous,autonomous_start_now,toplevel_status,since_switch.elapsed(),oi_panel,navindex,NavV);
+	auto next=next_mode(mode,in.robot_mode.autonomous,autonomous_start_now,toplevel_status,since_switch.elapsed(),panel,navindex,NavV);
 	since_switch.update(in.now,mode!=next);
 	mode=next;
 
