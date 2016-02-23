@@ -23,17 +23,19 @@ Gunner:
  B - Front Belt Out
  X - Front Belt In
  Y - Sides Belt In
- Start -
- Back -
- RB - Collector Down
- LB - Collector Up
+ Start - Learn (Used in combination with collector position buttons)
+ Back - Stop Collector
+ RB - Collector Up
+ LB - Collector Down
  RT -
  LT -
  LJoystick:
-  X Axis -
-  Y Axis -
-  Pushed In -
+  Up - Free Collector Movement
+  Down -
+  Left -
+  Right -
+  Pushed In - Low
  RJoystick:
   X Axis -
   Y Axis -
-  Pushed In -
+  Pushed In - Level
