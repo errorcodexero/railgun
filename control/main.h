@@ -56,6 +56,14 @@ struct Main{
 	};
 	Nudge nudges[NUDGES];
 	
+	#define JOY_COLLECTOR_POS X(STOP) X(LOW) X(LEVEL)
+	enum class Joy_collector_pos{
+		#define X(name) name,
+		JOY_COLLECTOR_POS
+		#undef X
+	};
+	Joy_collector_pos joy_collector_pos;
+		
 	Posedge_toggle controller_auto;
 	#define COLLECTOR_MODES X(NOTHING) X(COLLECT) X(STOW) X(EJECT) X(REFLECT) X(TERRAIN) X(LOW_BAR)
 	enum class Collector_mode{

@@ -27,7 +27,7 @@ struct Tilt{
 
 		Mode mode_;
 		double angle_min,angle_target,angle_max;//in degrees from top
-	
+		
 		public:
 		Mode mode()const;
 		std::array<double,3> angle()const;
@@ -38,6 +38,8 @@ struct Tilt{
 		static Goal level();
 		static Goal go_to_angle(std::array<double,3>);
 		static Goal stop();
+		
+		bool learn_bottom;
 	};
 	
 	typedef double Output;	
@@ -66,10 +68,10 @@ struct Tilt{
 		Type type()const;
 		double get_angle()const;
 		float pot_value()const;
-
+	
 		static Status_detail top();
 		static Status_detail mid(double);
-		static Status_detail bottom();	
+		static Status_detail bottom(double);	
 		static Status_detail error();
 	};
 
@@ -161,6 +163,7 @@ bool ready(Tilt::Status, Tilt::Goal);
 
 std::array<double,3> make_tolerances(double);
 
+void update_positions();
 void tilt_learn(float value,std::string const&);
 
 #endif

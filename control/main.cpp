@@ -30,7 +30,7 @@ ostream& operator<<(ostream& o,Main::Collector_mode a){
 }
 
 //TODO: at some point, might want to make this whatever is right to start autonomous mode.
-Main::Main():mode(Mode::TELEOP),autonomous_start(0),collector_mode(Collector_mode::NOTHING){}
+Main::Main():mode(Mode::TELEOP),autonomous_start(0),joy_collector_pos(Joy_collector_pos::STOP),collector_mode(Collector_mode::NOTHING){}
 
 vector<Main::NavS> Main::loadnav(){
 	float amount = 0;
@@ -224,22 +224,22 @@ Toplevel::Goal Main::teleop(
 			}
 			return Sides::Goal::OFF;
 		}();
+		if (gunner_joystick.button[Gamepad_button::BACK]) joy_collector_pos = Joy_collector_pos::STOP;
+		if (gunner_joystick.button[Gamepad_button::L_JOY]) joy_collector_pos = Joy_collector_pos::LOW;
+		if (gunner_joystick.button[Gamepad_button::R_JOY]) joy_collector_pos = Joy_collector_pos::LEVEL;
 		goals.tilt=[&]{
 			{
 				#define X(name,bt) bool name=gunner_joystick.button[Gamepad_button::bt];
-				X(down,LB) X(up,RB) X(stop,BACK) X(learn,START) X(level,R_JOY) X(low,L_JOY)
+				X(down,LB) X(up,RB) X(learn,START) X(level,R_JOY) X(low,L_JOY)
 				#undef X
-				learn=false,low=false,level=false;//Disable learning for now until it works
+				//learn=false,low=false,level=false;//Disable learning for now until it works
 				if(learn){
 					#define LEARN(button,mode) if(button)tilt_learn(toplevel_status.tilt.pot_value(),""#mode);
-					LEARN(down,BOTTOM) LEARN(up,TOP) LEARN(level,LEVEL) LEARN(low,LOW)
+					LEARN(down,BOTTOM) LEARN(level,LEVEL) LEARN(low,LOW)
 					#undef LEARN
 				} else {
 					if(down) return Tilt::Goal::down();
 					if(up) return Tilt::Goal::up();
-					if(stop) return Tilt::Goal::stop();
-					if(level) return Tilt::Goal::level();
-					if(low) return Tilt::Goal::low();
 				}
 			}
 			if(oi_panel.in_use){
@@ -251,8 +251,17 @@ Toplevel::Goal Main::teleop(
 				}
 				if(oi_panel.control_angle)return Tilt::Goal::go_to_angle(make_tolerances(oi_panel.angle));
 			}	
-			return Tilt::Goal::stop();
+			switch (joy_collector_pos) {
+				case Joy_collector_pos::STOP:
+					return Tilt::Goal::stop();
+				case Joy_collector_pos::LOW:
+					return Tilt::Goal::low();
+				case Joy_collector_pos::LEVEL:
+					return Tilt::Goal::level();
+				default: assert(0);
+			}
 		}();
+		goals.tilt.learn_bottom = joystick_section(gunner_joystick.axis[Gamepad_axis::LEFTX], gunner_joystick.axis[Gamepad_axis::LEFTY]) == Joystick_section::UP;
 		goals.winch=[&]{	
 			return Winch::Goal::STOP;
 		}();
@@ -349,7 +358,7 @@ Robot_outputs Main::operator()(Robot_inputs in,ostream&){
 	
 	switch(mode){
 		case Mode::TELEOP:
-		cout << "ENCODER: " << in.digital_io << endl;
+		//cout << "ENCODER: " << in.digital_io << endl;
 			goals=teleop(in,main_joystick,gunner_joystick,oi_panel,toplevel_status);
 //test
 			//tagThis("Line 347: switch(mode) teleop", __FILE__);
