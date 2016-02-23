@@ -31,6 +31,8 @@ struct Panel{
 	Collector front, sides;
 	enum class Tilt{UP,STOP,DOWN};
 	Tilt tilt;
+	enum class Winch{UP,STOP,DOWN};
+	Winch winch;
 	//10 position switches:
 	enum class Auto_mode{NOTHING,MOVE,SHOOT};
 	Auto_mode auto_mode;
@@ -42,6 +44,7 @@ struct Panel{
 std::ostream& operator<<(std::ostream&,Panel::Climber);
 std::ostream& operator<<(std::ostream&,Panel::Collector);
 std::ostream& operator<<(std::ostream&,Panel::Tilt);
+std::ostream& operator<<(std::ostream&,Panel::Winch);
 std::ostream& operator<<(std::ostream&,Panel::Auto_mode);
 std::ostream& operator<<(std::ostream&,Panel);
 

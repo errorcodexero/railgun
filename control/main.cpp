@@ -253,7 +253,22 @@ Toplevel::Goal Main::teleop(
 			}	
 			return Tilt::Goal::stop();
 		}();
-		goals.winch=[&]{	
+		goals.winch=[&]{
+			
+			/*
+			if up-button
+				return OUT
+			if down-button
+				return IN
+			*/
+                        if(oi_panel.in_use){
+                                switch(oi_panel.winch){
+                                        case Panel::Winch::UP: return Winch::Goal::OUT;
+                                        case Panel::Winch::DOWN: return Winch::Goal::IN;
+                                        case Panel::Winch::STOP: return Winch::Goal::STOP;
+                                        default: assert(0);
+                                }
+                        }
 			return Winch::Goal::STOP;
 		}();
 		/*goals.climb=[&]{
