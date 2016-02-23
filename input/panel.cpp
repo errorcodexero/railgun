@@ -29,6 +29,7 @@ Panel::Panel():
 	front(Collector::OFF),
 	sides(Collector::OFF),
 	tilt(Tilt::STOP),
+	winch(Winch::STOP),
 	auto_mode(Auto_mode::NOTHING),
 	angle(0)
 {}
@@ -55,6 +56,15 @@ ostream& operator<<(ostream& o,Panel::Tilt a){
 	X(UP) X(DOWN) X(STOP)
 	#undef X
 	return o<<")";
+}
+
+
+ostream& operator<<(ostream& o,Panel::Winch a){
+        o<<"Panel::Winch(";
+        #define X(name) if(a==Panel::Winch::name)o<<""#name;
+        X(UP) X(DOWN) X(STOP)
+        #undef X
+        return o<<")";
 }
 
 ostream& operator<<(ostream& o, Panel::Auto_mode a){
@@ -88,6 +98,7 @@ ostream& operator<<(ostream& o,Panel p){
 	o<<", front:"<<p.front;
 	o<<", sides:"<<p.sides;
 	o<<", tilt:"<<p.tilt;
+	o<<", winch:"<<p.winch;
 	o<<", auto_mode:"<<p.auto_mode;
 	o<<", angle:"<<p.angle;
 	return o<<")";
@@ -174,6 +185,14 @@ Panel interpret(Joystick_data d){
 		AXIS_RANGE(tilt, UP, STOP, DOWN, p.tilt, Panel::Tilt::STOP)
 		else AXIS_RANGE(tilt, STOP, DOWN, 1.5, p.tilt, Panel::Tilt::DOWN);
 	}
+        {
+                float winch = d.axis[3];//TODO: get actual number & switch +/-?
+                static const float UP=-1, STOP=0, DOWN=1;
+                p.winch = Panel::Winch::UP;
+                AXIS_RANGE(winch, UP, STOP, DOWN, p.winch, Panel::Winch::STOP)
+                else AXIS_RANGE(winch, STOP, DOWN, 1.5, p.winch, Panel::Winch::DOWN);
+        }
+
 	p.angle = d.axis[6];
 	#undef AXIS_RANGE
 	return p;
