@@ -19,10 +19,10 @@ Driver:
   Pushed In -
 
 Gunner:
- A - Sides Belt Out
+ A - Sides Belt In
  B - Front Belt Out
  X - Front Belt In
- Y - Sides Belt In
+ Y - Sides Belt Out
  Start - Learn (Used in combination with collector position buttons)
  Back - Stop Collector
  RB - Collector Up

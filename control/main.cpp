@@ -203,8 +203,8 @@ Toplevel::Goal Main::teleop(
 		}
 	} else */{
 		goals.front=[&]{
-			if(gunner_joystick.button[Gamepad_button::A]) return Front::Goal::IN;
-			if(gunner_joystick.button[Gamepad_button::Y]) return Front::Goal::OUT;
+			if(gunner_joystick.button[Gamepad_button::Y]) return Front::Goal::IN;
+			if(gunner_joystick.button[Gamepad_button::A]) return Front::Goal::OUT;
 			if(panel.in_use) {
 				#define X(name) if(panel.front==Panel::Collector::name) return Front::Goal::name;
 				X(IN) X(OUT) X(OFF)
