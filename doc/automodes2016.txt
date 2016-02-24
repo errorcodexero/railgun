@@ -1,5 +1,17 @@
 File describing the various auto-modes which can be selected through use of the OI.
 
+Auto-Switch Positions (0-9) Default for empty is null mode
+	0. Null Mode
+	1. Reach Platform
+	2. Full Mode - Low Bar
+	3. 
+	4.
+	5.
+	6.
+	7. 
+	8.
+	9.
+
 FULL MODE (assumes starting with ball in the bot):
 	1. Go through defense 
 		-Low Bar
@@ -10,4 +22,7 @@ FULL MODE (assumes starting with ball in the bot):
 	5. Backup to corner
 	6. Reposition to return to defenses.
 	7. Return through defenses.
-	8. Go back through defense to the center(low bar maybe?)
+	8. Go back through defense to the center(low bar maybe?
+
+NULL MODE(No ball - or ball)
+	0. Does nothing the whole time
