@@ -24,6 +24,7 @@ void tagThis(string str, string str2){
 	
 	fstream myfile("/media/sda1/taglog.csv", ofstream::out | ofstream::app);
 	if(myfile.bad()) return;
+	//if(myfile.good()) 
 		Robot_inputs robo_time;
 		Robot_mode modes;
 		//bool robot_enabled = modes.enabled;
