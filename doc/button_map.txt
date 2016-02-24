@@ -19,10 +19,10 @@ Driver:
   Pushed In -
 
 Gunner:
- A - Sides Belt In
- B - Front Belt Out
- X - Front Belt In
- Y - Sides Belt Out
+ A - Front  Belt In
+ B - side Belt Out
+ X - sides Belt In
+ Y - front Belt Out
  Start - Learn (Used in combination with collector position buttons)
  Back - Stop Collector
  RB - Collector Up
@@ -37,5 +37,6 @@ Gunner:
   Pushed In - Low
  RJoystick:
   X Axis -
-  Y Axis -
+  Y Axis - Up Winch- Up
+	   Down Winch- Down
   Pushed In - Level
