@@ -140,7 +140,7 @@ double get_output(Drivebase::Output out,Drivebase::Motor m){
 }
 
 void Drivebase::Estimator::update(Time now,Drivebase::Input in,Drivebase::Output out){\
-	cout << "Encoder in: " << in << endl;
+	//cout << "Encoder in: " << in << endl;
 	for(unsigned i=0;i<MOTORS;i++){
 		Drivebase::Motor m=(Drivebase::Motor)i;
 		auto current=in.current[i];

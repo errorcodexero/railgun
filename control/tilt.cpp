@@ -7,7 +7,7 @@
 #include <vector> 
 
 enum Positions{TOP,LEVEL,LOW,BOTTOM,POSITIONS};
-std::array<float,Positions::POSITIONS> positions={1.4,2.4,2.8,3.6};//in volts
+std::array<float,Positions::POSITIONS> positions={1.3,2.3,2.7,3.6};//in volts
 static const std::array<std::string,Positions::POSITIONS> POSITION_NAMES={"TOP","LEVEL","LOW","BOTTOM"};	
 static const std::string POSITIONS_PATH="/home/lvuser/";//path for use on the robot
 static const std::string POSITIONS_FILE=[&]{//The name of the file were it stores the preset positions
@@ -22,7 +22,7 @@ static const std::string POSITIONS_FILE=[&]{//The name of the file were it store
 
 #define VOLTS_PER_DEGREE .03// (in volts/degree) //Assumed for now
 
-#define ANGLE_TOLERANCE 4//in degrees
+#define ANGLE_TOLERANCE 5//in degrees
 
 #define PI 3.14159265//It's pi. What more do you want?
 
@@ -153,19 +153,19 @@ Tilt::Status_detail Tilt::Status_detail::top(){
 	return a;
 }
 
-Tilt::Status_detail Tilt::Status_detail::mid(double d){
+Tilt::Status_detail Tilt::Status_detail::mid(double angle,double pot_in){
 	Tilt::Status_detail a;
 	a.type_=Tilt::Status_detail::Type::MID;
-	a.angle=d;
-	a.pot_value_=degrees_to_volts(d);
+	a.angle=angle;
+	a.pot_value_=pot_in;
 	return a;
 }
 
-Tilt::Status_detail Tilt::Status_detail::bottom(double d=positions[Positions::BOTTOM]){
+Tilt::Status_detail Tilt::Status_detail::bottom(double angle=volts_to_degrees(positions[Positions::BOTTOM]), double pot_in=positions[Positions::BOTTOM]){
 	Tilt::Status_detail a;
 	a.type_=Tilt::Status_detail::Type::BOTTOM;
-	a.angle=d;
-	a.pot_value_=degrees_to_volts(d);
+	a.angle=angle;
+	a.pot_value_=pot_in;
 	return a;
 }
 
@@ -303,7 +303,7 @@ std::set<Tilt::Goal> examples(Tilt::Goal*){
 std::set<Tilt::Status_detail> examples(Tilt::Status_detail*){
 	return {
 		Tilt::Status_detail::top(),
-		Tilt::Status_detail::mid(0),
+		Tilt::Status_detail::mid(0,0),
 		Tilt::Status_detail::bottom(),
 		Tilt::Status_detail::error()
 	};
@@ -328,8 +328,8 @@ std::set<Tilt::Output> examples(Tilt::Output*){
 }
 
 Tilt::Output control(Tilt::Status_detail status, Tilt::Goal goal){
-	const double SLOW_FULL_DESCENT=.2, SLOW=.6*POWER;
-	if(goal.learn_bottom) return -POWER*SLOW_FULL_DESCENT; 
+	const double SLOW_FULL_DESCENT=.2, SLOW=.5*POWER;
+	if(goal.learn_bottom) return POWER*SLOW_FULL_DESCENT; 
 	switch(goal.mode()){
 		case Tilt::Goal::Mode::UP:
 			switch(status.type()){
@@ -355,7 +355,7 @@ Tilt::Output control(Tilt::Status_detail status, Tilt::Goal goal){
 			switch (status.type()) {
 				case Tilt::Status_detail::Type::MID:
 					if(status.get_angle()>=goal.angle()[0] && status.get_angle()<=goal.angle()[2])return power_to_keep_up(goal.angle()[1]);
-					return degree_change_to_power(status.get_angle(), goal.angle()[1]);
+					return (degree_change_to_power(status.get_angle(),goal.angle()[1]));
 				case Tilt::Status_detail::Type::TOP:
 					return SLOW;
 				case Tilt::Status_detail::Type::BOTTOM:
@@ -378,7 +378,7 @@ bool ready(Tilt::Status status, Tilt::Goal goal){
 	switch(goal.mode()){
 		case Tilt::Goal::Mode::UP: return status.type==Tilt::Status::Type::TOP;
 		case Tilt::Goal::Mode::DOWN: return (status.type==Tilt::Status::Type::BOTTOM && !goal.learn_bottom);
-		case Tilt::Goal::Mode::GO_TO_ANGLE: return status.angle>goal.angle()[0] && status.angle<goal.angle()[2];
+		case Tilt::Goal::Mode::GO_TO_ANGLE: return (status.angle>=goal.angle()[0] && status.angle<=goal.angle()[2]);
 		case Tilt::Goal::Mode::STOP: return 1;
 		default: assert(0);
 	}
@@ -389,13 +389,10 @@ Tilt::Status_detail Tilt::Estimator::get()const {
 }
 
 void Tilt::Estimator::update(Time time, Tilt::Input in, Tilt::Output) {
-	update_positions();
+	//update_positions();
+	if(in.top) tilt_learn(in.pot_value,POSITION_NAMES[Positions::TOP]);
 	const float ALLOWED_TOLERANCE=degrees_to_volts(15);//15 degrees is a good tolerane for the bottom
 	bool at_top=in.pot_value<=positions[Positions::TOP]+ALLOWED_TOLERANCE, at_bottom=in.pot_value>=positions[Positions::BOTTOM]-ALLOWED_TOLERANCE;
-	if(in.top){
-		positions[Positions::TOP]=in.pot_value;
-		tilt_learn(in.pot_value,POSITION_NAMES[Positions::TOP]);
-	}
 	float angle=volts_to_degrees(in.pot_value-positions[Positions::TOP]);
 	stall_timer.update(time,true);
 	if(stall_timer.done()) last.stalled=true;
@@ -408,11 +405,9 @@ void Tilt::Estimator::update(Time time, Tilt::Input in, Tilt::Output) {
 		if(at_bottom)last=Tilt::Status_detail::error();
 		else last=Tilt::Status_detail::top();
 	} else{
-		if(at_bottom){
-			last=Tilt::Status_detail::bottom(angle);
-			if(in.pot_value>positions[Positions::BOTTOM])tilt_learn(in.pot_value,POSITION_NAMES[Positions::BOTTOM]);
-		}
-		else last=Tilt::Status_detail::mid(angle);
+		if(at_bottom) last=Tilt::Status_detail::bottom(angle,in.pot_value);
+		else last=Tilt::Status_detail::mid(angle,in.pot_value);
+		if(in.pot_value>positions[Positions::BOTTOM])tilt_learn(in.pot_value,POSITION_NAMES[Positions::BOTTOM]);
 	}
 }
 
@@ -461,6 +456,7 @@ void update_positions(){
 
 void tilt_learn(float pot_in,std::string const& mode){
 	assert(mode==POSITION_NAMES[Positions::TOP] || mode==POSITION_NAMES[Positions::LOW] || mode==POSITION_NAMES[Positions::LEVEL] || mode==POSITION_NAMES[Positions::BOTTOM]);
+	std::cout<<"\nTrying to learn "<<mode<<" at "<<pot_in<<"\n";
 	std::vector<std::string> go_out;
 	{
 		std::ifstream file(POSITIONS_FILE);
