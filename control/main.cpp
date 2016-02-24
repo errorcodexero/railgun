@@ -259,7 +259,7 @@ Toplevel::Goal Main::teleop(
 				default: assert(0);
 			}
 		}();
-		goals.tilt.learn_bottom = joystick_section(gunner_joystick.axis[Gamepad_axis::LEFTX], gunner_joystick.axis[Gamepad_axis::LEFTY]) == Joystick_section::UP;
+		goals.tilt.learn_bottom = joystick_section(gunner_joystick.axis[Gamepad_axis::LEFTX], gunner_joystick.axis[Gamepad_axis::LEFTY]) == Joystick_section::DOWN;
 	}
 	goals.climb_release=[&]{
 		if(main_joystick.button[Gamepad_button::LB])return Climb_release::Goal::IN;
