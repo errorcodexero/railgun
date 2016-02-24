@@ -10,7 +10,7 @@ enum Positions{TOP,LEVEL,LOW,BOTTOM,POSITIONS};
 std::array<float,Positions::POSITIONS> positions={1.4,2.4,2.8,3.6};//in volts
 static const std::array<std::string,Positions::POSITIONS> POSITION_NAMES={"TOP","LEVEL","LOW","BOTTOM"};	
 static const std::string POSITIONS_PATH="/home/lvuser/";//path for use on the robot
-static const std::string POSITIONS_FILE=[&]{
+static const std::string POSITIONS_FILE=[&]{//The name of the file were it stores the preset positions
 	std::string s;
 	#ifndef TILT_TEST
 	s=POSITIONS_PATH;
@@ -22,9 +22,9 @@ static const std::string POSITIONS_FILE=[&]{
 
 #define VOLTS_PER_DEGREE .03// (in volts/degree) //Assumed for now
 
-#define ANGLE_TOLERANCE 5//in degrees, may want to change later
+#define ANGLE_TOLERANCE 4//in degrees
 
-#define PI 3.14159265
+#define PI 3.14159265//It's pi. What more do you want?
 
 #define TILT_PDB_LOC 8
 #define TILT_POT_LOC 0
@@ -319,11 +319,11 @@ std::set<Tilt::Status> examples(Tilt::Status*){
 
 std::set<Tilt::Output> examples(Tilt::Output*){ 
 	return {
-		-1,
+		-POWER,
 		0,
 		degree_change_to_power(0, volts_to_degrees(positions[Positions::LEVEL])),
 		degree_change_to_power(0, volts_to_degrees(positions[Positions::LOW])),
-		1
+		POWER
 	};
 }
 
@@ -355,7 +355,7 @@ Tilt::Output control(Tilt::Status_detail status, Tilt::Goal goal){
 			switch (status.type()) {
 				case Tilt::Status_detail::Type::MID:
 					if(status.get_angle()>=goal.angle()[0] && status.get_angle()<=goal.angle()[2])return power_to_keep_up(goal.angle()[1]);
-					return (degree_change_to_power(status.get_angle(), goal.angle()[1]));
+					return degree_change_to_power(status.get_angle(), goal.angle()[1]);
 				case Tilt::Status_detail::Type::TOP:
 					return SLOW;
 				case Tilt::Status_detail::Type::BOTTOM:
