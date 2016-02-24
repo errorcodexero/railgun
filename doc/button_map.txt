@@ -3,7 +3,7 @@ Driver:
  B - Clockwise Nudge
  X - Counter-Clockwise Nudge
  Y - Forward Nudge
- Start -
+ Start - Collector Auto Up/Down
  Back -
  RB -
  LB -
@@ -19,16 +19,24 @@ Driver:
   Pushed In -
 
 Gunner:
+<<<<<<< HEAD
  A - Front  Belt In
  B - side Belt Out
  X - sides Belt In
  Y - front Belt Out
  Start - Learn (Used in combination with collector position buttons)
+=======
+ A - Sides Belt In
+ B - Front Belt Out
+ X - Front Belt In
+ Y - Sides Belt Out
+ Start - Collector Manual / Auto Toggle
+>>>>>>> 94b5fe6ef1c3c7a23553d566073ccf0078c1d7cc
  Back - Stop Collector
  RB - Collector Up
  LB - Collector Down
- RT -
- LT -
+ RT - Learn (Used in combination with collector position buttons)
+ LT - Learn (Used in combination with collector position buttons)
  LJoystick:
   Up - Free Collector Movement
   Down -
