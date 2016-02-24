@@ -141,12 +141,6 @@ Toplevel::Goal Main::teleop(
 		return power;
 	}();
 
-	goals.climb_release=[&]{
-		if(main_joystick.axis[Gamepad_axis::LTRIGGER]>.5)return Climb_release::Goal::IN;
-		if(main_joystick.axis[Gamepad_axis::RTRIGGER]>.5)return Climb_release::Goal::OUT;
-		return Climb_release::Goal::STOP;
-	}();
-
 	static const unsigned int nudge_buttons[NUDGES]={Gamepad_button::Y,Gamepad_button::A,Gamepad_button::B,Gamepad_button::X};//Forward, backward, clockwise, counter-clockwise
 	for(int i=0;i<Nudges::NUDGES;i++){
 		bool start=nudges[i].trigger(boost<.25 && main_joystick.button[nudge_buttons[i]]);
@@ -267,9 +261,17 @@ Toplevel::Goal Main::teleop(
 		}();
 		goals.tilt.learn_bottom = joystick_section(gunner_joystick.axis[Gamepad_axis::LEFTX], gunner_joystick.axis[Gamepad_axis::LEFTY]) == Joystick_section::UP;
 	}
+	goals.climb_release=[&]{
+		if(main_joystick.button[Gamepad_button::LB])return Climb_release::Goal::IN;
+		if(main_joystick.button[Gamepad_button::RB])return Climb_release::Goal::OUT;
+		return Climb_release::Goal::STOP;
+	}();
 	goals.winch=[&]{
-		/*if up-button 	return OUT
-		if down-button return IN*/
+		switch (joystick_section(gunner_joystick.axis[Gamepad_axis::RIGHTX], gunner_joystick.axis[Gamepad_axis::RIGHTY])) {
+			case Joystick_section::UP: return Winch::Goal::OUT;
+			case Joystick_section::DOWN: return Winch::Goal::IN;
+			default: break;
+		}
 		if(panel.in_use){
 			switch(panel.winch){
 				case Panel::Winch::UP: return Winch::Goal::OUT;

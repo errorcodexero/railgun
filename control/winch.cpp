@@ -1,7 +1,7 @@
 #include "winch.h"
 
 static const int WINCH_PWM = 5;
-static const float WINCH_POWER = .2;
+static const float WINCH_POWER = .8;
 
 #define nyi {cout<<"nyi: line "<<__LINE__; exit(44); }
 
