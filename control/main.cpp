@@ -153,36 +153,38 @@ Toplevel::Goal Main::teleop(
 		if(start)nudges[i].timer.set(.1);
 		nudges[i].timer.update(in.now,1);
 	}
-		
-	/*bool ball=(in.digital_io.in[6]==Digital_in::_0);
-
+	
+	bool ball=(in.digital_io.in[6]==Digital_in::_0);
+	cout<<"Ball:"<<(ball? "has_ball" : "does not have ball")<<"\n";
 	controller_auto.update(gunner_joystick.button[Gamepad_button::START]);
-	cout<<"controller_auto: "<<controller_auto<<"\n";
-	if (!panel.in_use || (panel.in_use && panel.collector_auto) || controller_auto.get()) {
+	cout<<"controller_auto: "<<controller_auto.get()<<"\n";
+	if((!panel.in_use && controller_auto.get()) || (panel.in_use && panel.collector_auto)) {
 		if(main_joystick.button[Gamepad_button::BACK])collector_mode=Collector_mode::NOTHING;
 		else if(main_joystick.button[Gamepad_button::START]) {
-			collector_mode=(toplevel_status.tilt.type() == Tilt::Status_detail::Type::TOP) ? (ball ? Collector_mode::REFLECT : Collector_mode::COLLECT) : Collector_mode::STOW;
+			collector_mode=(toplevel_status.tilt.type() == Tilt::Status_detail::Type::TOP) ? Collector_mode::COLLECT : Collector_mode::STOW;
 		}
+		if(collector_mode==Collector_mode::COLLECT && ball) collector_mode = Collector_mode::REFLECT;
 		cout<<"collector_mode: "<<collector_mode<<"\n";
 		switch(collector_mode){
 			case Collector_mode::COLLECT:
 				goals.front=Front::Goal::IN;
 				goals.sides=Sides::Goal::IN;
-				goals.tilt=Tilt::Goal::down();
+				goals.tilt=Tilt::Goal::level();
+				break;
 			case Collector_mode::STOW:
 				goals.front=Front::Goal::OFF;
 				goals.sides=Sides::Goal::OFF;
 				goals.tilt=Tilt::Goal::up();
 				break;
 			case Collector_mode::REFLECT:
-				goals.front=Front::Goal::OUT;
+				goals.front=Front::Goal::OFF;
 				goals.sides=Sides::Goal::OUT;
-				goals.tilt=Tilt::Goal::down();
+				goals.tilt=Tilt::Goal::level();
 				break;
 			case Collector_mode::EJECT:
 				goals.front=Front::Goal::OUT;
 				goals.sides=Sides::Goal::IN;
-				goals.tilt=Tilt::Goal::down();
+				goals.tilt=Tilt::Goal::level();
 				break;
 			case Collector_mode::TERRAIN:
 				goals.front=Front::Goal::OFF;
@@ -192,7 +194,7 @@ Toplevel::Goal Main::teleop(
 			case Collector_mode::LOW_BAR:
 				goals.front=Front::Goal::OFF;
 				goals.sides=Sides::Goal::OFF;
-				goals.tilt=Tilt::Goal::down();
+				goals.tilt=Tilt::Goal::low();
 				break;
 			case Collector_mode::NOTHING:
 				goals.front=Front::Goal::OFF;
@@ -201,10 +203,10 @@ Toplevel::Goal Main::teleop(
 				break;
 			default: assert(0);
 		}
-	} else */{
+	} else {
 		goals.front=[&]{
-			if(gunner_joystick.button[Gamepad_button::Y]) return Front::Goal::IN;
-			if(gunner_joystick.button[Gamepad_button::A]) return Front::Goal::OUT;
+			if(gunner_joystick.button[Gamepad_button::Y]) return Front::Goal::OUT;
+			if(gunner_joystick.button[Gamepad_button::A]) return Front::Goal::IN;
 			if(panel.in_use) {
 				#define X(name) if(panel.front==Panel::Collector::name) return Front::Goal::name;
 				X(IN) X(OUT) X(OFF)
@@ -230,10 +232,11 @@ Toplevel::Goal Main::teleop(
 		goals.tilt=[&]{
 			{
 				#define X(name,bt) bool name=gunner_joystick.button[Gamepad_button::bt];
-				X(down,LB) X(up,RB) X(learn,START) X(level,R_JOY) X(low,L_JOY)
+				X(down,LB) X(up,RB) X(level,R_JOY) X(low,L_JOY)
 				#undef X
-				//learn=false,low=false,level=false;//Disable learning for now until it works
+				bool learn = (gunner_joystick.axis[Gamepad_axis::LTRIGGER] > .5) || (gunner_joystick.axis[Gamepad_axis::RTRIGGER] > .5);
 				if(learn){
+					cout<<"\npot_in:"<<toplevel_status.tilt.pot_value()<<"\n";
 					#define LEARN(button,mode) if(button)tilt_learn(toplevel_status.tilt.pot_value(),""#mode);
 					LEARN(down,BOTTOM) LEARN(level,LEVEL) LEARN(low,LOW)
 					#undef LEARN
@@ -263,30 +266,29 @@ Toplevel::Goal Main::teleop(
 			}
 		}();
 		goals.tilt.learn_bottom = joystick_section(gunner_joystick.axis[Gamepad_axis::LEFTX], gunner_joystick.axis[Gamepad_axis::LEFTY]) == Joystick_section::UP;
-		goals.winch=[&]{
-			/*if up-button 	return OUT
-			if down-button return IN
-			*/
-                        if(panel.in_use){
-                                switch(panel.winch){
-                                        case Panel::Winch::UP: return Winch::Goal::OUT;
-                                        case Panel::Winch::DOWN: return Winch::Goal::IN;
-                                        case Panel::Winch::STOP: return Winch::Goal::STOP;
-                                        default: assert(0);
-                                }
-                        }
-			return Winch::Goal::STOP;
-		}();
-		/*goals.climb=[&]{
-			if(panel.in_use){
-				#define X(name) if(panel.climber==Panel::Climber::name) return Climb::Goal::name;
-				X(EXTEND) X(STOP) X(RETRACT)
-				#undef X
-				assert(0);	
+	}
+	goals.winch=[&]{
+		/*if up-button 	return OUT
+		if down-button return IN*/
+		if(panel.in_use){
+			switch(panel.winch){
+				case Panel::Winch::UP: return Winch::Goal::OUT;
+				case Panel::Winch::DOWN: return Winch::Goal::IN;
+				case Panel::Winch::STOP: return Winch::Goal::STOP;
+				default: assert(0);
 			}
-			return Climb::Goal::STOP;
-		}();*/
-	}	
+		}
+		return Winch::Goal::STOP;
+	}();
+	/*goals.climb=[&]{
+		if(panel.in_use){
+		#define X(name) if(panel.climber==Panel::Climber::name) return Climb::Goal::name;
+		X(EXTEND) X(STOP) X(RETRACT)
+		#undef X
+		assert(0);	
+	}
+	return Climb::Goal::STOP;
+	}();*/
 	return goals;
 }
 
@@ -370,7 +372,7 @@ Robot_outputs Main::operator()(Robot_inputs in,ostream&){
 	
 	switch(mode){
 		case Mode::TELEOP:
-		cout << "ENCODER: " << in.digital_io << endl;
+		//cout << "ENCODER: " << in.digital_io << endl;
 			goals=teleop(in,main_joystick,gunner_joystick,panel,toplevel_status);
 //test
 			//tagThis("Line 347: switch(mode) teleop", __FILE__);

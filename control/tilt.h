@@ -70,8 +70,8 @@ struct Tilt{
 		float pot_value()const;
 	
 		static Status_detail top();
-		static Status_detail mid(double);
-		static Status_detail bottom(double);	
+		static Status_detail mid(double,double);
+		static Status_detail bottom(double,double);	
 		static Status_detail error();
 	};
 
