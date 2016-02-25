@@ -148,17 +148,21 @@ Toplevel::Goal Main::teleop(
 		nudges[i].timer.update(in.now,1);
 	}
 	
+	static int print_speed=0;
+	print_speed++;
 	bool ball=(in.digital_io.in[6]==Digital_in::_0);
-	cout<<"Ball:"<<(ball? "has_ball" : "does not have ball")<<"\n";
+	if(print_speed%10==0){
+		cout<<"Ball:"<<(ball? "has_ball" : "does not have ball")<<"\n";
+		cout<<"controller_auto: "<<controller_auto.get()<<"\n";
+	}
 	controller_auto.update(gunner_joystick.button[Gamepad_button::START]);
-	cout<<"controller_auto: "<<controller_auto.get()<<"\n";
 	if((!panel.in_use && controller_auto.get()) || (panel.in_use && panel.collector_auto)) {
 		if(main_joystick.button[Gamepad_button::BACK])collector_mode=Collector_mode::NOTHING;
 		else if(main_joystick.button[Gamepad_button::START]) {
 			collector_mode=(toplevel_status.tilt.type() == Tilt::Status_detail::Type::TOP) ? Collector_mode::COLLECT : Collector_mode::STOW;
 		}
 		if(collector_mode==Collector_mode::COLLECT && ball) collector_mode = Collector_mode::REFLECT;
-		cout<<"collector_mode: "<<collector_mode<<"\n";
+		if(print_speed%10==0)cout<<"collector_mode: "<<collector_mode<<"\n";
 		switch(collector_mode){
 			case Collector_mode::COLLECT:
 				goals.front=Front::Goal::IN;
