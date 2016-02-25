@@ -389,9 +389,10 @@ Tilt::Status_detail Tilt::Estimator::get()const {
 }
 
 void Tilt::Estimator::update(Time time, Tilt::Input in, Tilt::Output) {
-	//update_positions();
+	update_positions();
 	if(in.top) tilt_learn(in.pot_value,POSITION_NAMES[Positions::TOP]);
-	const float ALLOWED_TOLERANCE=degrees_to_volts(15);//15 degrees is a good tolerane for the bottom
+	else if(in.pot_value>positions[Positions::BOTTOM])tilt_learn(in.pot_value,POSITION_NAMES[Positions::BOTTOM]);
+	const float ALLOWED_TOLERANCE=degrees_to_volts(20);//15 degrees is a good tolerane for the bottom
 	bool at_top=in.pot_value<=positions[Positions::TOP]+ALLOWED_TOLERANCE, at_bottom=in.pot_value>=positions[Positions::BOTTOM]-ALLOWED_TOLERANCE;
 	float angle=volts_to_degrees(in.pot_value-positions[Positions::TOP]);
 	stall_timer.update(time,true);
@@ -405,9 +406,8 @@ void Tilt::Estimator::update(Time time, Tilt::Input in, Tilt::Output) {
 		if(at_bottom)last=Tilt::Status_detail::error();
 		else last=Tilt::Status_detail::top();
 	} else{
-		if(at_bottom) last=Tilt::Status_detail::bottom(angle,in.pot_value);
-		else last=Tilt::Status_detail::mid(angle,in.pot_value);
-		if(in.pot_value>positions[Positions::BOTTOM])tilt_learn(in.pot_value,POSITION_NAMES[Positions::BOTTOM]);
+		if(at_bottom) last=Tilt::Status_detail::bottom(angle,in.pot_value-positions[Positions::TOP]);
+		else last=Tilt::Status_detail::mid(angle,in.pot_value-positions[Positions::TOP]);
 	}
 }
 
@@ -417,20 +417,17 @@ std::array<double,3> make_tolerances(double d){
 
 void populate(){
 	std::ifstream test(POSITIONS_FILE);
-	assert(test.peek()==std::ifstream::traits_type::eof());//file is empty
-	test.close();
-	std::ofstream file(POSITIONS_FILE);
-	for(unsigned int i=0; i<Positions::POSITIONS; i++)file<<POSITION_NAMES[i]<<":"<<positions[i]<<(i+1<Positions::POSITIONS ? "\n" : "");
-	file.close();
+	if(test.peek()==std::ifstream::traits_type::eof()){
+		test.close();
+		std::ofstream file(POSITIONS_FILE);
+		for(unsigned int i=0; i<Positions::POSITIONS; i++)file<<POSITION_NAMES[i]<<":"<<positions[i]<<(i+1<Positions::POSITIONS ? "\n" : "");
+		file.close();
+	}
 }
 
 void update_positions(){
+	populate();
 	std::ifstream file(POSITIONS_FILE);
-	if(file.peek()==std::ifstream::traits_type::eof()){
-		file.close();
-		populate();
-		file.open(POSITIONS_FILE);
-	}
 	for(unsigned int i=0; i<Positions::POSITIONS; i++){
 		bool next=false;
 		std::string mode=POSITION_NAMES[i];
@@ -456,15 +453,10 @@ void update_positions(){
 
 void tilt_learn(float pot_in,std::string const& mode){
 	assert(mode==POSITION_NAMES[Positions::TOP] || mode==POSITION_NAMES[Positions::LOW] || mode==POSITION_NAMES[Positions::LEVEL] || mode==POSITION_NAMES[Positions::BOTTOM]);
-	std::cout<<"\nTrying to learn "<<mode<<" at "<<pot_in<<"\n";
+	populate();
 	std::vector<std::string> go_out;
 	{
 		std::ifstream file(POSITIONS_FILE);
-		if(file.peek()==std::ifstream::traits_type::eof()){
-			file.close();
-			populate();
-			file.open(POSITIONS_FILE);
-		}
 		while(!file.eof()){ 
 			std::string edit,line; 
 			std::getline(file,line); 
@@ -473,7 +465,7 @@ void tilt_learn(float pot_in,std::string const& mode){
 				if(c==':' && edit==mode){ 
 					std::ostringstream out;
 					out<<pot_in; 
-					edit+=":"+out.str(); 
+					edit+=":"+out.str();
 					break;  
 				} 
 				edit+=c; 
@@ -482,9 +474,9 @@ void tilt_learn(float pot_in,std::string const& mode){
 		} 
 		file.close();
 	}
-	std::ofstream file(POSITIONS_FILE);
-	for(unsigned int i=0; i<go_out.size(); i++)file<<go_out[i]<<(i+1<go_out.size() ? "\n" : "");
-	file.close();
+	std::ofstream file2(POSITIONS_FILE);
+	for(unsigned int i=0; i<go_out.size(); i++)file2<<go_out[i]<<(i+1<go_out.size() ? "\n" : "");
+	file2.close();
 	update_positions();
 }
 
