@@ -48,7 +48,10 @@ double degree_change_to_power(double start, double end) { //start and end are in
 }
 
 double power_to_keep_up(double angle) {
-	return -(sin(angle*PI/180) * (81.0 / 1750));
+	const double LENGTH=9;//in inches
+	const double WEIGHT=9;//in pounds
+	const double MOTOR_MAX=1750;//in inch/pounds
+	return -(sin(angle*PI/180) * (LENGTH*WEIGHT / MOTOR_MAX));
 }
 
 Tilt::Status_detail::Status_detail(): 
