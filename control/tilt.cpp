@@ -9,9 +9,9 @@
 enum Positions{TOP,LEVEL,LOW,BOTTOM,POSITIONS};
 std::array<float,Positions::POSITIONS> positions={1.3,2.3,2.7,3.6};//in volts
 static const std::array<std::string,Positions::POSITIONS> POSITION_NAMES={"TOP","LEVEL","LOW","BOTTOM"};	
-static const std::string POSITIONS_PATH="/home/lvuser/";//path for use on the robot
 static const std::string POSITIONS_FILE=[&]{//The name of the file were it stores the preset positions
 	std::string s;
+	static const std::string POSITIONS_PATH="/home/lvuser/";//path for use on the robot
 	#ifndef TILT_TEST
 	s=POSITIONS_PATH;
 	#endif
@@ -42,16 +42,16 @@ float degrees_to_volts(float f){
 }
 
 double degree_change_to_power(double start, double end) { //start and end are in degrees
-	const double SCALE_DOWN=.01;
-	double error = end-start;
+	const double SCALE_DOWN = .01;
+	double error = end - start;
 	return error * SCALE_DOWN;
 }
 
 double power_to_keep_up(double angle) {
-	const double LENGTH=9;//in inches
-	const double WEIGHT=9;//in pounds
-	const double MOTOR_MAX=1750;//in inch/pounds
-	return -(sin(angle*PI/180) * (LENGTH*WEIGHT / MOTOR_MAX));
+	const double LENGTH = 9;//in inches
+	const double WEIGHT = 9;//in pounds
+	const double MOTOR_MAX = 1750;//in inch/pounds
+	return -(sin(angle * PI / 180) * (LENGTH * WEIGHT / MOTOR_MAX));
 }
 
 Tilt::Status_detail::Status_detail(): 
@@ -331,7 +331,7 @@ std::set<Tilt::Output> examples(Tilt::Output*){
 }
 
 Tilt::Output control(Tilt::Status_detail status, Tilt::Goal goal){
-	const double SLOW_FULL_DESCENT=.2, SLOW=.5*POWER;
+	const double SLOW_FULL_DESCENT=.2*POWER, SLOW=.5*POWER;
 	if(goal.learn_bottom) return POWER*SLOW_FULL_DESCENT; 
 	switch(goal.mode()){
 		case Tilt::Goal::Mode::UP:
@@ -401,14 +401,14 @@ void Tilt::Estimator::update(Time time, Tilt::Input in, Tilt::Output) {
 	stall_timer.update(time,true);
 	if(stall_timer.done()) last.stalled=true;
 	if(in.current<10 || fabs(angle-timer_start_angle)<1){//Assumed current for now
-		last.stalled=0;
+		last.stalled=false;
 		stall_timer.set(1);
 		timer_start_angle=angle;
 	}
 	if(in.top && at_top){
 		if(at_bottom)last=Tilt::Status_detail::error();
 		else last=Tilt::Status_detail::top();
-	} else{
+	} else {
 		if(at_bottom) last=Tilt::Status_detail::bottom(angle,in.pot_value-positions[Positions::TOP]);
 		else last=Tilt::Status_detail::mid(angle,in.pot_value-positions[Positions::TOP]);
 	}
@@ -426,6 +426,7 @@ void populate(){
 		for(unsigned int i=0; i<Positions::POSITIONS; i++)file<<POSITION_NAMES[i]<<":"<<positions[i]<<(i+1<Positions::POSITIONS ? "\n" : "");
 		file.close();
 	}
+	test.close();
 }
 
 void update_positions(){
