@@ -4,7 +4,7 @@ Driver:
  X          - Counter-clockwise nudge
  Y          - Forward nudge
  Start      - Collector auto up/down
- Back       -
+ Back       - Stop collector
  RB         - Climber release out
  LB         - Climber release in
  RT         - Slow
@@ -23,7 +23,7 @@ Gunner:
  B          - Side belt out
  X          - Side belt in
  Y          - Front belt out
- Start      - Learn (Used in combination with collector position buttons)
+ Start      - Collector auto/manual toggle
  Back       - Stop collector
  RB         - Collector up
  LB         - Collector down
