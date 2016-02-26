@@ -156,7 +156,7 @@ Toplevel::Goal Main::teleop(
 		cout<<"controller_auto: "<<controller_auto.get()<<"\n";
 	}
 	controller_auto.update(gunner_joystick.button[Gamepad_button::START]);
-	if((!panel.in_use && controller_auto.get()) || (panel.in_use && panel.collector_auto)) {
+	if((!panel.in_use && controller_auto.get()) || (panel.in_use /*&& panel.collector_auto*/)) {
 		if(main_joystick.button[Gamepad_button::BACK])collector_mode=Collector_mode::NOTHING;
 		else if(main_joystick.button[Gamepad_button::START]) {
 			collector_mode=(toplevel_status.tilt.type() == Tilt::Status_detail::Type::TOP) ? Collector_mode::COLLECT : Collector_mode::STOW;
@@ -247,15 +247,6 @@ Toplevel::Goal Main::teleop(
 					joy_collector_pos = last;
 				}
 			}
-			if(panel.in_use){
-				switch(panel.tilt){
-					case Panel::Tilt::UP: return Tilt::Goal::up();
-					case Panel::Tilt::DOWN: return Tilt::Goal::down();
-					case Panel::Tilt::STOP: return Tilt::Goal::stop();
-					default: assert(0);
-				}
-				if(panel.control_angle)return Tilt::Goal::go_to_angle(make_tolerances(panel.angle));
-			}	
 			switch (joy_collector_pos) {
 				case Joy_collector_pos::STOP: return Tilt::Goal::stop();
 				case Joy_collector_pos::LOW: return Tilt::Goal::low();
