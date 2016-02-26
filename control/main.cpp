@@ -396,9 +396,13 @@ Robot_outputs Main::operator()(Robot_inputs in,ostream&){
 	auto next=next_mode(mode,in.robot_mode.autonomous,autonomous_start_now,toplevel_status,since_switch.elapsed(),panel,navindex,NavV);
 	since_switch.update(in.now,mode!=next);
 	mode=next;
-
+	
 	Toplevel::Output r_out=control(toplevel_status,goals); 
 	auto r=toplevel.output_applicator(Robot_outputs{},r_out);
+	
+	r.panel_output[Panel_outputs::BOULDER].port = 10;
+	r.panel_output[Panel_outputs::BOULDER].value = in.digital_io.in[6]==Digital_in::_0;
+	
 	r=force(r);
 	auto input=toplevel.input_reader(in);
 
