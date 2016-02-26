@@ -163,7 +163,6 @@ bool ready(Tilt::Status, Tilt::Goal);
 
 std::array<double,3> make_tolerances(double);
 
-void update_positions();
 void tilt_learn(float value,std::string const&);
 
 #endif
