@@ -1,6 +1,0 @@
-g++ --std=c++11 -Wall -Werror -DCLIMB_TEST \
-	climb.cpp \
-	../util/interface.cpp \
-	../util/driver_station_interface.cpp \
-	../util/util.cpp \
-	-o climb 2>&1 && ./climb

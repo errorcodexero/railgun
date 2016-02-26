@@ -7,7 +7,6 @@ g++ -Wall -Werror -std=c++0x -DMONITOR_TEST \
 	pump.cpp \
 	front.cpp \
 	sides.cpp \
-	climb.cpp \
 	climb_release.cpp \
 	tilt.cpp \
 	winch.cpp\
