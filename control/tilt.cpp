@@ -332,11 +332,13 @@ std::set<Tilt::Output> examples(Tilt::Output*){
 
 Tilt::Output control(Tilt::Status_detail status, Tilt::Goal goal){
 	const double SLOW_FULL_DESCENT=.2*POWER, SLOW=.5*POWER;
+	double keep_up_power=power_to_keep_up(status.get_angle());
 	if(goal.learn_bottom) return POWER*SLOW_FULL_DESCENT; 
 	switch(goal.mode()){
 		case Tilt::Goal::Mode::UP:
 			switch(status.type()){
 				case Tilt::Status_detail::Type::TOP:
+					return keep_up_power;
 				case Tilt::Status_detail::Type::ERRORS:
 					return 0;
 				case Tilt::Status_detail::Type::BOTTOM:
@@ -347,6 +349,7 @@ Tilt::Output control(Tilt::Status_detail status, Tilt::Goal goal){
 		case Tilt::Goal::Mode::DOWN:
 			switch(status.type()){
 				case Tilt::Status_detail::Type::BOTTOM:
+					return keep_up_power;
 				case Tilt::Status_detail::Type::ERRORS:
 					return 0;
 				case Tilt::Status_detail::Type::TOP:
@@ -364,11 +367,11 @@ Tilt::Output control(Tilt::Status_detail status, Tilt::Goal goal){
 				case Tilt::Status_detail::Type::BOTTOM:
 					return -SLOW;
 				case Tilt::Status_detail::Type::ERRORS:
-					return 0.0;
+					return 0;
 				default:
 					assert(0);
 			}
-		case Tilt::Goal::Mode::STOP: return power_to_keep_up(status.get_angle());
+		case Tilt::Goal::Mode::STOP: return keep_up_power;
 		default: assert(0);
 	}
 }
@@ -382,7 +385,7 @@ bool ready(Tilt::Status status, Tilt::Goal goal){
 		case Tilt::Goal::Mode::UP: return status.type==Tilt::Status::Type::TOP;
 		case Tilt::Goal::Mode::DOWN: return (status.type==Tilt::Status::Type::BOTTOM && !goal.learn_bottom);
 		case Tilt::Goal::Mode::GO_TO_ANGLE: return (status.angle>=goal.angle()[0] && status.angle<=goal.angle()[2]);
-		case Tilt::Goal::Mode::STOP: return 1;
+		case Tilt::Goal::Mode::STOP: return true;
 		default: assert(0);
 	}
 }
@@ -392,10 +395,9 @@ Tilt::Status_detail Tilt::Estimator::get()const {
 }
 
 void Tilt::Estimator::update(Time time, Tilt::Input in, Tilt::Output) {
-	update_positions();
 	if(in.top) tilt_learn(in.pot_value,POSITION_NAMES[Positions::TOP]);
 	else if(in.pot_value>positions[Positions::BOTTOM])tilt_learn(in.pot_value,POSITION_NAMES[Positions::BOTTOM]);
-	const float ALLOWED_TOLERANCE=degrees_to_volts(20);//15 degrees is a good tolerane for the bottom
+	const float ALLOWED_TOLERANCE=degrees_to_volts(20);//Here a larger tolerance than ANGLE_TOLERANCE words better, especially to prevent ramming the floor
 	bool at_top=in.pot_value<=positions[Positions::TOP]+ALLOWED_TOLERANCE, at_bottom=in.pot_value>=positions[Positions::BOTTOM]-ALLOWED_TOLERANCE;
 	float angle=volts_to_degrees(in.pot_value-positions[Positions::TOP]);
 	stall_timer.update(time,true);
