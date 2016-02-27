@@ -67,7 +67,7 @@ Tilt::Status::Status(Tilt::Status::Type type,double angle){
 	this->angle=angle;
 }
 
-Tilt::Goal::Goal():mode_(Tilt::Goal::Mode::STOP),angle_min(0),angle_target(0),angle_max(0),learn_bottom(0){}
+Tilt::Goal::Goal():mode_(Tilt::Goal::Mode::STOP),angle_min(0),angle_target(0),angle_max(0),force_down(0){}
 
 Robot_inputs Tilt::Input_reader::operator()(Robot_inputs r,Tilt::Input in)const{
 	r.current[TILT_PDB_LOC]=in.current;
@@ -209,7 +209,7 @@ std::ostream& operator<<(std::ostream& o, Tilt::Goal a){
 	o<<"Tilt::Goal(";
 	o<<" mode:"<<a.mode();
 	if(a.mode()==Tilt::Goal::Mode::GO_TO_ANGLE)o<<"("<<a.angle()<<")";
-	o<<" learn_bottom:"<<a.learn_bottom;
+	o<<" force_down:"<<a.force_down;
 	return o<<")";
 }
 
@@ -264,14 +264,14 @@ bool operator==(Tilt::Status_detail a,Tilt::Status_detail b){
 bool operator!=(Tilt::Status_detail a,Tilt::Status_detail b){ return !(a==b); }
 
 bool operator==(Tilt::Goal a, Tilt::Goal b){ 
-	return a.mode()==b.mode() &&  a.learn_bottom==b.learn_bottom && (a.mode()==Tilt::Goal::Mode::GO_TO_ANGLE ? a.angle()==b.angle() : true );
+	return a.mode()==b.mode() &&  a.force_down==b.force_down && (a.mode()==Tilt::Goal::Mode::GO_TO_ANGLE ? a.angle()==b.angle() : true );
 }
 bool operator!=(Tilt::Goal a, Tilt::Goal b){ return !(a==b); }
 bool operator<(Tilt::Goal a, Tilt::Goal b){
 	if(a.mode()<b.mode()) return true;
 	if(b.mode()<a.mode()) return false;
 	if(a.mode()==Tilt::Goal::Mode::GO_TO_ANGLE) return a.angle()<b.angle();
-	return a.learn_bottom && !b.learn_bottom;
+	return a.force_down && !b.force_down;
 }
 
 bool operator==(Tilt::Output_applicator,Tilt::Output_applicator){ return true; }
@@ -333,7 +333,7 @@ std::set<Tilt::Output> examples(Tilt::Output*){
 Tilt::Output control(Tilt::Status_detail status, Tilt::Goal goal){
 	const double SLOW_FULL_DESCENT=.2*POWER, SLOW=.5*POWER;
 	double keep_up_power=power_to_keep_up(status.get_angle());
-	if(goal.learn_bottom) return POWER*SLOW_FULL_DESCENT; 
+	if(goal.force_down) return POWER*SLOW_FULL_DESCENT; 
 	switch(goal.mode()){
 		case Tilt::Goal::Mode::UP:
 			switch(status.type()){
@@ -383,7 +383,7 @@ Tilt::Status status(Tilt::Status_detail a){
 bool ready(Tilt::Status status, Tilt::Goal goal){
 	switch(goal.mode()){
 		case Tilt::Goal::Mode::UP: return status.type==Tilt::Status::Type::TOP;
-		case Tilt::Goal::Mode::DOWN: return (status.type==Tilt::Status::Type::BOTTOM && !goal.learn_bottom);
+		case Tilt::Goal::Mode::DOWN: return (status.type==Tilt::Status::Type::BOTTOM && !goal.force_down);
 		case Tilt::Goal::Mode::GO_TO_ANGLE: return (status.angle>=goal.angle()[0] && status.angle<=goal.angle()[2]);
 		case Tilt::Goal::Mode::STOP: return true;
 		default: assert(0);

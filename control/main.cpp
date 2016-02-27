@@ -203,8 +203,9 @@ Toplevel::Goal Main::teleop(
 		}
 	} else {
 		goals.front=[&]{
-			if(gunner_joystick.button[Gamepad_button::Y]) return Front::Goal::OUT;
-			if(gunner_joystick.button[Gamepad_button::A]) return Front::Goal::IN;
+			const double LIMIT = .5; 
+			if(gunner_joystick.axis[Gamepad_axis::LTRIGGER]>LIMIT) return Front::Goal::OUT;
+			if(gunner_joystick.axis[Gamepad_axis::RTRIGGER]>LIMIT) return Front::Goal::IN;
 			if(panel.in_use) {
 				#define X(name) if(panel.front==Panel::Collector::name) return Front::Goal::name;
 				X(IN) X(OUT) X(OFF)
@@ -214,8 +215,8 @@ Toplevel::Goal Main::teleop(
 			return Front::Goal::OFF;
 		}();
 		goals.sides=[&]{
-			if(gunner_joystick.button[Gamepad_button::X]) return Sides::Goal::IN;
-			if(gunner_joystick.button[Gamepad_button::B]) return Sides::Goal::OUT;
+			if(gunner_joystick.button[Gamepad_button::RB]) return Sides::Goal::IN;
+			if(gunner_joystick.button[Gamepad_button::LB]) return Sides::Goal::OUT;
 			if(panel.in_use){
 				#define X(name) if(panel.sides==Panel::Collector::name) return Sides::Goal::name;
 				X(IN) X(OUT) X(OFF)
@@ -224,16 +225,15 @@ Toplevel::Goal Main::teleop(
 			}
 			return Sides::Goal::OFF;
 		}();
-		if(gunner_joystick.button[Gamepad_button::BACK]) joy_collector_pos = Joy_collector_pos::STOP;
-		else if(gunner_joystick.button[Gamepad_button::L_JOY]) joy_collector_pos = Joy_collector_pos::LOW;
-		else if(gunner_joystick.button[Gamepad_button::R_JOY]) joy_collector_pos = Joy_collector_pos::LEVEL;
 		goals.tilt=[&]{
 			{
-				#define X(name,bt) bool name=gunner_joystick.button[Gamepad_button::bt];
-				X(down,LB) X(up,RB) X(level,R_JOY) X(low,L_JOY)
-				#undef X
-				bool learn = (gunner_joystick.axis[Gamepad_axis::LTRIGGER] > .5) || (gunner_joystick.axis[Gamepad_axis::RTRIGGER] > .5);
-				if(learn){
+				Joystick_section tilt_control = joystick_section(gunner_joystick.axis[Gamepad_axis::RIGHTX],gunner_joystick.axis[Gamepad_axis::RIGHTY]);
+				#define X(name,section) bool name=tilt_control==Joystick_section::section;
+				X(down,DOWN) X(up,UP) X(level,LEFT) X(low,RIGHT)
+				#undef X		
+				if(low) joy_collector_pos = Joy_collector_pos::LOW;
+				else if(level) joy_collector_pos = Joy_collector_pos::LEVEL;
+				if(gunner_joystick.button[Gamepad_button::B]){//learn
 					cout<<"\npot_in:"<<toplevel_status.tilt.pot_value()<<"\n";
 					#define LEARN(button,mode) if(button)tilt_learn(toplevel_status.tilt.pot_value(),""#mode);
 					LEARN(down,BOTTOM) LEARN(level,LEVEL) LEARN(low,LOW)
@@ -254,7 +254,12 @@ Toplevel::Goal Main::teleop(
 				default: assert(0);
 			}
 		}();
-		goals.tilt.learn_bottom = joystick_section(gunner_joystick.axis[Gamepad_axis::LEFTX], gunner_joystick.axis[Gamepad_axis::LEFTY]) == Joystick_section::DOWN;
+		goals.tilt.force_down = gunner_joystick.button[Gamepad_button::R_JOY];
+		if(gunner_joystick.button[Gamepad_button::BACK]){
+			joy_collector_pos = Joy_collector_pos::STOP;
+			goals.front=Front::Goal::OFF;
+			goals.sides=Sides::Goal::OFF;
+		}
 	}
 	goals.climb_release=[&]{
 		if(main_joystick.button[Gamepad_button::LB])return Climb_release::Goal::IN;
@@ -262,7 +267,7 @@ Toplevel::Goal Main::teleop(
 		return Climb_release::Goal::STOP;
 	}();
 	goals.winch=[&]{
-		switch (joystick_section(gunner_joystick.axis[Gamepad_axis::RIGHTX], gunner_joystick.axis[Gamepad_axis::RIGHTY])) {
+		switch (joystick_section(gunner_joystick.axis[Gamepad_axis::LEFTX], gunner_joystick.axis[Gamepad_axis::LEFTY])) {
 			case Joystick_section::UP: return Winch::Goal::OUT;
 			case Joystick_section::DOWN: return Winch::Goal::IN;
 			default: break;

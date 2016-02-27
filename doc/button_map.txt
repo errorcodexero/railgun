@@ -19,25 +19,25 @@ Driver:
   Pushed in -
 
 Gunner:
- A          - Front belt in
- B          - Side belt out
- X          - Side belt in
- Y          - Front belt out
+ A          - Low bar
+ B          - Learn (used in combination with the tilt positions buttons)
+ X          - Terrain
+ Y          - Eject
  Start      - Collector auto/manual toggle
- Back       - Stop collector
- RB         - Collector up
- LB         - Collector down
- RT         - Learn (Used in combination with collector position buttons)
- LT         - Learn (Used in combination with collector position buttons)
+ Back       - All collector off
+ RB         - Side belt in
+ LB         - Side belt out
+ RT         - Front belt in
+ LT         - Front belt out
  L_Joy:
-  Up        - 
-  Down      - Force collector down
+  Up        - Climb up
+  Down      - Climb down 
   Left      -
   Right     -
-  Pushed in - Low
+  Pushed in - 
  R_Joy:
-  Up        - Climb up
-  Down      - Climb down
-  Left      -
-  Right     - 
-  Pushed in - Level
+  Up        - Collector up
+  Down      - Collector down
+  Left      - Collector level
+  Right     - Collector low
+  Pushed in - Force collector down
