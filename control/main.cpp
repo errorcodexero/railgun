@@ -40,9 +40,44 @@ ostream& operator<<(ostream& o,Main::Collector_mode a){
 }
 
 //TODO: at some point, might want to make this whatever is right to start autonomous mode.
-Main::Main():mode(Mode::TELEOP),autonomous_start(0),joy_collector_pos(Joy_collector_pos::STOP),collector_mode(Collector_mode::NOTHING){}
+Main::Main():mode(Mode::TELEOP),autonomous_start(0),joy_collector_pos(Joy_collector_pos::STOP),collector_mode(Collector_mode::NOTHING){
+		stepcounter=0;
+		//the information that is being declared are just place holders for when we get and actual values for auto.
+		s1.ptone.x=70;
+		s1.ptone.y=70;
+		s1.pttwo.x=70;
+		s1.pttwo.y=60;
+		s1.dirone=LEFT;
+		s1.dirtwo=LEFT;
+		
+		s2.ptone.x=70;
+		s2.ptone.y=70;
+		s2.pttwo.x=70;
+		s2.pttwo.y=60;
+		s2.dirone=LEFT;
+		s2.dirtwo=LEFT;
 
-vector<Main::NavS> Main::loadnav(){
+		s3.ptone.x=70;
+		s3.ptone.y=70;
+		s3.pttwo.x=70;
+		s3.pttwo.y=60;
+		s3.dirone=LEFT;
+		s3.dirtwo=LEFT;
+		
+		s4.ptone.x=70;
+		s4.ptone.y=70;
+		s4.pttwo.x=70;
+		s4.pttwo.y=60;
+		s4.dirone=LEFT;
+		s4.dirtwo=LEFT;
+		
+		turna.l=-.45;
+		turna.r=.45;
+		turnb.l=.45;
+		turnb.r=-.45;
+}
+
+vector<Main::NavS> Main::loadnav(navloadinput navin){
 	float amount = 0;
 	vector<NavS> nav;
 	NavS navelement;
@@ -54,14 +89,14 @@ vector<Main::NavS> Main::loadnav(){
 	myfile << "hi" << "\n";
 	myfile.flush();
 	//assign start information
-	start.navpt.x = 70;
-	start.navpt.y = 70;
-	start.navdir = LEFT;
+	start.navpt.x = navin.ptone.x;
+	start.navpt.y = navin.ptone.y;
+	start.navdir = navin.dirone;
 	
 	//assign end information
-	end.navpt.x = 70;
-	end.navpt.y = 60;
-	end.navdir = LEFT;
+	end.navpt.x = navin.pttwo.x;
+	end.navpt.y = navin.pttwo.y;
+	end.navdir = navin.dirtwo;
 	
 	v=solvemaze(start.navpt,end.navpt,start.navdir,end.navdir);
 	myfile << "size: " << v.size() << "\n"; 
@@ -292,11 +327,12 @@ Toplevel::Goal Main::teleop(
 	return goals;
 }
 
-Main::Mode next_mode(Main::Mode m,bool autonomous,bool autonomous_start,Toplevel::Status_detail /*status*/,Time since_switch, Panel /*panel*/,unsigned int navindex,std::vector<Main::NavS> NavV){
+Main::Mode next_mode(Main::Mode m,bool autonomous,bool autonomous_start,Toplevel::Status_detail /*status*/,Time since_switch, Panel /*panel*/,unsigned int navindex,std::vector<Main::NavS> NavV,int & stepcounter){
 	switch(m){
 		case Main::Mode::TELEOP:	
 			if(autonomous_start){
 				return Main::Mode::AUTO_NAV;//just for testing purposes
+				stepcounter = 1; //this needs to be moved to where the oi sets the mode later.
 				/*if (panel.in_use) {
 					switch(panel.auto_mode){ 
 						case Panel::Auto_mode::CAN_GRAB:
@@ -332,10 +368,16 @@ Main::Mode next_mode(Main::Mode m,bool autonomous,bool autonomous_start,Toplevel
 				return Main::Mode::TELEOP;
 			}
 			return Main::Mode::AUTO_NAV_RUN;
-		case Main::Mode::AUTO_NAV_DAMAGE_DRIVE:
-		case Main::Mode::AUTO_NAV_DAMAGE_MANIPULATOR:
+		case Main::Mode::AUTO_NULL:
+			return Main::Mode::TELEOP;
+		case Main::Mode::AUTO_TURN:
+			if(since_switch>.5) break;
+		case Main::Mode::AUTO_SCORE:
+			return Main::Mode::TELEOP;
 		default: assert(0);
 	}
+	return m;
+	
 }
 
 Robot_outputs Main::operator()(Robot_inputs in,ostream&){
@@ -383,7 +425,24 @@ Robot_outputs Main::operator()(Robot_inputs in,ostream&){
 			break;
 		case Mode::AUTO_NAV:
 			myfile2.open(MYFILE2);
-			NavV = loadnav();
+
+			if(stepcounter==1)
+				NavV = loadnav(s1);
+			else if(stepcounter==2)
+				NavV = loadnav(s2);
+			else if(stepcounter==3)
+				break;
+			else if(stepcounter==4)
+				break;
+			else if(stepcounter==5)
+				break;
+			else if(stepcounter==6)
+				NavV = loadnav(s3);
+			else if(stepcounter==7)
+				NavV = loadnav(s4);
+			else	
+				assert(0);
+
 			navindex = 0;
 			myfile2 << "Nav loaded:" << NavV.size() << endl;
 			myfile2.flush();
@@ -392,13 +451,21 @@ Robot_outputs Main::operator()(Robot_inputs in,ostream&){
 			goals.drive.left=NavV[navindex].left;
 			goals.drive.right=NavV[navindex].right;
 			break;
-		case Mode::AUTO_NAV_DAMAGE_DRIVE:
+		case Mode::AUTO_NULL:
 			break;
-		case Mode::AUTO_NAV_DAMAGE_MANIPULATOR:
-			break;
+		case Mode::AUTO_TURN:
+			if(stepcounter==3){
+				goals.drive.left=turna.l;
+				goals.drive.right=turna.r;
+			}
+			else if(stepcounter==5){
+				goals.drive.left=turnb.l;
+				goals.drive.right=turnb.r;
+			}
+				
 		default: assert(0);
 	}
-	auto next=next_mode(mode,in.robot_mode.autonomous,autonomous_start_now,toplevel_status,since_switch.elapsed(),panel,navindex,NavV);
+	auto next=next_mode(mode,in.robot_mode.autonomous,autonomous_start_now,toplevel_status,since_switch.elapsed(),panel,navindex,NavV,stepcounter);
 	since_switch.update(in.now,mode!=next);
 	mode=next;
 
