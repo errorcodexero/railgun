@@ -188,7 +188,7 @@ Toplevel::Goal Main::teleop(
 				goals.tilt=Tilt::Goal::up();
 				break;
 			case Collector_mode::REFLECT:
-				goals.front=Front::Goal::OFF;
+				goals.front=Front::Goal::OUT;
 				goals.sides=Sides::Goal::OUT;
 				goals.tilt=Tilt::Goal::level();
 				break;
