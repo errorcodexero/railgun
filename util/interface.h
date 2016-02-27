@@ -56,9 +56,17 @@ struct Talon_srx_output{
 	Talon_srx_output():power_level(0){}
 };
 
+enum Panel_outputs{SHOOTER_PREPPED, BOULDER, PANEL_OUTPUTS};
+struct Panel_output {
+        int port;
+        bool value;
+	Panel_output():port(0),value(0){}
+};
+
 std::ostream& operator<<(std::ostream&,Digital_out);
 std::ostream& operator<<(std::ostream&,Talon_srx_input);
 std::ostream& operator<<(std::ostream&,Talon_srx_output);
+std::ostream& operator<<(std::ostream&,Panel_output);
 bool operator==(Talon_srx_output,Talon_srx_output);
 bool operator!=(Talon_srx_output,Talon_srx_output);
 bool operator<(Talon_srx_output,Talon_srx_output);
@@ -88,6 +96,8 @@ struct Robot_outputs{
 	static const unsigned CAN_JAGUARS=0;
 	Checked_array<Jaguar_output,CAN_JAGUARS> jaguar;
 	
+	Checked_array<Panel_output,PANEL_OUTPUTS> panel_output;
+
 	//could add in some setup for the analog inputs
 	
 	Driver_station_output driver_station;

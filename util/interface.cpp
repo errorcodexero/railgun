@@ -78,6 +78,11 @@ std::ostream& operator<<(std::ostream& o, Talon_srx_output in){
 	return o<<")";
 }
 
+std::ostream& operator<<(std::ostream& o, Panel_output in) {
+	o<<"(port: "<<in.port<<" value: "<<in.value;
+	return o<<")";
+}
+
 void terse(ostream& o, Digital_out d){
 	//o<<d;
 	switch(d.type()){
@@ -305,6 +310,10 @@ ostream& operator<<(ostream& o,Robot_outputs a){
 	o<<" talon_srx:";
 	for(unsigned i=0;i<a.Robot_outputs::TALON_SRX_OUTPUTS;i++){
 		o<<a.talon_srx[i];
+	}
+	o<<" panel_output:";
+	for(unsigned i=0;i<Panel_outputs::PANEL_OUTPUTS;i++){
+		o<<a.panel_output[i];
 	}
 	/*o<<" jaguar:";
 	for(unsigned i=0;i<a.CAN_JAGUARS;i++){

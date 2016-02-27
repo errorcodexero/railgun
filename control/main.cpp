@@ -24,6 +24,8 @@ const string NAV_LOG_PATH=[&]{
 const string MYFILE=NAV_LOG_PATH+"navlog.txt";
 const string MYFILE2=NAV_LOG_PATH+"navlog2.txt";
 ofstream myfile2;
+static int print_count=0;
+#define SLOW_PRINT (print_count%10==0)
 
 ostream& operator<<(ostream& o,Main::Mode a){
 	#define X(NAME) if(a==Main::Mode::NAME) return o<<""#NAME;
@@ -159,10 +161,8 @@ Toplevel::Goal Main::teleop(
 		nudges[i].timer.update(in.now,1);
 	}
 	
-	static int print_speed=0;
-	print_speed++;
 	bool ball=(in.digital_io.in[6]==Digital_in::_0);
-	if(print_speed%10==0){
+	if(SLOW_PRINT){
 		cout<<"Ball:"<<(ball? "has_ball" : "does not have ball")<<"\n";
 		cout<<"controller_auto: "<<controller_auto.get()<<"\n";
 	}
@@ -175,7 +175,7 @@ Toplevel::Goal Main::teleop(
 		else if(gunner_joystick.button[Gamepad_button::Y])collector_mode=Collector_mode::EJECT;
 		else if(gunner_joystick.button[Gamepad_button::BACK])collector_mode=Collector_mode::NOTHING;
 		if(collector_mode==Collector_mode::COLLECT && ball) collector_mode = Collector_mode::REFLECT;
-		if(print_speed%10==0)cout<<"collector_mode: "<<collector_mode<<"\n";
+		if(SLOW_PRINT)cout<<"collector_mode: "<<collector_mode<<"\n";
 		switch(collector_mode){
 			case Collector_mode::COLLECT:
 				goals.front=Front::Goal::IN;
@@ -339,6 +339,8 @@ Main::Mode next_mode(Main::Mode m,bool autonomous,bool autonomous_start,Toplevel
 }
 
 Robot_outputs Main::operator()(Robot_inputs in,ostream&){
+	print_count++;
+
 	perf.update(in.now);
 	Joystick_data main_joystick=in.joystick[0];
 	Joystick_data gunner_joystick=in.joystick[1];
@@ -359,8 +361,8 @@ Robot_outputs Main::operator()(Robot_inputs in,ostream&){
 	);
 	
 	Toplevel::Status_detail toplevel_status=toplevel.estimator.get();
-	
-	//cout<<"panel: "<<panel<<"\n";	
+		
+	if (SLOW_PRINT) cout<<"panel: "<<panel<<"\n";	
 		
 	bool autonomous_start_now=autonomous_start(in.robot_mode.autonomous && in.robot_mode.enabled);
 	since_auto_start.update(in.now,autonomous_start_now);
@@ -370,7 +372,6 @@ Robot_outputs Main::operator()(Robot_inputs in,ostream&){
 	
 	switch(mode){
 		case Mode::TELEOP:
-		cout << "ENCODER: " << in.digital_io.encoder << endl;
 			goals=teleop(in,main_joystick,gunner_joystick,panel,toplevel_status);
 			//test
 			//tagThis("Line 347: switch(mode) teleop", __FILE__);
@@ -401,9 +402,13 @@ Robot_outputs Main::operator()(Robot_inputs in,ostream&){
 	auto next=next_mode(mode,in.robot_mode.autonomous,autonomous_start_now,toplevel_status,since_switch.elapsed(),panel,navindex,NavV);
 	since_switch.update(in.now,mode!=next);
 	mode=next;
-
+	
 	Toplevel::Output r_out=control(toplevel_status,goals); 
 	auto r=toplevel.output_applicator(Robot_outputs{},r_out);
+	
+	r.panel_output[Panel_outputs::BOULDER].port = 10;
+	r.panel_output[Panel_outputs::BOULDER].value = in.digital_io.in[6]==Digital_in::_0;
+	
 	r=force(r);
 	auto input=toplevel.input_reader(in);
 
