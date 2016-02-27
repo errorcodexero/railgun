@@ -72,7 +72,12 @@ struct Main{
 		#undef X
 	};
 	Collector_mode collector_mode;
+		
+	enum Panel_outputs{SHOOTER_PREPPED, BOULDER, PANEL_OUTPUTS};
+	enum Panel_output_ports{PSHOOTER_PREPPED=6, PBOULDER=10};
 
+	Checked_array<Panel_output,PANEL_OUTPUTS> main_panel_output;
+		
 	Toplevel::Goal teleop(Robot_inputs const&,Joystick_data const&,Joystick_data const&,Panel const&,Toplevel::Status_detail&);
 	Main();
 	Robot_outputs operator()(Robot_inputs,std::ostream& = std::cerr);

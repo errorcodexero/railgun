@@ -167,6 +167,7 @@ Toplevel::Goal Main::teleop(
 		cout<<"Ball:"<<(ball? "has_ball" : "does not have ball")<<"\n";
 		cout<<"controller_auto: "<<controller_auto.get()<<"\n";
 	}
+	main_panel_output[Panel_outputs::BOULDER] = Panel_output(Panel_output_ports::PBOULDER, ball);
 	controller_auto.update(gunner_joystick.button[Gamepad_button::START]);
 	if((!panel.in_use && controller_auto.get()) || (panel.in_use /*&& panel.collector_auto*/)) {
 		if(main_joystick.button[Gamepad_button::BACK])collector_mode=Collector_mode::NOTHING;
@@ -410,8 +411,7 @@ Robot_outputs Main::operator()(Robot_inputs in,ostream&){
 	Toplevel::Output r_out=control(toplevel_status,goals); 
 	auto r=toplevel.output_applicator(Robot_outputs{},r_out);
 	
-	r.panel_output[Panel_outputs::BOULDER].port = 10;
-	r.panel_output[Panel_outputs::BOULDER].value = in.digital_io.in[6]==Digital_in::_0;
+	r.panel_output = main_panel_output;	
 	
 	r=force(r);
 	auto input=toplevel.input_reader(in);
