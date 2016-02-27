@@ -129,14 +129,10 @@ std::set<Climb_release::Status_detail> examples(Climb_release::Status_detail*){
 Climb_release::Output control(Climb_release::Status_detail status,Climb_release::Goal goal){
 	switch(goal){
 		case Climb_release::Goal::IN:
-			if(status==Climb_release::Status_detail::IN){
-				return Climb_release::Output::STOP;
-			}
+			if(status==Climb_release::Status_detail::IN) return Climb_release::Output::STOP;
 			return Climb_release::Output::IN;
 		case Climb_release::Goal::OUT:
-			if(status==Climb_release::Status_detail::OUT){
-				return Climb_release::Output::STOP;
-			}
+			if(status==Climb_release::Status_detail::OUT) return Climb_release::Output::STOP;
 			return Climb_release::Output::OUT;
 		case Climb_release::Goal::STOP: return Climb_release::Output::STOP;
 		default: assert(0);

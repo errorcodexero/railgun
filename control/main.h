@@ -72,7 +72,7 @@ struct Main{
 		#undef X
 	};
 	Collector_mode collector_mode;
-		
+
 	enum Panel_outputs{SHOOTER_PREPPED, BOULDER, PANEL_OUTPUTS};
 	enum Panel_output_ports{PSHOOTER_PREPPED=6, PBOULDER=10};
 

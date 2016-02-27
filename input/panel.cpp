@@ -127,10 +127,10 @@ Panel interpret(Joystick_data d){
 	}
 	{
 		float collector_pos = d.axis[5];
-		static const float STOW=-1, DEFAULT=0, COLLECT_REFLECT=1;
-		p.collector_pos = Panel::Collector_pos::STOW;
-		AXIS_RANGE(collector_pos, STOW, DEFAULT, COLLECT_REFLECT, p.collector_pos, Panel::Collector_pos::DEFAULT)
-		else AXIS_RANGE(collector_pos, DEFAULT, COLLECT_REFLECT, 1.5, p.collector_pos, Panel::Collector_pos::COLLECT_REFLECT)
+		static const float COLLECT_REFLECT=-1, DEFAULT=0, STOW=1;
+		p.collector_pos = Panel::Collector_pos::COLLECT_REFLECT;
+		AXIS_RANGE(collector_pos, COLLECT_REFLECT, DEFAULT, STOW, p.collector_pos, Panel::Collector_pos::DEFAULT)
+		else AXIS_RANGE(collector_pos, DEFAULT, STOW, 1.5, p.collector_pos, Panel::Collector_pos::STOW)
 	}
 	{
 		float front = d.axis[4];
