@@ -38,25 +38,19 @@ Joystick_section divide_vertical(double y){ return joystick_section(0,y); }
 
 unsigned interpret_10_turn_pot(Volt v){
         array<Volt,10>limits={
-                -.98,
-                -.76,
-                -.54,
-                -.32,
-                -.10,
-                .13,
-                .36,
-                .58,
-                .80,
+                -.95,
+                -.70,
+                -.45,
+                -.20,
+                .04,
+                .24,
+                .44,
+                .64,
+                .84,
                 1.1
         };
-        /*for(unsigned i=0;i<10;i++){
-                if(v<limits[i]) return i;
-        }*/
-        for(unsigned i=0;i<5;i++){
-                if(v<limits[i]) return i+5;
-        }
-        for(unsigned i=5;i<10;i++){
-                if(v<limits[i]) return i-5;
+        for(unsigned i=0;i<10;i++){
+                if(v<limits[i]) return (i!=9) ? (i+1) : 0;
         }
         return 9;
 }

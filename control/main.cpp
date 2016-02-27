@@ -360,7 +360,9 @@ Robot_outputs Main::operator()(Robot_inputs in,ostream&){
 	
 	Toplevel::Status_detail toplevel_status=toplevel.estimator.get();
 	
-	//cout<<"panel: "<<panel<<"\n";	
+	static int s_speed = 0;
+	s_speed++;	
+	if (s_speed%10==0) cout<<"panel: "<<panel<<"\n";	
 		
 	bool autonomous_start_now=autonomous_start(in.robot_mode.autonomous && in.robot_mode.enabled);
 	since_auto_start.update(in.now,autonomous_start_now);
@@ -370,7 +372,6 @@ Robot_outputs Main::operator()(Robot_inputs in,ostream&){
 	
 	switch(mode){
 		case Mode::TELEOP:
-		cout << "ENCODER: " << in.digital_io.encoder << endl;
 			goals=teleop(in,main_joystick,gunner_joystick,panel,toplevel_status);
 			//test
 			//tagThis("Line 347: switch(mode) teleop", __FILE__);
