@@ -61,6 +61,7 @@ struct Panel_output {
         int port;
         bool value;
 	Panel_output():port(0),value(0){}
+	Panel_output(int, bool);
 };
 
 std::ostream& operator<<(std::ostream&,Digital_out);

@@ -47,6 +47,11 @@ Digital_out Digital_out::encoder(int encoder_index,bool input_a){
 	return r;
 }
 
+Panel_output::Panel_output(int p, bool v) {
+	port = p;
+	value = v;
+}
+
 std::ostream& operator<<(std::ostream& o,Digital_out a){
 	switch(a.type()){
 		case Digital_out::Type::INPUT:
