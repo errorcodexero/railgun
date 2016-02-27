@@ -13,6 +13,16 @@
 
 using namespace std;
 
+const string NAV_LOG_PATH=[&]{
+	string s;
+	static const string NON_TEST_PATH="/home/lvuser/logs/";
+	#ifndef MAIN_TEST
+	s=NON_TEST_PATH;
+	#endif
+	return s;
+}();
+const string MYFILE=NAV_LOG_PATH+"navlog.txt";
+const string MYFILE2=NAV_LOG_PATH+"navlog2.txt";
 ofstream myfile2;
 
 ostream& operator<<(ostream& o,Main::Mode a){
@@ -38,7 +48,7 @@ vector<Main::NavS> Main::loadnav(){
 	NavS navelement;
 	navinput start, end;
 	vector<pair<int,movedir>> v;
-	ofstream myfile("/home/lvuser/logs/navlog.txt");
+	ofstream myfile(MYFILE);
 	//oiload oinav;
 
 	myfile << "hi" << "\n";
@@ -372,7 +382,7 @@ Robot_outputs Main::operator()(Robot_inputs in,ostream&){
 			goals.drive.right=.45;
 			break;
 		case Mode::AUTO_NAV:
-			myfile2.open("/home/lvuser/logs/navlog2.txt");
+			myfile2.open(MYFILE2);
 			NavV = loadnav();
 			navindex = 0;
 			myfile2 << "Nav loaded:" << NavV.size() << endl;
