@@ -4,9 +4,11 @@ HIGH PRIORITY - DRIVE PRACTICE
 
 HIGH PRIORITY - NOT DRIVE PRACTICE
 	- Autonomous* - Tristan
+		-Drive Encoders
+		-Testing on carpet field with measurements
+		
 
-NOT AS HIGH PRIORITY: 
-	- Check out drive encoders
+NOT AS HIGH PRIORITY:
 	- Shooter:
 		- Vertical/Horizontal Activation
 		- Shooter wheel spin up etc.
@@ -30,15 +32,3 @@ NICE THINGS TO HAVE:
 		- Add a function that will discover which IOs different parts use (and make a nice list)
 		- Make a data type to talk about different inputs
 	-Update Joystick implimentation
-
-*AUTO-MODE REQUIREMENTS & STEPS:
-	Assuming we're starting with the ball in the robot~
-	1. Go through defense (ask Tristan Briggler which defense it will be, but the goal is to have an autonomous mode for each defense, selected via the OI.)
-	2. Drive to low goal 
-	3. Position robot to score
-	4. Score low goal with ball
-	5. Reposition to return to defenses
-	6. Return to defenses
-	7. Go back through defense to the center (also could go through low bar?)
-	8. Position for begining of TELE-OP (lower collector)
-
