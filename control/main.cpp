@@ -13,7 +13,7 @@
 
 using namespace std;
 
-const string NAV_LOG_PATH=[&]{
+const string LOG_PATH=[&]{
 	string s;
 	static const string NON_TEST_PATH="/home/lvuser/logs/";
 	#ifndef MAIN_TEST
@@ -21,9 +21,9 @@ const string NAV_LOG_PATH=[&]{
 	#endif
 	return s;
 }();
-const string MYFILE=NAV_LOG_PATH+"navlog.txt";
-const string MYFILE2=NAV_LOG_PATH+"navlog2.txt";
+
 ofstream myfile2;
+
 static int print_count=0;
 #define SLOW_PRINT (print_count%10==0)
 
@@ -45,6 +45,7 @@ ostream& operator<<(ostream& o,Main::Collector_mode a){
 Main::Main():mode(Mode::TELEOP),autonomous_start(0),joy_collector_pos(Joy_collector_pos::STOP),collector_mode(Collector_mode::NOTHING){}
 
 vector<Main::NavS> Main::loadnav(){
+	const string MYFILE=LOG_PATH+"navlog.txt";
 	float amount = 0;
 	vector<NavS> nav;
 	NavS navelement;
@@ -383,12 +384,15 @@ Robot_outputs Main::operator()(Robot_inputs in,ostream&){
 			goals.drive.right=.45;
 			break;
 		case Mode::AUTO_NAV:
-			myfile2.open(MYFILE2);
-			NavV = loadnav();
-			navindex = 0;
-			myfile2 << "Nav loaded:" << NavV.size() << endl;
-			myfile2.flush();
-			break;
+			{
+				const string MYFILE2=LOG_PATH+"navlog2.txt";
+				myfile2.open(MYFILE2);
+				NavV = loadnav();
+				navindex = 0;
+				myfile2 << "Nav loaded:" << NavV.size() << endl;
+				myfile2.flush();
+				break;
+			}
 		case Mode::AUTO_NAV_RUN:
 			goals.drive.left=NavV[navindex].left;
 			goals.drive.right=NavV[navindex].right;
