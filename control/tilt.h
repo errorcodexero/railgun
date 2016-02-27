@@ -39,7 +39,7 @@ struct Tilt{
 		static Goal go_to_angle(std::array<double,3>);
 		static Goal stop();
 		
-		bool learn_bottom;
+		bool force_down;
 	};
 	
 	typedef double Output;	
