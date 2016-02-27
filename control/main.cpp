@@ -97,7 +97,7 @@ vector<Main::NavS> Main::loadnav(){
 }
 
 double set_drive_speed(double axis,double boost,double slow){
-	static const float MAX_SPEED=1;//Change this value to change the max speed the robot will achieve with full boost
+	static const float MAX_SPEED=1;//Change this value to change the max speed the robot will achieve with full boost (cannot be larger than 1.0)
 	static const float DEFAULT_SPEED=.5;//Change this value to change the default speed
 	static const float SLOW_BY=.5;//Change this value to change the percentage of the default speed the slow button slows
 	return (pow(axis,3)*((DEFAULT_SPEED+(MAX_SPEED-DEFAULT_SPEED)*boost)-((DEFAULT_SPEED*SLOW_BY)*slow)));
@@ -119,7 +119,8 @@ Toplevel::Goal Main::teleop(
 ){
 	Toplevel::Goal goals;
 
-	bool spin=fabs(main_joystick.axis[Gamepad_axis::RIGHTX])>.01,boost=main_joystick.axis[Gamepad_axis::LTRIGGER],slow=main_joystick.axis[Gamepad_axis::RTRIGGER];//spin, turbo, and slow buttons	
+	bool spin=fabs(main_joystick.axis[Gamepad_axis::RIGHTX])>.01;
+	double boost=main_joystick.axis[Gamepad_axis::LTRIGGER],slow=main_joystick.axis[Gamepad_axis::RTRIGGER];//spin, turbo, and slow buttons	
 	
 	static const double NUDGE_POWER=.4,NUDGE_CW_POWER=.4,NUDGE_CCW_POWER=-.4; 
 	goals.drive.left=[&]{
@@ -158,9 +159,11 @@ Toplevel::Goal Main::teleop(
 	controller_auto.update(gunner_joystick.button[Gamepad_button::START]);
 	if((!panel.in_use && controller_auto.get()) || (panel.in_use /*&& panel.collector_auto*/)) {
 		if(main_joystick.button[Gamepad_button::BACK])collector_mode=Collector_mode::NOTHING;
-		else if(main_joystick.button[Gamepad_button::START]) {
-			collector_mode=(toplevel_status.tilt.type() == Tilt::Status_detail::Type::TOP) ? Collector_mode::COLLECT : Collector_mode::STOW;
-		}
+		else if(main_joystick.button[Gamepad_button::START])collector_mode=(toplevel_status.tilt.type() == Tilt::Status_detail::Type::TOP) ? Collector_mode::COLLECT : Collector_mode::STOW;
+		else if(gunner_joystick.button[Gamepad_button::A])collector_mode=Collector_mode::LOW_BAR;
+		else if(gunner_joystick.button[Gamepad_button::X])collector_mode=Collector_mode::TERRAIN;
+		else if(gunner_joystick.button[Gamepad_button::Y])collector_mode=Collector_mode::EJECT;
+		else if(gunner_joystick.button[Gamepad_button::BACK])collector_mode=Collector_mode::NOTHING;
 		if(collector_mode==Collector_mode::COLLECT && ball) collector_mode = Collector_mode::REFLECT;
 		if(print_speed%10==0)cout<<"collector_mode: "<<collector_mode<<"\n";
 		switch(collector_mode){
@@ -234,7 +237,6 @@ Toplevel::Goal Main::teleop(
 				if(low) joy_collector_pos = Joy_collector_pos::LOW;
 				else if(level) joy_collector_pos = Joy_collector_pos::LEVEL;
 				if(gunner_joystick.button[Gamepad_button::B]){//learn
-					cout<<"\npot_in:"<<toplevel_status.tilt.pot_value()<<"\n";
 					#define LEARN(button,mode) if(button)tilt_learn(toplevel_status.tilt.pot_value(),""#mode);
 					LEARN(down,BOTTOM) LEARN(level,LEVEL) LEARN(low,LOW)
 					#undef LEARN
@@ -255,11 +257,6 @@ Toplevel::Goal Main::teleop(
 			}
 		}();
 		goals.tilt.force_down = gunner_joystick.button[Gamepad_button::R_JOY];
-		if(gunner_joystick.button[Gamepad_button::BACK]){
-			joy_collector_pos = Joy_collector_pos::STOP;
-			goals.front=Front::Goal::OFF;
-			goals.sides=Sides::Goal::OFF;
-		}
 	}
 	goals.climb_release=[&]{
 		if(main_joystick.button[Gamepad_button::LB])return Climb_release::Goal::IN;
@@ -267,7 +264,7 @@ Toplevel::Goal Main::teleop(
 		return Climb_release::Goal::STOP;
 	}();
 	goals.winch=[&]{
-		switch (joystick_section(gunner_joystick.axis[Gamepad_axis::LEFTX], gunner_joystick.axis[Gamepad_axis::LEFTY])) {
+		switch (joystick_section(gunner_joystick.axis[Gamepad_axis::LEFTX], gunner_joystick.axis[Gamepad_axis::LEFTY])){
 			case Joystick_section::UP: return Winch::Goal::OUT;
 			case Joystick_section::DOWN: return Winch::Goal::IN;
 			default: break;
@@ -282,23 +279,12 @@ Toplevel::Goal Main::teleop(
 		}
 		return Winch::Goal::STOP;
 	}();
-	/*goals.climb=[&]{
-		if(panel.in_use){
-		#define X(name) if(panel.climber==Panel::Climber::name) return Climb::Goal::name;
-		X(EXTEND) X(STOP) X(RETRACT)
-		#undef X
-		assert(0);	
-	}
-	return Climb::Goal::STOP;
-	}();*/
 	return goals;
 }
 
 Main::Mode next_mode(Main::Mode m,bool autonomous,bool autonomous_start,Toplevel::Status_detail /*status*/,Time since_switch, Panel /*panel*/,unsigned int navindex,std::vector<Main::NavS> NavV){
-
 	switch(m){
-		case Main::Mode::TELEOP:
-		
+		case Main::Mode::TELEOP:	
 			if(autonomous_start){
 				return Main::Mode::AUTO_NAV;//just for testing purposes
 				/*if (panel.in_use) {
@@ -374,12 +360,12 @@ Robot_outputs Main::operator()(Robot_inputs in,ostream&){
 	
 	switch(mode){
 		case Mode::TELEOP:
-		//cout << "ENCODER: " << in.digital_io << endl;
+			//cout << "ENCODER: " << in.digital_io << endl;
 			goals=teleop(in,main_joystick,gunner_joystick,panel,toplevel_status);
-//test
+			//test
 			//tagThis("Line 347: switch(mode) teleop", __FILE__);
 			//cout<<"$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$tag!";
-//test			
+			//test			
 			break;
 		case Mode::AUTO_MOVE:
 			goals.drive.left=.45;
