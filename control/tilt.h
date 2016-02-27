@@ -39,7 +39,7 @@ struct Tilt{
 		static Goal go_to_angle(std::array<double,3>);
 		static Goal stop();
 		
-		bool learn_bottom;
+		bool force_down;
 	};
 	
 	typedef double Output;	
@@ -70,8 +70,8 @@ struct Tilt{
 		float pot_value()const;
 	
 		static Status_detail top();
-		static Status_detail mid(double);
-		static Status_detail bottom(double);	
+		static Status_detail mid(double,double);
+		static Status_detail bottom(double,double);	
 		static Status_detail error();
 	};
 
@@ -163,7 +163,6 @@ bool ready(Tilt::Status, Tilt::Goal);
 
 std::array<double,3> make_tolerances(double);
 
-void update_positions();
 void tilt_learn(float value,std::string const&);
 
 #endif

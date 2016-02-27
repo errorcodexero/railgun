@@ -7,7 +7,6 @@
 #include "tilt.h"
 #include "sides.h"
 #include "front.h"
-#include "climb.h"
 #include "climb_release.h"
 #include "winch.h"
 

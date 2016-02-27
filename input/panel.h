@@ -7,43 +7,37 @@
 struct Panel{
 	bool in_use;
    	//Buttons:
-	bool control_angle;
-	bool eject;
-	bool collect;
-	bool reflect;
-	bool stow;
-	bool terrain;
-	bool low_bar;
-	bool prep_cheval;
-	bool prep_drawbridge;
-	bool prep_sally;
-	bool prep_portcullis;
-	bool execute_prep;
-	bool cancel_prep;
-	bool prep_shoot;
+	bool learn;
+	bool cheval;
+	bool portcullis;
+	bool shoot_prep;
 	bool shoot;
+	bool collect;
+	bool eject;
+	bool collector_up;
+	bool collector_down;
 	//2 position swicthes:
-	bool collector_auto;
+	bool lock_climber;
+	bool tilt_auto;
+	bool front_auto;
+	bool sides_auto;	
 	//3 position switches: 
-	enum class Climber{EXTEND,STOP,RETRACT};
-	Climber climber; 
+	enum class Collector_pos{STOW,DEFAULT,COLLECT_REFLECT};
+	Collector_pos collector_pos;
 	enum class Collector{IN,OFF,OUT};
 	Collector front, sides;
-	enum class Tilt{UP,STOP,DOWN};
-	Tilt tilt;
 	enum class Winch{UP,STOP,DOWN};
 	Winch winch;
 	//10 position switches:
 	enum class Auto_mode{NOTHING,MOVE,SHOOT};
 	Auto_mode auto_mode;
-	//Dials
-	float angle;
+	//Dials:
+	float learn_dial;
 	Panel();
 };
 
-std::ostream& operator<<(std::ostream&,Panel::Climber);
+std::ostream& operator<<(std::ostream&,Panel::Collector_pos);
 std::ostream& operator<<(std::ostream&,Panel::Collector);
-std::ostream& operator<<(std::ostream&,Panel::Tilt);
 std::ostream& operator<<(std::ostream&,Panel::Winch);
 std::ostream& operator<<(std::ostream&,Panel::Auto_mode);
 std::ostream& operator<<(std::ostream&,Panel);

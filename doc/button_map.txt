@@ -1,41 +1,43 @@
 Driver:
- A - Backward Nudge
- B - Clockwise Nudge
- X - Counter-Clockwise Nudge
- Y - Forward Nudge
- Start -
- Back -
- RB -
- LB -
- RT - Slow
- LT - Turbo
- LJoystick:
-  X Axis -
-  Y Axis - Forward/Backward
-  Pushed In -
- RJoystick:
-  X Axis - Turning
-  Y Axis -
-  Pushed In -
+ A          - Backward nudge
+ B          - Clockwise nudge
+ X          - Counter-clockwise nudge
+ Y          - Forward nudge
+ Start      - Collector auto up/down
+ Back       - Stop collector
+ RB         - Climber release out
+ LB         - Climber release in
+ RT         - Slow
+ LT         - Turbo
+ L_Joy:
+  X Axis    -
+  Y Axis    - Forward/backward
+  Pushed in -
+ R_Joy:
+  X Axis    - Turning
+  Y Axis    -
+  Pushed in -
 
 Gunner:
- A - Sides Belt In
- B - Front Belt Out
- X - Front Belt In
- Y - Sides Belt Out
- Start - Learn (Used in combination with collector position buttons)
- Back - Stop Collector
- RB - Collector Up
- LB - Collector Down
- RT -
- LT -
- LJoystick:
-  Up - Free Collector Movement
-  Down -
-  Left -
-  Right -
-  Pushed In - Low
- RJoystick:
-  X Axis -
-  Y Axis -
-  Pushed In - Level
+ A          - Low bar
+ B          - Learn (used in combination with the tilt positions buttons)
+ X          - Terrain
+ Y          - Eject
+ Start      - Collector auto/manual toggle
+ Back       - All collector off
+ RB         - Side belt in
+ LB         - Side belt out
+ RT         - Front belt in
+ LT         - Front belt out
+ L_Joy:
+  Up        - Climb up
+  Down      - Climb down 
+  Left      -
+  Right     -
+  Pushed in - 
+ R_Joy:
+  Up        - Collector up
+  Down      - Collector down
+  Left      - Collector level
+  Right     - Collector low
+  Pushed in - Force collector down
