@@ -528,8 +528,7 @@ point randpoint(mapstruct map){
 #ifdef NAV_TEST
 
 int main(){
-/*
-	point a;
+/*	point a;
 	point b;
 	direction c=RIGHT;
 	direction  d=UP;
@@ -552,9 +551,7 @@ int main(){
 
 	cout << "Final:" << endl << FinalInstructions << endl;
 
-	//}
-*/
+	//}*/
 }
-
 
 #endif

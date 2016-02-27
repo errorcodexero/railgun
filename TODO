@@ -1,8 +1,10 @@
-HIGH PRIORITY
-	- Driver/gunner controls
+HIGH PRIORITY - DRIVE PRACTICE
+	- Driver/gunner controls (NEED DRIVETEAM)
 	- OI code - Matthew
 	- Autonomous* - Tristan
 
+HIGH PRIORITY - NOT DRIVE PRACTICE
+	
 
 NOT AS HIGH PRIORITY: 
 	- Check out drive encoders
@@ -12,7 +14,7 @@ NOT AS HIGH PRIORITY:
 		- Ball injector
 		- Add control into main
 	- Logger & Diagnostics - Jacob
-	- Vision - Nick 
+	- Vision Integration 
 	- Laptop configuration
 		-ssh config:
 			-Fix the "rm ~/.ssh/known_hosts" problem
