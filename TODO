@@ -1,10 +1,9 @@
 HIGH PRIORITY - DRIVE PRACTICE
-	- Driver/gunner controls (NEED DRIVETEAM)
+	- Driver/gunner controls (Need driveteam to map buttons)
 	- OI code - Matthew
-	- Autonomous* - Tristan
 
 HIGH PRIORITY - NOT DRIVE PRACTICE
-	
+	- Autonomous* - Tristan
 
 NOT AS HIGH PRIORITY: 
 	- Check out drive encoders
@@ -30,7 +29,7 @@ NICE THINGS TO HAVE:
 	- Meta IO information
 		- Add a function that will discover which IOs different parts use (and make a nice list)
 		- Make a data type to talk about different inputs
-
+	-Update Joystick implimentation
 
 *AUTO-MODE REQUIREMENTS & STEPS:
 	Assuming we're starting with the ball in the robot~

@@ -408,6 +408,12 @@ public:
 			if(r) error_code|=512;*/
 		}
 		digital_io.set(out.digital_io);
+		
+		Joystick panel(2);
+		for(unsigned i=0;i<Panel_outputs::PANEL_OUTPUTS;i++){
+			panel.SetOutput(out.panel_output[i].port, out.panel_output[i].value);
+		}
+		
 		//cout << "d_io: " << digital_io << endl << "o.d.io: " << out.digital_io << endl ;
 
 		//test.Set(1);

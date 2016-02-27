@@ -102,7 +102,7 @@ Panel interpret(Joystick_data d){
 		if (!p.in_use) return p;
 	}
 	{
-		Volt auto_mode=d.axis[7];//?
+		Volt auto_mode=d.axis[0];
 		p.auto_mode=auto_mode_convert(interpret_10_turn_pot(auto_mode));
 	}
 	p.lock_climber = d.button[0];
@@ -110,50 +110,50 @@ Panel interpret(Joystick_data d){
 	p.sides_auto = d.button[2];
 	p.front_auto = d.button[3];
 	{
-		float op = d.axis[3];
-		static const float DEFAULT=-1, LEARN=-.78, CHEVAL=-.56, PORTCULLIS=-.34, SHOOT_PREP=-.12, SHOOT=.11, COLLECT=.33, EJECT=.55, COLLECTOR_UP=.77, COLLECTOR_DOWN=1;
+		float op = d.axis[2];
+		static const float DEFAULT=-1, COLLECTOR_UP=-.8, COLLECTOR_DOWN=-.62, EJECT=-.45, COLLECT=-.29, SHOOT=-.11, SHOOT_PREP=.09, PORTCULLIS=.33, CHEVAL=.62, LEARN=1;
 		#define X(button) p.button = 0;
-		X(learn) X(cheval) X(portcullis) X(shoot_prep) X(shoot) X(collect) X(eject) X(collector_up) X(collector_down)
+		X(collector_up) X(collector_down) X(eject) X(collect) X(shoot) X(shoot_prep) X(portcullis) X(cheval) X(learn)
 		#undef X
-		AXIS_RANGE(op, DEFAULT, LEARN, CHEVAL, p.learn, 1)
-		else AXIS_RANGE(op, LEARN, CHEVAL, PORTCULLIS, p.cheval, 1)
-		else AXIS_RANGE(op, CHEVAL, PORTCULLIS, SHOOT_PREP, p.portcullis, 1)
-		else AXIS_RANGE(op, PORTCULLIS, SHOOT_PREP, SHOOT, p.shoot_prep, 1)
-		else AXIS_RANGE(op, SHOOT_PREP, SHOOT, COLLECT, p.shoot, 1)
-		else AXIS_RANGE(op, SHOOT, COLLECT, EJECT, p.collect, 1)
-		else AXIS_RANGE(op, COLLECT, EJECT, COLLECTOR_UP, p.eject, 1)
-		else AXIS_RANGE(op, EJECT, COLLECTOR_UP, COLLECTOR_DOWN, p.collector_up, 1)
-		else AXIS_RANGE(op, COLLECTOR_UP, COLLECTOR_DOWN, 1.22, p.collector_down, 1)
+		AXIS_RANGE(op, DEFAULT, COLLECTOR_UP, COLLECTOR_DOWN, p.collector_up, 1)
+		else AXIS_RANGE(op, COLLECTOR_UP, COLLECTOR_DOWN, EJECT, p.collector_down, 1)
+		else AXIS_RANGE(op, COLLECTOR_DOWN, EJECT, COLLECT, p.eject, 1)
+		else AXIS_RANGE(op, EJECT, COLLECT, SHOOT, p.collect, 1)
+		else AXIS_RANGE(op, COLLECT, SHOOT, SHOOT_PREP, p.shoot, 1)
+		else AXIS_RANGE(op, SHOOT, SHOOT_PREP, PORTCULLIS, p.shoot_prep, 1)
+		else AXIS_RANGE(op, SHOOT_PREP, PORTCULLIS, CHEVAL, p.portcullis, 1)
+		else AXIS_RANGE(op, PORTCULLIS, CHEVAL, LEARN, p.cheval, 1)
+		else AXIS_RANGE(op, CHEVAL, LEARN, 1.38, p.learn, 1)
 	}
 	{
-		float collector_pos = d.axis[0];
+		float collector_pos = d.axis[5];
 		static const float STOW=-1, DEFAULT=0, COLLECT_REFLECT=1;
 		p.collector_pos = Panel::Collector_pos::STOW;
 		AXIS_RANGE(collector_pos, STOW, DEFAULT, COLLECT_REFLECT, p.collector_pos, Panel::Collector_pos::DEFAULT)
 		else AXIS_RANGE(collector_pos, DEFAULT, COLLECT_REFLECT, 1.5, p.collector_pos, Panel::Collector_pos::COLLECT_REFLECT)
 	}
 	{
-		float front = d.axis[1];
+		float front = d.axis[4];
 		static const float OUT=-1, OFF=.48, IN=1;
 		p.front = Panel::Collector::OUT;
 		AXIS_RANGE(front, OUT, OFF, IN, p.front, Panel::Collector::OFF)
 		else AXIS_RANGE(front, OFF, IN, 1.5, p.front, Panel::Collector::IN)
 	}
 	{
-		float sides = d.axis[5];
+		float sides = d.axis[6];
                 static const float OUT=-1, OFF=0, IN=1;
                 p.sides = Panel::Collector::OUT;
                 AXIS_RANGE(sides, OUT, OFF, IN, p.sides, Panel::Collector::OFF)
                 else AXIS_RANGE(sides, OFF, IN, 1.5, p.sides, Panel::Collector::IN)
 	}
         {
-                float winch = d.axis[6];
+                float winch = d.axis[3];
                 static const float UP=-1, STOP=0, DOWN=1;
                 p.winch = Panel::Winch::UP;
                 AXIS_RANGE(winch, UP, STOP, DOWN, p.winch, Panel::Winch::STOP)
                 else AXIS_RANGE(winch, STOP, DOWN, 1.5, p.winch, Panel::Winch::DOWN);
         }
-	p.learn_dial = d.axis[4];
+	p.learn_dial = d.axis[1];
 	#undef AXIS_RANGE
 	return p;
 }
