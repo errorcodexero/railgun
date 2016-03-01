@@ -1,4 +1,0 @@
-OI LEDs:
-	- Have ball
-	- Shooter wheel spun up
-
