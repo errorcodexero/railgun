@@ -384,6 +384,7 @@ bool approx_eq(double a,double b){
 	return fabs(a-b)<.001;
 }
 
+
 template<typename T>
 bool approx_eq(T a,T b)nyi
 
