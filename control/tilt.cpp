@@ -491,6 +491,23 @@ void tilt_learn(float pot_in,std::string const& mode){
 
 int main(){
 	update_positions();
+	for(unsigned int i=0; i<Positions::POSITIONS; i++){
+		std::ifstream test(POSITIONS_FILE);
+		while(!test.eof()){
+			std::string temp, line;
+			std::getline(test,line);
+			for(char c:line){
+				if(c==':' && temp==POSITION_NAMES[i]){
+					float f;
+					std::istringstream in(line.substr(temp.size()+1));
+					in>>f;
+					assert(positions[i]==f);
+				}
+				temp+=c;
+			}
+		}
+		test.close();
+	}
 	Tilt a;
 	Tester_mode t;
 	t.check_outputs_exhaustive = 0;

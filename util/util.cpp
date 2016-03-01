@@ -183,7 +183,6 @@ void fileio_test(){
 		assert(!r);
 	}
 	assert(out==data);
-	remove(filename.c_str());
 }
 
 int main(){
