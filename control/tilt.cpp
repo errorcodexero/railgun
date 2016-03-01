@@ -431,29 +431,32 @@ void populate(){
 	test.close();
 }
 
+float find_value(std::string mode){
+	std::ifstream file(POSITIONS_FILE);
+	for(unsigned int i=0; i<Positions::POSITIONS; i++){
+		while(!file.eof()){ 
+			std::string temp,line; 
+			std::getline(file,line); 
+			for(char c:line){ 
+				if(c==':' && temp==mode){ 
+					std::istringstream in(line.substr(temp.size()+1));
+					float f;
+					in>>f;
+					file.close();					
+					return f;
+				} 
+				temp+=c; 
+			} 
+		} 
+	}
+	file.close();
+	assert(0);
+}
+
 void update_positions(){
 	populate();
 	std::ifstream file(POSITIONS_FILE);
-	for(unsigned int i=0; i<Positions::POSITIONS; i++){
-		bool next=false;
-		std::string mode=POSITION_NAMES[i];
-		while(!file.eof()){ 
-			std::string edit,line; 
-			std::getline(file,line); 
-			for(char c:line){ 
-				if(c==':' && edit==mode){ 
-					std::istringstream in(line.substr(edit.size()+1));
-					float value;
-					in>>value;
-					positions[i]=value;
-					next=true;
-					break; 
-				} 
-				edit+=c; 
-			} 
-			if(next)break;
-		} 
-	}
+	for(unsigned int i=0; i<Positions::POSITIONS; i++)positions[i]=find_value(POSITION_NAMES[i]);
 	file.close();
 }
 
@@ -492,26 +495,13 @@ void tilt_learn(float pot_in,std::string const& mode){
 int main(){
 	update_positions();
 	for(unsigned int i=0; i<Positions::POSITIONS; i++){
-		std::ifstream test(POSITIONS_FILE);
-		while(!test.eof()){
-			std::string temp, line;
-			std::getline(test,line);
-			for(char c:line){
-				if(c==':' && temp==POSITION_NAMES[i]){
-					float f;
-					std::istringstream in(line.substr(temp.size()+1));
-					in>>f;
-					assert(positions[i]==f);
-				}
-				temp+=c;
-			}
-		}
-		test.close();
+		float f=find_value(POSITION_NAMES[i]);
+		assert(positions[i]==f);
 	}
 	Tilt a;
 	Tester_mode t;
-	t.check_outputs_exhaustive = 0;
-	tester(a, t);
+	t.check_outputs_exhaustive=0;
+	tester(a,t);
 }
 
 #endif
