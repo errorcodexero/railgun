@@ -65,14 +65,15 @@ struct Main{
 	Joy_collector_pos joy_collector_pos;
 		
 	Posedge_toggle controller_auto;
-	#define COLLECTOR_MODES X(NOTHING) X(COLLECT) X(STOW) X(EJECT) X(REFLECT) X(TERRAIN) X(LOW_BAR)
+	#define COLLECTOR_MODES X(NOTHING) X(COLLECT) X(STOW) X(EJECT) X(REFLECT) X(SHOOT) X(LOW_BAR)
 	enum class Collector_mode{
 		#define X(name) name,
 		COLLECTOR_MODES
 		#undef X
 	};
 	Collector_mode collector_mode;
-
+	
+	Countdown_timer shoot_timer;
 	enum Panel_outputs{SHOOTER_PREPPED, BOULDER, PANEL_OUTPUTS};
 	enum Panel_output_ports{PSHOOTER_PREPPED=6, PBOULDER=10};
 

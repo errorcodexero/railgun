@@ -33,7 +33,7 @@ Panel::Panel():
 ostream& operator<<(ostream& o,Panel::Collector_pos a){
 	o<<"Panel::Collector_pos(";
 	#define X(name) if(a==Panel::Collector_pos::name)o<<""#name;
-	X(STOW) X(DEFAULT) X(COLLECT_REFLECT)
+	X(STOW) X(DEFAULT) X(LOW)
 	#undef X
 	return o<<")";
 }
@@ -127,9 +127,9 @@ Panel interpret(Joystick_data d){
 	}
 	{
 		float collector_pos = d.axis[5];
-		static const float COLLECT_REFLECT=-1, DEFAULT=0, STOW=1;
-		p.collector_pos = Panel::Collector_pos::COLLECT_REFLECT;
-		AXIS_RANGE(collector_pos, COLLECT_REFLECT, DEFAULT, STOW, p.collector_pos, Panel::Collector_pos::DEFAULT)
+		static const float LOW=-1, DEFAULT=0, STOW=1;
+		p.collector_pos = Panel::Collector_pos::LOW;
+		AXIS_RANGE(collector_pos, LOW, DEFAULT, STOW, p.collector_pos, Panel::Collector_pos::DEFAULT)
 		else AXIS_RANGE(collector_pos, DEFAULT, STOW, 1.5, p.collector_pos, Panel::Collector_pos::STOW)
 	}
 	{
