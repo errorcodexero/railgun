@@ -6,7 +6,7 @@
 #include <fstream> 
 #include <vector> 
 
-#define POWER 1//negative goes up, positive goes down
+#define POWER 1.0//negative goes up, positive goes down
 
 #define TOP_VOLTAGE 1.71
 #define BOTTOM_VOLTAGE 4
@@ -16,9 +16,9 @@
 
 #define PI 3.14159265//It's pi. What more do you want?
 
-#define TILT_PDB_LOC 8
-#define TILT_POT_LOC 0
-#define TILT_LIM_LOC 9
+#define TILT_PDB_LOC 8 //pdb # 
+#define TILT_POT_LOC 0 //pot analog #
+#define TILT_LIM_LOC 9 //limit switch dio #
 #define TILT_ADDRESS 4 //pwm #
 
 #define nyi { std::cout<<"\nnyi "<<__LINE__<<"\n"; exit(44); }
@@ -44,10 +44,7 @@ double power_to_keep_up(double angle) {
 	return -(sin(angle * PI / 180) * (LENGTH * WEIGHT / MOTOR_MAX));
 }
 
-Tilt::Status_detail::Status_detail(): 
-	top(0),
-	angle(0)
-{}
+Tilt::Status_detail::Status_detail():top(0),angle(0){}
 
 Tilt::Status_detail::Status_detail(bool a,double b):top(a),angle(b){}
 
@@ -79,9 +76,7 @@ Tilt::Goal::Mode Tilt::Goal::mode()const{
 	return mode_;
 }
 
-Tilt::Estimator::Estimator():
-	last(0,0)
-{}
+Tilt::Estimator::Estimator():last(0,0){}
 
 std::array<double,3> Tilt::Goal::angle()const{
 	assert(mode_==Tilt::Goal::Mode::GO_TO_ANGLE);
@@ -197,12 +192,9 @@ std::set<Tilt::Goal> examples(Tilt::Goal*){
 
 std::set<Tilt::Status_detail> examples(Tilt::Status_detail*){
 	return {
-		Tilt::Status_detail{0,0},
 		Tilt::Status_detail{1,0},
 		Tilt::Status_detail{0,90},
-		Tilt::Status_detail{1,90},
 		Tilt::Status_detail{0,120},
-		Tilt::Status_detail{1,120}
 	};
 }
 
@@ -210,73 +202,24 @@ std::set<Tilt::Status> examples(Tilt::Status*){
 	return {0,90,120};
 }
 
-/*std::set<Tilt::Output> examples(Tilt::Output*){ 
-	return {
-		-POWER,
-		0,
-		degree_change_to_power(0, volts_to_degrees(positions[Positions::LEVEL])),
-		degree_change_to_power(0, volts_to_degrees(positions[Positions::LOW])),
-		POWER
-	};
-}*/
-
 Tilt::Output control(Tilt::Status_detail status, Tilt::Goal goal){
-	/*const double SLOW_FULL_DESCENT=.2*POWER;//, SLOW=.5*POWER;
-	double keep_up_power=power_to_keep_up(status.get_angle());
-	std::cout<<"goal: "<<goal<<"\n";
-	if(goal.force_down) return POWER*SLOW_FULL_DESCENT;
-	switch(goal.mode()){
-		case Tilt::Goal::Mode::UP:
-			switch(status.type()){
-				case Tilt::Status_detail::Type::TOP:
-					return keep_up_power;
-				case Tilt::Status_detail::Type::ERRORS:
-					return 0;
-				case Tilt::Status_detail::Type::BOTTOM:
-				case Tilt::Status_detail::Type::MID:
-					return -POWER;
-				default: assert(0);
-			}
-		case Tilt::Goal::Mode::DOWN:
-			switch(status.type()){
-				case Tilt::Status_detail::Type::BOTTOM:
-					return keep_up_power;
-				case Tilt::Status_detail::Type::ERRORS:
-					return 0;
-				case Tilt::Status_detail::Type::TOP:
-				case Tilt::Status_detail::Type::MID:
-					return POWER;
-				default: assert(0);
-			}
-		case Tilt::Goal::Mode::GO_TO_ANGLE:
-			switch (status.type()) {
-				case Tilt::Status_detail::Type::TOP:
-				case Tilt::Status_detail::Type::BOTTOM:
-				case Tilt::Status_detail::Type::MID:
-					//if(status.get_angle()>=goal.angle()[0] && status.get_angle()<=goal.angle()[2])return power_to_keep_up(goal.angle()[1]);
-					return (degree_change_to_power(status.get_angle(),goal.angle()[1]));
-				case Tilt::Status_detail::Type::ERRORS:
-					return 0;
-				default:
-					assert(0);
-			}
-		case Tilt::Goal::Mode::STOP: return keep_up_power;
-		default: assert(0);
-	}*/
+	const double SLOW=POWER/2;
 	switch(goal.mode()){
 		case Tilt::Goal::Mode::DOWN:
-			return .5;
+			//if(status.angle>=volts_to_degrees(BOTTOM_VOLTAGE)) return 0;//If enabled, then the collector won't go below the bottom
+			return SLOW;
 		case Tilt::Goal::Mode::UP:
 			if(status.top) return 0;
-			return -.5;
+			return -SLOW;
 		case Tilt::Goal::Mode::STOP:
 			return 0;
-		case Tilt::Goal::Mode::GO_TO_ANGLE:{
-			auto error=goal.angle()[1]-status.angle;
-			auto x=power_to_keep_up(status.angle) + error*.04;
-			if(x<0 && status.top) return 0;
-			return clip(x);
-		}
+		case Tilt::Goal::Mode::GO_TO_ANGLE:
+			{
+				double error=goal.angle()[1]-status.angle;
+				double x=power_to_keep_up(status.angle) + error*.04;
+				if(x<0 && status.top) return 0;
+				return clip(x);
+			}
 		default:
 			assert(0);
 	}
@@ -287,15 +230,13 @@ Tilt::Status status(Tilt::Status_detail a){
 }
 
 bool ready(Tilt::Status status, Tilt::Goal goal){
-	(void)status;
-	(void)goal;
-	/*switch(goal.mode()){
-		case Tilt::Goal::Mode::UP: return status.type==Tilt::Status::Type::TOP;
-		case Tilt::Goal::Mode::DOWN: return (status.type==Tilt::Status::Type::BOTTOM && !goal.force_down);
-		case Tilt::Goal::Mode::GO_TO_ANGLE: return (status.angle>=goal.angle()[0] && status.angle<=goal.angle()[2]);
+	switch(goal.mode()){
+		case Tilt::Goal::Mode::UP: return status<=ANGLE_TOLERANCE;
+		case Tilt::Goal::Mode::DOWN: return status>=volts_to_degrees(BOTTOM_VOLTAGE);
+		case Tilt::Goal::Mode::GO_TO_ANGLE: return (status>=goal.angle()[0] && status<=goal.angle()[2]);
 		case Tilt::Goal::Mode::STOP: return true;
 		default: assert(0);
-	}*/
+	}
 	return 1;
 }
 
