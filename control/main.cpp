@@ -165,10 +165,13 @@ Toplevel::Goal Main::teleop(
 	bool ball=(in.digital_io.in[6]==Digital_in::_0);
 	main_panel_output[Panel_outputs::BOULDER] = Panel_output(static_cast<int>(Panel_output_ports::BOULDER), ball);
 	controller_auto.update(gunner_joystick.button[Gamepad_button::START]);
+	auto LEVEL=Tilt::Goal::go_to_angle({83,83,83});
+	auto LOW=Tilt::Goal::go_to_angle({100,100,100});
+	auto TOP=Tilt::Goal::go_to_angle({0,0,0});
 	if((!panel.in_use && controller_auto.get()) || (panel.in_use && (panel.tilt_auto || panel.front_auto || panel.sides_auto))) {
 		if(main_joystick.button[Gamepad_button::BACK]) collector_mode=Collector_mode::NOTHING;
 		else if(main_joystick.button[Gamepad_button::START] || (panel.in_use && panel.collect)) collector_mode=Collector_mode::COLLECT;
-		else if(gunner_joystick.button[Gamepad_button::A] || (panel.in_use && panel.collector_pos==Panel::Collector_pos::LOW)) collector_mode=Collector_mode::LOW_BAR;
+		else if(gunner_joystick.button[Gamepad_button::A] || (panel.in_use && panel.collector_pos==Panel::Collector_pos::LOW)) collector_mode=Collector_mode::LOW;
 		else if(gunner_joystick.button[Gamepad_button::X] || (panel.in_use && panel.shoot)) {
 			collector_mode=Collector_mode::SHOOT;
 			shoot_timer.set(1);
@@ -177,12 +180,11 @@ Toplevel::Goal Main::teleop(
 		else if(gunner_joystick.button[Gamepad_button::BACK]) collector_mode=Collector_mode::NOTHING;
 		else if(panel.in_use && panel.collector_pos==Panel::Collector_pos::STOW) collector_mode = Collector_mode::STOW;
 		if(SLOW_PRINT)cout<<"collector_mode: "<<collector_mode<<"\n";
-		auto LEVEL=Tilt::Goal::go_to_angle({83,83,83});
 		switch(collector_mode){
 			case Collector_mode::COLLECT:
 				goals.front=Front::Goal::IN;
 				goals.sides=Sides::Goal::IN;
-				goals.tilt=LEVEL;//;::Goal::level();
+				goals.tilt=LEVEL;
 				if(ball) collector_mode=Collector_mode::STOW;
 				break;
 			case Collector_mode::STOW:
@@ -203,14 +205,14 @@ Toplevel::Goal Main::teleop(
 			case Collector_mode::SHOOT:
 				goals.front=Front::Goal::OUT;
 				goals.sides=Sides::Goal::OFF;
-				goals.tilt=Tilt::Goal::go_to_angle({0, 0, 0});
+				goals.tilt=TOP;
 				shoot_timer.update(in.now, true);
 				if (shoot_timer.done()) collector_mode = Collector_mode::STOW;
 				break;
-			case Collector_mode::LOW_BAR:
+			case Collector_mode::LOW:
 				goals.front=Front::Goal::OFF;
 				goals.sides=Sides::Goal::OFF;
-				goals.tilt=Tilt::Goal::go_to_angle({100,100,100});
+				goals.tilt=LOW;;
 				break;
 			case Collector_mode::NOTHING:
 				goals.front=Front::Goal::OFF;
@@ -257,12 +259,11 @@ Toplevel::Goal Main::teleop(
                         }
                         switch (joy_collector_pos) {
                                 case Joy_collector_pos::STOP: return Tilt::Goal::stop();
-                                case Joy_collector_pos::LOW: return Tilt::Goal::low();
-                                case Joy_collector_pos::LEVEL: return Tilt::Goal::level();
+                                case Joy_collector_pos::LOW: return LOW;
+                                case Joy_collector_pos::LEVEL: return LEVEL;
                                 default: assert(0);
                         }
                 }();	
-		goals.tilt.force_down = gunner_joystick.button[Gamepad_button::R_JOY];
 		#endif
 		if(gunner_joystick.button[Gamepad_button::BACK]){
 			goals.tilt=Tilt::Goal::stop();
