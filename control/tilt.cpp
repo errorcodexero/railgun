@@ -31,11 +31,6 @@ float degrees_to_volts(float f){
 	return f*VOLTS_PER_DEGREE+TOP_VOLTAGE;
 }
 
-/*double clip(double power) {
-	if (power>=0) return std::min(power, (double) POWER);
-	return std::max(power, (double) -POWER);
-}*/
-
 double degree_change_to_power(double current, double target) { //start and end are in degrees
 	const double P = .16;//proportional constant
 	double error = target - current;
@@ -280,7 +275,7 @@ Tilt::Output control(Tilt::Status_detail status, Tilt::Goal goal){
 			auto error=goal.angle()[1]-status.angle;
 			auto x=power_to_keep_up(status.angle) + error*.04;
 			if(x<0 && status.top) return 0;
-			return x;
+			return clip(x);
 		}
 		default:
 			assert(0);
