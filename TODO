@@ -1,6 +1,5 @@
 HIGH PRIORITY - DRIVE PRACTICE
 	- Driver/gunner controls (Need driveteam to map buttons)
-	- OI input to setting goals in teleop() - Matthew
 
 HIGH PRIORITY - NOT DRIVE PRACTICE
 	- Fix robRIO connection issue and figuring out why it isn't assinged the new ip address
