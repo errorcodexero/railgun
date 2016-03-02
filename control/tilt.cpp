@@ -245,25 +245,6 @@ Tilt::Status_detail Tilt::Estimator::get()const {
 }
 
 void Tilt::Estimator::update(Time time, Tilt::Input in, Tilt::Output) {
-	/*if(in.top) tilt_learn(in.pot_value,POSITION_NAMES[Positions::TOP]);
-	else if(in.pot_value>positions[Positions::BOTTOM])tilt_learn(in.pot_value,POSITION_NAMES[Positions::BOTTOM]);
-	const float ALLOWED_TOLERANCE=degrees_to_volts(20);//Here a larger tolerance than ANGLE_TOLERANCE words better, especially to prevent ramming the floor
-	bool at_top=in.pot_value<=positions[Positions::TOP]+ALLOWED_TOLERANCE, at_bottom=in.pot_value>=positions[Positions::BOTTOM]-ALLOWED_TOLERANCE;
-	float angle=volts_to_degrees(in.pot_value-positions[Positions::TOP]);
-	stall_timer.update(time,true);
-	if(stall_timer.done()) last.stalled=true;
-	if(in.current<10 || fabs(angle-timer_start_angle)<1){//Assumed current for now
-		last.stalled=false;
-		stall_timer.set(1);
-		timer_start_angle=angle;
-	}
-	if(in.top && at_top){
-		if(at_bottom)last=Tilt::Status_detail::error();
-		else last=Tilt::Status_detail::top();
-	} else {
-		if(at_bottom) last=Tilt::Status_detail::bottom(angle,in.pot_value-positions[Positions::TOP]);
-		else last=Tilt::Status_detail::mid(angle,in.pot_value-positions[Positions::TOP]);
-	}*/
 	last=in;
 	(void)time;
 }
