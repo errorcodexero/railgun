@@ -242,15 +242,15 @@ std::set<Tilt::Goal> examples(Tilt::Goal*){
 std::set<Tilt::Status_detail> examples(Tilt::Status_detail*){
 	return {
 		Tilt::Status_detail{0,0},
-		Tilt::Status_detail{0,1},
 		Tilt::Status_detail{1,0},
-		Tilt::Status_detail{1,1}
+		Tilt::Status_detail{0,90},
+		Tilt::Status_detail{1,90},
+		Tilt::Status_detail{0,120},
+		Tilt::Status_detail{1,120}
 	};
 }
 
 std::set<Tilt::Status> examples(Tilt::Status*){
-	/*std::set<Tilt::Status> s;
-	return s;*/
 	return {0,90,120};
 }
 
@@ -265,7 +265,6 @@ std::set<Tilt::Status> examples(Tilt::Status*){
 }*/
 
 Tilt::Output control(Tilt::Status_detail status, Tilt::Goal goal){
-	(void)goal;
 	/*const double SLOW_FULL_DESCENT=.2*POWER;//, SLOW=.5*POWER;
 	double keep_up_power=power_to_keep_up(status.get_angle());
 	std::cout<<"goal: "<<goal<<"\n";
@@ -308,7 +307,6 @@ Tilt::Output control(Tilt::Status_detail status, Tilt::Goal goal){
 		case Tilt::Goal::Mode::STOP: return keep_up_power;
 		default: assert(0);
 	}*/
-	(void)status;
 	switch(goal.mode()){
 		case Tilt::Goal::Mode::DOWN:
 			return .5;
@@ -384,10 +382,6 @@ bool approx_eq(double a,double b){
 	return fabs(a-b)<.001;
 }
 
-
-template<typename T>
-bool approx_eq(T a,T b)nyi
-
 bool approx_eq(Tilt::Status_detail a,Tilt::Status_detail b){
 	return a.top==b.top && approx_eq(a.angle,b.angle);
 }
@@ -397,7 +391,7 @@ int main(){
 	Tester_mode t;
 	t.check_outputs_exhaustive = 0;
 	t.input_exact=0;
-	//tester(a, t);
+	tester(a, t);
 }
 
 #endif

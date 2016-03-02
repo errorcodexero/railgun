@@ -49,6 +49,9 @@ void test_ostream(std::string heading,T* t){
 	std::cout<<"\n";
 }
 
+template<typename T>
+bool approx_eq(T,T)NYI
+
 struct Tester_mode{
 	bool check_outputs_exhaustive=1;
 	bool check_multiple_outputs=1;
