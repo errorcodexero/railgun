@@ -130,10 +130,6 @@ std::ostream& operator<<(std::ostream& o, Tilt::Goal::Mode a){
 std::ostream& operator<<(std::ostream& o, Tilt::Status_detail a){ 
 	o<<"Tilt::Status_detail(";
 	o<<"top:"<<a.top<<" angle:"<<a.angle;
-	/*o<<" stalled:"<<a.stalled;
-	o<<" reached_ends:"<<a.reached_ends;
-	o<<" type:"<<a.type();
-	if(a.type()==Tilt::Status_detail::Type::MID)o<<"("<<a.get_angle()<<" "<<a.pot_value()<<")";*/
 	return o<<")";
 }
 
@@ -158,27 +154,6 @@ std::ostream& operator<<(std::ostream& o, Tilt a){
 
 #define CMP(name) if(a.name<b.name) return 1; if(b.name<a.name) return 0;
 
-/*bool operator==(Tilt::Input const& a,Tilt::Input const& b){
-	return a.angle==b.angle && a.top==b.top;	
-}*/
-/*bool operator!=(Tilt::Input const& a,Tilt::Input const& b){ return !(a==b); }
-bool operator<(Tilt::Input const& a,Tilt::Input const& b){
-	CMP(pot_value)
-	CMP(current)
-	return !a.top && b.top;
-}
-std::ostream& operator<<(std::ostream& o,Tilt::Input const& a){ return o<<"Tilt::Input( pot_value:"<<a.pot_value<<" current:"<<a.current<<" top:"<<a.top<<")"; }
-*/
-/*bool operator<(Tilt::Status a, Tilt::Status b){
-	CMP(type)
-	if(a.type==Tilt::Status::Type::MID)return a.angle<b.angle;
-	return false;
-}*/
-/*bool operator==(Tilt::Status a,Tilt::Status b){
-	return a.type==b.type && (a.type==Tilt::Status::Type::MID ? a.angle==b.angle : true);
-}
-bool operator!=(Tilt::Status a,Tilt::Status b){ return !(a==b); }
-*/
 bool operator<(Tilt::Status_detail a, Tilt::Status_detail b){
 	CMP(top)
 	CMP(angle)
@@ -205,12 +180,6 @@ bool operator==(Tilt::Goal a, Tilt::Goal b){
 }
 
 bool operator!=(Tilt::Goal a, Tilt::Goal b){ return !(a==b); }
-/*bool operator<(Tilt::Goal a, Tilt::Goal b){
-	if(a.mode()<b.mode()) return true;
-	if(b.mode()<a.mode()) return false;
-	if(a.mode()==Tilt::Goal::Mode::GO_TO_ANGLE) return a.angle()<b.angle();
-	return a.force_down && !b.force_down;
-}*/
 
 bool operator==(Tilt::Output_applicator,Tilt::Output_applicator){ return true; }
 
@@ -221,14 +190,6 @@ bool operator!=(Tilt::Estimator a,Tilt::Estimator b){ return !(a==b); }
 
 bool operator==(Tilt a, Tilt b){ return (a.output_applicator==b.output_applicator && a.input_reader==b.input_reader && a.estimator==b.estimator); }
 bool operator!=(Tilt a, Tilt b){ return !(a==b); }
-
-/*std::set<Tilt::Input> examples(Tilt::Input*){ 
-	std::set<Tilt::Input> s;
-	for(unsigned int i=0; i<Positions::POSITIONS; i++){
-		s.insert({positions[i],0,i==Positions::TOP});
-	}
-	return s;
-}*/
 
 std::set<Tilt::Goal> examples(Tilt::Goal*){
 	return {
