@@ -163,11 +163,7 @@ Toplevel::Goal Main::teleop(
 	}
 	
 	bool ball=(in.digital_io.in[6]==Digital_in::_0);
-	if(SLOW_PRINT){
-		cout<<"Ball:"<<(ball? "has_ball" : "does not have ball")<<"\n";
-		cout<<"controller_auto: "<<controller_auto.get()<<"\n";
-	}
-	main_panel_output[Panel_outputs::BOULDER] = Panel_output(Panel_output_ports::PBOULDER, ball);
+	main_panel_output[Panel_outputs::BOULDER] = Panel_output(static_cast<int>(Panel_output_ports::BOULDER), ball);
 	controller_auto.update(gunner_joystick.button[Gamepad_button::START]);
 	if((!panel.in_use && controller_auto.get()) || (panel.in_use && (panel.tilt_auto || panel.front_auto || panel.sides_auto))) {
 		if(main_joystick.button[Gamepad_button::BACK]) collector_mode=Collector_mode::NOTHING;

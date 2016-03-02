@@ -74,10 +74,11 @@ struct Main{
 	Collector_mode collector_mode;
 	
 	Countdown_timer shoot_timer;
+	
 	enum Panel_outputs{SHOOTER_PREPPED, BOULDER, PANEL_OUTPUTS};
-	enum Panel_output_ports{PSHOOTER_PREPPED=6, PBOULDER=10};
+	enum class Panel_output_ports{SHOOTER_PREPPED=6, BOULDER=10};
 
-	Checked_array<Panel_output,PANEL_OUTPUTS> main_panel_output;
+	Checked_array<Panel_output,Panel_outputs::PANEL_OUTPUTS> main_panel_output;
 		
 	Toplevel::Goal teleop(Robot_inputs const&,Joystick_data const&,Joystick_data const&,Panel const&,Toplevel::Status_detail&);
 	Main();
