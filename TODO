@@ -1,22 +1,33 @@
-HIGH PRIORITY - DRIVE PRACTICE
-	- Driver/gunner controls (Need driveteam to map buttons)
+6-Hour Window:
+	- Full functionality testing
+	- Connectivity test(check for issue we are/were having with the practice bot)
+	- Test any new HW additions
+	- Test camera
+	- Check and update PDP firmware	
 
-HIGH PRIORITY - NOT DRIVE PRACTICE
+HIGH PRIORITY for Wilsonville:
 	- Fix robRIO connection issue and figuring out why it isn't assinged the new ip address
-	- Tilt learning
+	- Tilt learning - Logan
 	- Autonomous* - Tristan
 		-Drive Encoders
 		-Testing on carpet field with measurements
+		-Complete all modes, ready for testing
+	- Laptop WPILIB Updates
+	- Connection Issue
+	- Calibrate gold Driverstation with the OI
+	- Update PDP Firmware
 		
+LOW PRIORITY for Wilsonville:
+	- Logger & Diagnostics
+	- PWM mode outputs for blinky lights (DIO 9)	
 
-NOT AS HIGH PRIORITY:
-	- Shooter:
-		- Vertical/Horizontal Activation
-		- Shooter wheel spin up etc.
-		- Ball injector
-		- Add control into main
-	- Logger & Diagnostics - Jacob
-	- Vision Integration 
+HIGH PRIORITY for Auburn:
+	- Shooter Code
+	- Vision/Auto-aim code
+	- Fix issues from W-ville
+	- Shooter injector code
+
+NOT AS HIGH PRIORITY: 
 	- Laptop configuration
 		-ssh config:
 			-Fix the "rm ~/.ssh/known_hosts" problem

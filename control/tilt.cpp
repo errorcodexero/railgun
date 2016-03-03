@@ -31,12 +31,6 @@ float degrees_to_volts(float f){
 	return f*VOLTS_PER_DEGREE+TOP_VOLTAGE;
 }
 
-double degree_change_to_power(double current, double target) { //start and end are in degrees
-	const double P = .16;//proportional constant
-	double error = target - current;
-	return error * P;
-}
-
 double power_to_keep_up(double angle) {
 	const double LENGTH = 9;//in inches
 	const double WEIGHT = 9;//in pounds
@@ -237,16 +231,14 @@ bool ready(Tilt::Status status, Tilt::Goal goal){
 		case Tilt::Goal::Mode::STOP: return true;
 		default: assert(0);
 	}
-	return 1;
 }
 
 Tilt::Status_detail Tilt::Estimator::get()const {
 	return last;
 }
 
-void Tilt::Estimator::update(Time time, Tilt::Input in, Tilt::Output) {
+void Tilt::Estimator::update(Time, Tilt::Input in, Tilt::Output) {
 	last=in;
-	(void)time;
 }
 
 std::array<double,3> make_tolerances(double d){

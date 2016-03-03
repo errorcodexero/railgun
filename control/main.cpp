@@ -27,9 +27,6 @@ ofstream myfile2;
 static int print_count=0;
 #define SLOW_PRINT (print_count%10==0)
 
-//TODO: at some point, might want to make this whatever is right to start autonomous mode.
-Main::Main():mode(Mode::TELEOP),autonomous_start(0),joy_collector_pos(Joy_collector_pos::STOP),collector_mode(Collector_mode::NOTHING){}
-
 ostream& operator<<(ostream& o,Main::Mode a){
 	#define X(NAME) if(a==Main::Mode::NAME) return o<<""#NAME;
 	MODES
