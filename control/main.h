@@ -11,7 +11,7 @@
 #include "../util/nav.h"
 
 struct Main{
-	#define MODES X(TELEOP) X(AUTO_MOVE) X(AUTO_NAV) X(AUTO_NAV_RUN) X(AUTO_NULL) X(AUTO_TURN) X(AUTO_SCORE)
+	#define MODES X(TELEOP) X(AUTO_MOVE) X(AUTO_NAV) X(AUTO_NAV_RUN) X(AUTO_NULL) X(AUTO_SCORE)
 	enum class Mode{
 		#define X(NAME) NAME,
 		MODES
@@ -38,6 +38,7 @@ struct Main{
 	struct aturn{
 		float l;
 		float r;
+		float dur;
 	};
 
 	int stepcounter;
@@ -46,8 +47,7 @@ struct Main{
 	navloadinput s3;
 	navloadinput s4;
 	
-	aturn turna;
-	aturn turnb;
+	aturn Aturn;
 
 	
 	unsigned int navindex;
@@ -86,7 +86,12 @@ struct Main{
 		#undef X
 	};
 	Collector_mode collector_mode;
+		
+	enum Panel_outputs{SHOOTER_PREPPED, BOULDER, PANEL_OUTPUTS};
+	enum Panel_output_ports{PSHOOTER_PREPPED=6, PBOULDER=10};
 
+	Checked_array<Panel_output,PANEL_OUTPUTS> main_panel_output;
+		
 	Toplevel::Goal teleop(Robot_inputs const&,Joystick_data const&,Joystick_data const&,Panel const&,Toplevel::Status_detail&);
 	Main();
 	Robot_outputs operator()(Robot_inputs,std::ostream& = std::cerr);
