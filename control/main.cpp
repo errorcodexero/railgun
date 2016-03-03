@@ -15,8 +15,8 @@ using namespace std;
 
 const string LOG_PATH=[&]{
 	string s;
-	static const string NON_TEST_PATH="/home/lvuser/logs/";
 	#ifndef MAIN_TEST
+	const string NON_TEST_PATH="/home/lvuser/logs/";
 	s=NON_TEST_PATH;
 	#endif
 	return s;
@@ -26,6 +26,9 @@ ofstream myfile2;
 
 static int print_count=0;
 #define SLOW_PRINT (print_count%10==0)
+
+//TODO: at some point, might want to make this whatever is right to start autonomous mode.
+Main::Main():mode(Mode::TELEOP),autonomous_start(0),joy_collector_pos(Joy_collector_pos::STOP),collector_mode(Collector_mode::NOTHING){}
 
 ostream& operator<<(ostream& o,Main::Mode a){
 	#define X(NAME) if(a==Main::Mode::NAME) return o<<""#NAME;
@@ -41,11 +44,46 @@ ostream& operator<<(ostream& o,Main::Collector_mode a){
 	assert(0);
 }
 
-//TODO: at some point, might want to make this whatever is right to start autonomous mode.
-Main::Main():mode(Mode::TELEOP),autonomous_start(0),joy_collector_pos(Joy_collector_pos::STOP),collector_mode(Collector_mode::NOTHING){}
 
-vector<Main::NavS> Main::loadnav(){
+//TODO: at some point, might want to make this whatever is right to start autonomous mode.
+Main::Main():mode(Mode::TELEOP),autonomous_start(0),joy_collector_pos(Joy_collector_pos::STOP),collector_mode(Collector_mode::NOTHING){
+		stepcounter=0;
+		//the information that is being declared are just place holders for when we get and actual values for auto.
+		s1.ptone.x=70;
+		s1.ptone.y=70;
+		s1.pttwo.x=70;
+		s1.pttwo.y=60;
+		s1.dirone=LEFT;
+		s1.dirtwo=LEFT;
+		
+		s2.ptone.x=70;
+		s2.ptone.y=70;
+		s2.pttwo.x=70;
+		s2.pttwo.y=60;
+		s2.dirone=LEFT;
+		s2.dirtwo=LEFT;
+
+		s3.ptone.x=70;
+		s3.ptone.y=70;
+		s3.pttwo.x=70;
+		s3.pttwo.y=60;
+		s3.dirone=LEFT;
+		s3.dirtwo=LEFT;
+		
+		s4.ptone.x=70;
+		s4.ptone.y=70;
+		s4.pttwo.x=70;
+		s4.pttwo.y=60;
+		s4.dirone=LEFT;
+		s4.dirtwo=LEFT;
+		
+}
+
+
+vector<Main::NavS> Main::loadnav(navloadinput navin){
+
 	const string MYFILE=LOG_PATH+"navlog.txt";
+
 	float amount = 0;
 	vector<NavS> nav;
 	NavS navelement;
@@ -57,14 +95,14 @@ vector<Main::NavS> Main::loadnav(){
 	myfile << "hi" << "\n";
 	myfile.flush();
 	//assign start information
-	start.navpt.x = 70;
-	start.navpt.y = 70;
-	start.navdir = LEFT;
+	start.navpt.x = navin.ptone.x;
+	start.navpt.y = navin.ptone.y;
+	start.navdir = navin.dirone;
 	
 	//assign end information
-	end.navpt.x = 70;
-	end.navpt.y = 60;
-	end.navdir = LEFT;
+	end.navpt.x = navin.pttwo.x;
+	end.navpt.y = navin.pttwo.y;
+	end.navdir = navin.dirtwo;
 	
 	v=solvemaze(start.navpt,end.navpt,start.navdir,end.navdir);
 	myfile << "size: " << v.size() << "\n"; 
@@ -92,17 +130,21 @@ vector<Main::NavS> Main::loadnav(){
 			navelement.right= -.45;
 			amount+= 1.1;
 		}
-		else assert(0);
-		navelement.amount = amount;
+		else 
+			assert(0);
 
+		navelement.amount = amount;
+ 
 		myfile << "Pushing " << "navelm.left " << navelement.left << " navelm.right " << navelement.right << " amount " << navelement.amount << endl;
 		nav.push_back(navelement);
 
+		// push a delay
 		navelement.left= 0;
 		navelement.right= 0;
 		amount += 1;
 		navelement.amount = amount;
 		nav.push_back(navelement);
+
 		myfile << "Pushing " << "navelm.left " << navelement.left << " navelm.right " << navelement.right << " amount " << navelement.amount << endl;
 	}
 	myfile.close();
@@ -144,7 +186,7 @@ Toplevel::Goal Main::teleop(
 		else if(!nudges[Nudges::BACKWARD].timer.done()) power=NUDGE_POWER;
 		else if(!nudges[Nudges::CLOCKWISE].timer.done()) power=-NUDGE_CW_POWER;
 		else if(!nudges[Nudges::COUNTERCLOCKWISE].timer.done()) power=-NUDGE_CCW_POWER;
-		return power;
+		return clip(power);
 	}();
 	goals.drive.right=[&]{
 		double power=set_drive_speed(main_joystick.axis[Gamepad_axis::LEFTY],boost,slow);
@@ -153,22 +195,28 @@ Toplevel::Goal Main::teleop(
 		else if(!nudges[Nudges::BACKWARD].timer.done()) power=NUDGE_POWER;
 		else if(!nudges[Nudges::CLOCKWISE].timer.done()) power=NUDGE_CW_POWER;
 		else if(!nudges[Nudges::COUNTERCLOCKWISE].timer.done()) power=NUDGE_CCW_POWER;
-		return power;
+		return clip(power);
 	}();
 
 	static const unsigned int nudge_buttons[NUDGES]={Gamepad_button::Y,Gamepad_button::A,Gamepad_button::B,Gamepad_button::X};//Forward, backward, clockwise, counter-clockwise
 	for(int i=0;i<Nudges::NUDGES;i++){
-		if(nudges[i].trigger(boost<.25 && main_joystick.button[nudge_buttons[i]]))nudges[i].timer.set(.1);
+		if(nudges[i].trigger(boost<.25 && main_joystick.button[nudge_buttons[i]])) nudges[i].timer.set(.1);
 		nudges[i].timer.update(in.now,1);
 	}
 	
 	bool ball=(in.digital_io.in[6]==Digital_in::_0);
-	main_panel_output[Panel_outputs::BOULDER] = Panel_output(static_cast<int>(Panel_output_ports::BOULDER), ball);
-	controller_auto.update(gunner_joystick.button[Gamepad_button::START]);
+	
+	const Tilt::Goal LEVEL=Tilt::Goal::go_to_angle({83,83,83});
+	const Tilt::Goal LOW=Tilt::Goal::go_to_angle({100,100,100});
+	const Tilt::Goal TOP=Tilt::Goal::go_to_angle({0,0,0});
+	
 	if((!panel.in_use && controller_auto.get()) || (panel.in_use && (panel.tilt_auto || panel.front_auto || panel.sides_auto))) {
+	main_panel_output[Panel_outputs::BOULDER] = Panel_output(static_cast<int>(Panel_output_ports::BOULDER), ball);
+	
+	controller_auto.update(gunner_joystick.button[Gamepad_button::START]);
 		if(main_joystick.button[Gamepad_button::BACK]) collector_mode=Collector_mode::NOTHING;
 		else if(main_joystick.button[Gamepad_button::START] || (panel.in_use && panel.collect)) collector_mode=Collector_mode::COLLECT;
-		else if(gunner_joystick.button[Gamepad_button::A] || (panel.in_use && panel.collector_pos==Panel::Collector_pos::LOW)) collector_mode=Collector_mode::LOW_BAR;
+		else if(gunner_joystick.button[Gamepad_button::A] || (panel.in_use && panel.collector_pos==Panel::Collector_pos::LOW)) collector_mode=Collector_mode::LOW;
 		else if(gunner_joystick.button[Gamepad_button::X] || (panel.in_use && panel.shoot)) {
 			collector_mode=Collector_mode::SHOOT;
 			shoot_timer.set(1);
@@ -177,12 +225,11 @@ Toplevel::Goal Main::teleop(
 		else if(gunner_joystick.button[Gamepad_button::BACK]) collector_mode=Collector_mode::NOTHING;
 		else if(panel.in_use && panel.collector_pos==Panel::Collector_pos::STOW) collector_mode = Collector_mode::STOW;
 		if(SLOW_PRINT)cout<<"collector_mode: "<<collector_mode<<"\n";
-		auto LEVEL=Tilt::Goal::go_to_angle({83,83,83});
 		switch(collector_mode){
 			case Collector_mode::COLLECT:
 				goals.front=Front::Goal::IN;
 				goals.sides=Sides::Goal::IN;
-				goals.tilt=LEVEL;//;::Goal::level();
+				goals.tilt=LEVEL;
 				if(ball) collector_mode=Collector_mode::STOW;
 				break;
 			case Collector_mode::STOW:
@@ -203,14 +250,14 @@ Toplevel::Goal Main::teleop(
 			case Collector_mode::SHOOT:
 				goals.front=Front::Goal::OUT;
 				goals.sides=Sides::Goal::OFF;
-				goals.tilt=Tilt::Goal::go_to_angle({0, 0, 0});
+				goals.tilt=TOP;
 				shoot_timer.update(in.now, true);
 				if (shoot_timer.done()) collector_mode = Collector_mode::STOW;
 				break;
-			case Collector_mode::LOW_BAR:
+			case Collector_mode::LOW:
 				goals.front=Front::Goal::OFF;
 				goals.sides=Sides::Goal::OFF;
-				goals.tilt=Tilt::Goal::go_to_angle({100,100,100});
+				goals.tilt=LOW;;
 				break;
 			case Collector_mode::NOTHING:
 				goals.front=Front::Goal::OFF;
@@ -226,7 +273,6 @@ Toplevel::Goal Main::teleop(
 			if(gunner_joystick.axis[Gamepad_axis::LTRIGGER]>LIMIT) return Front::Goal::OUT;
 			if(gunner_joystick.axis[Gamepad_axis::RTRIGGER]>LIMIT) return Front::Goal::IN;
 			return Front::Goal::OFF;
-			assert(0);
 		}();
 		goals.sides=[&]{
 			if(gunner_joystick.button[Gamepad_button::RB]) return Sides::Goal::IN;
@@ -257,18 +303,17 @@ Toplevel::Goal Main::teleop(
                         }
                         switch (joy_collector_pos) {
                                 case Joy_collector_pos::STOP: return Tilt::Goal::stop();
-                                case Joy_collector_pos::LOW: return Tilt::Goal::low();
-                                case Joy_collector_pos::LEVEL: return Tilt::Goal::level();
+                                case Joy_collector_pos::LOW: return LOW;
+                                case Joy_collector_pos::LEVEL: return LEVEL;
                                 default: assert(0);
                         }
                 }();	
-		goals.tilt.force_down = gunner_joystick.button[Gamepad_button::R_JOY];
 		#endif
-		if(gunner_joystick.button[Gamepad_button::BACK]){
-			goals.tilt=Tilt::Goal::stop();
-			goals.sides=Sides::Goal::OFF;
-			goals.front=Front::Goal::OFF;
-		}
+	}
+	if(gunner_joystick.button[Gamepad_button::BACK]){
+		goals.tilt=Tilt::Goal::stop();
+		goals.sides=Sides::Goal::OFF;
+		goals.front=Front::Goal::OFF;
 	}
 	if (panel.in_use) {
 		if (!panel.front_auto) {
@@ -282,9 +327,11 @@ Toplevel::Goal Main::teleop(
 			#undef X
 		}
 		if (!panel.tilt_auto) {
-                        if (panel.collector_up) goals.tilt=Tilt::Goal::up();
-                        else if (panel.collector_down) goals.tilt=Tilt::Goal::down();
-			else goals.tilt=Tilt::Goal::stop();
+                        goals.tilt=[&]{
+				if (panel.collector_up) return Tilt::Goal::up();
+                        	if (panel.collector_down) return Tilt::Goal::down();
+				return goals.tilt=Tilt::Goal::stop();
+			}();
                 }
 	}
 	goals.climb_release=[&]{
@@ -315,11 +362,12 @@ Toplevel::Goal Main::teleop(
 	return goals;
 }
 
-Main::Mode next_mode(Main::Mode m,bool autonomous,bool autonomous_start,Toplevel::Status_detail /*status*/,Time since_switch, Panel /*panel*/,unsigned int navindex,std::vector<Main::NavS> NavV){
+Main::Mode next_mode(Main::Mode m,bool autonomous,bool autonomous_start,Toplevel::Status_detail /*status*/,Time since_switch, Panel /*panel*/,unsigned int navindex,std::vector<Main::NavS> NavV,int & stepcounter,Main::aturn Aturn){
 	switch(m){
 		case Main::Mode::TELEOP:	
 			if(autonomous_start){
 				return Main::Mode::AUTO_NAV;//just for testing purposes
+				stepcounter = 1; //this needs to be moved to where the oi sets the mode later.
 				/*if (panel.in_use) {
 					switch(panel.auto_mode){ 
 						case Panel::Auto_mode::CAN_GRAB:
@@ -336,12 +384,24 @@ Main::Mode next_mode(Main::Mode m,bool autonomous,bool autonomous_start,Toplevel
 				return Main::Mode::TELEOP;
 			}
 			return m;
-		case Main::Mode::AUTO_MOVE:
-			//encoders? going to use time for now
-			if(!autonomous || since_switch>1) return Main::Mode::TELEOP;
-			return m;
+
+		case Main::Mode::AUTO_NULL:
+			if(autonomous)
+			cout << "test" << endl;
+			return Main::Mode::TELEOP;
+		
 		case Main::Mode::AUTO_NAV:
-			return Main::Mode::AUTO_NAV_RUN;
+			if(stepcounter==1 /* || stepcounter==2*/)
+				return Main::Mode::AUTO_NAV_RUN;
+			else if(stepcounter==2)
+				return Main::Mode::TELEOP;
+			else if(stepcounter==3)
+				return Main::Mode::AUTO_MOVE;
+			else if(stepcounter==4)  
+				return Main::Mode::AUTO_SCORE;
+			else if(stepcounter==5)	
+				return Main::Mode::TELEOP;
+
 		case Main::Mode::AUTO_NAV_RUN:
 			if(since_switch>NavV[navindex].amount) {
 				navindex++;
@@ -351,13 +411,25 @@ Main::Mode next_mode(Main::Mode m,bool autonomous,bool autonomous_start,Toplevel
 			if(navindex==NavV.size()) {
 				myfile2 << "done" << endl;
 				myfile2.flush();
-				return Main::Mode::TELEOP;
+				return Main::Mode::AUTO_NAV;
 			}
 			return Main::Mode::AUTO_NAV_RUN;
-		case Main::Mode::AUTO_NAV_DAMAGE_DRIVE:
-		case Main::Mode::AUTO_NAV_DAMAGE_MANIPULATOR:
+
+		case Main::Mode::AUTO_MOVE:
+			//encoders? going to use time for now
+			if(since_switch>Aturn.dur) 
+				return Main::Mode::AUTO_NAV;
+			return Main::Mode::AUTO_MOVE;
+
+		case Main::Mode::AUTO_SCORE:
+			if(since_switch>1) 
+				return Main::Mode::AUTO_NAV;
+			return Main::Mode::AUTO_MOVE;
+
 		default: assert(0);
 	}
+	return m;
+	
 }
 
 Robot_outputs Main::operator()(Robot_inputs in,ostream&){
@@ -400,31 +472,60 @@ Robot_outputs Main::operator()(Robot_inputs in,ostream&){
 			//cout<<"$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$tag!";
 			//test			
 			break;
-		case Mode::AUTO_MOVE:
-			goals.drive.left=.45;
-			goals.drive.right=.45;
+		case Mode::AUTO_NULL:
 			break;
 		case Mode::AUTO_NAV:
-			{
-				const string MYFILE2=LOG_PATH+"navlog2.txt";
-				myfile2.open(MYFILE2);
-				NavV = loadnav();
-				navindex = 0;
-				myfile2 << "Nav loaded:" << NavV.size() << endl;
-				myfile2.flush();
+			
+			myfile2.open(LOG_PATH+"navlog2.txt");
+
+			if(stepcounter==1)
+				NavV = loadnav(s1);
+			else if(stepcounter==2)
+				NavV = loadnav(s2);
+			else if(stepcounter==3){
+				Aturn.l = -.45;
+				Aturn.r = .45;
+				Aturn.dur=1;
 				break;
 			}
+			else if(stepcounter==4)
+				//fire the ball!
+				break;
+			else if(stepcounter==5)
+				//all done
+				break;
+			/*
+			else if(stepcounter==5)
+			
+				break;
+			else if(stepcounter==6)
+				NavV = loadnav(s3);
+			else if(stepcounter==7)
+				NavV = loadnav(s4);
+			*/
+			else
+				assert(0);
+
+			navindex = 0;
+			myfile2 << "Nav loaded:" << NavV.size() << endl;
+			myfile2.flush();
+			break;
+
 		case Mode::AUTO_NAV_RUN:
 			goals.drive.left=NavV[navindex].left;
 			goals.drive.right=NavV[navindex].right;
 			break;
-		case Mode::AUTO_NAV_DAMAGE_DRIVE:
+
+		case Mode::AUTO_MOVE:
+			goals.drive.left=Aturn.l;
+			goals.drive.right=Aturn.r;
 			break;
-		case Mode::AUTO_NAV_DAMAGE_MANIPULATOR:
+		case Mode::AUTO_SCORE:
+			//score on low goal.
 			break;
 		default: assert(0);
 	}
-	auto next=next_mode(mode,in.robot_mode.autonomous,autonomous_start_now,toplevel_status,since_switch.elapsed(),panel,navindex,NavV);
+	auto next=next_mode(mode,in.robot_mode.autonomous,autonomous_start_now,toplevel_status,since_switch.elapsed(),panel,navindex,NavV,stepcounter,Aturn);
 	since_switch.update(in.now,mode!=next);
 	mode=next;
 	

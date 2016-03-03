@@ -19,9 +19,9 @@ Driver:
   Pushed in -
 
 Gunner:
- A          - Low bar
- B          - Learn (used in combination with the tilt positions buttons)
- X          - Terrain
+ A          - Low
+ B          - (NOT CURRENTLY) Learn (used in combination with the tilt positions buttons)
+ X          - Shoot
  Y          - Eject
  Start      - Collector auto/manual toggle
  Back       - All collector off
@@ -40,4 +40,4 @@ Gunner:
   Down      - Collector down
   Left      - Collector level
   Right     - Collector low
-  Pushed in - Force collector down
+  Pushed in - 
