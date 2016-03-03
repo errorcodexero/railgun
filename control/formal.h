@@ -49,9 +49,13 @@ void test_ostream(std::string heading,T* t){
 	std::cout<<"\n";
 }
 
+template<typename T>
+bool approx_eq(T,T)NYI
+
 struct Tester_mode{
 	bool check_outputs_exhaustive=1;
 	bool check_multiple_outputs=1;
+	bool input_exact=1;
 };
 
 template<typename Part>
@@ -75,7 +79,16 @@ void tester(Part p,Tester_mode mode=Tester_mode{}){
 	for(auto a:examples((Input*)0)){
 		Robot_inputs all;
 		auto x=p.input_reader(p.input_reader(all,a));
-		assert(x==a);
+		//if(!approx_eq(a,x))
+		/*if(x!=a){
+			cout<<"x:"<<x<<"\n";
+			cout<<"a:"<<a<<"\n";
+		}*/
+		if(mode.input_exact){
+			assert(x==a);
+		}else{
+			assert(approx_eq(a,x));
+		}
 	}
 
 	{

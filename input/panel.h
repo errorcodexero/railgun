@@ -22,7 +22,7 @@ struct Panel{
 	bool front_auto;
 	bool sides_auto;	
 	//3 position switches: 
-	enum class Collector_pos{STOW,DEFAULT,COLLECT_REFLECT};
+	enum class Collector_pos{STOW,DEFAULT,LOW};
 	Collector_pos collector_pos;
 	enum class Collector{IN,OFF,OUT};
 	Collector front, sides;

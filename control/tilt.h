@@ -34,60 +34,24 @@ struct Tilt{
 		
 		static Goal up();
 		static Goal down();
-		static Goal low();
-		static Goal level();
 		static Goal go_to_angle(std::array<double,3>);
 		static Goal stop();
-		
-		bool force_down;
 	};
 	
 	typedef double Output;	
 	
-	class Status_detail{
-		public:
-		#define TILT_STATUS_DETAIL_TYPES \
-			X(TOP) \
-			X(MID) \
-			X(BOTTOM) \
-			X(ERRORS)
-		#define X(name) name, 
-		enum class Type{TILT_STATUS_DETAIL_TYPES};
-		#undef X
-		std::pair<bool,bool> reached_ends;
-		bool stalled;
-		
-		private:
-		Status_detail();
-
-		Type type_;
-		double angle;//in degrees from top
-		float pot_value_;//in volts from pot
-		
-		public:
-		Type type()const;
-		double get_angle()const;
-		float pot_value()const;
-	
-		static Status_detail top();
-		static Status_detail mid(double,double);
-		static Status_detail bottom(double,double);	
-		static Status_detail error();
-	};
-
-	struct Status{
-		typedef Status_detail::Type Type;
-		Type type;
-		double angle;//in degrees
-		Status(Tilt::Status::Type,double);
-	};
-
-	struct Input{
-		float pot_value;
-		double current;
+	struct Status_detail{
 		bool top;
+		double angle;
+		
+		Status_detail();
+		Status_detail(bool,double);
 	};
-	
+
+	using Status=double;//# of degrees
+
+	using Input=Status_detail;
+
 	struct Input_reader{
 		Input operator()(Robot_inputs)const;
 		Robot_inputs operator()(Robot_inputs,Input)const;
@@ -98,9 +62,6 @@ struct Tilt{
 
 		public: 
 		Estimator();
-		
-		Countdown_timer stall_timer;
-		double timer_start_angle;
 		
 		void update(Time,Input,Output);
 		Status_detail get()const;
@@ -116,21 +77,10 @@ struct Tilt{
 	Estimator estimator;
 };
 
-std::ostream& operator<<(std::ostream&, Tilt::Status);
-std::ostream& operator<<(std::ostream&, Tilt::Status_detail::Type);
 std::ostream& operator<<(std::ostream&, Tilt::Goal::Mode);
 std::ostream& operator<<(std::ostream&, Tilt::Status_detail);
 std::ostream& operator<<(std::ostream&, Tilt::Goal); 
 std::ostream& operator<<(std::ostream&, Tilt);
-
-bool operator==(Tilt::Input const&,Tilt::Input const&);
-bool operator!=(Tilt::Input const&,Tilt::Input const&);
-bool operator<(Tilt::Input const&,Tilt::Input const&);
-std::ostream& operator<<(std::ostream&,Tilt::Input const&);
-
-bool operator<(Tilt::Status,Tilt::Status);
-bool operator==(Tilt::Status,Tilt::Status);
-bool operator!=(Tilt::Status,Tilt::Status);
 
 bool operator<(Tilt::Status_detail, Tilt::Status_detail);
 bool operator<(Tilt::Status_detail,Tilt::Status_detail);
@@ -154,7 +104,6 @@ bool operator!=(Tilt,Tilt);
 std::set<Tilt::Input> examples(Tilt::Input*);
 std::set<Tilt::Goal> examples(Tilt::Goal*);
 std::set<Tilt::Status_detail> examples(Tilt::Status_detail*);
-std::set<Tilt::Status> examples(Tilt::Status*);
 std::set<Tilt::Output> examples(Tilt::Output*);
 
 Tilt::Output control(Tilt::Status_detail, Tilt::Goal);

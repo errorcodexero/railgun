@@ -98,8 +98,8 @@ CMP_OPS(Drivebase::Output,DRIVEBASE_OUTPUT)
 
 set<Drivebase::Output> examples(Drivebase::Output*){
 	return {
-		Drivebase::Output{0,0},//velToPwm(0),velToPwm(0)},
-		Drivebase::Output{1,1}//velToPwm(1),velToPwm(1)}
+		Drivebase::Output{0,0},
+		Drivebase::Output{1,1}
 	};
 }
 
@@ -201,7 +201,6 @@ bool ready(Drivebase::Status,Drivebase::Goal){ return 1; }
 #ifdef DRIVEBASE_TEST
 int main(){
 	Drivebase d;
-	cout<<d.output_applicator<<"\n";
 	tester(d);
 }
 #endif

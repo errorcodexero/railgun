@@ -136,10 +136,9 @@ Toplevel::Status::Status():
 		0
 	),
 	pump(Pump::Status::NOT_FULL),
-	tilt(Tilt::Status::Type::MID,0),
+	tilt(0),
 	sides(Sides::Status{}),
 	front(Front::Status{}),
-	//climb(Climb::Status::mid()),
 	climb_release(Climb_release::Status::UNKNOWN)
 {}
 
@@ -313,10 +312,8 @@ set<Toplevel::Status_detail> examples(Toplevel::Status_detail*){
 		*examples((Tilt::Status_detail*)0).begin(),
 		*examples((Sides::Status_detail*)0).begin(),
 		*examples((Front::Status_detail*)0).begin(),
-		//*examples((Climb::Status_detail*)0).begin(),
 		*examples((Climb_release::Status_detail*)0).begin(),
                 *examples((Winch::Status_detail*)0).begin()
-
 	}};
 }
 
@@ -335,7 +332,6 @@ set<Toplevel::Input> examples(Toplevel::Input*){
 		*examples((Tilt::Input*)0).begin(),
 		Sides::Input{},
 		Front::Input{},
-		//Climb::Input{0,0},
 		Climb_release::Input{0},
 		Winch::Input{}
 	};
