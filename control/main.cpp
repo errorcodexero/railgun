@@ -77,6 +77,13 @@ Main::Main():mode(Mode::TELEOP),autonomous_start(0),joy_collector_pos(Joy_collec
 		s4.dirone=LEFT;
 		s4.dirtwo=LEFT;
 		
+		s5.ptone.x=0;
+		s5.ptone.y=0;
+		s5.pttwo.x=79;
+		s5.pttwo.y=0;
+		s5.dirone=LEFT;
+		s5.dirtwo=LEFT;
+		
 }
 
 
@@ -402,6 +409,10 @@ Main::Mode next_mode(Main::Mode m,bool autonomous,bool autonomous_start,Toplevel
 			else if(stepcounter==5)	
 				return Main::Mode::TELEOP;
 
+			/* if(something)
+				NavV = loadnav(s5);
+			*/
+
 		case Main::Mode::AUTO_NAV_RUN:
 			if(since_switch>NavV[navindex].amount) {
 				navindex++;
@@ -425,6 +436,8 @@ Main::Mode next_mode(Main::Mode m,bool autonomous,bool autonomous_start,Toplevel
 			if(since_switch>1) 
 				return Main::Mode::AUTO_NAV;
 			return Main::Mode::AUTO_MOVE;
+		case Main::Mode::AUTO_REACH:
+			return Main::Mode::AUTO_REACH;
 
 		default: assert(0);
 	}
@@ -523,6 +536,9 @@ Robot_outputs Main::operator()(Robot_inputs in,ostream&){
 		case Mode::AUTO_SCORE:
 			//score on low goal.
 			break;
+		case Mode::AUTO_REACH:
+			goals.drive.left=NavV[navindex].left;
+			goals.drive.right=NavV[navindex].right;
 		default: assert(0);
 	}
 	auto next=next_mode(mode,in.robot_mode.autonomous,autonomous_start_now,toplevel_status,since_switch.elapsed(),panel,navindex,NavV,stepcounter,Aturn);

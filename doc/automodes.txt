@@ -3,14 +3,15 @@ File describing the various auto-modes which can be selected through use of the 
 Auto-Switch Positions (0-9) Default for empty is null mode
 	0. Null Mode
 	1. Reach Platform
-	2. Full Mode - Low Bar
-	3. Full Mode - Portcullis - Position 2 
-	4. Full Mode - Portcullis - Position 3
-	5. Full Mode - Portcullis - Position 4
-	6. Full Mode - Portcullis - Position 5
-	7. 
-	8.
-	9.
+	2. Courtyard Mode - Low Bar
+	3. Courtyard Mode - Portcullis pos 1
+	4. Courtyard Mode - Portcullis pos 2
+	5. Courtyard Mode - Portcullis pos 3
+	6. Courtyard Mode - Portcullis pos 4
+	7. Courtyard Mode - Static Defense Cross
+	8. 
+	9. Full Mode - Low Bar
+	
 
 FULL MODE - Low Bar (assumes starting with ball in the bot):
 	1. Go through defense 

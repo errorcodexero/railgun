@@ -11,7 +11,7 @@
 #include "../util/nav.h"
 
 struct Main{
-	#define MODES X(TELEOP) X(AUTO_MOVE) X(AUTO_NAV) X(AUTO_NAV_RUN) X(AUTO_NULL) X(AUTO_SCORE)
+	#define MODES X(TELEOP) X(AUTO_MOVE) X(AUTO_NAV) X(AUTO_NAV_RUN) X(AUTO_NULL) X(AUTO_SCORE) X(AUTO_REACH)
 	enum class Mode{
 		#define X(NAME) NAME,
 		MODES
@@ -46,6 +46,7 @@ struct Main{
 	navloadinput s2;
 	navloadinput s3;
 	navloadinput s4;
+	navloadinput s5;
 	
 	aturn Aturn;
 
