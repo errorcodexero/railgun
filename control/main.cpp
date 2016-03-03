@@ -44,7 +44,7 @@ ostream& operator<<(ostream& o,Main::Collector_mode a){
 	assert(0);
 }
 
-<<<<<<< HEAD
+
 //TODO: at some point, might want to make this whatever is right to start autonomous mode.
 Main::Main():mode(Mode::TELEOP),autonomous_start(0),joy_collector_pos(Joy_collector_pos::STOP),collector_mode(Collector_mode::NOTHING){
 		stepcounter=0;
@@ -82,9 +82,6 @@ Main::Main():mode(Mode::TELEOP),autonomous_start(0),joy_collector_pos(Joy_collec
 
 vector<Main::NavS> Main::loadnav(navloadinput navin){
 
-=======
-vector<Main::NavS> Main::loadnav(){
->>>>>>> 5fe5ed8ed9e4c5e0e1edf333b485cb7289590eca
 	const string MYFILE=LOG_PATH+"navlog.txt";
 
 	float amount = 0;
