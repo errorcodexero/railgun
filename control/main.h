@@ -11,7 +11,7 @@
 #include "../util/nav.h"
 
 struct Main{
-	#define MODES X(TELEOP) X(AUTO_MOVE) X(AUTO_NAV) X(AUTO_NAV_RUN) X(AUTO_NAV_DAMAGE_DRIVE) X(AUTO_NAV_DAMAGE_MANIPULATOR)
+	#define MODES X(TELEOP) X(AUTO_MOVE) X(AUTO_NAV) X(AUTO_NAV_RUN) X(AUTO_NULL) X(AUTO_SCORE)
 	enum class Mode{
 		#define X(NAME) NAME,
 		MODES
@@ -24,22 +24,36 @@ struct Main{
 		float right;
 		float amount;
 	};
-	/*struct oiload{
+	struct navloadinput{
 		point ptone;
 		point pttwo;
 		direction dirone;
 		direction dirtwo;
 	};
-	*/
+	
 	struct navinput{
 		point navpt;
 		direction navdir;
 	};
+	struct aturn{
+		float l;
+		float r;
+		float dur;
+	};
+
+	int stepcounter;
+	navloadinput s1;
+	navloadinput s2;
+	navloadinput s3;
+	navloadinput s4;
+	
+	aturn Aturn;
+
 	
 	unsigned int navindex;
 	std::vector<NavS> NavV;
 		
-	vector<NavS> loadnav();	
+	vector<NavS> loadnav(navloadinput navin);	
 
 	Force_interface force;
 	Perf_tracker perf;

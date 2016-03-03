@@ -44,8 +44,46 @@ ostream& operator<<(ostream& o,Main::Collector_mode a){
 	assert(0);
 }
 
-vector<Main::NavS> Main::loadnav(){
+
+//TODO: at some point, might want to make this whatever is right to start autonomous mode.
+Main::Main():mode(Mode::TELEOP),autonomous_start(0),joy_collector_pos(Joy_collector_pos::STOP),collector_mode(Collector_mode::NOTHING){
+		stepcounter=0;
+		//the information that is being declared are just place holders for when we get and actual values for auto.
+		s1.ptone.x=70;
+		s1.ptone.y=70;
+		s1.pttwo.x=70;
+		s1.pttwo.y=60;
+		s1.dirone=LEFT;
+		s1.dirtwo=LEFT;
+		
+		s2.ptone.x=70;
+		s2.ptone.y=70;
+		s2.pttwo.x=70;
+		s2.pttwo.y=60;
+		s2.dirone=LEFT;
+		s2.dirtwo=LEFT;
+
+		s3.ptone.x=70;
+		s3.ptone.y=70;
+		s3.pttwo.x=70;
+		s3.pttwo.y=60;
+		s3.dirone=LEFT;
+		s3.dirtwo=LEFT;
+		
+		s4.ptone.x=70;
+		s4.ptone.y=70;
+		s4.pttwo.x=70;
+		s4.pttwo.y=60;
+		s4.dirone=LEFT;
+		s4.dirtwo=LEFT;
+		
+}
+
+
+vector<Main::NavS> Main::loadnav(navloadinput navin){
+
 	const string MYFILE=LOG_PATH+"navlog.txt";
+
 	float amount = 0;
 	vector<NavS> nav;
 	NavS navelement;
@@ -57,14 +95,14 @@ vector<Main::NavS> Main::loadnav(){
 	myfile << "hi" << "\n";
 	myfile.flush();
 	//assign start information
-	start.navpt.x = 70;
-	start.navpt.y = 70;
-	start.navdir = LEFT;
+	start.navpt.x = navin.ptone.x;
+	start.navpt.y = navin.ptone.y;
+	start.navdir = navin.dirone;
 	
 	//assign end information
-	end.navpt.x = 70;
-	end.navpt.y = 60;
-	end.navdir = LEFT;
+	end.navpt.x = navin.pttwo.x;
+	end.navpt.y = navin.pttwo.y;
+	end.navdir = navin.dirtwo;
 	
 	v=solvemaze(start.navpt,end.navpt,start.navdir,end.navdir);
 	myfile << "size: " << v.size() << "\n"; 
@@ -92,17 +130,21 @@ vector<Main::NavS> Main::loadnav(){
 			navelement.right= -.45;
 			amount+= 1.1;
 		}
-		else assert(0);
-		navelement.amount = amount;
+		else 
+			assert(0);
 
+		navelement.amount = amount;
+ 
 		myfile << "Pushing " << "navelm.left " << navelement.left << " navelm.right " << navelement.right << " amount " << navelement.amount << endl;
 		nav.push_back(navelement);
 
+		// push a delay
 		navelement.left= 0;
 		navelement.right= 0;
 		amount += 1;
 		navelement.amount = amount;
 		nav.push_back(navelement);
+
 		myfile << "Pushing " << "navelm.left " << navelement.left << " navelm.right " << navelement.right << " amount " << navelement.amount << endl;
 	}
 	myfile.close();
@@ -320,11 +362,12 @@ Toplevel::Goal Main::teleop(
 	return goals;
 }
 
-Main::Mode next_mode(Main::Mode m,bool autonomous,bool autonomous_start,Toplevel::Status_detail /*status*/,Time since_switch, Panel /*panel*/,unsigned int navindex,std::vector<Main::NavS> NavV){
+Main::Mode next_mode(Main::Mode m,bool autonomous,bool autonomous_start,Toplevel::Status_detail /*status*/,Time since_switch, Panel /*panel*/,unsigned int navindex,std::vector<Main::NavS> NavV,int & stepcounter,Main::aturn Aturn){
 	switch(m){
 		case Main::Mode::TELEOP:	
 			if(autonomous_start){
 				return Main::Mode::AUTO_NAV;//just for testing purposes
+				stepcounter = 1; //this needs to be moved to where the oi sets the mode later.
 				/*if (panel.in_use) {
 					switch(panel.auto_mode){ 
 						case Panel::Auto_mode::CAN_GRAB:
@@ -341,12 +384,24 @@ Main::Mode next_mode(Main::Mode m,bool autonomous,bool autonomous_start,Toplevel
 				return Main::Mode::TELEOP;
 			}
 			return m;
-		case Main::Mode::AUTO_MOVE:
-			//encoders? going to use time for now
-			if(!autonomous || since_switch>1) return Main::Mode::TELEOP;
-			return m;
+
+		case Main::Mode::AUTO_NULL:
+			if(autonomous)
+			cout << "test" << endl;
+			return Main::Mode::TELEOP;
+		
 		case Main::Mode::AUTO_NAV:
-			return Main::Mode::AUTO_NAV_RUN;
+			if(stepcounter==1 /* || stepcounter==2*/)
+				return Main::Mode::AUTO_NAV_RUN;
+			else if(stepcounter==2)
+				return Main::Mode::TELEOP;
+			else if(stepcounter==3)
+				return Main::Mode::AUTO_MOVE;
+			else if(stepcounter==4)  
+				return Main::Mode::AUTO_SCORE;
+			else if(stepcounter==5)	
+				return Main::Mode::TELEOP;
+
 		case Main::Mode::AUTO_NAV_RUN:
 			if(since_switch>NavV[navindex].amount) {
 				navindex++;
@@ -356,13 +411,25 @@ Main::Mode next_mode(Main::Mode m,bool autonomous,bool autonomous_start,Toplevel
 			if(navindex==NavV.size()) {
 				myfile2 << "done" << endl;
 				myfile2.flush();
-				return Main::Mode::TELEOP;
+				return Main::Mode::AUTO_NAV;
 			}
 			return Main::Mode::AUTO_NAV_RUN;
-		case Main::Mode::AUTO_NAV_DAMAGE_DRIVE:
-		case Main::Mode::AUTO_NAV_DAMAGE_MANIPULATOR:
+
+		case Main::Mode::AUTO_MOVE:
+			//encoders? going to use time for now
+			if(since_switch>Aturn.dur) 
+				return Main::Mode::AUTO_NAV;
+			return Main::Mode::AUTO_MOVE;
+
+		case Main::Mode::AUTO_SCORE:
+			if(since_switch>1) 
+				return Main::Mode::AUTO_NAV;
+			return Main::Mode::AUTO_MOVE;
+
 		default: assert(0);
 	}
+	return m;
+	
 }
 
 Robot_outputs Main::operator()(Robot_inputs in,ostream&){
@@ -405,31 +472,60 @@ Robot_outputs Main::operator()(Robot_inputs in,ostream&){
 			//cout<<"$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$tag!";
 			//test			
 			break;
-		case Mode::AUTO_MOVE:
-			goals.drive.left=.45;
-			goals.drive.right=.45;
+		case Mode::AUTO_NULL:
 			break;
 		case Mode::AUTO_NAV:
-			{
-				const string MYFILE2=LOG_PATH+"navlog2.txt";
-				myfile2.open(MYFILE2);
-				NavV = loadnav();
-				navindex = 0;
-				myfile2 << "Nav loaded:" << NavV.size() << endl;
-				myfile2.flush();
+			
+			myfile2.open(LOG_PATH+"navlog2.txt");
+
+			if(stepcounter==1)
+				NavV = loadnav(s1);
+			else if(stepcounter==2)
+				NavV = loadnav(s2);
+			else if(stepcounter==3){
+				Aturn.l = -.45;
+				Aturn.r = .45;
+				Aturn.dur=1;
 				break;
 			}
+			else if(stepcounter==4)
+				//fire the ball!
+				break;
+			else if(stepcounter==5)
+				//all done
+				break;
+			/*
+			else if(stepcounter==5)
+			
+				break;
+			else if(stepcounter==6)
+				NavV = loadnav(s3);
+			else if(stepcounter==7)
+				NavV = loadnav(s4);
+			*/
+			else
+				assert(0);
+
+			navindex = 0;
+			myfile2 << "Nav loaded:" << NavV.size() << endl;
+			myfile2.flush();
+			break;
+
 		case Mode::AUTO_NAV_RUN:
 			goals.drive.left=NavV[navindex].left;
 			goals.drive.right=NavV[navindex].right;
 			break;
-		case Mode::AUTO_NAV_DAMAGE_DRIVE:
+
+		case Mode::AUTO_MOVE:
+			goals.drive.left=Aturn.l;
+			goals.drive.right=Aturn.r;
 			break;
-		case Mode::AUTO_NAV_DAMAGE_MANIPULATOR:
+		case Mode::AUTO_SCORE:
+			//score on low goal.
 			break;
 		default: assert(0);
 	}
-	auto next=next_mode(mode,in.robot_mode.autonomous,autonomous_start_now,toplevel_status,since_switch.elapsed(),panel,navindex,NavV);
+	auto next=next_mode(mode,in.robot_mode.autonomous,autonomous_start_now,toplevel_status,since_switch.elapsed(),panel,navindex,NavV,stepcounter,Aturn);
 	since_switch.update(in.now,mode!=next);
 	mode=next;
 	
