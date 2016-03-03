@@ -15,8 +15,8 @@ using namespace std;
 
 const string LOG_PATH=[&]{
 	string s;
-	static const string NON_TEST_PATH="/home/lvuser/logs/";
 	#ifndef MAIN_TEST
+	const string NON_TEST_PATH="/home/lvuser/logs/";
 	s=NON_TEST_PATH;
 	#endif
 	return s;
@@ -26,6 +26,9 @@ ofstream myfile2;
 
 static int print_count=0;
 #define SLOW_PRINT (print_count%10==0)
+
+//TODO: at some point, might want to make this whatever is right to start autonomous mode.
+Main::Main():mode(Mode::TELEOP),autonomous_start(0),joy_collector_pos(Joy_collector_pos::STOP),collector_mode(Collector_mode::NOTHING){}
 
 ostream& operator<<(ostream& o,Main::Mode a){
 	#define X(NAME) if(a==Main::Mode::NAME) return o<<""#NAME;
@@ -40,9 +43,6 @@ ostream& operator<<(ostream& o,Main::Collector_mode a){
 	#undef X
 	assert(0);
 }
-
-//TODO: at some point, might want to make this whatever is right to start autonomous mode.
-Main::Main():mode(Mode::TELEOP),autonomous_start(0),joy_collector_pos(Joy_collector_pos::STOP),collector_mode(Collector_mode::NOTHING){}
 
 vector<Main::NavS> Main::loadnav(){
 	const string MYFILE=LOG_PATH+"navlog.txt";
@@ -144,7 +144,7 @@ Toplevel::Goal Main::teleop(
 		else if(!nudges[Nudges::BACKWARD].timer.done()) power=NUDGE_POWER;
 		else if(!nudges[Nudges::CLOCKWISE].timer.done()) power=-NUDGE_CW_POWER;
 		else if(!nudges[Nudges::COUNTERCLOCKWISE].timer.done()) power=-NUDGE_CCW_POWER;
-		return power;
+		return clip(power);
 	}();
 	goals.drive.right=[&]{
 		double power=set_drive_speed(main_joystick.axis[Gamepad_axis::LEFTY],boost,slow);
@@ -153,22 +153,25 @@ Toplevel::Goal Main::teleop(
 		else if(!nudges[Nudges::BACKWARD].timer.done()) power=NUDGE_POWER;
 		else if(!nudges[Nudges::CLOCKWISE].timer.done()) power=NUDGE_CW_POWER;
 		else if(!nudges[Nudges::COUNTERCLOCKWISE].timer.done()) power=NUDGE_CCW_POWER;
-		return power;
+		return clip(power);
 	}();
 
 	static const unsigned int nudge_buttons[NUDGES]={Gamepad_button::Y,Gamepad_button::A,Gamepad_button::B,Gamepad_button::X};//Forward, backward, clockwise, counter-clockwise
 	for(int i=0;i<Nudges::NUDGES;i++){
-		if(nudges[i].trigger(boost<.25 && main_joystick.button[nudge_buttons[i]]))nudges[i].timer.set(.1);
+		if(nudges[i].trigger(boost<.25 && main_joystick.button[nudge_buttons[i]])) nudges[i].timer.set(.1);
 		nudges[i].timer.update(in.now,1);
 	}
 	
 	bool ball=(in.digital_io.in[6]==Digital_in::_0);
-	main_panel_output[Panel_outputs::BOULDER] = Panel_output(static_cast<int>(Panel_output_ports::BOULDER), ball);
-	controller_auto.update(gunner_joystick.button[Gamepad_button::START]);
-	auto LEVEL=Tilt::Goal::go_to_angle({83,83,83});
-	auto LOW=Tilt::Goal::go_to_angle({100,100,100});
-	auto TOP=Tilt::Goal::go_to_angle({0,0,0});
+	
+	const Tilt::Goal LEVEL=Tilt::Goal::go_to_angle({83,83,83});
+	const Tilt::Goal LOW=Tilt::Goal::go_to_angle({100,100,100});
+	const Tilt::Goal TOP=Tilt::Goal::go_to_angle({0,0,0});
+	
 	if((!panel.in_use && controller_auto.get()) || (panel.in_use && (panel.tilt_auto || panel.front_auto || panel.sides_auto))) {
+	main_panel_output[Panel_outputs::BOULDER] = Panel_output(static_cast<int>(Panel_output_ports::BOULDER), ball);
+	
+	controller_auto.update(gunner_joystick.button[Gamepad_button::START]);
 		if(main_joystick.button[Gamepad_button::BACK]) collector_mode=Collector_mode::NOTHING;
 		else if(main_joystick.button[Gamepad_button::START] || (panel.in_use && panel.collect)) collector_mode=Collector_mode::COLLECT;
 		else if(gunner_joystick.button[Gamepad_button::A] || (panel.in_use && panel.collector_pos==Panel::Collector_pos::LOW)) collector_mode=Collector_mode::LOW;
@@ -228,7 +231,6 @@ Toplevel::Goal Main::teleop(
 			if(gunner_joystick.axis[Gamepad_axis::LTRIGGER]>LIMIT) return Front::Goal::OUT;
 			if(gunner_joystick.axis[Gamepad_axis::RTRIGGER]>LIMIT) return Front::Goal::IN;
 			return Front::Goal::OFF;
-			assert(0);
 		}();
 		goals.sides=[&]{
 			if(gunner_joystick.button[Gamepad_button::RB]) return Sides::Goal::IN;
@@ -265,11 +267,11 @@ Toplevel::Goal Main::teleop(
                         }
                 }();	
 		#endif
-		if(gunner_joystick.button[Gamepad_button::BACK]){
-			goals.tilt=Tilt::Goal::stop();
-			goals.sides=Sides::Goal::OFF;
-			goals.front=Front::Goal::OFF;
-		}
+	}
+	if(gunner_joystick.button[Gamepad_button::BACK]){
+		goals.tilt=Tilt::Goal::stop();
+		goals.sides=Sides::Goal::OFF;
+		goals.front=Front::Goal::OFF;
 	}
 	if (panel.in_use) {
 		if (!panel.front_auto) {
@@ -283,9 +285,11 @@ Toplevel::Goal Main::teleop(
 			#undef X
 		}
 		if (!panel.tilt_auto) {
-                        if (panel.collector_up) goals.tilt=Tilt::Goal::up();
-                        else if (panel.collector_down) goals.tilt=Tilt::Goal::down();
-			else goals.tilt=Tilt::Goal::stop();
+                        goals.tilt=[&]{
+				if (panel.collector_up) return Tilt::Goal::up();
+                        	if (panel.collector_down) return Tilt::Goal::down();
+				return goals.tilt=Tilt::Goal::stop();
+			}();
                 }
 	}
 	goals.climb_release=[&]{
