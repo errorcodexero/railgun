@@ -5,6 +5,7 @@
 	- Test camera
 	- Check and update PDP firmware	
 
+
 HIGH PRIORITY for Wilsonville:
 	- Fix robRIO connection issue and figuring out why it isn't assinged the new ip address
 	- Tilt learning - Logan
@@ -16,16 +17,19 @@ HIGH PRIORITY for Wilsonville:
 	- Connection Issue
 	- Calibrate gold Driverstation with the OI
 	- Update PDP Firmware
+
 		
 LOW PRIORITY for Wilsonville:
 	- Logger & Diagnostics
 	- PWM mode outputs for blinky lights (DIO 9)	
+
 
 HIGH PRIORITY for Auburn:
 	- Shooter Code
 	- Vision/Auto-aim code
 	- Fix issues from W-ville
 	- Shooter injector code
+
 
 NOT AS HIGH PRIORITY: 
 	- Laptop configuration
@@ -44,3 +48,4 @@ NICE THINGS TO HAVE:
 		- Add a function that will discover which IOs different parts use (and make a nice list)
 		- Make a data type to talk about different inputs
 	-Update Joystick implimentation
+

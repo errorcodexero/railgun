@@ -52,7 +52,7 @@ struct Main{
 
 	
 	unsigned int navindex;
-	std::vector<NavS> NavV;
+	vector<NavS> NavV;
 		
 	vector<NavS> loadnav(navloadinput navin);	
 
@@ -69,7 +69,7 @@ struct Main{
 		Posedge_trigger trigger;
 		Countdown_timer timer;
 	};
-	Nudge nudges[NUDGES];
+	array<Nudge,NUDGES> nudges;
 	
 	#define JOY_COLLECTOR_POS X(STOP) X(LOW) X(LEVEL)
 	enum class Joy_collector_pos{
@@ -90,11 +90,15 @@ struct Main{
 	
 	Countdown_timer shoot_timer;
 	
+	Posedge_toggle learn;
+
 	enum Panel_outputs{SHOOTER_PREPPED, BOULDER, PANEL_OUTPUTS};
 	enum class Panel_output_ports{SHOOTER_PREPPED=6, BOULDER=10};
 
 	Checked_array<Panel_output,Panel_outputs::PANEL_OUTPUTS> main_panel_output;
 		
+	double top, level, low;
+
 	Toplevel::Goal teleop(Robot_inputs const&,Joystick_data const&,Joystick_data const&,Panel const&,Toplevel::Status_detail&);
 	Main();
 	Robot_outputs operator()(Robot_inputs,std::ostream& = std::cerr);
