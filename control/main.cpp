@@ -49,24 +49,24 @@ Main::Main():mode(Mode::TELEOP),autonomous_start(0),joy_collector_pos(Joy_collec
 		low=100;
 		stepcounter=0;
 		//the information that is being declared are just place holders for when we get and actual values for auto.
-		s1.ptone.x=70;
+		s1.ptone.x=80;
 		s1.ptone.y=70;
 		s1.pttwo.x=70;
-		s1.pttwo.y=60;
+		s1.pttwo.y=70;
 		s1.dirone=LEFT;
 		s1.dirtwo=LEFT;
 		
 		s2.ptone.x=70;
 		s2.ptone.y=70;
 		s2.pttwo.x=70;
-		s2.pttwo.y=60;
+		s2.pttwo.y=70;
 		s2.dirone=LEFT;
 		s2.dirtwo=LEFT;
 
 		s3.ptone.x=70;
 		s3.ptone.y=70;
-		s3.pttwo.x=70;
-		s3.pttwo.y=60;
+		s3.pttwo.x=60;
+		s3.pttwo.y=70;
 		s3.dirone=LEFT;
 		s3.dirtwo=LEFT;
 		
@@ -84,12 +84,16 @@ Main::Main():mode(Mode::TELEOP),autonomous_start(0),joy_collector_pos(Joy_collec
 		s5.dirone=LEFT;
 		s5.dirtwo=LEFT;
 		
+		stepcounter = 1;
+			
+		myfile2.open("/home/lvuser/navlogs/navlog2.txt");
+
 }
 
 
 vector<Main::NavS> Main::loadnav(navloadinput navin){
 
-	const string MYFILE=FILE_PATH+"/logs/navlog.txt";
+	const string MYFILE="/home/lvuser/navlogs/navlog.txt";
 
 	float amount = 0;
 	vector<NavS> nav;
@@ -110,8 +114,10 @@ vector<Main::NavS> Main::loadnav(navloadinput navin){
 	end.navpt.x = navin.pttwo.x;
 	end.navpt.y = navin.pttwo.y;
 	end.navdir = navin.dirtwo;
-	
+
+	myfile << "startpt: " << start.navpt.x << "," << start.navpt.y << "endpt: " << end.navpt.x << "," << end.navpt.y  << endl;
 	v=solvemaze(start.navpt,end.navpt,start.navdir,end.navdir);
+	
 	myfile << "size: " << v.size() << "\n"; 
 	//something to note is that doing a 180 or going back is going to be the same as turning exept that it is going to be for longer so that it can go as far 
 
@@ -395,7 +401,7 @@ Main::Mode next_mode(Main::Mode m,bool autonomous,bool autonomous_start,Toplevel
 		case Main::Mode::TELEOP:	
 			if(autonomous_start){
 				return Main::Mode::AUTO_NAV;//just for testing purposes
-				stepcounter = 1; //this needs to be moved to where the oi sets the mode later.
+
 				/*if (panel.in_use) {
 					switch(panel.auto_mode){ 
 						case Panel::Auto_mode::CAN_GRAB:
@@ -419,9 +425,10 @@ Main::Mode next_mode(Main::Mode m,bool autonomous,bool autonomous_start,Toplevel
 			return Main::Mode::TELEOP;
 		
 		case Main::Mode::AUTO_NAV:
-			if(stepcounter==1 /* || stepcounter==2*/)
+			if(stepcounter==1 /* || stepcounter==2*/){
+				stepcounter ++;
 				return Main::Mode::AUTO_NAV_RUN;
-			else if(stepcounter==2)
+			}else if(stepcounter==2)
 				return Main::Mode::TELEOP;
 			else if(stepcounter==3)
 				return Main::Mode::AUTO_MOVE;
@@ -429,6 +436,7 @@ Main::Mode next_mode(Main::Mode m,bool autonomous,bool autonomous_start,Toplevel
 				return Main::Mode::AUTO_SCORE;
 			else if(stepcounter==5)	
 				return Main::Mode::TELEOP;
+			myfile2 << "AUTO_NAV:next:" << stepcounter;
 
 			/* if(something)
 				NavV = loadnav(s5);
@@ -510,13 +518,15 @@ Robot_outputs Main::operator()(Robot_inputs in,ostream&){
 			break;
 		case Mode::AUTO_NAV:
 			
-			myfile2.open(FILE_PATH+"/logs/navlog2.txt");
+			myfile2 << "AUTO_NAV:" << stepcounter << endl;
 
-			if(stepcounter==1)
+			if(stepcounter==1) {
 				NavV = loadnav(s1);
-			else if(stepcounter==2)
+				myfile2 << "doing S1" << endl;
+			} else if(stepcounter==2) {
 				NavV = loadnav(s2);
-			else if(stepcounter==3){
+				myfile2 << "doing S2" << endl;
+			} else if(stepcounter==3){
 				Aturn.l = -.45;
 				Aturn.r = .45;
 				Aturn.dur=1;
