@@ -42,10 +42,7 @@ Tilt::Status_detail::Status_detail():top(0),angle(0){}
 
 Tilt::Status_detail::Status_detail(bool a,double b):top(a),angle(b){}
 
-Tilt::Goal::Goal():mode_(Tilt::Goal::Mode::STOP),angle_min(0),angle_target(0),angle_max(0){}
-
-Tilt::Output_applicator::Output_applicator():percent_power(1.00){}
-
+Tilt::Goal::Goal():mode_(Tilt::Goal::Mode::STOP),angle_min(0),angle_target(0),angle_max(0),percent_power(1.00){}
 
 Robot_inputs Tilt::Input_reader::operator()(Robot_inputs r,Tilt::Input in)const{
 	r.analog[TILT_POT_LOC]=degrees_to_volts(in.angle);
@@ -65,8 +62,7 @@ Tilt::Output Tilt::Output_applicator::operator()(Robot_outputs r)const{
 }
 
 Robot_outputs Tilt::Output_applicator::operator()(Robot_outputs r, Tilt::Output out)const{
-	const float MIN=.05;//lowest possible percent output
-	r.pwm[TILT_ADDRESS]=out*std::max(percent_power,MIN);
+	r.pwm[TILT_ADDRESS]=out;
 	return r;
 }
 
@@ -201,14 +197,15 @@ std::set<Tilt::Status> examples(Tilt::Status*){
 }
 
 Tilt::Output control(Tilt::Status_detail status, Tilt::Goal goal){
-	const double SLOW=POWER/2;
+	const float MIN=.05;//minimum percent power
+	double power=POWER*std::max(goal.percent_power,MIN);
 	switch(goal.mode()){
 		case Tilt::Goal::Mode::DOWN:
 			//if(status.angle>=volts_to_degrees(BOTTOM_VOLTAGE)) return 0;//If enabled, then the collector won't go below the bottom
-			return SLOW;
+			return power;
 		case Tilt::Goal::Mode::UP:
 			if(status.top) return 0;
-			return -SLOW;
+			return -power;
 		case Tilt::Goal::Mode::STOP:
 			return 0;
 		case Tilt::Goal::Mode::GO_TO_ANGLE:

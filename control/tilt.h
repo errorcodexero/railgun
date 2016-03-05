@@ -29,6 +29,7 @@ struct Tilt{
 		double angle_min,angle_target,angle_max;//in degrees from top
 		
 		public:
+		float percent_power;
 		Mode mode()const;
 		std::array<double,3> angle()const;
 		
@@ -68,10 +69,6 @@ struct Tilt{
 	};
 	
 	struct Output_applicator{
-		float percent_power;
-
-		Output_applicator();
-
 		Output operator()(Robot_outputs)const;
 		Robot_outputs operator()(Robot_outputs,Output)const;
 	};	
