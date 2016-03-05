@@ -12,8 +12,8 @@
 
 
 HIGH PRIORITY for Wilsonville:
-	- Tilt learning - Logan
-	- Tilt speed - Logan
+	- Test Tilt learning 
+	- Test Tilt speed 
 	- Autonomous* - Tristan
 		-Drive Encoders
 		-Testing on carpet field with measurements
@@ -27,7 +27,6 @@ LOW PRIORITY for Wilsonville:
 	- configure deploy scripts for .lan and .local
 
 HIGH PRIORITY for Auburn:
-	- Vision/Auto-aim code
 	- Fix issues from W-ville
 	
 
@@ -39,7 +38,6 @@ NOT AS HIGH PRIORITY:
 
 
 NICE THINGS TO HAVE:
-	- IMU - Calvin
 	- Clean-up stuff:
 		- Use enum class more places
 		- Use std::array in place of C arrays in several places
