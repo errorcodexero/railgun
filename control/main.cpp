@@ -224,18 +224,25 @@ Toplevel::Goal Main::teleop(
 	Tilt::Goal TOP=Tilt::Goal::go_to_angle(make_tolerances(top));
 	
 	controller_auto.update(gunner_joystick.button[Gamepad_button::START]);
+
+	if(gunner_joystick.button[Gamepad_button::BACK] || main_joystick.button[Gamepad_button::BACK]){//Turn collector off
+		goals.tilt=Tilt::Goal::stop();
+		goals.sides=Sides::Goal::OFF;
+		goals.front=Front::Goal::OFF;
+		collector_mode=Collector_mode::NOTHING;
+	}	
+
 	if((!panel.in_use && controller_auto.get()) || (panel.in_use && (panel.tilt_auto || panel.front_auto || panel.sides_auto))) {//Automatic collector modes
 		bool joy_learn=gunner_joystick.button[Gamepad_button::B];
-		if(main_joystick.button[Gamepad_button::BACK] || gunner_joystick.button[Gamepad_button::BACK]) collector_mode=Collector_mode::NOTHING;		
-		else if(gunner_joystick.button[Gamepad_button::X] || (panel.in_use && panel.shoot)) {
+		if(gunner_joystick.button[Gamepad_button::X] || (panel.in_use && panel.shoot)) {
 			collector_mode=Collector_mode::SHOOT;
 			const double TIME_TO_SHOOT=.7;
 			shoot_timer.set(TIME_TO_SHOOT);
 		}
-		else if((gunner_joystick.button[Gamepad_button::Y] && joy_learn) || (panel.in_use && panel.eject && !learn.get())) collector_mode=Collector_mode::EJECT;
-		else if(panel.in_use && panel.collector_pos==Panel::Collector_pos::STOW && !learn.get()) collector_mode = Collector_mode::STOW;
-		else if((main_joystick.button[Gamepad_button::START] && joy_learn) || (panel.in_use && panel.collect && !learn.get())) collector_mode=Collector_mode::COLLECT;
-		else if((gunner_joystick.button[Gamepad_button::A] && joy_learn) || (panel.in_use && panel.collector_pos==Panel::Collector_pos::LOW && !learn.get())) collector_mode=Collector_mode::LOW;
+		else if(panel.in_use && panel.collector_pos==Panel::Collector_pos::STOW && !learn.get()) collector_mode = Collector_mode::STOW;		
+		else if((gunner_joystick.button[Gamepad_button::Y] && !joy_learn) || (panel.in_use && panel.eject && !learn.get())) collector_mode=Collector_mode::EJECT;
+		else if((main_joystick.button[Gamepad_button::START] && !joy_learn) || (panel.in_use && panel.collect && !learn.get())) collector_mode=Collector_mode::COLLECT;
+		else if((gunner_joystick.button[Gamepad_button::A] && !joy_learn) || (panel.in_use && panel.collector_pos==Panel::Collector_pos::LOW && !learn.get())) collector_mode=Collector_mode::LOW;
 		if(SLOW_PRINT)cout<<"collector_mode: "<<collector_mode<<"\n";
 		switch(collector_mode){
 			case Collector_mode::COLLECT:
@@ -327,11 +334,6 @@ Toplevel::Goal Main::teleop(
 				default: assert(0);
 			}
 		}();	
-	}
-	if(gunner_joystick.button[Gamepad_button::BACK]){//Turn collector off
-		goals.tilt=Tilt::Goal::stop();
-		goals.sides=Sides::Goal::OFF;
-		goals.front=Front::Goal::OFF;
 	}
 	if (panel.in_use) {//Panel manual modes
 		learn.update(panel.learn);
