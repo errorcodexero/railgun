@@ -283,6 +283,12 @@ Toplevel::Goal Main::teleop(
 				goals.sides=Sides::Goal::OFF;
 				goals.tilt=Tilt::Goal::stop();
 				break;
+			case Collector_mode::CHEVAL:
+				collector_mode=Collector_mode::NOTHING;
+				break;
+			case Collector_mode::PORTCULLIS:
+				collector_mode=Collector_mode::NOTHING;
+				break;
 			default: assert(0);
 		}
 	}
