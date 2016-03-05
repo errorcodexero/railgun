@@ -47,7 +47,7 @@ Main::Main():mode(Mode::TELEOP),autonomous_start(0),joy_collector_pos(Joy_collec
 		top=0;
 		level=83;
 		low=100;
-		cheval=100;
+		cheval=low;
 		portcullis=level;
 	
 		stepcounter=0;
@@ -169,7 +169,7 @@ vector<Main::NavS> Main::loadnav(navloadinput navin){
 
 double set_drive_speed(double axis,double boost,double slow=0){
 	static const float MAX_SPEED=1;//Change this value to change the max speed the robot will achieve with full boost (cannot be larger than 1.0)
-	static const float DEFAULT_SPEED=.3;//Change this value to change the default speed
+	static const float DEFAULT_SPEED=.4;//Change this value to change the default speed
 	static const float SLOW_BY=.5;//Change this value to change the percentage of the default speed the slow button slows
 	return (pow(axis,3)*((DEFAULT_SPEED+(MAX_SPEED-DEFAULT_SPEED)*boost)-((DEFAULT_SPEED*SLOW_BY)*slow)));
 }
@@ -200,9 +200,10 @@ Toplevel::Goal Main::teleop(
 			nudges[i].timer.update(in.now,1);
 		}
 		const double NUDGE_POWER=.4,NUDGE_CW_POWER=.4,NUDGE_CCW_POWER=-.4; 
+		const double SCALE_SPIN=1.7;//percent to increase spin by
 		goals.drive.left=[&]{
 			double power=set_drive_speed(main_joystick.axis[Gamepad_axis::LEFTY],boost,slow);
-			if(spin) power+=set_drive_speed(-main_joystick.axis[Gamepad_axis::RIGHTX],boost,slow);
+			if(spin) power+=set_drive_speed(-clip(main_joystick.axis[Gamepad_axis::RIGHTX]*SCALE_SPIN),boost,slow);
 			if(!nudges[Nudges::FORWARD].timer.done()) power=-NUDGE_POWER;
 			else if(!nudges[Nudges::BACKWARD].timer.done()) power=NUDGE_POWER;
 			else if(!nudges[Nudges::CLOCKWISE].timer.done()) power=-NUDGE_CW_POWER;
@@ -211,7 +212,7 @@ Toplevel::Goal Main::teleop(
 		}();
 		goals.drive.right=[&]{
 			double power=set_drive_speed(main_joystick.axis[Gamepad_axis::LEFTY],boost,slow);
-			if(spin) power+=set_drive_speed(main_joystick.axis[Gamepad_axis::RIGHTX],boost,slow);
+			if(spin) power+=set_drive_speed(clip(main_joystick.axis[Gamepad_axis::RIGHTX]*SCALE_SPIN),boost,slow);
 			if(!nudges[Nudges::FORWARD].timer.done()) power=-NUDGE_POWER;
 			else if(!nudges[Nudges::BACKWARD].timer.done()) power=NUDGE_POWER;
 			else if(!nudges[Nudges::CLOCKWISE].timer.done()) power=NUDGE_CW_POWER;
@@ -249,7 +250,7 @@ Toplevel::Goal Main::teleop(
 		else if(panel.in_use && panel.collector_pos==Panel::Collector_pos::STOW && !learn.get()) collector_mode = Collector_mode::STOW;		
 		else if(panel.in_use && panel.cheval && !learn.get()) {
 			collector_mode = Collector_mode::CHEVAL;
-			const Time TIME_UNTIL_OVER=1;
+			const Time TIME_UNTIL_OVER=2;
 			cheval_drive_timer.set(TIME_UNTIL_OVER);
 		}
 		else if(panel.in_use && panel.portcullis && !learn.get()){
@@ -306,7 +307,7 @@ Toplevel::Goal Main::teleop(
 				goals.tilt=CHEVAL;
 				if(ready(status(toplevel_status.tilt), goals.tilt)){
 					cheval_drive_timer.update(in.now, true);
-					const double AUTO_POWER=.2;
+					const double AUTO_POWER=-.5;
 					goals.drive.right=AUTO_POWER;
 					goals.drive.left=AUTO_POWER;
 				}
@@ -318,7 +319,7 @@ Toplevel::Goal Main::teleop(
 					goals.front=Front::Goal::OFF;
 					goals.sides=Sides::Goal::OFF;
 					goals.tilt=PORTCULLIS;
-					const double AUTO_POWER=.2;
+					const double AUTO_POWER=-.5;
 					goals.drive.right=AUTO_POWER;
 					goals.drive.left=AUTO_POWER;
 					if(portcullis_timer.done()) collector_mode = Collector_mode::STOW;				
