@@ -45,5 +45,4 @@ NICE THINGS TO HAVE:
 	- Meta IO information
 		- Add a function that will discover which IOs different parts use (and make a nice list)
 		- Make a data type to talk about different inputs
-	-Update Joystick implimentation
 

@@ -123,6 +123,7 @@ std::ostream& operator<<(std::ostream& o,Robot_outputs);
 struct Joystick_data{
 	Checked_array<double,JOY_AXES> axis;
 	std::bitset<JOY_BUTTONS> button;
+	int pov;
 	
 	Joystick_data();
 

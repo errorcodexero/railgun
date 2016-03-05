@@ -343,15 +343,17 @@ Maybe<Joystick_data> Joystick_data::parse(string const& s){
 	string s2=inside_parens(s);
 	//cout<<"got:"<<s2<<"\n";
 	vector<string> v=split(s2,':');
-	if(v.size()!=3) return Maybe<Joystick_data>();
+	if(v.size()!=4) return Maybe<Joystick_data>();
 	Joystick_data r;
 	{
+		r.pov=atoi(v[2].c_str());
+	}
+	{
 		//cout<<"bs="<<v[1]<<"\n";
-		vector<string> b=split(v[2]);
+		vector<string> b=split(v[3]);
 		//cout<<"list:"<<b.size()<<" "<<Joystick_data::BUTTONS<<"\n";
 		for(unsigned i=0;i<JOY_BUTTONS;i++){
 			if(i>=b.size()){
-				//cout<<"sdflkj\n";
 				return Maybe<Joystick_data>();
 			}
 			//cout<<"xx\n";
@@ -375,6 +377,7 @@ bool operator==(Joystick_data a,Joystick_data b){
 			return 0;
 		}
 	}
+	if(a.pov!=b.pov)return 0;
 	for(unsigned i=0;i<JOY_BUTTONS;i++){
 		if(a.button[i]!=b.button[i]){
 			return 0;
@@ -394,6 +397,7 @@ ostream& operator<<(ostream& o,Joystick_data a){
 		//o<<setprecision(2)<<a.axis[i]<<" ";
 		o<<setw(5)<<fixed<<setprecision(2)<<a.axis[i]<<" ";
 	}
+	o<<"pov: "<<a.pov<<" ";
 	o<<"buttons:";
 	for(unsigned i=0;i<JOY_BUTTONS;i++){
 		o<<a.button[i]<<" ";
@@ -581,6 +585,7 @@ int main(){
 	assert(parse_relay_output("")==Maybe<Relay_output>());
 	Joystick_data j;
 	j.button[3]=1;
+	j.pov=90;
 	j.axis[5]=.3;
 	assert(j==Joystick_data::parse(as_string(j)));
 }

@@ -82,6 +82,13 @@ Joystick_data read_joystick(DriverStation& ds,int port){
 	//I don't know what the DriverStation does when port is out of range.
 	Joystick_data r;
 	{
+		auto lim=ds.GetStickPOVCount(port);
+		assert(lim>=0);
+		for(unsigned int i=0;i<(unsigned)lim;i++){
+			r.pov=ds.GetStickPOV(port,i);
+		}
+	}
+	{
 		auto lim=ds.GetStickAxisCount(port);
 		assert(lim>=0);
 		unsigned axes=std::min((unsigned)JOY_AXES,(unsigned)lim);
