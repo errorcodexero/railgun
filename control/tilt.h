@@ -68,6 +68,10 @@ struct Tilt{
 	};
 	
 	struct Output_applicator{
+		float percent_power;
+
+		Output_applicator();
+
 		Output operator()(Robot_outputs)const;
 		Robot_outputs operator()(Robot_outputs,Output)const;
 	};	
