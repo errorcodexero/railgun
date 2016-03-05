@@ -19,6 +19,16 @@ ostream& operator<<(ostream& o,Joystick_section j){
         return o;
 }
 
+ostream& operator<<(ostream& o,POV_section p){
+	switch(p){
+		#define X(NAME) case POV_section::NAME: return o<<""#NAME;
+		POV_SECTIONS
+		#undef X
+		default: assert(0); break;
+	}
+	return o;
+}
+
 Joystick_section joystick_section(double x,double y){
         static const double LIM=.25;
         if(fabs(x)<LIM && fabs(y)<LIM){
@@ -35,6 +45,21 @@ Joystick_section joystick_section(double x,double y){
 }
 
 Joystick_section divide_vertical(double y){ return joystick_section(0,y); }
+
+POV_section pov_section(int x){
+	switch(x){
+		case 0: return POV_section::UP;
+		case 45: return POV_section::UP_RIGHT;
+		case 90: return POV_section::RIGHT;
+		case 135: return POV_section::DOWN_RIGHT;
+		case 180: return POV_section::DOWN;
+		case 225: return POV_section::DOWN_LEFT;
+		case 270: return POV_section::LEFT;
+		case 315: return POV_section::UP_LEFT;
+		default: return POV_section::CENTER;
+
+	}
+}
 
 unsigned interpret_10_turn_pot(Volt v){
         array<Volt,10>limits={

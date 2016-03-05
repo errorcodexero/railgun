@@ -7,8 +7,16 @@
 enum class Joystick_section{LEFT,RIGHT,UP,DOWN,CENTER};
 std::ostream& operator<<(std::ostream&,Joystick_section);
 
+#define POV_SECTIONS X(UP) X(UP_LEFT) X(LEFT) X(DOWN_LEFT) X(DOWN) X(DOWN_RIGHT) X(RIGHT) X(UP_RIGHT) X(CENTER)
+#define X(SECTION) SECTION,
+enum class POV_section{POV_SECTIONS};
+#undef X
+std::ostream& operator<<(std::ostream&,POV_section);
+
 Joystick_section joystick_section(double x,double y);
 Joystick_section divide_vertical(double y);
+
+POV_section pov_section(int x);
 
 namespace Gamepad_button{
 	//how the logitech gamepads appear in the driver station
