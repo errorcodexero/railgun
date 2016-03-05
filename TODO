@@ -13,10 +13,10 @@ HIGH PRIORITY for Wilsonville:
 		-Drive Encoders
 		-Testing on carpet field with measurements
 		-Complete all modes, ready for testing
-	- Laptop WPILIB Updates
+	- Laptop WPILib Updates
 	- Connection Issue
 	- Calibrate gold Driverstation with the OI
-	- Update PDP Firmware
+	- Update PDP firmware on all robots
 
 		
 LOW PRIORITY for Wilsonville:
@@ -25,10 +25,10 @@ LOW PRIORITY for Wilsonville:
 
 
 HIGH PRIORITY for Auburn:
-	- Shooter Code
+	- Shooter Code?
 	- Vision/Auto-aim code
 	- Fix issues from W-ville
-	- Shooter injector code
+	- Shooter injector code?
 
 
 NOT AS HIGH PRIORITY: 

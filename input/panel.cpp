@@ -27,7 +27,7 @@ Panel::Panel():
 	sides(Collector::OFF),
 	winch(Winch::STOP),
 	auto_mode(Auto_mode::NOTHING),
-	learn_dial(0)
+	speed_dial(0)
 {}
 
 ostream& operator<<(ostream& o,Panel::Collector_pos a){
@@ -70,7 +70,7 @@ ostream& operator<<(ostream& o,Panel p){
 	X(lock_climber) X(tilt_auto) X(front_auto) X(sides_auto) //2-pos switches
 	X(collector_pos) X(front) X(sides) X(winch) //3-pos switches
 	X(auto_mode) //10-pos switches
-	X(learn_dial) //Dials
+	X(speed_dial) //Dials
 	#undef X
 	return o<<")";
 }
@@ -84,6 +84,10 @@ Panel::Auto_mode auto_mode_convert(int potin){
 		default:
 			return Panel::Auto_mode::NOTHING;
 	}
+}
+
+float axis_to_percent(double a){
+	return (a+1)/2;
 }
 
 Panel interpret(Joystick_data d){
@@ -153,7 +157,7 @@ Panel interpret(Joystick_data d){
                 AXIS_RANGE(winch, UP, STOP, DOWN, p.winch, Panel::Winch::STOP)
                 else AXIS_RANGE(winch, STOP, DOWN, 1.5, p.winch, Panel::Winch::DOWN);
         }
-	p.learn_dial = d.axis[1];
+	p.speed_dial = axis_to_percent(d.axis[1]);
 	#undef AXIS_RANGE
 	return p;
 }

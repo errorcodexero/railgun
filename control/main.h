@@ -97,7 +97,7 @@ struct Main{
 
 	Checked_array<Panel_output,Panel_outputs::PANEL_OUTPUTS> main_panel_output;
 		
-	double top, level, low;
+	double top, level, low;//angles (in degrees) that it will go to when set to the tilt goals
 
 	Toplevel::Goal teleop(Robot_inputs const&,Joystick_data const&,Joystick_data const&,Panel const&,Toplevel::Status_detail&);
 	Main();

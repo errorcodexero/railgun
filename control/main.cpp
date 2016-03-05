@@ -186,35 +186,35 @@ Toplevel::Goal Main::teleop(
 	Toplevel::Status_detail& toplevel_status
 ){
 	Toplevel::Goal goals;
-
-	bool spin=fabs(main_joystick.axis[Gamepad_axis::RIGHTX])>.01;//drive turning button
-	double boost=main_joystick.axis[Gamepad_axis::LTRIGGER],slow=main_joystick.axis[Gamepad_axis::RTRIGGER];//turbo and slow buttons	
+	{
+		bool spin=fabs(main_joystick.axis[Gamepad_axis::RIGHTX])>.01;//drive turning button
+		double boost=main_joystick.axis[Gamepad_axis::LTRIGGER],slow=main_joystick.axis[Gamepad_axis::RTRIGGER];//turbo and slow buttons	
 	
-	for(int i=0;i<NUDGES;i++){
-		const array<unsigned int,NUDGES> nudge_buttons={Gamepad_button::Y,Gamepad_button::A,Gamepad_button::B,Gamepad_button::X};//Forward, backward, clockwise, counter-clockwise
-		if(nudges[i].trigger(boost<.25 && main_joystick.button[nudge_buttons[i]])) nudges[i].timer.set(.1);
-		nudges[i].timer.update(in.now,1);
+		for(int i=0;i<NUDGES;i++){
+			const array<unsigned int,NUDGES> nudge_buttons={Gamepad_button::Y,Gamepad_button::A,Gamepad_button::B,Gamepad_button::X};//Forward, backward, clockwise, counter-clockwise
+			if(nudges[i].trigger(boost<.25 && main_joystick.button[nudge_buttons[i]])) nudges[i].timer.set(.1);
+			nudges[i].timer.update(in.now,1);
+		}
+		const double NUDGE_POWER=.4,NUDGE_CW_POWER=.4,NUDGE_CCW_POWER=-.4; 
+		goals.drive.left=[&]{
+			double power=set_drive_speed(main_joystick.axis[Gamepad_axis::LEFTY],boost,slow);
+			if(spin) power+=set_drive_speed(-main_joystick.axis[Gamepad_axis::RIGHTX],boost,slow);
+			if(!nudges[Nudges::FORWARD].timer.done()) power=-NUDGE_POWER;
+			else if(!nudges[Nudges::BACKWARD].timer.done()) power=NUDGE_POWER;
+			else if(!nudges[Nudges::CLOCKWISE].timer.done()) power=-NUDGE_CW_POWER;
+			else if(!nudges[Nudges::COUNTERCLOCKWISE].timer.done()) power=-NUDGE_CCW_POWER;
+			return clip(power);
+		}();
+		goals.drive.right=[&]{
+			double power=set_drive_speed(main_joystick.axis[Gamepad_axis::LEFTY],boost,slow);
+			if(spin) power+=set_drive_speed(main_joystick.axis[Gamepad_axis::RIGHTX],boost,slow);
+			if(!nudges[Nudges::FORWARD].timer.done()) power=-NUDGE_POWER;
+			else if(!nudges[Nudges::BACKWARD].timer.done()) power=NUDGE_POWER;
+			else if(!nudges[Nudges::CLOCKWISE].timer.done()) power=NUDGE_CW_POWER;
+			else if(!nudges[Nudges::COUNTERCLOCKWISE].timer.done()) power=NUDGE_CCW_POWER;
+			return clip(power);
+		}();
 	}
-	static const double NUDGE_POWER=.4,NUDGE_CW_POWER=.4,NUDGE_CCW_POWER=-.4; 
-	goals.drive.left=[&]{
-		double power=set_drive_speed(main_joystick.axis[Gamepad_axis::LEFTY],boost,slow);
-		if(spin) power+=set_drive_speed(-main_joystick.axis[Gamepad_axis::RIGHTX],boost,slow);
-		if(!nudges[Nudges::FORWARD].timer.done()) power=-NUDGE_POWER;
-		else if(!nudges[Nudges::BACKWARD].timer.done()) power=NUDGE_POWER;
-		else if(!nudges[Nudges::CLOCKWISE].timer.done()) power=-NUDGE_CW_POWER;
-		else if(!nudges[Nudges::COUNTERCLOCKWISE].timer.done()) power=-NUDGE_CCW_POWER;
-		return clip(power);
-	}();
-	goals.drive.right=[&]{
-		double power=set_drive_speed(main_joystick.axis[Gamepad_axis::LEFTY],boost,slow);
-		if(spin) power+=set_drive_speed(main_joystick.axis[Gamepad_axis::RIGHTX],boost,slow);
-		if(!nudges[Nudges::FORWARD].timer.done()) power=-NUDGE_POWER;
-		else if(!nudges[Nudges::BACKWARD].timer.done()) power=NUDGE_POWER;
-		else if(!nudges[Nudges::CLOCKWISE].timer.done()) power=NUDGE_CW_POWER;
-		else if(!nudges[Nudges::COUNTERCLOCKWISE].timer.done()) power=NUDGE_CCW_POWER;
-		return clip(power);
-	}();
-	
 	bool ball=(in.digital_io.in[6]==Digital_in::_0);
 	main_panel_output[Panel_outputs::BOULDER] = Panel_output(static_cast<int>(Panel_output_ports::BOULDER), ball);
 	
@@ -223,36 +223,19 @@ Toplevel::Goal Main::teleop(
 	Tilt::Goal TOP=Tilt::Goal::go_to_angle(make_tolerances(top));
 	
 	controller_auto.update(gunner_joystick.button[Gamepad_button::START]);
-	if(panel.in_use){
-		learn.update(panel.learn);
-		if(learn.get()){
-			double learn_this=toplevel_status.tilt.angle;
-			if(panel.collect || panel.eject){
-				level=learn_this;
-				if(learn.get()) learn.update(true);
-			}
-			else if(panel.collector_pos==Panel::Collector_pos::STOW){
-				top=learn_this;
-				if(learn.get()) learn.update(true);
-			}
-			else if(panel.collector_pos==Panel::Collector_pos::LOW){
-				low=learn_this;
-				if(learn.get()) learn.update(true);
-			}
-		}
-	}
-	if((!panel.in_use && controller_auto.get()) || (panel.in_use && (panel.tilt_auto || panel.front_auto || panel.sides_auto))) {
+	if((!panel.in_use && controller_auto.get()) || (panel.in_use && (panel.tilt_auto || panel.front_auto || panel.sides_auto))) {	
+		bool joy_learn=gunner_joystick.button[Gamepad_button::B];
 		if(main_joystick.button[Gamepad_button::BACK]) collector_mode=Collector_mode::NOTHING;
-		else if(main_joystick.button[Gamepad_button::START] || (panel.in_use && panel.collect)) collector_mode=Collector_mode::COLLECT;
-		else if(gunner_joystick.button[Gamepad_button::A] || (panel.in_use && panel.collector_pos==Panel::Collector_pos::LOW)) collector_mode=Collector_mode::LOW;
+		else if((main_joystick.button[Gamepad_button::START] && joy_learn) || (panel.in_use && panel.collect && !learn.get())) collector_mode=Collector_mode::COLLECT;
+		else if((gunner_joystick.button[Gamepad_button::A] && joy_learn) || (panel.in_use && panel.collector_pos==Panel::Collector_pos::LOW && !learn.get())) collector_mode=Collector_mode::LOW;
 		else if(gunner_joystick.button[Gamepad_button::X] || (panel.in_use && panel.shoot)) {
 			collector_mode=Collector_mode::SHOOT;
 			const double TIME_TO_SHOOT=.7;
 			shoot_timer.set(TIME_TO_SHOOT);
 		}
-		else if(gunner_joystick.button[Gamepad_button::Y] || (panel.in_use && panel.eject)) collector_mode=Collector_mode::EJECT;
+		else if((gunner_joystick.button[Gamepad_button::Y] && joy_learn) || (panel.in_use && panel.eject && !learn.get())) collector_mode=Collector_mode::EJECT;
 		else if(gunner_joystick.button[Gamepad_button::BACK]) collector_mode=Collector_mode::NOTHING;
-		else if(panel.in_use && panel.collector_pos==Panel::Collector_pos::STOW) collector_mode = Collector_mode::STOW;
+		else if(panel.in_use && panel.collector_pos==Panel::Collector_pos::STOW && !learn.get()) collector_mode = Collector_mode::STOW;
 		if(SLOW_PRINT)cout<<"collector_mode: "<<collector_mode<<"\n";
 		switch(collector_mode){
 			case Collector_mode::COLLECT:
@@ -321,7 +304,7 @@ Toplevel::Goal Main::teleop(
 					switch(joy_collector_pos){
 						case Joy_collector_pos::LOW:
 							low=learn_this;
-							break;	
+							break;
 						case Joy_collector_pos::LEVEL:
 							level=learn_this;
 							break;
@@ -350,6 +333,22 @@ Toplevel::Goal Main::teleop(
 		goals.front=Front::Goal::OFF;
 	}
 	if (panel.in_use) {
+		learn.update(panel.learn);
+		if(learn.get()){//learning using panel
+			double learn_this=toplevel_status.tilt.angle;
+			if(panel.collect || panel.eject){
+				level=learn_this;
+				if(learn.get()) learn.update(true);
+			}
+			else if(panel.collector_pos==Panel::Collector_pos::STOW){
+				top=learn_this;
+				if(learn.get()) learn.update(true);
+			}
+			else if(panel.collector_pos==Panel::Collector_pos::LOW){
+				low=learn_this;
+				if(learn.get()) learn.update(true);
+			}
+		}
 		if (!panel.front_auto) {
 			#define X(name) if(panel.front==Panel::Collector::name) goals.front = Front::Goal::name;
 			X(IN) X(OUT) X(OFF)
@@ -482,11 +481,6 @@ Robot_outputs Main::operator()(Robot_inputs in,ostream&){
 	Joystick_data gunner_joystick=in.joystick[1];
 	Panel panel=interpret(in.joystick[2]);
 
-	/*if(!panel.in_use && (!in.robot_mode.enabled || in.robot_mode.autonomous)){
-		Panel empty;
-		panel=empty;
-	}*/
-
 	force.update(
 		main_joystick.button[Gamepad_button::A],
 		main_joystick.button[Gamepad_button::LB],
@@ -575,8 +569,10 @@ Robot_outputs Main::operator()(Robot_inputs in,ostream&){
 	auto next=next_mode(mode,in.robot_mode.autonomous,autonomous_start_now,toplevel_status,since_switch.elapsed(),panel,navindex,NavV,stepcounter,Aturn);
 	since_switch.update(in.now,mode!=next);
 	mode=next;
-	
+
+		
 	Toplevel::Output r_out=control(toplevel_status,goals); 
+	toplevel.tilt.output_applicator.percent_power=(panel.in_use ? panel.speed_dial : 1.00);//change collector arm speed to tilt dial if panel's in use, else use 100%
 	auto r=toplevel.output_applicator(Robot_outputs{},r_out);
 	
 	r.panel_output = main_panel_output;	
