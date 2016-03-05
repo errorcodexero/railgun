@@ -186,7 +186,7 @@ Toplevel::Goal Main::teleop(
 	Toplevel::Status_detail& toplevel_status
 ){
 	Toplevel::Goal goals;
-	{
+	{//Set drive goals
 		bool spin=fabs(main_joystick.axis[Gamepad_axis::RIGHTX])>.01;//drive turning button
 		double boost=main_joystick.axis[Gamepad_axis::LTRIGGER],slow=main_joystick.axis[Gamepad_axis::RTRIGGER];//turbo and slow buttons	
 	
@@ -215,6 +215,7 @@ Toplevel::Goal Main::teleop(
 			return clip(power);
 		}();
 	}
+	
 	bool ball=(in.digital_io.in[6]==Digital_in::_0);
 	main_panel_output[Panel_outputs::BOULDER] = Panel_output(static_cast<int>(Panel_output_ports::BOULDER), ball);
 	
@@ -223,19 +224,18 @@ Toplevel::Goal Main::teleop(
 	Tilt::Goal TOP=Tilt::Goal::go_to_angle(make_tolerances(top));
 	
 	controller_auto.update(gunner_joystick.button[Gamepad_button::START]);
-	if((!panel.in_use && controller_auto.get()) || (panel.in_use && (panel.tilt_auto || panel.front_auto || panel.sides_auto))) {	
+	if((!panel.in_use && controller_auto.get()) || (panel.in_use && (panel.tilt_auto || panel.front_auto || panel.sides_auto))) {//Automatic collector modes
 		bool joy_learn=gunner_joystick.button[Gamepad_button::B];
-		if(main_joystick.button[Gamepad_button::BACK]) collector_mode=Collector_mode::NOTHING;
-		else if((main_joystick.button[Gamepad_button::START] && joy_learn) || (panel.in_use && panel.collect && !learn.get())) collector_mode=Collector_mode::COLLECT;
-		else if((gunner_joystick.button[Gamepad_button::A] && joy_learn) || (panel.in_use && panel.collector_pos==Panel::Collector_pos::LOW && !learn.get())) collector_mode=Collector_mode::LOW;
+		if(main_joystick.button[Gamepad_button::BACK] || gunner_joystick.button[Gamepad_button::BACK]) collector_mode=Collector_mode::NOTHING;		
 		else if(gunner_joystick.button[Gamepad_button::X] || (panel.in_use && panel.shoot)) {
 			collector_mode=Collector_mode::SHOOT;
 			const double TIME_TO_SHOOT=.7;
 			shoot_timer.set(TIME_TO_SHOOT);
 		}
 		else if((gunner_joystick.button[Gamepad_button::Y] && joy_learn) || (panel.in_use && panel.eject && !learn.get())) collector_mode=Collector_mode::EJECT;
-		else if(gunner_joystick.button[Gamepad_button::BACK]) collector_mode=Collector_mode::NOTHING;
 		else if(panel.in_use && panel.collector_pos==Panel::Collector_pos::STOW && !learn.get()) collector_mode = Collector_mode::STOW;
+		else if((main_joystick.button[Gamepad_button::START] && joy_learn) || (panel.in_use && panel.collect && !learn.get())) collector_mode=Collector_mode::COLLECT;
+		else if((gunner_joystick.button[Gamepad_button::A] && joy_learn) || (panel.in_use && panel.collector_pos==Panel::Collector_pos::LOW && !learn.get())) collector_mode=Collector_mode::LOW;
 		if(SLOW_PRINT)cout<<"collector_mode: "<<collector_mode<<"\n";
 		switch(collector_mode){
 			case Collector_mode::COLLECT:
@@ -279,7 +279,8 @@ Toplevel::Goal Main::teleop(
 			default: assert(0);
 		}
 	}
-	if (!panel.in_use && !controller_auto.get()) { 
+	
+	if (!panel.in_use && !controller_auto.get()) {//Manual joystick controls 
 		goals.front=[&]{
 			const double LIMIT=.5; 
 			if(gunner_joystick.axis[Gamepad_axis::LTRIGGER]>LIMIT) return Front::Goal::OUT;
@@ -327,14 +328,14 @@ Toplevel::Goal Main::teleop(
 			}
 		}();	
 	}
-	if(gunner_joystick.button[Gamepad_button::BACK]){
+	if(gunner_joystick.button[Gamepad_button::BACK]){//Turn collector off
 		goals.tilt=Tilt::Goal::stop();
 		goals.sides=Sides::Goal::OFF;
 		goals.front=Front::Goal::OFF;
 	}
-	if (panel.in_use) {
+	if (panel.in_use) {//Panel manual modes
 		learn.update(panel.learn);
-		if(learn.get()){//learning using panel
+		if(learn.get()){//learn
 			double learn_this=toplevel_status.tilt.angle;
 			if(panel.collect || panel.eject){
 				level=learn_this;
@@ -382,7 +383,7 @@ Toplevel::Goal Main::teleop(
 			case Joystick_section::DOWN: return Winch::Goal::IN;
 			default: break;
 		}
-		if(panel.in_use && !panel.lock_climber){
+		if(panel.in_use && toplevel_status.climb_release==Climb_release::Status_detail::IN){
 			switch(panel.winch){
 				case Panel::Winch::UP: return Winch::Goal::OUT;
 				case Panel::Winch::DOWN: return Winch::Goal::IN;
