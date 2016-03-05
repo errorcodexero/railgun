@@ -375,8 +375,10 @@ Toplevel::Goal Main::teleop(
 				default: assert(0);
 			}
 		}();	
+		goals.tilt.percent_power=1.00;
 	}
 	if (panel.in_use) {//Panel manual modes
+		goals.tilt.percent_power=panel.speed_dial;
 		learn.update(panel.learn);
 		if(learn.get()){//learn
 			double learn_this=toplevel_status.tilt.angle;
