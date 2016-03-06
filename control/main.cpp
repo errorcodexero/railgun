@@ -240,27 +240,27 @@ Toplevel::Goal Main::teleop(
 	}	
 
 	if((!panel.in_use && controller_auto.get()) || (panel.in_use && (panel.tilt_auto || panel.front_auto || panel.sides_auto))) {//Automatic collector modes
-		bool joy_learn=gunner_joystick.button[Gamepad_button::B];
+		bool joy_learn=gunner_joystick.button[Gamepad_button::B], learning=(learn.get() && !learn_delay.done());
 		if(gunner_joystick.button[Gamepad_button::X] || (panel.in_use && panel.shoot)) {
 			collector_mode=Collector_mode::SHOOT;
 			const Time TIME_TO_SHOOT=.7;
 			shoot_timer.set(TIME_TO_SHOOT);
 			
 		}
-		else if(panel.in_use && panel.collector_pos==Panel::Collector_pos::STOW && !learn.get()) collector_mode = Collector_mode::STOW;		
-		else if(panel.in_use && panel.cheval && !learn.get()) {
+		else if(panel.in_use && panel.collector_pos==Panel::Collector_pos::STOW && !learning) collector_mode = Collector_mode::STOW;		
+		else if(panel.in_use && panel.cheval && !learning) {
 			collector_mode = Collector_mode::CHEVAL;
 			const Time TIME_UNTIL_OVER=2;
 			cheval_drive_timer.set(TIME_UNTIL_OVER);
 		}
-		else if(panel.in_use && panel.portcullis && !learn.get()){
+		else if(panel.in_use && panel.portcullis && !learning){
 			collector_mode = Collector_mode::PORTCULLIS;
 			const Time TIME_UNTIL_OVER=1;
 			portcullis_timer.set(TIME_UNTIL_OVER);	
 		}
-		else if((gunner_joystick.button[Gamepad_button::Y] && !joy_learn) || (panel.in_use && panel.eject && !learn.get())) collector_mode=Collector_mode::EJECT;
-		else if((main_joystick.button[Gamepad_button::START] && !joy_learn) || (panel.in_use && panel.collect && !learn.get())) collector_mode=Collector_mode::COLLECT;
-		else if((gunner_joystick.button[Gamepad_button::A] && !joy_learn) || (panel.in_use && panel.collector_pos==Panel::Collector_pos::LOW && !learn.get())) collector_mode=Collector_mode::LOW;
+		else if((gunner_joystick.button[Gamepad_button::Y] && !joy_learn) || (panel.in_use && panel.eject && !learning)) collector_mode=Collector_mode::EJECT;
+		else if((main_joystick.button[Gamepad_button::START] && !joy_learn) || (panel.in_use && panel.collect && !learning)) collector_mode=Collector_mode::COLLECT;
+		else if((gunner_joystick.button[Gamepad_button::A] && !joy_learn) || (panel.in_use && panel.collector_pos==Panel::Collector_pos::LOW && !learning)) collector_mode=Collector_mode::LOW;
 		if(SLOW_PRINT)cout<<"collector_mode: "<<collector_mode<<"\n";
 		switch(collector_mode){
 			case Collector_mode::COLLECT:
@@ -378,6 +378,7 @@ Toplevel::Goal Main::teleop(
 		}();	
 		goals.tilt.percent_power=1.00;
 	}
+	learn_delay.update(in.now, true);
 	if (panel.in_use) {//Panel manual modes
 		goals.tilt.percent_power=panel.speed_dial;
 		learn.update(panel.learn);
@@ -399,6 +400,7 @@ Toplevel::Goal Main::teleop(
 				low=learn_this;
 				if(learn.get()) learn.update(true);
 			}
+			if(!learn.get()) learn_delay.set(.5);
 		}
 		if (!panel.front_auto) {
 			#define X(name) if(panel.front==Panel::Collector::name) goals.front = Front::Goal::name;
@@ -419,24 +421,24 @@ Toplevel::Goal Main::teleop(
 		}
 	}
 	goals.climb_release=[&]{
-		if(main_joystick.button[Gamepad_button::LB])return Climb_release::Goal::IN;
-		if(main_joystick.button[Gamepad_button::RB])return Climb_release::Goal::OUT;
+		if(main_joystick.button[Gamepad_button::LB]) return Climb_release::Goal::IN;
+		if(main_joystick.button[Gamepad_button::RB]) return Climb_release::Goal::OUT;
 		if(panel.in_use) {
 			if(panel.lock_climber) return Climb_release::Goal::OUT;
 			return Climb_release::Goal::IN;
 		}
-		return Climb_release::Goal::STOP;
+		return Climb_release::Goal::OUT;
 	}();
 	goals.winch=[&]{
 		switch (joystick_section(gunner_joystick.axis[Gamepad_axis::LEFTX], gunner_joystick.axis[Gamepad_axis::LEFTY])){
-			case Joystick_section::UP: return Winch::Goal::OUT;
+			case Joystick_section::UP: 
 			case Joystick_section::DOWN: return Winch::Goal::IN;
 			default: break;
 		}
 		if(panel.in_use && toplevel_status.climb_release==Climb_release::Status_detail::IN){
 			switch(panel.winch){
-				case Panel::Winch::UP: return Winch::Goal::OUT;
-				case Panel::Winch::DOWN: return Winch::Goal::IN;
+				case Panel::Winch::UP: 
+				case Panel::Winch::DOWN: return Winch::Goal::IN;	
 				case Panel::Winch::STOP: return Winch::Goal::STOP;
 				default: assert(0);
 			}

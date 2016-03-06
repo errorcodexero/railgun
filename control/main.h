@@ -88,6 +88,8 @@ struct Main{
 	};
 	Collector_mode collector_mode;
 	
+	Countdown_timer learn_delay;
+
 	Countdown_timer shoot_timer, cheval_drive_timer, portcullis_timer;
 	
 	Posedge_toggle learn;
