@@ -421,6 +421,8 @@ public:
 			panel.SetOutput(out.panel_output[i].port, out.panel_output[i].value);
 		}
 		
+		SmartDashboard::PutBoolean("Ball: ", out.panel_output[Panel_outputs::BOULDER].value);
+		
 		//cout << "d_io: " << digital_io << endl << "o.d.io: " << out.digital_io << endl ;
 
 		//test.Set(1);

@@ -15,6 +15,7 @@ HIGH PRIORITY for Wilsonville:
 
 		
 LOW PRIORITY for Wilsonville:
+	- Tilt speed control
 	- Logger & Diagnostics
 	- PWM mode outputs for blinky lights (DIO 9)	
 	- configure deploy scripts for .lan and .local

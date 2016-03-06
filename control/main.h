@@ -90,7 +90,7 @@ struct Main{
 	
 	Countdown_timer learn_delay;
 
-	Countdown_timer shoot_timer, cheval_drive_timer, portcullis_timer;
+	Countdown_timer shoot_timer, cheval_lift_timer, cheval_drive_timer, portcullis_timer;
 	
 	Posedge_toggle learn;
 

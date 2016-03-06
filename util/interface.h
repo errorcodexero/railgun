@@ -98,9 +98,10 @@ struct Robot_outputs{
 	Checked_array<Jaguar_output,CAN_JAGUARS> jaguar;
 	
 	Checked_array<Panel_output,PANEL_OUTPUTS> panel_output;
-
+		
 	//could add in some setup for the analog inputs
 	
+	//Smart_dashboard_output smart_dashboard;
 	Driver_station_output driver_station;
 	bool pump_auto;
 

@@ -47,8 +47,8 @@ Main::Main():mode(Mode::TELEOP),autonomous_start(0),joy_collector_pos(Joy_collec
 		top=0;
 		level=83;
 		low=100;
-		cheval=low;
-		portcullis=level;
+		cheval=100;
+		portcullis=83;
 	
 		stepcounter=0;
 		//the information that is being declared are just place holders for when we get and actual values for auto.
@@ -227,7 +227,7 @@ Toplevel::Goal Main::teleop(
 	Tilt::Goal LEVEL=Tilt::Goal::go_to_angle(make_tolerances(level));
 	Tilt::Goal LOW=Tilt::Goal::go_to_angle(make_tolerances(low));
 	Tilt::Goal TOP=Tilt::Goal::go_to_angle(make_tolerances(top));
-	Tilt::Goal CHEVAL=Tilt::Goal::go_to_angle(make_tolerances(cheval));
+	Tilt::Goal CHEVAL=Tilt::Goal::go_to_angle(make_tolerances(100));
 	Tilt::Goal PORTCULLIS=Tilt::Goal::go_to_angle(make_tolerances(portcullis));
 		
 	controller_auto.update(gunner_joystick.button[Gamepad_button::START]);
@@ -240,7 +240,7 @@ Toplevel::Goal Main::teleop(
 	}	
 
 	if((!panel.in_use && controller_auto.get()) || (panel.in_use && (panel.tilt_auto || panel.front_auto || panel.sides_auto))) {//Automatic collector modes
-		bool joy_learn=gunner_joystick.button[Gamepad_button::B], learning=(learn.get() && !learn_delay.done());
+		bool joy_learn=gunner_joystick.button[Gamepad_button::B], learning=(learn.get() || !learn_delay.done());
 		if(gunner_joystick.button[Gamepad_button::X] || (panel.in_use && panel.shoot)) {
 			collector_mode=Collector_mode::SHOOT;
 			const Time TIME_TO_SHOOT=.7;
@@ -250,8 +250,8 @@ Toplevel::Goal Main::teleop(
 		else if(panel.in_use && panel.collector_pos==Panel::Collector_pos::STOW && !learning) collector_mode = Collector_mode::STOW;		
 		else if(panel.in_use && panel.cheval && !learning) {
 			collector_mode = Collector_mode::CHEVAL;
-			const Time TIME_UNTIL_OVER=2;
-			cheval_drive_timer.set(TIME_UNTIL_OVER);
+			const Time DRIVE_TIME=2;
+			cheval_drive_timer.set(DRIVE_TIME);
 		}
 		else if(panel.in_use && panel.portcullis && !learning){
 			collector_mode = Collector_mode::PORTCULLIS;
@@ -302,17 +302,23 @@ Toplevel::Goal Main::teleop(
 				goals.tilt=Tilt::Goal::stop();
 				break;
 			case Collector_mode::CHEVAL:
-				goals.front=Front::Goal::OFF;
-				goals.sides=Sides::Goal::OFF;
-				goals.tilt=CHEVAL;
-				if(ready(status(toplevel_status.tilt), goals.tilt)){
-					cheval_drive_timer.update(in.now, true);
-					const double AUTO_POWER=-.5;
-					goals.drive.right=AUTO_POWER;
-					goals.drive.left=AUTO_POWER;
+				{
+					goals.front=Front::Goal::OFF;
+					goals.sides=Sides::Goal::OFF;
+					goals.tilt=CHEVAL;
+					if(cheval_lift_timer.done()) goals.tilt=TOP;
+					bool run=(goals.tilt==CHEVAL ? ready(status(toplevel_status.tilt),goals.tilt) : 1);
+					if(run){
+						cheval_lift_timer.update(in.now,true);
+						cheval_drive_timer.update(in.now, true);
+						const double AUTO_POWER=-.5;
+						goals.drive.right=AUTO_POWER;
+						goals.drive.left=AUTO_POWER;
+					} else if(goals.tilt==CHEVAL) cheval_lift_timer.set(.5);
+					if(cheval_drive_timer.done()) collector_mode = Collector_mode::STOW;
+					cout<<"\ntimer:"<<cheval_lift_timer.done()<<"\n";
+					break;
 				}
-				if(cheval_drive_timer.done()) collector_mode = Collector_mode::STOW;
-				break;
 			case Collector_mode::PORTCULLIS:
 				{
 					portcullis_timer.update(in.now, true);
@@ -376,7 +382,7 @@ Toplevel::Goal Main::teleop(
 				default: assert(0);
 			}
 		}();	
-		goals.tilt.percent_power=1.00;
+		if(!panel.in_use) goals.tilt.percent_power=1.00;
 	}
 	learn_delay.update(in.now, true);
 	if (panel.in_use) {//Panel manual modes

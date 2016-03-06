@@ -87,7 +87,7 @@ Panel::Auto_mode auto_mode_convert(int potin){
 }
 
 float axis_to_percent(double a){
-	return (a+1)/2;
+	return .5-(a/2);
 }
 
 Panel interpret(Joystick_data d){
