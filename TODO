@@ -1,24 +1,17 @@
 6-Hour Window:
-	- Full functionality testing
-	- Connectivity test(check for issue we are/were having with the practice bot)
-	- Test any new HW additions
-	- Test camera
-	- Check and update firmware
-		PDP 1.37-1.40
-		VRM 
-		RoboRIO 3.0.0f0 Image: 2016v19		
-		Radio 	
-		Driver Station SWA for 16.0.2
-
+	- Connectivity test (check for issue we are/were having with the practice bot - NOT WORKING)
+	
 
 HIGH PRIORITY for Wilsonville:
+	- Add hall effect climber shutoff 
 	- Test Tilt speed 
 	- Autonomous* - Tristan
 		-Drive Encoders
 		-Testing on carpet field with measurements
 		-Complete all modes, ready for testing
 	- Configure Pit setup w/ router etc.
-	
+	- 
+
 		
 LOW PRIORITY for Wilsonville:
 	- Logger & Diagnostics
