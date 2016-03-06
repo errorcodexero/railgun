@@ -250,8 +250,8 @@ Toplevel::Goal Main::teleop(
 		else if(panel.in_use && panel.collector_pos==Panel::Collector_pos::STOW && !learning) collector_mode = Collector_mode::STOW;		
 		else if(panel.in_use && panel.cheval && !learning) {
 			collector_mode = Collector_mode::CHEVAL;
-			const Time DRIVE_TIME=2;
-			cheval_drive_timer.set(DRIVE_TIME);
+			cheval_lift_timer.set(.5);
+			cheval_drive_timer.set(2);
 		}
 		else if(panel.in_use && panel.portcullis && !learning){
 			collector_mode = Collector_mode::PORTCULLIS;
@@ -314,9 +314,8 @@ Toplevel::Goal Main::teleop(
 						const double AUTO_POWER=-.5;
 						goals.drive.right=AUTO_POWER;
 						goals.drive.left=AUTO_POWER;
-					} else if(goals.tilt==CHEVAL) cheval_lift_timer.set(.5);
+					}
 					if(cheval_drive_timer.done()) collector_mode = Collector_mode::STOW;
-					cout<<"\ntimer:"<<cheval_lift_timer.done()<<"\n";
 					break;
 				}
 			case Collector_mode::PORTCULLIS:
