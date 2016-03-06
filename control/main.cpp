@@ -251,6 +251,7 @@ Toplevel::Goal Main::teleop(
 			collector_mode = Collector_mode::CHEVAL;
 			cheval_lift_timer.set(.7);
 			cheval_drive_timer.set(2);
+			cheval_step = Cheval_steps::GO_DOWN;
 		}
 		else if(panel.in_use && panel.portcullis && !learning){
 			collector_mode = Collector_mode::PORTCULLIS;
@@ -302,19 +303,29 @@ Toplevel::Goal Main::teleop(
 				break;
 			case Collector_mode::CHEVAL:
 				{
+					const double AUTO_POWER=-.5;
 					goals.front=Front::Goal::OFF;
 					goals.sides=Sides::Goal::OFF;
-					goals.tilt=CHEVAL;
-					cheval_lift_timer.update(in.now,true);
-					if(cheval_lift_timer.done()) goals.tilt=TOP;
-					if(goals.tilt==CHEVAL ? ready(status(toplevel_status.tilt),goals.tilt) : true){
-						cheval_drive_timer.update(in.now, true);
-						const double AUTO_POWER=-.5;
-						goals.drive.right=AUTO_POWER;
-						goals.drive.left=AUTO_POWER;
+					switch(cheval_step) {
+						case Cheval_steps::GO_DOWN: 
+							goals.tilt=CHEVAL;
+							if(ready(status(toplevel_status.tilt),goals.tilt)) cheval_step=Cheval_steps::DRIVE;
+							break;
+						case Cheval_steps::DRIVE:
+							goals.drive.right=AUTO_POWER;
+							goals.drive.left=AUTO_POWER;
+							cheval_lift_timer.update(in.now,true);
+							if (cheval_lift_timer.done()) cheval_step=Cheval_steps::DRIVE_AND_STOW;
+							break;
+						case Cheval_steps::DRIVE_AND_STOW:
+							goals.drive.right=AUTO_POWER;
+							goals.drive.left=AUTO_POWER;
+							goals.tilt=TOP;
+							cheval_drive_timer.update(in.now, true);
+							if (cheval_drive_timer.done()) collector_mode=Collector_mode::STOW;
+						default: 
+							assert(0);
 					}
-					if(cheval_drive_timer.done()) collector_mode = Collector_mode::STOW;
-					break;
 				}
 			case Collector_mode::PORTCULLIS:
 				{

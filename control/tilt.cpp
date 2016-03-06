@@ -46,7 +46,7 @@ Tilt::Goal::Goal():mode_(Tilt::Goal::Mode::STOP),angle_min(0),angle_target(0),an
 
 Robot_inputs Tilt::Input_reader::operator()(Robot_inputs r,Tilt::Input in)const{
 	r.analog[TILT_POT_LOC]=degrees_to_volts(in.angle);
-	r.digital_io.in[TILT_LIM_LOC]=in.top ? Digital_in::_0 : Digital_in::_1;
+	r.digital_io.in[TILT_LIM_LOC]=(in.top) ? Digital_in::_0 : Digital_in::_1;
 	return r;
 }
 
@@ -160,7 +160,7 @@ bool operator<(Tilt::Goal a,Tilt::Goal b){
 }
 
 bool operator==(Tilt::Goal a, Tilt::Goal b){ 
-	return a.mode()==b.mode() && (a.mode()==Tilt::Goal::Mode::GO_TO_ANGLE ? a.angle()==b.angle() : true );
+	return a.mode()==b.mode() && ((a.mode()==Tilt::Goal::Mode::GO_TO_ANGLE) ? a.angle()==b.angle() : true );
 }
 
 bool operator!=(Tilt::Goal a, Tilt::Goal b){ return !(a==b); }

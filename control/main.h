@@ -92,6 +92,9 @@ struct Main{
 
 	Countdown_timer shoot_timer, cheval_lift_timer, cheval_drive_timer, portcullis_timer;
 	
+	enum class Cheval_steps{GO_DOWN, DRIVE, DRIVE_AND_STOW};
+	Cheval_steps cheval_step;
+	
 	Posedge_toggle learn;
 
 	enum Panel_outputs{SHOOTER_PREPPED, BOULDER, PANEL_OUTPUTS};
