@@ -97,9 +97,6 @@ struct Main{
 	
 	Posedge_toggle learn;
 
-	enum Panel_outputs{SHOOTER_PREPPED, BOULDER, PANEL_OUTPUTS};
-	enum class Panel_output_ports{SHOOTER_PREPPED=6, BOULDER=10};
-
 	Checked_array<Panel_output,Panel_outputs::PANEL_OUTPUTS> main_panel_output;
 		
 	double top, level, low, cheval, portcullis;//angles (in degrees) that it will go to when set to the tilt goals
