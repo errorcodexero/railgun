@@ -4,17 +4,22 @@ static const int WINCH_PWM = 5;
 static const float WINCH_POWER = .8;
 
 #define nyi {cout<<"nyi: line "<<__LINE__; exit(44); }
+#define LIMIT_LOC 4
+
+Winch::Input::Input():deployed(0){}
 
 std::set<Winch::Goal> examples(Winch::Goal*){
        return {Winch::Goal::IN, Winch::Goal::OUT, Winch::Goal::STOP};
 }
 
 std::set<Winch::Input> examples(Winch::Input*){
-	return {{}};
-}
-
-std::set<Winch::Status> examples(Winch::Status*){
-	return {{}};
+	std::set<Winch::Input> s;
+	Winch::Input in;
+	in.deployed=true;
+	s.insert(in);
+	in.deployed=false;
+	s.insert(in);
+	return s;
 }
 
 std::ostream& operator<<(std::ostream& o,Winch::Goal g){
@@ -24,25 +29,19 @@ std::ostream& operator<<(std::ostream& o,Winch::Goal g){
 	assert(0);
 }
 
-std::ostream& operator<<(std::ostream& o,Winch::Input){
-	return o<<"Input()";
-}
-
-std::ostream& operator<<(std::ostream& o,Winch::Status){
-	return o<<"Status()";
+std::ostream& operator<<(std::ostream& o,Winch::Input a){
+	return o<<"Input( deployed:"<<a.deployed<<")";
 }
 
 std::ostream& operator<<(std::ostream& o,Winch const&){
 	return o<<"Winch()";
 }
 
-bool operator<(Winch::Input,Winch::Input){ return 0; }
-bool operator==(Winch::Input,Winch::Input){ return 1; }
+bool operator<(Winch::Input a,Winch::Input b){
+	return !a.deployed && b.deployed;
+}
+bool operator==(Winch::Input a,Winch::Input b){ return a.deployed==b.deployed; }
 bool operator!=(Winch::Input a, Winch::Input b){ return !(a==b); }
-
-bool operator<(Winch::Status_detail,Winch::Status_detail){ return 0; }
-bool operator==(Winch::Status_detail,Winch::Status_detail){ return 1; }
-bool operator!=(Winch::Status_detail a, Winch::Status_detail b){ return !(a==b); }
 
 bool operator==(Winch::Estimator,Winch::Estimator){ return 1; }
 bool operator!=(Winch::Estimator a, Winch::Estimator b){ return !(a==b); }
@@ -50,11 +49,14 @@ bool operator!=(Winch::Estimator a, Winch::Estimator b){ return !(a==b); }
 bool operator==(Winch,Winch){ return 1; }
 bool operator!=(Winch a, Winch b){ return !(a==b); }
 
-Winch::Input Winch::Input_reader::operator()(Robot_inputs) const{
-	return {};
+Winch::Input Winch::Input_reader::operator()(Robot_inputs r) const{
+	Winch::Input in;
+	in.deployed=(r.digital_io.in[LIMIT_LOC]==Digital_in::_1);
+	return in;
 }
 
-Robot_inputs Winch::Input_reader::operator()(Robot_inputs r, Winch::Input) const{
+Robot_inputs Winch::Input_reader::operator()(Robot_inputs r, Winch::Input in) const{
+	r.digital_io.in[LIMIT_LOC]=(in.deployed ? Digital_in::_1 : Digital_in::_0);
 	return r;
 }
 
@@ -87,7 +89,8 @@ Winch::Status status(Winch::Status s){
 	return s;
 }
 
-bool ready(Winch::Status,Winch::Goal){
+bool ready(Winch::Status status,Winch::Goal goal){
+	if(goal==Winch::Goal::IN) return status.deployed;
 	return 1;
 }
 

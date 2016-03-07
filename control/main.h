@@ -91,8 +91,13 @@ struct Main{
 	Countdown_timer learn_delay;
 
 	Countdown_timer shoot_timer, cheval_lift_timer, cheval_drive_timer, portcullis_timer;
-	
-	enum class Cheval_steps{GO_DOWN, DRIVE, DRIVE_AND_STOW};
+
+	#define CHEVAL_STEPS X(GO_DOWN) X(DRIVE) X(DRIVE_AND_STOW)
+	enum class Cheval_steps{
+		#define X(NAME) NAME,
+		CHEVAL_STEPS
+		#undef X
+	};
 	Cheval_steps cheval_step;
 	
 	Posedge_toggle learn;

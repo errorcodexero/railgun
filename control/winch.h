@@ -9,12 +9,15 @@ struct Winch{
 	
 	typedef Goal Output;
 
-	struct Status_detail{};
+	struct Input{
+		bool deployed;
+		Input();
+	};
 
+	typedef Input Status_detail;
+	
 	typedef Status_detail Status;
-
-	struct Input{};
-
+	
 	struct Input_reader{
 		Input operator()(Robot_inputs)const;
 		Robot_inputs operator()(Robot_inputs,Input)const;
@@ -37,7 +40,6 @@ struct Winch{
 
 std::set<Winch::Goal> examples(Winch::Goal*);
 std::set<Winch::Input> examples(Winch::Input*);
-std::set<Winch::Status> examples(Winch::Status*);
 
 std::ostream& operator<<(std::ostream&,Winch::Goal);
 std::ostream& operator<<(std::ostream&,Winch::Input);
@@ -47,10 +49,6 @@ std::ostream& operator<<(std::ostream&,Winch const&);
 bool operator<(Winch::Input,Winch::Input);
 bool operator==(Winch::Input,Winch::Input);
 bool operator!=(Winch::Input,Winch::Input);
-
-bool operator<(Winch::Status_detail,Winch::Status_detail);
-bool operator==(Winch::Status_detail,Winch::Status_detail);
-bool operator!=(Winch::Status_detail ,Winch::Status_detail);
 
 bool operator==(Winch::Estimator,Winch::Estimator);
 bool operator!=(Winch::Estimator,Winch::Estimator);
