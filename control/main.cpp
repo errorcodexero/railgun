@@ -41,6 +41,12 @@ ostream& operator<<(ostream& o,Main::Collector_mode a){
 	assert(0);
 }
 
+ostream& operator<<(ostream& o,Main::Cheval_steps a){
+	#define X(NAME) if(a==Main::Cheval_steps::NAME) return o<<"Main::Cheval_steps("#NAME")";
+	CHEVAL_STEPS
+	#undef X
+	assert(0);
+}
 
 //TODO: at some point, might want to make this whatever is right to start autonomous mode.
 Main::Main():mode(Mode::TELEOP),autonomous_start(0),joy_collector_pos(Joy_collector_pos::STOP),collector_mode(Collector_mode::NOTHING){
