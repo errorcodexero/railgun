@@ -91,11 +91,16 @@ struct Main{
 	Countdown_timer learn_delay;
 
 	Countdown_timer shoot_timer, cheval_lift_timer, cheval_drive_timer, portcullis_timer;
+
+	#define CHEVAL_STEPS X(GO_DOWN) X(DRIVE) X(DRIVE_AND_STOW)
+	enum class Cheval_steps{
+		#define X(NAME) NAME,
+		CHEVAL_STEPS
+		#undef X
+	};
+	Cheval_steps cheval_step;
 	
 	Posedge_toggle learn;
-
-	enum Panel_outputs{SHOOTER_PREPPED, BOULDER, PANEL_OUTPUTS};
-	enum class Panel_output_ports{SHOOTER_PREPPED=6, BOULDER=10};
 
 	Checked_array<Panel_output,Panel_outputs::PANEL_OUTPUTS> main_panel_output;
 		

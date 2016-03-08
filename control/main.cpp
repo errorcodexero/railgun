@@ -41,9 +41,15 @@ ostream& operator<<(ostream& o,Main::Collector_mode a){
 	assert(0);
 }
 
+ostream& operator<<(ostream& o,Main::Cheval_steps a){
+	#define X(NAME) if(a==Main::Cheval_steps::NAME) return o<<"Main::Cheval_steps("#NAME")";
+	CHEVAL_STEPS
+	#undef X
+	assert(0);
+}
 
 //TODO: at some point, might want to make this whatever is right to start autonomous mode.
-Main::Main():mode(Mode::TELEOP),autonomous_start(0),joy_collector_pos(Joy_collector_pos::STOP),collector_mode(Collector_mode::NOTHING){
+Main::Main():mode(Mode::TELEOP),autonomous_start(0),joy_collector_pos(Joy_collector_pos::STOP),collector_mode(Collector_mode::NOTHING),cheval_step(Cheval_steps::GO_DOWN){
 		top=0;
 		level=83;
 		low=100;
@@ -196,6 +202,8 @@ Toplevel::Goal Main::teleop(
 ){
 	Toplevel::Goal goals;
 	
+	bool enabled = in.robot_mode.enabled;
+	
 	{//Set drive goals
 		bool spin=fabs(main_joystick.axis[Gamepad_axis::RIGHTX])>.01;//drive turning button
 		double boost=main_joystick.axis[Gamepad_axis::LTRIGGER],slow=main_joystick.axis[Gamepad_axis::RTRIGGER];//turbo and slow buttons	
@@ -203,13 +211,12 @@ Toplevel::Goal Main::teleop(
 		for(int i=0;i<NUDGES;i++){
 			const array<unsigned int,NUDGES> nudge_buttons={Gamepad_button::Y,Gamepad_button::A,Gamepad_button::B,Gamepad_button::X};//Forward, backward, clockwise, counter-clockwise
 			if(nudges[i].trigger(boost<.25 && main_joystick.button[nudge_buttons[i]])) nudges[i].timer.set(.1);
-			nudges[i].timer.update(in.now,1);
+			nudges[i].timer.update(in.now,enabled);
 		}
 		const double NUDGE_POWER=.4,NUDGE_CW_POWER=.4,NUDGE_CCW_POWER=-.4; 
-		const double SCALE_SPIN=1.7;//percent to increase spin by
 		goals.drive.left=[&]{
 			double power=set_drive_speed(main_joystick.axis[Gamepad_axis::LEFTY],boost,slow);
-			if(spin) power+=set_drive_speed(-clip(main_joystick.axis[Gamepad_axis::RIGHTX]*SCALE_SPIN),boost,slow);
+			if(spin) power+=set_drive_speed(-main_joystick.axis[Gamepad_axis::RIGHTX],boost,slow);
 			if(!nudges[Nudges::FORWARD].timer.done()) power=-NUDGE_POWER;
 			else if(!nudges[Nudges::BACKWARD].timer.done()) power=NUDGE_POWER;
 			else if(!nudges[Nudges::CLOCKWISE].timer.done()) power=-NUDGE_CW_POWER;
@@ -218,7 +225,7 @@ Toplevel::Goal Main::teleop(
 		}();
 		goals.drive.right=[&]{
 			double power=set_drive_speed(main_joystick.axis[Gamepad_axis::LEFTY],boost,slow);
-			if(spin) power+=set_drive_speed(clip(main_joystick.axis[Gamepad_axis::RIGHTX]*SCALE_SPIN),boost,slow);
+			if(spin) power+=set_drive_speed(main_joystick.axis[Gamepad_axis::RIGHTX],boost,slow);
 			if(!nudges[Nudges::FORWARD].timer.done()) power=-NUDGE_POWER;
 			else if(!nudges[Nudges::BACKWARD].timer.done()) power=NUDGE_POWER;
 			else if(!nudges[Nudges::CLOCKWISE].timer.done()) power=NUDGE_CW_POWER;
@@ -230,7 +237,13 @@ Toplevel::Goal Main::teleop(
 	bool ball=(in.digital_io.in[6]==Digital_in::_0);
 	main_panel_output[Panel_outputs::BOULDER] = Panel_output(static_cast<int>(Panel_output_ports::BOULDER), ball);
 	
-	
+
+	Tilt::Goal LEVEL=Tilt::Goal::go_to_angle(make_tolerances(level));
+	Tilt::Goal LOW=Tilt::Goal::go_to_angle(make_tolerances(low));
+	Tilt::Goal TOP=Tilt::Goal::go_to_angle(make_tolerances(top));
+	Tilt::Goal CHEVAL=Tilt::Goal::go_to_angle(make_tolerances(cheval));
+	Tilt::Goal PORTCULLIS=Tilt::Goal::go_to_angle(make_tolerances(portcullis));
+
 		
 	controller_auto.update(gunner_joystick.button[Gamepad_button::START]);
 
@@ -240,22 +253,28 @@ Toplevel::Goal Main::teleop(
 		goals.front=Front::Goal::OFF;
 		collector_mode=Collector_mode::NOTHING;
 	}	
-
+	bool learning=(learn.get() || !learn_delay.done());
+	main_panel_output[Panel_outputs::LEARNING] = Panel_output(static_cast<int>(Panel_output_ports::LEARNING), learning);
+	
+	if(SLOW_PRINT) cout<<"\nPresets( top:"<<top<<"  level:"<<level<<"  low:"<<low<<"  cheval:"<<cheval<<"   portcullis:"<<portcullis<<")\n";
+	
 	if((!panel.in_use && controller_auto.get()) || (panel.in_use && (panel.tilt_auto || panel.front_auto || panel.sides_auto))) {//Automatic collector modes
-		bool joy_learn=gunner_joystick.button[Gamepad_button::B], learning=(learn.get() || !learn_delay.done());
+		bool joy_learn=gunner_joystick.button[Gamepad_button::B];
+		POV_section gunner_pov = pov_section(gunner_joystick.pov);
 		if(gunner_joystick.button[Gamepad_button::X] || (panel.in_use && panel.shoot)) {
 			collector_mode=Collector_mode::SHOOT;
 			const Time TIME_TO_SHOOT=.7;
 			shoot_timer.set(TIME_TO_SHOOT);
 			
 		}
-		else if(panel.in_use && panel.collector_pos==Panel::Collector_pos::STOW && !learning) collector_mode = Collector_mode::STOW;		
-		else if(panel.in_use && panel.cheval && !learning) {
+		else if((gunner_pov==POV_section::UP && !joy_learn) || (panel.in_use && panel.collector_pos==Panel::Collector_pos::STOW && !learning)) collector_mode = Collector_mode::STOW;
+		else if((gunner_pov==POV_section::RIGHT && !joy_learn) || (panel.in_use && panel.cheval && !learning)) {
 			collector_mode = Collector_mode::CHEVAL;
-			cheval_lift_timer.set(.5);
+			cheval_lift_timer.set(.45);
 			cheval_drive_timer.set(2);
+			cheval_step = Cheval_steps::GO_DOWN;
 		}
-		else if(panel.in_use && panel.portcullis && !learning){
+		else if((gunner_pov==POV_section::LEFT && !joy_learn) || (panel.in_use && panel.portcullis && !learning)){
 			collector_mode = Collector_mode::PORTCULLIS;
 			const Time TIME_UNTIL_OVER=1;
 			portcullis_timer.set(TIME_UNTIL_OVER);	
@@ -274,7 +293,7 @@ Toplevel::Goal Main::teleop(
 			case Collector_mode::STOW:
 				goals.front=Front::Goal::OFF;
 				goals.sides=Sides::Goal::OFF;
-				goals.tilt=Tilt::Goal::up();
+				goals.tilt=TOP;
 				break;
 			case Collector_mode::REFLECT:
 				goals.front=Front::Goal::OFF;
@@ -290,7 +309,7 @@ Toplevel::Goal Main::teleop(
 				goals.front=Front::Goal::OUT;
 				goals.sides=Sides::Goal::OFF;
 				goals.tilt=TOP;
-				shoot_timer.update(in.now, true);
+				shoot_timer.update(in.now, enabled);
 				if (shoot_timer.done()) collector_mode = Collector_mode::STOW;
 				break;
 			case Collector_mode::LOW:
@@ -305,24 +324,35 @@ Toplevel::Goal Main::teleop(
 				break;
 			case Collector_mode::CHEVAL:
 				{
+					const double AUTO_POWER=-.5;
 					goals.front=Front::Goal::OFF;
 					goals.sides=Sides::Goal::OFF;
-					goals.tilt=CHEVAL;
-					if(cheval_lift_timer.done()) goals.tilt=TOP;
-					bool run=(goals.tilt==CHEVAL ? ready(status(toplevel_status.tilt),goals.tilt) : 1);
-					if(run){
-						cheval_lift_timer.update(in.now,true);
-						cheval_drive_timer.update(in.now, true);
-						const double AUTO_POWER=-.5;
-						goals.drive.right=AUTO_POWER;
-						goals.drive.left=AUTO_POWER;
+					switch(cheval_step) {
+						case Cheval_steps::GO_DOWN: 
+							goals.tilt=CHEVAL;
+							if(ready(status(toplevel_status.tilt),goals.tilt)) cheval_step=Cheval_steps::DRIVE;
+							break;
+						case Cheval_steps::DRIVE:
+							goals.drive.right=AUTO_POWER;
+							goals.drive.left=AUTO_POWER;
+							cheval_lift_timer.update(in.now,enabled);
+							if (cheval_lift_timer.done()) cheval_step=Cheval_steps::DRIVE_AND_STOW;
+							break;
+						case Cheval_steps::DRIVE_AND_STOW:
+							goals.drive.right=AUTO_POWER;
+							goals.drive.left=AUTO_POWER;
+							goals.tilt=TOP;
+							cheval_drive_timer.update(in.now,enabled);
+							if (cheval_drive_timer.done()) collector_mode=Collector_mode::STOW;
+							break;
+						default: 
+							assert(0);
 					}
-					if(cheval_drive_timer.done()) collector_mode = Collector_mode::STOW;
 					break;
 				}
 			case Collector_mode::PORTCULLIS:
 				{
-					portcullis_timer.update(in.now, true);
+					portcullis_timer.update(in.now,enabled);
 					goals.front=Front::Goal::OFF;
 					goals.sides=Sides::Goal::OFF;
 					goals.tilt=PORTCULLIS;
@@ -351,7 +381,7 @@ Toplevel::Goal Main::teleop(
 		goals.tilt=[&]{
 			{
 				Joystick_section tilt_control = joystick_section(gunner_joystick.axis[Gamepad_axis::RIGHTX],gunner_joystick.axis[Gamepad_axis::RIGHTY]);
-				#define X(name,section) bool name=tilt_control==Joystick_section::section;
+				#define X(NAME,SECTION) bool NAME=tilt_control==Joystick_section::SECTION;
 				X(down,DOWN) X(up,UP) X(level,LEFT) X(low,RIGHT)
 				#undef X		
 				if(low) joy_collector_pos = Joy_collector_pos::LOW;
@@ -383,11 +413,10 @@ Toplevel::Goal Main::teleop(
 				default: assert(0);
 			}
 		}();	
-		if(!panel.in_use) goals.tilt.percent_power=1.00;
+		//if(!panel.in_use) goals.tilt.percent_power=1.00;
 	}
-	learn_delay.update(in.now, true);
 	if (panel.in_use) {//Panel manual modes
-		goals.tilt.percent_power=panel.speed_dial;
+		//goals.tilt.percent_power=panel.speed_dial;
 		learn.update(panel.learn);
 		if(learn.get()){//learn
 			double learn_this=toplevel_status.tilt.angle;
@@ -409,6 +438,7 @@ Toplevel::Goal Main::teleop(
 			}
 			if(!learn.get()) learn_delay.set(.5);
 		}
+		learn_delay.update(in.now,enabled);
 		if (!panel.front_auto) {
 			#define X(name) if(panel.front==Panel::Collector::name) goals.front = Front::Goal::name;
 			X(IN) X(OUT) X(OFF)
@@ -721,6 +751,7 @@ bool approx_equal(Main a,Main b){
 #ifdef MAIN_TEST
 #include<fstream>
 #include "monitor.h"
+#include "tilt.h"
 
 template<typename T>
 vector<T> uniq(vector<T> v){
@@ -739,6 +770,27 @@ int main(){
 	m(rin);
 	cout << "Test M: " << m << endl;
 	//for tests
+
+
+	m.mode=Main::Mode::TELEOP;
+	for (unsigned i=0;i<1000;i++) {
+		Robot_inputs in;
+		in.now=i/100.0;
+		in.robot_mode.autonomous=0;
+		in.robot_mode.enabled=1;
+		in.joystick[2].axis[2] = -1;
+		in.joystick[2].button[1] = 1;
+		in.joystick[2].button[2] = 1;
+		in.joystick[2].button[3] = 1;
+		in.analog[0] = degrees_to_volts(m.top);
+		if (i > 500) in.joystick[2].axis[2] = .62;
+		if (i > 550) in.joystick[2].axis[2] = -1;
+		if (i > 600) in.analog[0] = degrees_to_volts(m.cheval);	
+		stringstream ss;
+		Robot_outputs out = m(in,ss);
+		cout<<"Time: "<<in.now<<"    OI Button Axis: "<<in.joystick[2].axis[2]<<"   PWM: "<<out.pwm[4]<<"    Cheval Step: "<<static_cast<int>(m.cheval_step);
+		cout<<"    Collector Mode: "<<m.collector_mode<<"    Left Wheels: "<<out.pwm[0]<<"    Right Wheels: "<<out.pwm[1]<<"\n";
+	}
 
 }
 

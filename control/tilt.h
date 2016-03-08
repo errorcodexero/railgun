@@ -111,8 +111,8 @@ Tilt::Output control(Tilt::Status_detail, Tilt::Goal);
 Tilt::Status status(Tilt::Status_detail);
 bool ready(Tilt::Status, Tilt::Goal);
 
-std::array<double,3> make_tolerances(double);
+float degrees_to_volts(float);
 
-void tilt_learn(float value,std::string const&);
+std::array<double,3> make_tolerances(double);
 
 #endif

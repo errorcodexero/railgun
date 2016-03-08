@@ -420,8 +420,9 @@ public:
 		for(unsigned i=0;i<Panel_outputs::PANEL_OUTPUTS;i++){
 			panel.SetOutput(out.panel_output[i].port, out.panel_output[i].value);
 		}
-		
+			
 		SmartDashboard::PutBoolean("Ball: ", out.panel_output[Panel_outputs::BOULDER].value);
+		SmartDashboard::PutBoolean("Learning: ", out.panel_output[Panel_outputs::LEARNING].value);
 		
 		//cout << "d_io: " << digital_io << endl << "o.d.io: " << out.digital_io << endl ;
 

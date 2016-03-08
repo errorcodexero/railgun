@@ -333,6 +333,7 @@ Joystick_data::Joystick_data(){
 	for(unsigned i=0;i<JOY_AXES;i++){
 		axis[i]=0;
 	}
+	pov=-1;//Set to center by default
 }
 
 //int atoi(string s){ return ::atoi(s.c_str()); }
