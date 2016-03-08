@@ -237,14 +237,6 @@ Toplevel::Goal Main::teleop(
 	bool ball=(in.digital_io.in[6]==Digital_in::_0);
 	main_panel_output[Panel_outputs::BOULDER] = Panel_output(static_cast<int>(Panel_output_ports::BOULDER), ball);
 	
-
-	Tilt::Goal LEVEL=Tilt::Goal::go_to_angle(make_tolerances(level));
-	Tilt::Goal LOW=Tilt::Goal::go_to_angle(make_tolerances(low));
-	Tilt::Goal TOP=Tilt::Goal::go_to_angle(make_tolerances(top));
-	Tilt::Goal CHEVAL=Tilt::Goal::go_to_angle(make_tolerances(cheval));
-	Tilt::Goal PORTCULLIS=Tilt::Goal::go_to_angle(make_tolerances(portcullis));
-
-		
 	controller_auto.update(gunner_joystick.button[Gamepad_button::START]);
 
 	if(gunner_joystick.button[Gamepad_button::BACK] || main_joystick.button[Gamepad_button::BACK]){//Turn collector off
@@ -595,7 +587,7 @@ Robot_outputs Main::operator()(Robot_inputs in,ostream&){
 	Tilt::Goal LEVEL=Tilt::Goal::go_to_angle(make_tolerances(level));
 	Tilt::Goal LOW=Tilt::Goal::go_to_angle(make_tolerances(low));
 	Tilt::Goal TOP=Tilt::Goal::go_to_angle(make_tolerances(top));
-	Tilt::Goal CHEVAL=Tilt::Goal::go_to_angle(make_tolerances(100));
+	Tilt::Goal CHEVAL=Tilt::Goal::go_to_angle(make_tolerances(cheval));
 	Tilt::Goal PORTCULLIS=Tilt::Goal::go_to_angle(make_tolerances(portcullis));
 
 	force.update(
