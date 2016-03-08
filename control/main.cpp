@@ -247,8 +247,9 @@ Toplevel::Goal Main::teleop(
 	}	
 	bool learning=(learn.get() || !learn_delay.done());
 	main_panel_output[Panel_outputs::LEARNING] = Panel_output(static_cast<int>(Panel_output_ports::LEARNING), learning);
+	if(SLOW_PRINT) cout<<"learning("<<learning<<")   delaying("<<!learn_delay.done()<<"\n";
 	
-	if(SLOW_PRINT) cout<<"\nPresets( top:"<<top<<"  level:"<<level<<"  low:"<<low<<"  cheval:"<<cheval<<"   portcullis:"<<portcullis<<")\n";
+	if(SLOW_PRINT) cout<<"Presets( top:"<<top<<"  level:"<<level<<"  low:"<<low<<"  cheval:"<<cheval<<"   portcullis:"<<portcullis<<")\n";
 	
 	if((!panel.in_use && controller_auto.get()) || (panel.in_use && (panel.tilt_auto || panel.front_auto || panel.sides_auto))) {//Automatic collector modes
 		bool joy_learn=gunner_joystick.button[Gamepad_button::B];
@@ -407,30 +408,35 @@ Toplevel::Goal Main::teleop(
 		}();	
 		//if(!panel.in_use) goals.tilt.percent_power=1.00;
 	}
+	learn_delay.update(in.now,enabled);
 	if (panel.in_use) {//Panel manual modes
 		//goals.tilt.percent_power=panel.speed_dial;
 		learn.update(panel.learn);
 		if(learn.get()){//learn
 			double learn_this=toplevel_status.tilt.angle;
+			bool done=false;
 			if(panel.collect || panel.eject){
 				level=learn_this;
-				if(learn.get()) learn.update(true);
+				done=true;
 			}
 			else if(panel.collector_pos==Panel::Collector_pos::STOW){
 				top=learn_this;
-				if(learn.get()) learn.update(true);
+				done=true;
 			}
 			else if(panel.cheval){
 				cheval=learn_this;
-				if(learn.get()) learn.update(true);
+				done=true;
 			}
 			else if(panel.collector_pos==Panel::Collector_pos::LOW){
 				low=learn_this;
-				if(learn.get()) learn.update(true);
+				done=true;
 			}
-			if(!learn.get()) learn_delay.set(.5);
+			else learn.update(panel.learn);
+			if(done){
+				if(learn.get()) learn.update(true);
+				learn_delay.set(.5);
+			}
 		}
-		learn_delay.update(in.now,enabled);
 		if (!panel.front_auto) {
 			#define X(name) if(panel.front==Panel::Collector::name) goals.front = Front::Goal::name;
 			X(IN) X(OUT) X(OFF)
