@@ -77,7 +77,6 @@ ostream& operator<<(ostream& o,Panel p){
 }
 
 Panel::Auto_mode auto_mode_convert(int potin){
-	cout << "potin"  << potin << endl;
 	switch(potin) {
 		case 0:
 			return Panel::Auto_mode::NOTHING;
