@@ -52,12 +52,12 @@ Main::Main():mode(Mode::TELEOP),autonomous_start(0),joy_collector_pos(Joy_collec
 	
 		stepcounter=0;
 		//the information that is being declared are just place holders for when we get and actual values for auto.
-		s1.ptone.x=80;
-		s1.ptone.y=70;
-		s1.pttwo.x=70;
-		s1.pttwo.y=70;
+		s1.ptone.x=146;
+		s1.ptone.y=130;
+		s1.pttwo.x=33;
+		s1.pttwo.y=135;
 		s1.dirone=LEFT;
-		s1.dirtwo=LEFT;
+		s1.dirtwo=UP;
 		
 		s2.ptone.x=70;
 		s2.ptone.y=70;
@@ -90,6 +90,7 @@ Main::Main():mode(Mode::TELEOP),autonomous_start(0),joy_collector_pos(Joy_collec
 		stepcounter = 1;
 			
 		myfile2.open("/home/lvuser/navlogs/navlog2.txt");
+		myfile2 << "test start" << endl;
 
 }
 
@@ -127,23 +128,23 @@ vector<Main::NavS> Main::loadnav(navloadinput navin){
 	for (unsigned int i=0;i<v.size();i++){
 		myfile << "Processing " << i <<  "\n";
 		if(v[i].second == MFORWARD){
-			navelement.left = -.45;
-			navelement.right = -.45;
+			navelement.left = -.25;
+			navelement.right = -.25;
 			amount += v[i].first / 29.0;
 		}
 		else if(v[i].second == MLEFT){
-			navelement.left = .45;
-			navelement.right = -.45;
+			navelement.left = .25;
+			navelement.right = -.25;
 			amount += .65;
 		}
 		else if(v[i].second == MRIGHT){
-			navelement.left= -.45;
-			navelement.right= .45;
+			navelement.left= -.25;
+			navelement.right= .25;
 			amount += .65;
 		}
 		else if(v[i].second == MBACK){
-			navelement.left= .45;
-			navelement.right= -.45;
+			navelement.left= .25;
+			navelement.right= -.25;
 			amount+= 1.1;
 		}
 		else 
@@ -186,7 +187,12 @@ Toplevel::Goal Main::teleop(
 	Joystick_data const& main_joystick,
 	Joystick_data const& gunner_joystick,
 	Panel const& panel,
-	Toplevel::Status_detail& toplevel_status
+	Toplevel::Status_detail& toplevel_status,
+	Tilt::Goal LEVEL,
+	Tilt::Goal LOW,
+	Tilt::Goal TOP,
+	Tilt::Goal CHEVAL,
+	Tilt::Goal PORTCULLIS
 ){
 	Toplevel::Goal goals;
 	
@@ -224,11 +230,7 @@ Toplevel::Goal Main::teleop(
 	bool ball=(in.digital_io.in[6]==Digital_in::_0);
 	main_panel_output[Panel_outputs::BOULDER] = Panel_output(static_cast<int>(Panel_output_ports::BOULDER), ball);
 	
-	Tilt::Goal LEVEL=Tilt::Goal::go_to_angle(make_tolerances(level));
-	Tilt::Goal LOW=Tilt::Goal::go_to_angle(make_tolerances(low));
-	Tilt::Goal TOP=Tilt::Goal::go_to_angle(make_tolerances(top));
-	Tilt::Goal CHEVAL=Tilt::Goal::go_to_angle(make_tolerances(100));
-	Tilt::Goal PORTCULLIS=Tilt::Goal::go_to_angle(make_tolerances(portcullis));
+	
 		
 	controller_auto.update(gunner_joystick.button[Gamepad_button::START]);
 
@@ -453,57 +455,53 @@ Toplevel::Goal Main::teleop(
 	return goals;
 }
 
-Main::Mode next_mode(Main::Mode m,bool autonomous,bool autonomous_start,Toplevel::Status_detail /*status*/,Time since_switch, Panel /*panel*/,unsigned int navindex,vector<Main::NavS> NavV,int & stepcounter,Main::aturn Aturn){
+Main::Mode next_mode(Main::Mode m,bool autonomous,bool autonomous_start,Toplevel::Status_detail /*status*/,Time since_switch, Panel panel,unsigned int navindex,vector<Main::NavS> NavV,int & stepcounter,Main::aturn Aturn){
 	switch(m){
 		case Main::Mode::TELEOP:	
 			if(autonomous_start){
-				return Main::Mode::AUTO_NAV;//just for testing purposes
+				myfile2 << "NEXT_MODE:AUTO_REACH***" << endl;
+				//return Main::Mode::AUTO_STATIC;//just for testing purposes
 
-				/*if (panel.in_use) {
+				if (panel.in_use) {
 					switch(panel.auto_mode){ 
-						case Panel::Auto_mode::CAN_GRAB:
-							return Main::Mode::AUTO_GRAB;
-						case Panel::Auto_mode::MOVE:
-							return Main::Mode::AUTO_MOVE;
-						case Panel::Auto_mode::DO_NOTHING:
-							return Main::Mode::TELEOP;
+						case Panel::Auto_mode::NOTHING:
+							return Main::Mode::AUTO_NULL;
+						case Panel::Auto_mode::REACH:
+							return Main::Mode::AUTO_REACH;
+						case Panel::Auto_mode::STATICS:
+							return Main::Mode::AUTO_STATICTWO;
+						case Panel::Auto_mode::STATICF:
+							return Main::Mode::AUTO_STATIC;
 						default: assert(0);
 					}
 				} else {
-					return Main::Mode::AUTO_GRAB;
-				}*/
+					return Main::Mode::AUTO_TEST; //during testing put the mode you want to test without the driverstation.
+				}
 				return Main::Mode::TELEOP;
 			}
 			return m;
 
 		case Main::Mode::AUTO_NULL:
-			if(autonomous)
-			cout << "test" << endl;
 			return Main::Mode::TELEOP;
 		
 		case Main::Mode::AUTO_NAV:
-			if(stepcounter==1 /* || stepcounter==2*/){
-				stepcounter ++;
+			//if(stepcounter==1 /* || stepcounter==2*/){
+				//stepcounter ++;
+				if(!autonomous) return Main::Mode::TELEOP;
 				return Main::Mode::AUTO_NAV_RUN;
-			}else if(stepcounter==2)
-				return Main::Mode::TELEOP;
-			else if(stepcounter==3)
-				return Main::Mode::AUTO_MOVE;
-			else if(stepcounter==4) 
-				return Main::Mode::AUTO_SCORE;
-			else if(stepcounter==5)	
-				return Main::Mode::TELEOP;
-			myfile2 << "AUTO_NAV:next:" << stepcounter;
+			//}else if(stepcounter==2)
+				//return Main::Mode::AUTO_MOVE;
 
-			/* if(something)
-				NavV = loadnav(s5);
-			*/
+			myfile2 << "AUTO_NAV:next:" << stepcounter << endl;
+
 
 		case Main::Mode::AUTO_NAV_RUN:
+		
 			if(since_switch>NavV[navindex].amount) {
 				navindex++;
 				myfile2 << "navindex:" << navindex << endl << "SS: " << since_switch << endl;
 				myfile2.flush();
+			
 			} 
 			if(navindex==NavV.size()) {
 				myfile2 << "done" << endl;
@@ -513,18 +511,37 @@ Main::Mode next_mode(Main::Mode m,bool autonomous,bool autonomous_start,Toplevel
 			return Main::Mode::AUTO_NAV_RUN;
 
 		case Main::Mode::AUTO_MOVE:
-			//encoders? going to use time for now
-			if(since_switch>Aturn.dur) 
-				return Main::Mode::AUTO_NAV;
+			if (!autonomous) return Main::Mode::TELEOP;
+			if(since_switch>Aturn.dur) return Main::Mode::AUTO_NAV;
 			return Main::Mode::AUTO_MOVE;
 
 		case Main::Mode::AUTO_SCORE:
+			if(!autonomous) return Main::Mode::TELEOP;
 			if(since_switch>1) 
 				return Main::Mode::AUTO_NAV;
 			return Main::Mode::AUTO_MOVE;
+ 
 		case Main::Mode::AUTO_REACH:
+			myfile2 << "NEXT_MODE:SS" << since_switch << endl;
+			if(!autonomous) return Main::Mode::TELEOP;
+			if(since_switch > .8) return Main::Mode::AUTO_STOP;
 			return Main::Mode::AUTO_REACH;
 
+		case Main::Mode::AUTO_STATIC:
+			if (!autonomous) return Main::Mode::TELEOP;
+			if(since_switch > 1.5) return Main::Mode::AUTO_STOP;
+			return Main::Mode::AUTO_STATIC;
+		case Main::Mode::AUTO_STATICTWO:
+			if(!autonomous) return Main::Mode::TELEOP;
+			if(since_switch > 2.5) return Main::Mode::AUTO_STOP;
+			return Main::Mode::AUTO_STATICTWO;
+
+		case Main::Mode::AUTO_STOP:
+			myfile2 << "NEXT_MODE:DONE=>TELEOP" << endl;
+			return Main::Mode::TELEOP;
+		case Main::Mode::AUTO_TEST:
+			if(since_switch > 1 ||!autonomous) return Main::Mode::TELEOP;
+			return Main::Mode::AUTO_TEST;
 		default: assert(0);
 	}
 	return m;
@@ -538,6 +555,12 @@ Robot_outputs Main::operator()(Robot_inputs in,ostream&){
 	Joystick_data main_joystick=in.joystick[0];
 	Joystick_data gunner_joystick=in.joystick[1];
 	Panel panel=interpret(in.joystick[2]);
+
+	Tilt::Goal LEVEL=Tilt::Goal::go_to_angle(make_tolerances(level));
+	Tilt::Goal LOW=Tilt::Goal::go_to_angle(make_tolerances(low));
+	Tilt::Goal TOP=Tilt::Goal::go_to_angle(make_tolerances(top));
+	Tilt::Goal CHEVAL=Tilt::Goal::go_to_angle(make_tolerances(100));
+	Tilt::Goal PORTCULLIS=Tilt::Goal::go_to_angle(make_tolerances(portcullis));
 
 	force.update(
 		main_joystick.button[Gamepad_button::A],
@@ -557,10 +580,11 @@ Robot_outputs Main::operator()(Robot_inputs in,ostream&){
 		
 	Toplevel::Goal goals;
 	//Drivebase::Status_detail status_detail = drivebase.estimator.get();
-	
+	cout << "ENCODER '0': " <<  in.digital_io.encoder[0]<<  endl;
+	cout << "ENCODER '1': " << in.digital_io.encoder[1]<<  endl;	
 	switch(mode){
 		case Mode::TELEOP:
-			goals=teleop(in,main_joystick,gunner_joystick,panel,toplevel_status);
+			goals=teleop(in,main_joystick,gunner_joystick,panel,toplevel_status,LEVEL,LOW,TOP,CHEVAL,PORTCULLIS);
 			//test
 			//tagThis("Line 347: switch(mode) teleop", __FILE__);
 			//cout<<"$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$tag!";
@@ -572,24 +596,24 @@ Robot_outputs Main::operator()(Robot_inputs in,ostream&){
 			
 			myfile2 << "AUTO_NAV:" << stepcounter << endl;
 
-			if(stepcounter==1) {
+			//if(stepcounter==1) {
 				NavV = loadnav(s1);
 				myfile2 << "doing S1" << endl;
-			} else if(stepcounter==2) {
-				NavV = loadnav(s2);
-				myfile2 << "doing S2" << endl;
-			} else if(stepcounter==3){
-				Aturn.l = -.45;
-				Aturn.r = .45;
-				Aturn.dur=1;
-				break;
-			}
-			else if(stepcounter==4)
+			//} else if(stepcounter==2) {
+				//NavV = loadnav(s2);
+				//myfile2 << "doing S2" << endl;
+			//} else if(stepcounter==3){
+				//Aturn.l = -.45;
+				//Aturn.r = .45;
+				//Aturn.dur=1;
+			//	break;
+			//}
+			//else if(stepcounter==4)
 				//fire the ball!
-				break;
-			else if(stepcounter==5)
+				//break;
+			//else if(stepcounter==5)
 				//all done
-				break;
+				//break;
 			/*
 			else if(stepcounter==5)
 			
@@ -599,8 +623,8 @@ Robot_outputs Main::operator()(Robot_inputs in,ostream&){
 			else if(stepcounter==7)
 				NavV = loadnav(s4);
 			*/
-			else
-				assert(0);
+			//else
+			//	assert(0);
 
 			navindex = 0;
 			myfile2 << "Nav loaded:" << NavV.size() << endl;
@@ -608,6 +632,7 @@ Robot_outputs Main::operator()(Robot_inputs in,ostream&){
 			break;
 
 		case Mode::AUTO_NAV_RUN:
+			goals.tilt=LEVEL;
 			goals.drive.left=NavV[navindex].left;
 			goals.drive.right=NavV[navindex].right;
 			break;
@@ -620,8 +645,28 @@ Robot_outputs Main::operator()(Robot_inputs in,ostream&){
 			//score on low goal.
 			break;
 		case Mode::AUTO_REACH:
-			goals.drive.left=NavV[navindex].left;
-			goals.drive.right=NavV[navindex].right;
+			myfile2 << "RUN:ON" << endl;
+			goals.drive.left=-.45;
+			goals.drive.right=-.45;
+			break;
+		case Mode::AUTO_STATIC:
+			//goals.tilt=LEVEL;
+			goals.drive.left=-1;
+			goals.drive.right=-1;
+			break;
+		case Mode::AUTO_STATICTWO:
+			//goals.tilt=LEVEL;
+			goals.drive.left=-.5;
+			goals.drive.right=-.5;
+			break;
+		case Mode::AUTO_STOP:
+			myfile2 << "RUN:OFF" << endl;
+			goals.drive.left=0;
+			goals.drive.right=0;
+			break;
+		case Mode::AUTO_TEST:
+			goals.drive.left=.10;
+			goals.drive.right=.10;
 		default: assert(0);
 	}
 	auto next=next_mode(mode,in.robot_mode.autonomous,autonomous_start_now,toplevel_status,since_switch.elapsed(),panel,navindex,NavV,stepcounter,Aturn);
@@ -688,6 +733,13 @@ vector<T> uniq(vector<T> v){
 	return r;
 }
 
-int main(){}
+int main(){
+	Main m;
+	Robot_inputs rin;
+	m(rin);
+	cout << "Test M: " << m << endl;
+	//for tests
+
+}
 
 #endif

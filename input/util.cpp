@@ -63,19 +63,19 @@ POV_section pov_section(int x){
 
 unsigned interpret_10_turn_pot(Volt v){
         array<Volt,10>limits={
-                -.95,
-                -.70,
-                -.45,
-                -.20,
-                .04,
-                .24,
-                .44,
-                .64,
-                .84,
-                1.1
+                -1.00,
+                -0.75,
+                -0.50,
+                -0.25,
+                0.00,
+                0.20,
+                0.40,
+                0.60,
+                0.80,
+                1.00
         };
         for(unsigned i=0;i<10;i++){
-                if(v<limits[i]) return (i!=9) ? (i+1) : 0;
+                if(v<(limits[i] + 0.05)) return (i!=9) ? (i+1) : 0;
         }
         return 9;
 }

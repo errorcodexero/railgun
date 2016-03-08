@@ -11,7 +11,7 @@
 #include "../util/nav.h"
 
 struct Main{
-	#define MODES X(TELEOP) X(AUTO_MOVE) X(AUTO_NAV) X(AUTO_NAV_RUN) X(AUTO_NULL) X(AUTO_SCORE) X(AUTO_REACH) X(AUTO_STOP)
+	#define MODES X(TELEOP) X(AUTO_MOVE) X(AUTO_NAV) X(AUTO_NAV_RUN) X(AUTO_NULL) X(AUTO_SCORE) X(AUTO_REACH) X(AUTO_STATIC) X(AUTO_STOP) X(AUTO_STATICTWO) X(AUTO_TEST)
 	enum class Mode{
 		#define X(NAME) NAME,
 		MODES
@@ -101,7 +101,11 @@ struct Main{
 		
 	double top, level, low, cheval, portcullis;//angles (in degrees) that it will go to when set to the tilt goals
 
-	Toplevel::Goal teleop(Robot_inputs const&,Joystick_data const&,Joystick_data const&,Panel const&,Toplevel::Status_detail&);
+	Toplevel::Goal teleop(Robot_inputs const&,Joystick_data const&,Joystick_data const&,Panel const&,Toplevel::Status_detail&,Tilt::Goal LEVEL,
+	Tilt::Goal LOW,
+	Tilt::Goal TOP,
+	Tilt::Goal CHEVAL,
+	Tilt::Goal PORTCULLIS);
 	Main();
 	Robot_outputs operator()(Robot_inputs,std::ostream& = std::cerr);
 };
