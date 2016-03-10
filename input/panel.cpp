@@ -150,7 +150,7 @@ Panel interpret(Joystick_data d){
 		float collector_pos = d.axis[5];
 		static const float LOW=-1, DEFAULT=0, STOW=1;
 		p.collector_pos = Panel::Collector_pos::LOW;
-		//AXIS_RANGE(collector_pos, LOW, DEFAULT, STOW, p.collector_pos, Panel::Collector_pos::DEFAULT)
+		AXIS_RANGE(collector_pos, LOW, DEFAULT, STOW, p.collector_pos, Panel::Collector_pos::DEFAULT)
 		else AXIS_RANGE(collector_pos, DEFAULT, STOW, 1.5, p.collector_pos, Panel::Collector_pos::STOW)
 	}
 	{
@@ -164,14 +164,14 @@ Panel interpret(Joystick_data d){
 		float sides = d.axis[6];
                 static const float OUT=-1, OFF=0, IN=1;
                 p.sides = Panel::Collector::OUT;
-                //AXIS_RANGE(sides, OUT, OFF, IN, p.sides, Panel::Collector::OFF)
+               	AXIS_RANGE(sides, OUT, OFF, IN, p.sides, Panel::Collector::OFF)
                 else AXIS_RANGE(sides, OFF, IN, 1.5, p.sides, Panel::Collector::IN)
 	}
         {
                 float winch = d.axis[3];
                 static const float UP=-1, STOP=0, DOWN=1;
                 p.winch = Panel::Winch::UP;
-                //AXIS_RANGE(winch, UP, STOP, DOWN, p.winch, Panel::Winch::STOP)
+                AXIS_RANGE(winch, UP, STOP, DOWN, p.winch, Panel::Winch::STOP)
                 else AXIS_RANGE(winch, STOP, DOWN, 1.5, p.winch, Panel::Winch::DOWN);
         }
 	p.speed_dial = axis_to_percent(d.axis[1]);
