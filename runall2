@@ -135,7 +135,7 @@ if __name__=='__main__':
 
 	def build():
 		cross_makefile(open('t.mk','w'))
-		r=os.system('make -f t.mk')
+		r=os.system('make -j4 -f t.mk')
 		assert r&0xff==0
 		return r>>8
 

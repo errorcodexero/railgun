@@ -56,123 +56,11 @@ Main::Main():mode(Mode::TELEOP),autonomous_start(0),joy_collector_pos(Joy_collec
 		cheval=100;
 		portcullis=83;
 	
-		stepcounter=0;
-		//the information that is being declared are just place holders for when we get and actual values for auto.
-		s1.ptone.x=146;
-		s1.ptone.y=130;
-		s1.pttwo.x=33;
-		s1.pttwo.y=135;
-		s1.dirone=LEFT;
-		s1.dirtwo=UP;
-		
-		s2.ptone.x=70;
-		s2.ptone.y=70;
-		s2.pttwo.x=70;
-		s2.pttwo.y=70;
-		s2.dirone=LEFT;
-		s2.dirtwo=LEFT;
-
-		s3.ptone.x=70;
-		s3.ptone.y=70;
-		s3.pttwo.x=60;
-		s3.pttwo.y=70;
-		s3.dirone=LEFT;
-		s3.dirtwo=LEFT;
-		
-		s4.ptone.x=70;
-		s4.ptone.y=70;
-		s4.pttwo.x=70;
-		s4.pttwo.y=60;
-		s4.dirone=LEFT;
-		s4.dirtwo=LEFT;
-		
-		s5.ptone.x=0;
-		s5.ptone.y=0;
-		s5.pttwo.x=79;
-		s5.pttwo.y=0;
-		s5.dirone=LEFT;
-		s5.dirtwo=LEFT;
-		
-		stepcounter = 1;
-			
 		myfile2.open("/home/lvuser/navlogs/navlog2.txt");
 		myfile2 << "test start" << endl;
 
 }
 
-
-vector<Main::NavS> Main::loadnav(navloadinput navin){
-
-	const string MYFILE="/home/lvuser/navlogs/navlog.txt";
-
-	float amount = 0;
-	vector<NavS> nav;
-	NavS navelement;
-	navinput start, end;
-	vector<pair<int,movedir>> v;
-	ofstream myfile(MYFILE);
-	//oiload oinav;
-
-	myfile << "hi" << "\n";
-	myfile.flush();
-	//assign start information
-	start.navpt.x = navin.ptone.x;
-	start.navpt.y = navin.ptone.y;
-	start.navdir = navin.dirone;
-	
-	//assign end information
-	end.navpt.x = navin.pttwo.x;
-	end.navpt.y = navin.pttwo.y;
-	end.navdir = navin.dirtwo;
-
-	myfile << "startpt: " << start.navpt.x << "," << start.navpt.y << "endpt: " << end.navpt.x << "," << end.navpt.y  << endl;
-	v=solvemaze(start.navpt,end.navpt,start.navdir,end.navdir);
-	
-	myfile << "size: " << v.size() << "\n"; 
-	//something to note is that doing a 180 or going back is going to be the same as turning exept that it is going to be for longer so that it can go as far 
-
-	for (unsigned int i=0;i<v.size();i++){
-		myfile << "Processing " << i <<  "\n";
-		if(v[i].second == MFORWARD){
-			navelement.left = -.25;
-			navelement.right = -.25;
-			amount += v[i].first / 29.0;
-		}
-		else if(v[i].second == MLEFT){
-			navelement.left = .25;
-			navelement.right = -.25;
-			amount += .65;
-		}
-		else if(v[i].second == MRIGHT){
-			navelement.left= -.25;
-			navelement.right= .25;
-			amount += .65;
-		}
-		else if(v[i].second == MBACK){
-			navelement.left= .25;
-			navelement.right= -.25;
-			amount+= 1.1;
-		}
-		else 
-			assert(0);
-
-		navelement.amount = amount;
- 
-		myfile << "Pushing " << "navelm.left " << navelement.left << " navelm.right " << navelement.right << " amount " << navelement.amount << endl;
-		nav.push_back(navelement);
-
-		// push a delay
-		navelement.left= 0;
-		navelement.right= 0;
-		amount += 1;
-		navelement.amount = amount;
-		nav.push_back(navelement);
-
-		myfile << "Pushing " << "navelm.left " << navelement.left << " navelm.right " << navelement.right << " amount " << navelement.amount << endl;
-	}
-	myfile.close();
-	return nav;
-}
 
 double set_drive_speed(double axis,double boost,double slow=0){
 	static const float MAX_SPEED=1;//Change this value to change the max speed the robot will achieve with full boost (cannot be larger than 1.0)
@@ -483,7 +371,7 @@ Toplevel::Goal Main::teleop(
 	return goals;
 }
 
-Main::Mode next_mode(Main::Mode m,bool autonomous,bool autonomous_start,Toplevel::Status_detail /*status*/,Time since_switch, Panel panel,unsigned int navindex,vector<Main::NavS> NavV,int & stepcounter,Main::aturn Aturn){
+Main::Mode next_mode(Main::Mode m,bool autonomous,bool autonomous_start,Toplevel::Status_detail /*status*/,Time since_switch, Panel panel,unsigned int navindex,vector<Nav2::NavS> NavV,int & stepcounter,Nav2::aturn Aturn){
 	switch(m){
 		case Main::Mode::TELEOP:	
 			if(autonomous_start){
@@ -622,10 +510,10 @@ Robot_outputs Main::operator()(Robot_inputs in,ostream&){
 			break;
 		case Mode::AUTO_NAV:
 			
-			myfile2 << "AUTO_NAV:" << stepcounter << endl;
+			myfile2 << "AUTO_NAV:" << nav2.stepcounter << endl;
 
 			//if(stepcounter==1) {
-				NavV = loadnav(s1);
+				nav2.NavV = nav2.loadnav(nav2.s1);
 				myfile2 << "doing S1" << endl;
 			//} else if(stepcounter==2) {
 				//NavV = loadnav(s2);
@@ -654,20 +542,20 @@ Robot_outputs Main::operator()(Robot_inputs in,ostream&){
 			//else
 			//	assert(0);
 
-			navindex = 0;
-			myfile2 << "Nav loaded:" << NavV.size() << endl;
+			nav2.navindex = 0;
+			myfile2 << "Nav loaded:" << nav2.NavV.size() << endl;
 			myfile2.flush();
 			break;
 
 		case Mode::AUTO_NAV_RUN:
 			goals.tilt=LEVEL;
-			goals.drive.left=NavV[navindex].left;
-			goals.drive.right=NavV[navindex].right;
+			goals.drive.left=nav2.NavV[nav2.navindex].left;
+			goals.drive.right=nav2.NavV[nav2.navindex].right;
 			break;
 
 		case Mode::AUTO_MOVE:
-			goals.drive.left=Aturn.l;
-			goals.drive.right=Aturn.r;
+			goals.drive.left=nav2.Aturn.l;
+			goals.drive.right=nav2.Aturn.r;
 			break;
 		case Mode::AUTO_SCORE:
 			//score on low goal.
@@ -697,7 +585,7 @@ Robot_outputs Main::operator()(Robot_inputs in,ostream&){
 			goals.drive.right=.10;
 		default: assert(0);
 	}
-	auto next=next_mode(mode,in.robot_mode.autonomous,autonomous_start_now,toplevel_status,since_switch.elapsed(),panel,navindex,NavV,stepcounter,Aturn);
+	auto next=next_mode(mode,in.robot_mode.autonomous,autonomous_start_now,toplevel_status,since_switch.elapsed(),panel,nav2.navindex,nav2.NavV,nav2.stepcounter,nav2.Aturn);
 	since_switch.update(in.now,mode!=next);
 	mode=next;
 		

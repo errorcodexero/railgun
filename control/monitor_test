@@ -28,4 +28,5 @@ g++ -Wall -Werror -std=c++0x -DMONITOR_TEST \
 	../input/util.cpp\
 	../input/panel.cpp\
 	../util/nav.cpp\
+	../util/nav2.cpp\
 	-o monitor 2>&1 && ./monitor

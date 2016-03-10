@@ -1,5 +1,5 @@
-#ifndef MAZE_h
-#define MAZE_H
+#ifndef NAV_H
+#define NAV_H
 
 #include <vector>
 #define ROBOTSPACE (18/2)

@@ -9,6 +9,7 @@
 #include "toplevel.h"
 #include "../input/panel.h"
 #include "../util/nav.h"
+#include "../util/nav2.h"
 
 struct Main{
 	#define MODES X(TELEOP) X(AUTO_MOVE) X(AUTO_NAV) X(AUTO_NAV_RUN) X(AUTO_NULL) X(AUTO_SCORE) X(AUTO_REACH) X(AUTO_STATIC) X(AUTO_STOP) X(AUTO_STATICTWO) X(AUTO_TEST)
@@ -19,43 +20,7 @@ struct Main{
 	};
 	Mode mode;
 
-	struct NavS{
-		float left; 
-		float right;
-		float amount;
-	};
-	struct navloadinput{
-		point ptone;
-		point pttwo;
-		direction dirone;
-		direction dirtwo;
-	};
-	
-	struct navinput{
-		point navpt;
-		direction navdir;
-	};
-	struct aturn{
-		float l;
-		float r;
-		float dur;
-	};
-
-	int stepcounter;
-	navloadinput s1;
-	navloadinput s2;
-	navloadinput s3;
-	navloadinput s4;
-	navloadinput s5;
-	
-	aturn Aturn;
-
-	
-	unsigned int navindex;
-	vector<NavS> NavV;
-		
-	vector<NavS> loadnav(navloadinput navin);	
-
+	Nav2 nav2;
 	Force_interface force;
 	Perf_tracker perf;
 	Toplevel toplevel;
