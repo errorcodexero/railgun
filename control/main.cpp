@@ -263,10 +263,10 @@ Toplevel::Goal Main::teleop(
 			{
 				Joystick_section tilt_control = joystick_section(gunner_joystick.axis[Gamepad_axis::RIGHTX],gunner_joystick.axis[Gamepad_axis::RIGHTY]);
 				#define X(NAME,SECTION) bool NAME=tilt_control==Joystick_section::SECTION;
-				X(down,DOWN) X(up,UP) X(level,LEFT) X(low,RIGHT)
+				X(down_b,DOWN) X(up_b,UP) X(level_b,LEFT) X(low_b,RIGHT)
 				#undef X		
-				if(low) joy_collector_pos = Joy_collector_pos::LOW;
-				else if(level) joy_collector_pos = Joy_collector_pos::LEVEL;
+				if(low_b) joy_collector_pos = Joy_collector_pos::LOW;
+				else if(level_b) joy_collector_pos = Joy_collector_pos::LEVEL;
 				if(gunner_joystick.button[Gamepad_button::B]){//learn
 					double learn_this=toplevel_status.tilt.angle;
 					switch(joy_collector_pos){
@@ -282,8 +282,8 @@ Toplevel::Goal Main::teleop(
 				} else {
 					Joy_collector_pos last = joy_collector_pos;
 					joy_collector_pos = Joy_collector_pos::STOP;
-					if(down) return Tilt::Goal::down();
-					if(up) return Tilt::Goal::up();
+					if(down_b) return Tilt::Goal::down();
+					if(up_b) return Tilt::Goal::up();
 					joy_collector_pos = last;
 				}
 			}

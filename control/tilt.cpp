@@ -74,7 +74,7 @@ Tilt::Estimator::Estimator():last(0,0){}
 
 std::array<double,3> Tilt::Goal::angle()const{
 	assert(mode_==Tilt::Goal::Mode::GO_TO_ANGLE);
-	return std::array<double,3>{angle_min,angle_target,angle_max};
+	return {angle_min,angle_target,angle_max};
 }
 
 Tilt::Goal Tilt::Goal::up(){
