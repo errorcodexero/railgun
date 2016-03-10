@@ -69,7 +69,11 @@ ostream& operator<<(ostream& o,Tilt_presets const& a){
 	return o<<"Presets( top:"<<a.top<<"  level:"<<a.level<<"  low:"<<a.low<<"  cheval:"<<a.cheval<<"   portcullis:"<<a.portcullis<<")";
 }
 
+#ifdef MAIN_TEST
 static const auto PRESET_FILE="presets1.txt";
+#else
+static const auto PRESET_FILE="/home/lvuser/presets1.txt";
+#endif
 
 void write_tilt_presets(Tilt_presets const& a){
 	ofstream o(PRESET_FILE);
