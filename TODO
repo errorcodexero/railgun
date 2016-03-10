@@ -19,6 +19,7 @@ LOW PRIORITY for Wilsonville:
 	- configure deploy scripts for .lan and .local
 
 HIGH PRIORITY for Auburn:
+	- Use currents to prevent fast battery draining
 	- Consider chaning portcullis to drive collector up before driving robot foreward, similar to Cheval but less delay
 	- Fix issues from W-ville
 	
