@@ -135,7 +135,7 @@ Toplevel::Goal Main::teleop(
 	}	
 	bool learning=(learn.get() || !learn_delay.done());
 	main_panel_output[Panel_outputs::LEARNING] = Panel_output(static_cast<int>(Panel_output_ports::LEARNING), learning);
-	if(SLOW_PRINT) cout<<"learning("<<learning<<")   delaying("<<!learn_delay.done()<<"\n";
+	//if(SLOW_PRINT) cout<<"learning("<<learning<<")   delaying("<<!learn_delay.done()<<")\n";
 	
 	if(SLOW_PRINT) cout<<"Presets( top:"<<top<<"  level:"<<level<<"  low:"<<low<<"  cheval:"<<cheval<<"   portcullis:"<<portcullis<<")\n";
 	
@@ -496,10 +496,10 @@ Robot_outputs Main::operator()(Robot_inputs in,ostream&){
 		
 	Toplevel::Goal goals;
 	//Drivebase::Status_detail status_detail = drivebase.estimator.get();
-	if(SLOW_PRINT){
+	/*if(SLOW_PRINT){
 		cout << "ENCODER '0': " <<  in.digital_io.encoder[0]<<  endl;
 		cout << "ENCODER '1': " << in.digital_io.encoder[1]<<  endl;	
-	}
+	}*/
 	switch(mode){
 		case Mode::TELEOP:
 			goals=teleop(in,main_joystick,gunner_joystick,panel,toplevel_status,LEVEL,LOW,TOP,CHEVAL,PORTCULLIS);
