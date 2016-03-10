@@ -23,4 +23,9 @@ g++ -Wall -Werror -std=c++0x -DMONITOR_TEST \
 	../util/countdown_timer.cpp\
 	motor_check.cpp\
 	tote_sensors.cpp\
+	main.cpp\
+	../util/perf_tracker.cpp\
+	../input/util.cpp\
+	../input/panel.cpp\
+	../util/nav.cpp\
 	-o monitor 2>&1 && ./monitor
