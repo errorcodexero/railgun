@@ -48,17 +48,60 @@ ostream& operator<<(ostream& o,Main::Cheval_steps a){
 	assert(0);
 }
 
-//TODO: at some point, might want to make this whatever is right to start autonomous mode.
-Main::Main():mode(Mode::TELEOP),autonomous_start(0),joy_collector_pos(Joy_collector_pos::STOP),collector_mode(Collector_mode::NOTHING),cheval_step(Cheval_steps::GO_DOWN){
+Tilt_presets::Tilt_presets(){
 		top=0;
 		level=83;
 		low=100;
 		cheval=100;
 		portcullis=83;
-	
-		myfile2.open("/home/lvuser/navlogs/navlog2.txt");
-		myfile2 << "test start" << endl;
+}
 
+#define PRESETS X(top) X(level) X(low) X(cheval) X(portcullis)
+
+bool operator==(Tilt_presets const& a,Tilt_presets const& b){
+	#define X(NAME) if(a.NAME!=b.NAME) return 0;
+	PRESETS
+	#undef X
+	return 1;
+}
+
+ostream& operator<<(ostream& o,Tilt_presets const& a){
+	return o<<"Presets( top:"<<a.top<<"  level:"<<a.level<<"  low:"<<a.low<<"  cheval:"<<a.cheval<<"   portcullis:"<<a.portcullis<<")";
+}
+
+static const auto PRESET_FILE="presets1.txt";
+
+void write_tilt_presets(Tilt_presets const& a){
+	ofstream o(PRESET_FILE);
+	if(!o.good()){
+		cerr<<"Error: could not open file to write presets\n";
+		return;
+	}
+	#define X(NAME) o<<a.NAME<<"\n";
+	PRESETS
+	#undef X
+}
+
+Tilt_presets read_tilt_presets(){
+	Tilt_presets r;
+	ifstream f(PRESET_FILE);
+	if(!f.good()){
+ 		//if can't open file then just return the defaults
+		cerr<<"Error: could not open preset file.  Using defaults.\n";
+		return r;
+	}
+	string s;
+	#define X(NAME){ getline(f,s); r.NAME=atof(s.c_str()); }
+	PRESETS
+	#undef X
+	return r;
+}
+
+//TODO: at some point, might want to make this whatever is right to start autonomous mode.
+Main::Main():mode(Mode::TELEOP),autonomous_start(0),joy_collector_pos(Joy_collector_pos::STOP),collector_mode(Collector_mode::NOTHING),cheval_step(Cheval_steps::GO_DOWN){
+	myfile2.open("/home/lvuser/navlogs/navlog2.txt");
+	myfile2 << "test start" << endl;
+	tilt_presets=read_tilt_presets();
 }
 
 
@@ -137,7 +180,7 @@ Toplevel::Goal Main::teleop(
 	main_panel_output[Panel_outputs::LEARNING] = Panel_output(static_cast<int>(Panel_output_ports::LEARNING), learning);
 	//if(SLOW_PRINT) cout<<"learning("<<learning<<")   delaying("<<!learn_delay.done()<<")\n";
 	
-	if(SLOW_PRINT) cout<<"Presets( top:"<<top<<"  level:"<<level<<"  low:"<<low<<"  cheval:"<<cheval<<"   portcullis:"<<portcullis<<")\n";
+	if(SLOW_PRINT) cout<<tilt_presets<<"\n";
 	
 	if((!panel.in_use && controller_auto.get()) || (panel.in_use && (panel.tilt_auto || panel.front_auto || panel.sides_auto))) {//Automatic collector modes
 		bool joy_learn=gunner_joystick.button[Gamepad_button::B];
@@ -271,10 +314,12 @@ Toplevel::Goal Main::teleop(
 					double learn_this=toplevel_status.tilt.angle;
 					switch(joy_collector_pos){
 						case Joy_collector_pos::LOW:
-							low=learn_this;
+							tilt_presets.low=learn_this;
+							write_tilt_presets(tilt_presets);
 							break;
 						case Joy_collector_pos::LEVEL:
-							level=learn_this;
+							tilt_presets.level=learn_this;
+							write_tilt_presets(tilt_presets);
 							break;
 						default: break;
 						
@@ -304,20 +349,24 @@ Toplevel::Goal Main::teleop(
 			double learn_this=toplevel_status.tilt.angle;
 			bool done=false;
 			if(panel.collect || panel.eject){
-				level=learn_this;
+				tilt_presets.level=learn_this;
 				done=true;
+				write_tilt_presets(tilt_presets);
 			}
 			else if(panel.collector_pos==Panel::Collector_pos::STOW){
-				top=learn_this;
+				tilt_presets.top=learn_this;
 				done=true;
+				write_tilt_presets(tilt_presets);
 			}
 			else if(panel.cheval){
-				cheval=learn_this;
+				tilt_presets.cheval=learn_this;
 				done=true;
+				write_tilt_presets(tilt_presets);
 			}
 			else if(panel.collector_pos==Panel::Collector_pos::LOW){
-				low=learn_this;
+				tilt_presets.low=learn_this;
 				done=true;
+				write_tilt_presets(tilt_presets);
 			}
 			else learn.update(panel.learn);
 			if(done){
@@ -472,11 +521,11 @@ Robot_outputs Main::operator()(Robot_inputs in,ostream&){
 	Joystick_data gunner_joystick=in.joystick[1];
 	Panel panel=interpret(in.joystick[2]);
 
-	Tilt::Goal LEVEL=Tilt::Goal::go_to_angle(make_tolerances(level));
-	Tilt::Goal LOW=Tilt::Goal::go_to_angle(make_tolerances(low));
-	Tilt::Goal TOP=Tilt::Goal::go_to_angle(make_tolerances(top));
-	Tilt::Goal CHEVAL=Tilt::Goal::go_to_angle(make_tolerances(cheval));
-	Tilt::Goal PORTCULLIS=Tilt::Goal::go_to_angle(make_tolerances(portcullis));
+	Tilt::Goal LEVEL=Tilt::Goal::go_to_angle(make_tolerances(tilt_presets.level));
+	Tilt::Goal LOW=Tilt::Goal::go_to_angle(make_tolerances(tilt_presets.low));
+	Tilt::Goal TOP=Tilt::Goal::go_to_angle(make_tolerances(tilt_presets.top));
+	Tilt::Goal CHEVAL=Tilt::Goal::go_to_angle(make_tolerances(tilt_presets.cheval));
+	Tilt::Goal PORTCULLIS=Tilt::Goal::go_to_angle(make_tolerances(tilt_presets.portcullis));
 
 	force.update(
 		main_joystick.button[Gamepad_button::A],
@@ -652,6 +701,21 @@ vector<T> uniq(vector<T> v){
 	return r;
 }
 
+Tilt_presets rand(Tilt_presets*){
+	Tilt_presets r;
+	#define X(NAME) r.NAME=rand()%10;
+	PRESETS
+	#undef X
+	return r;
+}
+
+void test_preset_rw(){
+	auto a=rand((Tilt_presets*)nullptr);
+	write_tilt_presets(a);
+	auto b=read_tilt_presets();
+	assert(a==b);
+}
+
 int main(){
 	Main m;
 	Robot_inputs rin;
@@ -670,16 +734,17 @@ int main(){
 		in.joystick[2].button[1] = 1;
 		in.joystick[2].button[2] = 1;
 		in.joystick[2].button[3] = 1;
-		in.analog[0] = degrees_to_volts(m.top);
+		in.analog[0] = degrees_to_volts(m.tilt_presets.top);
 		if (i > 500) in.joystick[2].axis[2] = .62;
 		if (i > 550) in.joystick[2].axis[2] = -1;
-		if (i > 600) in.analog[0] = degrees_to_volts(m.cheval);	
+		if (i > 600) in.analog[0] = degrees_to_volts(m.tilt_presets.cheval);	
 		stringstream ss;
 		Robot_outputs out = m(in,ss);
 		cout<<"Time: "<<in.now<<"    OI Button Axis: "<<in.joystick[2].axis[2]<<"   PWM: "<<out.pwm[4]<<"    Cheval Step: "<<static_cast<int>(m.cheval_step);
 		cout<<"    Collector Mode: "<<m.collector_mode<<"    Left Wheels: "<<out.pwm[0]<<"    Right Wheels: "<<out.pwm[1]<<"\n";
 	}
 
+	test_preset_rw();
 }
 
 #endif
