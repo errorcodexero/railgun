@@ -355,27 +355,28 @@ Toplevel::Goal Main::teleop(
 			if(panel.collect || panel.eject){
 				tilt_presets.level=learn_this;
 				done=true;
-				write_tilt_presets(tilt_presets);
 			}
 			else if(panel.collector_pos==Panel::Collector_pos::STOW){
 				tilt_presets.top=learn_this;
 				done=true;
-				write_tilt_presets(tilt_presets);
 			}
 			else if(panel.cheval){
 				tilt_presets.cheval=learn_this;
 				done=true;
-				write_tilt_presets(tilt_presets);
+			}
+			else if(panel.portcullis){
+				tilt_presets.portcullis=learn_this;
+				done=true;
 			}
 			else if(panel.collector_pos==Panel::Collector_pos::LOW){
 				tilt_presets.low=learn_this;
 				done=true;
-				write_tilt_presets(tilt_presets);
 			}
 			else learn.update(panel.learn);
 			if(done){
 				if(learn.get()) learn.update(true);
 				learn_delay.set(.5);
+				write_tilt_presets(tilt_presets);
 			}
 		}
 		if (!panel.front_auto) {
