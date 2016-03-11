@@ -3,26 +3,23 @@
 	
 
 HIGH PRIORITY for Wilsonville:
-	- Save learned angles to file
 	- Connectivity test (check for issue we are/were having with the practice bot - NOT WORKING)
-	- Add hall effect climber shutoff 
 	- Autonomous* - Tristan
-		-Drive Encoders
-		-Testing on carpet field with measurements
-		-Complete all modes, ready for testing
-	- Configure Pit setup w/ router etc.
+		- Drive Encoders
+		- Testing on carpet field with measurements
+		- Complete all modes, ready for testing
 
 		
 LOW PRIORITY for Wilsonville:
-	- Tilt speed control
 	- Logger & Diagnostics
 	- PWM mode outputs for blinky lights (DIO 9)	
-	- configure deploy scripts for .lan and .local
+
 
 HIGH PRIORITY for Auburn:
+	- Fix issues from W-ville
+	- Add hall effect climber shutoff 
 	- Use currents to prevent fast battery draining
 	- Consider chaning portcullis to drive collector up before driving robot foreward, similar to Cheval but less delay
-	- Fix issues from W-ville
 	
 
 NOT AS HIGH PRIORITY: 
