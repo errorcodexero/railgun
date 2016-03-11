@@ -7,5 +7,4 @@ tobj/
 *.tmp
 t.mk
 *.swp
-tilt_positions.txt
 FRCUserProgram
