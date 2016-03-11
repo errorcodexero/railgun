@@ -398,8 +398,8 @@ Toplevel::Goal Main::teleop(
 		}
 	}
 	goals.climb_release=[&]{
-		if(main_joystick.button[Gamepad_button::LB]) return Climb_release::Goal::IN;
-		if(main_joystick.button[Gamepad_button::RB]) return Climb_release::Goal::OUT;
+		//if(main_joystick.button[Gamepad_button::LB]) return Climb_release::Goal::IN;
+		//if(main_joystick.button[Gamepad_button::RB]) return Climb_release::Goal::OUT;
 		if(panel.in_use) {
 			if(panel.lock_climber) return Climb_release::Goal::OUT;
 			return Climb_release::Goal::IN;
