@@ -19,7 +19,7 @@ HIGH PRIORITY for Auburn:
 	- Fix issues from W-ville
 	- Add hall effect climber shutoff 
 	- Use currents to prevent fast battery draining
-	- Consider chaning portcullis to drive collector up before driving robot foreward, similar to Cheval but less delay
+	- Consider changing portcullis to drive collector up before driving robot forward, similar to Cheval but less delay,  OR  consider repurposing it completely as the mode is never used
 	
 
 NOT AS HIGH PRIORITY: 
