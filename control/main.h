@@ -76,11 +76,12 @@ struct Main{
 	
 	Tilt_presets tilt_presets;
 
-	Toplevel::Goal teleop(Robot_inputs const&,Joystick_data const&,Joystick_data const&,Panel const&,Toplevel::Status_detail&,Tilt::Goal LEVEL,
-		Tilt::Goal LOW,
-		Tilt::Goal TOP,
-		Tilt::Goal CHEVAL,
-		Tilt::Goal PORTCULLIS
+	Toplevel::Goal teleop(Robot_inputs const&,Joystick_data const&,Joystick_data const&,Panel const&,Toplevel::Status_detail&,
+		Tilt::Goal,
+		Tilt::Goal,
+		Tilt::Goal,
+		Tilt::Goal,
+		Tilt::Goal
 	);
 
 	Main();

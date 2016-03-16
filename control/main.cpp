@@ -129,11 +129,11 @@ Toplevel::Goal Main::teleop(
 	Joystick_data const& gunner_joystick,
 	Panel const& panel,
 	Toplevel::Status_detail& toplevel_status,
-	Tilt::Goal LEVEL,
-	Tilt::Goal LOW,
-	Tilt::Goal TOP,
-	Tilt::Goal CHEVAL,
-	Tilt::Goal PORTCULLIS
+	Tilt::Goal level,
+	Tilt::Goal low,
+	Tilt::Goal top,
+	Tilt::Goal cheval,
+	Tilt::Goal portcullis
 ){
 	Toplevel::Goal goals;
 	
@@ -215,35 +215,35 @@ Toplevel::Goal Main::teleop(
 			case Collector_mode::COLLECT:
 				goals.front=Front::Goal::IN;
 				goals.sides=Sides::Goal::IN;
-				goals.tilt=LEVEL;
+				goals.tilt=level;
 				if(ball) collector_mode=Collector_mode::STOW;
 				break;
 			case Collector_mode::STOW:
 				goals.front=Front::Goal::OFF;
 				goals.sides=Sides::Goal::OFF;
-				goals.tilt=TOP;
+				goals.tilt=top;
 				break;
 			case Collector_mode::REFLECT:
 				goals.front=Front::Goal::OFF;
 				goals.sides=Sides::Goal::OUT;
-				goals.tilt=LEVEL;
+				goals.tilt=level;
 				break;
 			case Collector_mode::EJECT:
 				goals.front=Front::Goal::OUT;
 				goals.sides=Sides::Goal::IN;
-				goals.tilt=LEVEL;
+				goals.tilt=level;
 				break;
 			case Collector_mode::SHOOT:
 				goals.front=Front::Goal::OUT;
 				goals.sides=Sides::Goal::OFF;
-				goals.tilt=TOP;
+				goals.tilt=top;
 				shoot_timer.update(in.now, enabled);
 				if (shoot_timer.done()) collector_mode = Collector_mode::STOW;
 				break;
 			case Collector_mode::LOW:
 				goals.front=Front::Goal::OFF;
 				goals.sides=Sides::Goal::OFF;
-				goals.tilt=LOW;;
+				goals.tilt=low;
 				break;
 			case Collector_mode::NOTHING:
 				goals.front=Front::Goal::OFF;
@@ -257,7 +257,7 @@ Toplevel::Goal Main::teleop(
 					goals.sides=Sides::Goal::OFF;
 					switch(cheval_step) {
 						case Cheval_steps::GO_DOWN: 
-							goals.tilt=CHEVAL;
+							goals.tilt=cheval;
 							if(ready(status(toplevel_status.tilt),goals.tilt)) cheval_step=Cheval_steps::DRIVE;
 							break;
 						case Cheval_steps::DRIVE:
@@ -269,7 +269,7 @@ Toplevel::Goal Main::teleop(
 						case Cheval_steps::DRIVE_AND_STOW:
 							goals.drive.right=AUTO_POWER;
 							goals.drive.left=AUTO_POWER;
-							goals.tilt=TOP;
+							goals.tilt=top;
 							cheval_drive_timer.update(in.now,enabled);
 							if (cheval_drive_timer.done()) collector_mode=Collector_mode::STOW;
 							break;
@@ -283,7 +283,7 @@ Toplevel::Goal Main::teleop(
 					portcullis_timer.update(in.now,enabled);
 					goals.front=Front::Goal::OFF;
 					goals.sides=Sides::Goal::OFF;
-					goals.tilt=PORTCULLIS;
+					goals.tilt=portcullis;
 					const double AUTO_POWER=-.5;
 					goals.drive.right=AUTO_POWER;
 					goals.drive.left=AUTO_POWER;
@@ -338,8 +338,8 @@ Toplevel::Goal Main::teleop(
 			}
 			switch (joy_collector_pos) {
 				case Joy_collector_pos::STOP: return Tilt::Goal::stop();
-				case Joy_collector_pos::LOW: return LOW;
-				case Joy_collector_pos::LEVEL: return LEVEL;
+				case Joy_collector_pos::LOW: return low;
+				case Joy_collector_pos::LEVEL: return level;
 				default: assert(0);
 			}
 		}();	
@@ -526,11 +526,11 @@ Robot_outputs Main::operator()(Robot_inputs in,ostream&){
 	Joystick_data gunner_joystick=in.joystick[1];
 	Panel panel=interpret(in.joystick[2]);
 
-	Tilt::Goal LEVEL=Tilt::Goal::go_to_angle(make_tolerances(tilt_presets.level));
-	Tilt::Goal LOW=Tilt::Goal::go_to_angle(make_tolerances(tilt_presets.low));
-	Tilt::Goal TOP=Tilt::Goal::go_to_angle(make_tolerances(tilt_presets.top));
-	Tilt::Goal CHEVAL=Tilt::Goal::go_to_angle(make_tolerances(tilt_presets.cheval));
-	Tilt::Goal PORTCULLIS=Tilt::Goal::go_to_angle(make_tolerances(tilt_presets.portcullis));
+	Tilt::Goal level=Tilt::Goal::go_to_angle(make_tolerances(tilt_presets.level));
+	Tilt::Goal low=Tilt::Goal::go_to_angle(make_tolerances(tilt_presets.low));
+	Tilt::Goal top=Tilt::Goal::go_to_angle(make_tolerances(tilt_presets.top));
+	Tilt::Goal cheval=Tilt::Goal::go_to_angle(make_tolerances(tilt_presets.cheval));
+	Tilt::Goal portcullis=Tilt::Goal::go_to_angle(make_tolerances(tilt_presets.portcullis));
 
 	force.update(
 		main_joystick.button[Gamepad_button::A],
@@ -556,7 +556,7 @@ Robot_outputs Main::operator()(Robot_inputs in,ostream&){
 	}*/
 	switch(mode){
 		case Mode::TELEOP:
-			goals=teleop(in,main_joystick,gunner_joystick,panel,toplevel_status,LEVEL,LOW,TOP,CHEVAL,PORTCULLIS);
+			goals=teleop(in,main_joystick,gunner_joystick,panel,toplevel_status,level,low,top,cheval,portcullis);
 			//test
 			//tagThis("Line 347: switch(mode) teleop", __FILE__);
 			//cout<<"$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$tag!";
@@ -604,7 +604,7 @@ Robot_outputs Main::operator()(Robot_inputs in,ostream&){
 			break;
 
 		case Mode::AUTO_NAV_RUN:
-			goals.tilt=LEVEL;
+			goals.tilt=level;
 			goals.drive.left=nav2.NavV[nav2.navindex].left;
 			goals.drive.right=nav2.NavV[nav2.navindex].right;
 			break;
