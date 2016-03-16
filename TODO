@@ -2,24 +2,22 @@
 	- Connectivity test (check for issue we are/were having with the practice bot - NOT WORKING)
 	
 
-HIGH PRIORITY for Wilsonville:
+HIGH PRIORITY for Auburn:
 	- Connectivity test (check for issue we are/were having with the practice bot - NOT WORKING)
 	- Autonomous* - Tristan
 		- Drive Encoders
 		- Testing on carpet field with measurements
 		- Complete all modes, ready for testing
-
-		
-LOW PRIORITY for Wilsonville:
-	- Logger & Diagnostics
-	- PWM mode outputs for blinky lights (DIO 9)	
-
-
-HIGH PRIORITY for Auburn:
 	- Fix issues from W-ville
 	- Add hall effect climber shutoff 
 	- Use currents to prevent fast battery draining
 	- Consider changing portcullis to drive collector up before driving robot forward, similar to Cheval but less delay,  OR  consider repurposing it completely as the mode is never used
+
+
+LOW PRIORITY for Auburn:
+	- Logger & Diagnostics
+	- PWM mode outputs for blinky lights (DIO 9)	
+	
 	
 
 NOT AS HIGH PRIORITY: 
@@ -30,7 +28,7 @@ NOT AS HIGH PRIORITY:
 
 
 NICE THINGS TO HAVE:
-	- Add tests into main.cpp
+	- Add tests into main.cpp, including autonomous
 	- Clean-up stuff:
 		- Use enum class more places
 		- Use std::array in place of C arrays in several places
