@@ -13,15 +13,6 @@
 
 using namespace std;
 
-const string FILE_PATH=[&]{
-	string s;
-	#ifndef MAIN_TEST
-	const string NON_TEST_PATH="/home/lvuser/";
-	s=NON_TEST_PATH;
-	#endif
-	return s;
-}();
-
 ofstream myfile2;
 
 static int print_count=0;
@@ -49,11 +40,11 @@ ostream& operator<<(ostream& o,Main::Cheval_steps a){
 }
 
 Tilt_presets::Tilt_presets(){
-		top=0;
-		level=83;
-		low=100;
-		cheval=100;
-		portcullis=83;
+	top=0;
+	level=83;
+	low=100;
+	cheval=100;
+	portcullis=83;
 }
 
 #define PRESETS X(top) X(level) X(low) X(cheval) X(portcullis)
@@ -170,19 +161,18 @@ Toplevel::Goal Main::teleop(
 	}
 	
 	bool ball=(in.digital_io.in[6]==Digital_in::_0);
-	main_panel_output[Panel_outputs::BOULDER] = Panel_output(static_cast<int>(Panel_output_ports::BOULDER), ball);
+	main_panel_output[Panel_outputs::BOULDER] = Panel_output(static_cast<int>(Panel_output_ports::BOULDER), ball);//control ball light on oi
 	
 	controller_auto.update(gunner_joystick.button[Gamepad_button::START]);
 
-	if(gunner_joystick.button[Gamepad_button::BACK] || main_joystick.button[Gamepad_button::BACK]){//Turn collector off
+	if(gunner_joystick.button[Gamepad_button::BACK] || main_joystick.button[Gamepad_button::BACK]){//Override sets all collector goals to off
 		goals.tilt=Tilt::Goal::stop();
 		goals.sides=Sides::Goal::OFF;
 		goals.front=Front::Goal::OFF;
 		collector_mode=Collector_mode::NOTHING;
 	}	
 	bool learning=(learn.get() || !learn_delay.done());
-	main_panel_output[Panel_outputs::LEARNING] = Panel_output(static_cast<int>(Panel_output_ports::LEARNING), learning);
-	//if(SLOW_PRINT) cout<<"learning("<<learning<<")   delaying("<<!learn_delay.done()<<")\n";
+	main_panel_output[Panel_outputs::LEARNING] = Panel_output(static_cast<int>(Panel_output_ports::LEARNING), learning);//control learning light on oi
 	
 	if(SLOW_PRINT) cout<<tilt_presets<<"\n";
 	
@@ -721,33 +711,43 @@ void test_preset_rw(){
 	assert(a==b);
 }
 
-int main(){
+void test_teleop(){
 	Main m;
-	Robot_inputs rin;
-	m(rin);
-	cout << "Test M: " << m << endl;
-	//for tests
-
-
 	m.mode=Main::Mode::TELEOP;
-	for (unsigned i=0;i<1000;i++) {
-		Robot_inputs in;
-		in.now=i/100.0;
-		in.robot_mode.autonomous=0;
-		in.robot_mode.enabled=1;
-		in.joystick[2].axis[2] = -1;
-		in.joystick[2].button[1] = 1;
-		in.joystick[2].button[2] = 1;
-		in.joystick[2].button[3] = 1;
-		in.analog[0] = degrees_to_volts(m.tilt_presets.top);
-		if (i > 500) in.joystick[2].axis[2] = .62;
-		if (i > 550) in.joystick[2].axis[2] = -1;
-		if (i > 600) in.analog[0] = degrees_to_volts(m.tilt_presets.cheval);	
+	cout<<"Test mode: "<<m.mode<<endl;
+	
+	Robot_inputs in;
+
+	in.now=0;
+	in.robot_mode.autonomous=0;
+	in.robot_mode.enabled=1;//enable robot
+	in.joystick[2].button[1] = 1;//set tilt to auto
+	in.joystick[2].button[2] = 1;//set sides to auto
+	in.joystick[2].button[3] = 1;//set front to auto
+	in.joystick[2].axis[2] = -1;//set all buttons to off
+	in.analog[0] = degrees_to_volts(m.tilt_presets.top);//start at top
+
+	while(in.now<=5) {	
+		static const Time PUSH_CHEVAL=1,RELEASE_CHEVAL=1.5,ARRIVE_AT_CHEVAL_GOAL=3;
+		
+		if(in.now >= PUSH_CHEVAL) in.joystick[2].axis[2] = .62;
+		if(in.now >= RELEASE_CHEVAL) in.joystick[2].axis[2] = -1;
+		if(in.now >= ARRIVE_AT_CHEVAL_GOAL) in.analog[0] = degrees_to_volts(m.tilt_presets.cheval);	
+		
 		stringstream ss;
 		Robot_outputs out = m(in,ss);
-		cout<<"Time: "<<in.now<<"    OI Button Axis: "<<in.joystick[2].axis[2]<<"   PWM: "<<out.pwm[4]<<"    Cheval Step: "<<static_cast<int>(m.cheval_step);
-		cout<<"    Collector Mode: "<<m.collector_mode<<"    Left Wheels: "<<out.pwm[0]<<"    Right Wheels: "<<out.pwm[1]<<"\n";
+		//Panel panel=interpret(in.joystick[2]);
+		
+		cout<<"Now: "<<in.now<<"    Panel buttons: "<<in.joystick[2].axis[2]<<"   PWM: "<<out.pwm[4]<<"    Collector Mode: "<<m.collector_mode;
+		if(m.collector_mode==Main::Collector_mode::CHEVAL) cout<<"    Cheval Step: "<<m.cheval_step;
+		cout<<"    Left Wheels: "<<out.pwm[0]<<"    Right Wheels: "<<out.pwm[1]<<"\n";
+		
+		in.now+=.01;
 	}
+}
+
+int main(){
+	test_teleop();
 
 	test_preset_rw();
 }
