@@ -500,7 +500,7 @@ Main::Mode next_mode(Main::Mode m,bool autonomous,bool autonomous_start,Toplevel
 			myfile2 << "NEXT_MODE:DONE=>TELEOP" << endl;
 			return Main::Mode::TELEOP;
 		case Main::Mode::AUTO_TEST:
-			if(since_switch > 1 ||!autonomous) return Main::Mode::TELEOP;
+			if(since_switch > 1 || !autonomous) return Main::Mode::TELEOP;
 			return Main::Mode::AUTO_TEST;
 		default: assert(0);
 	}
@@ -629,6 +629,7 @@ Robot_outputs Main::operator()(Robot_inputs in,ostream&){
 		case Mode::AUTO_TEST:
 			goals.drive.left=.10;
 			goals.drive.right=.10;
+			break;
 		default: assert(0);
 	}
 	auto next=next_mode(mode,in.robot_mode.autonomous,autonomous_start_now,toplevel_status,since_switch.elapsed(),panel,nav2.navindex,nav2.NavV,nav2.stepcounter,nav2.Aturn);
@@ -746,8 +747,36 @@ void test_teleop(){
 	}
 }
 
+void test_autonomous(){
+	const int MAIN_MODE_NUMBER=11;
+	
+	for(int i=1; i<MAIN_MODE_NUMBER; i++){
+		Main m;
+		#define X(MODE) if(i==static_cast<int>(Main::Mode::MODE)) m.mode=Main::Mode::MODE;
+		MODES
+		#undef X
+		cout<<"Test mode: "<<m.mode<<"\n";
+		
+		Robot_inputs in;
+		in.now=0;
+		in.robot_mode.autonomous=1;
+		in.robot_mode.enabled=1;
+		
+		while(in.now<=4){
+			stringstream ss;
+			//Robot_outputs out=m(in,ss);
+			
+			//cout<<"Now: "<<in.now<<"    Left wheels: "<<out.pwm[0]<<"     Right wheels: "<<out.pwm[1]<<"\n";
+	
+			in.now+=.01;
+		}
+	}
+}
+
 int main(){
 	test_teleop();
+
+	test_autonomous();
 
 	test_preset_rw();
 }
