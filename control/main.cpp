@@ -718,7 +718,6 @@ void test_teleop(){
 	cout<<"Test mode: "<<m.mode<<endl;
 	
 	Robot_inputs in;
-
 	in.now=0;
 	in.robot_mode.autonomous=0;
 	in.robot_mode.enabled=1;//enable robot
@@ -728,7 +727,8 @@ void test_teleop(){
 	in.joystick[2].axis[2] = -1;//set all buttons to off
 	in.analog[0] = degrees_to_volts(m.tilt_presets.top);//start at top
 
-	while(in.now<=5) {	
+	const Time RUN_TIME=5;//in seconds
+	while(in.now<=RUN_TIME){	
 		static const Time PUSH_CHEVAL=1,RELEASE_CHEVAL=1.5,ARRIVE_AT_CHEVAL_GOAL=3;
 		
 		if(in.now >= PUSH_CHEVAL) in.joystick[2].axis[2] = .62;
@@ -747,37 +747,37 @@ void test_teleop(){
 	}
 }
 
-void test_autonomous(){
-	const int MAIN_MODE_NUMBER=11;
+void test_autonomous(Main::Mode mode){
+	Main m;
+	m.mode=mode;
+	cout<<"Test mode: "<<m.mode<<"\n";
 	
-	for(int i=1; i<MAIN_MODE_NUMBER; i++){
-		Main m;
-		#define X(MODE) if(i==static_cast<int>(Main::Mode::MODE)) m.mode=Main::Mode::MODE;
-		MODES
-		#undef X
-		cout<<"Test mode: "<<m.mode<<"\n";
-		
-		Robot_inputs in;
-		in.now=0;
-		in.robot_mode.autonomous=1;
-		in.robot_mode.enabled=1;
-		
-		while(in.now<=4){
-			stringstream ss;
-			//Robot_outputs out=m(in,ss);
-			
-			//cout<<"Now: "<<in.now<<"    Left wheels: "<<out.pwm[0]<<"     Right wheels: "<<out.pwm[1]<<"\n";
+	Robot_inputs in;
+	in.now=0;
+	in.robot_mode.autonomous=1;
+	in.robot_mode.enabled=1;
 	
-			in.now+=.01;
-		}
+	const Time RUN_TIME=4;//in seconds
+	while(in.now<=RUN_TIME){
+		stringstream ss;
+		//Robot_outputs out=m(in,ss);
+		
+		//cout<<"Now: "<<in.now<<"    Left wheels: "<<out.pwm[0]<<"     Right wheels: "<<out.pwm[1]<<"\n";
+		
+		in.now+=.01;
 	}
 }
 
+void test_modes(){
+	#define X(MODE) if(Main::Mode::MODE==Main::Mode::TELEOP) test_teleop(); \
+	else test_autonomous(Main::Mode::MODE);
+	MODES
+	#undef X
+}
+
 int main(){
-	test_teleop();
-
-	test_autonomous();
-
+	test_modes();
+	
 	test_preset_rw();
 }
 
