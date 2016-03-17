@@ -7,6 +7,7 @@
 #include "toplevel.h"
 #include "../util/util.h"
 #include "../input/util.h"
+#include "../util/point.h"
 #include <vector>
 #include <assert.h>
 #include <fstream> 
@@ -17,6 +18,8 @@ ofstream myfile2;
 
 static int print_count=0;
 #define SLOW_PRINT (print_count%10==0)
+
+#define PI 3.14159265358979
 
 ostream& operator<<(ostream& o,Main::Mode a){
 	#define X(NAME) if(a==Main::Mode::NAME) return o<<""#NAME;
@@ -62,8 +65,10 @@ ostream& operator<<(ostream& o,Tilt_presets const& a){
 
 #ifdef MAIN_TEST
 static const auto PRESET_FILE="presets1.txt";
+static const string NAVLOG2="navlog2.txt";
 #else
 static const auto PRESET_FILE="/home/lvuser/presets1.txt";
+static const string NAVLOG2="/home/lvuser/navlogs/navlog2.txt";
 #endif
 
 void write_tilt_presets(Tilt_presets const& a){
@@ -94,7 +99,7 @@ Tilt_presets read_tilt_presets(){
 
 //TODO: at some point, might want to make this whatever is right to start autonomous mode.
 Main::Main():mode(Mode::TELEOP),autonomous_start(0),joy_collector_pos(Joy_collector_pos::STOP),collector_mode(Collector_mode::NOTHING),cheval_step(Cheval_steps::GO_DOWN){
-	myfile2.open("/home/lvuser/navlogs/navlog2.txt");
+	myfile2.open(NAVLOG2);
 	myfile2 << "test start" << endl;
 	tilt_presets=read_tilt_presets();
 }
@@ -548,7 +553,7 @@ Robot_outputs Main::operator()(Robot_inputs in,ostream&){
 		case Mode::TELEOP:
 			goals=teleop(in,main_joystick,gunner_joystick,panel,toplevel_status,level,low,top,cheval,portcullis);
 			//test
-			//tagThis("Line 347: switch(mode) teleop", __FILE__);
+			//tagThis("Line "<<__LINE<<": switch(mode) teleop", __FILE__);
 			//cout<<"$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$tag!";
 			//test			
 			break;
@@ -715,7 +720,7 @@ void test_preset_rw(){
 void test_teleop(){
 	Main m;
 	m.mode=Main::Mode::TELEOP;
-	cout<<"Test mode: "<<m.mode<<endl;
+	cout<<"\nTest mode: "<<m.mode<<endl<<endl;
 	
 	Robot_inputs in;
 	in.now=0;
@@ -728,6 +733,8 @@ void test_teleop(){
 	in.analog[0] = degrees_to_volts(m.tilt_presets.top);//start at top
 
 	const Time RUN_TIME=5;//in seconds
+	int print_count=0;
+	
 	while(in.now<=RUN_TIME){	
 		static const Time PUSH_CHEVAL=1,RELEASE_CHEVAL=1.5,ARRIVE_AT_CHEVAL_GOAL=3;
 		
@@ -739,18 +746,39 @@ void test_teleop(){
 		Robot_outputs out = m(in,ss);
 		//Panel panel=interpret(in.joystick[2]);
 		
-		cout<<"Now: "<<in.now<<"    Panel buttons: "<<in.joystick[2].axis[2]<<"   PWM: "<<out.pwm[4]<<"    Collector Mode: "<<m.collector_mode;
-		if(m.collector_mode==Main::Collector_mode::CHEVAL) cout<<"    Cheval Step: "<<m.cheval_step;
-		cout<<"    Left Wheels: "<<out.pwm[0]<<"    Right Wheels: "<<out.pwm[1]<<"\n";
+		if(SLOW_PRINT){
+			cout<<"Now: "<<in.now<<"    Panel buttons: "<<in.joystick[2].axis[2]<<"   PWM: "<<out.pwm[4]<<"    Collector Mode: "<<m.collector_mode;
+			if(m.collector_mode==Main::Collector_mode::CHEVAL) cout<<"    Cheval Step: "<<m.cheval_step;
+			cout<<"    Left Wheels: "<<out.pwm[0]<<"    Right Wheels: "<<out.pwm[1]<<"\n";
+		}
 		
 		in.now+=.01;
+		print_count++;
 	}
+}
+
+Pt update_pos(Pt current_pos, Robot_outputs out, const Time INCREMENT){
+	const double FT_PER_SEC = 10;//ft/sec assumed for full power for now and that different percent powers correspond to the same percent of that assumption
+	const double RAD_PER_SEC = 1.96;//rad/sec assumed for now at full speed
+	double x_diff = 0, y_diff = 0, theta_diff = 0;
+	if (-out.pwm[0] == out.pwm[1]) {
+		double dist = FT_PER_SEC * INCREMENT;
+		x_diff = cos(current_pos.theta) * (dist * out.pwm[1]);
+		y_diff = sin(current_pos.theta) * (dist * out.pwm[1]);
+		if (fabs(x_diff) < .000001) x_diff = 0;
+		if (fabs(y_diff) < .000001) y_diff = 0;
+		cout<<"\nx:"<<cos(current_pos.theta)<<"   y:"<<sin(current_pos.theta)<<"    x:"<<x_diff<<"    y:"<<y_diff<<"    t:"<<theta_diff<<"\n";
+	} else {
+		theta_diff = RAD_PER_SEC * INCREMENT * out.pwm[0];
+	}
+	return {current_pos.x + x_diff, current_pos.y + y_diff, current_pos.theta + theta_diff};
 }
 
 void test_autonomous(Main::Mode mode){
 	Main m;
+	if(mode==Main::Mode::AUTO_NAV_RUN) mode=Main::Mode::AUTO_NULL;
 	m.mode=mode;
-	cout<<"Test mode: "<<m.mode<<"\n";
+	cout<<"\nTest mode: "<<m.mode<<"\n\n";
 	
 	Robot_inputs in;
 	in.now=0;
@@ -758,13 +786,22 @@ void test_autonomous(Main::Mode mode){
 	in.robot_mode.enabled=1;
 	
 	const Time RUN_TIME=4;//in seconds
+	Pt pos;//0rad is right
+	pos.theta=PI/2;//start facing forward
+	
+	const Time INCREMENT=.01;	
+	int print_count=0;
+	
 	while(in.now<=RUN_TIME){
 		stringstream ss;
-		//Robot_outputs out=m(in,ss);
+		Robot_outputs out=m(in,ss);
 		
-		//cout<<"Now: "<<in.now<<"    Left wheels: "<<out.pwm[0]<<"     Right wheels: "<<out.pwm[1]<<"\n";
+		pos=update_pos(pos,out,INCREMENT);
 		
-		in.now+=.01;
+		if(SLOW_PRINT) cout<<"Now: "<<in.now<<"    Left wheels: "<<out.pwm[0]<<"     Right wheels: "<<out.pwm[1]<<"   Position: "<<pos<<"\n";
+		
+		in.now+=INCREMENT;
+		print_count++;
 	}
 }
 

@@ -116,7 +116,9 @@ s1.pttwo.y=135;
 	s5.pttwo.y=0;
 	s5.dirone=LEFT;
 	s5.dirtwo=LEFT;
-		
+	
+	Aturn={0,0,0};
+	
 	stepcounter = 1;
 }
 

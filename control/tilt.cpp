@@ -198,7 +198,7 @@ std::set<Tilt::Status> examples(Tilt::Status*){
 
 Tilt::Output control(Tilt::Status_detail status, Tilt::Goal goal){
 	//const float MIN=.05;//minimum percent power
-	double power=POWER/2;
+	double power=POWER*.75;
 	switch(goal.mode()){
 		case Tilt::Goal::Mode::DOWN:
 			//if(status.angle>=volts_to_degrees(BOTTOM_VOLTAGE)) return 0;//If enabled, then the collector won't go below the bottom
