@@ -7,25 +7,22 @@ HIGH PRIORITY for Auburn:
 	- Autonomous* - Tristan
 		- Drive Encoders
 		- Testing on carpet field with measurements
-		- Complete all modes, ready for testing
-	- Fix issues from W-ville
-	- Add hall effect climber shutoff 
-	- Use currents to prevent fast battery draining
-	- Consider changing portcullis to drive collector up before driving robot forward, similar to Cheval but less delay,  OR  consider repurposing it completely as the mode is never used
-
+		- Complete all modes, ready for testing 
+	- Log currents from PDP
+	- Logging - Jacob
+	- Turn off windows updates on all machines	
 
 LOW PRIORITY for Auburn:
-	- Logger & Diagnostics
-	- PWM mode outputs for blinky lights (DIO 9)	
-	
-	
+	- Log Analysis - Nick
+	- PWM mode outputs for blinky lights (DIO 9)
+	- Add auto-shut off for climber with the hall effect sensor	
+		
 
 NOT AS HIGH PRIORITY: 
 	- Laptop configuration
 		-ssh config:
 			-Fix the "rm ~/.ssh/known_hosts" problem
 			-add "StrictHostKeyChecking no/UserKnownHostsFile=/dev/null" for robot
-
 
 NICE THINGS TO HAVE:
 	- Add tests into main.cpp, including autonomous
@@ -37,3 +34,18 @@ NICE THINGS TO HAVE:
 		- Add a function that will discover which IOs different parts use (and make a nice list)
 		- Make a data type to talk about different inputs
 
+
+LOG LIST:
+	-RIO Time			10chars 
+	-RIO mode			4chars
+	-Collector Mode			4chars
+	-Climber Mode			4chars
+	-OI inputs (panel)		50chars
+	-PDP currents			120chars
+	-Robot Outputs			130chars
+	-Robot Inputs			30chars
+	-Driver inputs			120chars
+	-RIO Connection status and ip	12chars
+	-DriverStation outputs		4chars
+					488 chars total		
+	
