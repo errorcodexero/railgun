@@ -58,7 +58,7 @@ ostream& operator<<(ostream& o, Panel::Auto_mode a){
 	o<<"Panel::Auto_mode(";
 	#define X(name) if(a==Panel::Auto_mode::name)o<<""#name;
 	
-	X(NOTHING) X(REACH) X(STATICS) X(STATICF) X(CYLOWBAR) X(CYP1) X(CYP2) X(CYP3) X(CYP4) X(FULLLOWBAR)
+	X(NOTHING) X(REACH) X(STATICS) X(STATICF) X(PORTCULLIS) X(CHEVAL)
 	#undef X
 	return o<<")";
 }
@@ -87,17 +87,10 @@ Panel::Auto_mode auto_mode_convert(int potin){
 		case 3:
 			return Panel::Auto_mode::STATICF;
 		case 4:
-			//return Panel::Auto_mode::CYLOWBAR;
-		case 5:
-			//return Panel::Auto_mode::CYP1;
-		case 6:
-			//return Panel::Auto_mode::CYP3;
-		case 7:
-			//return Panel::Auto_mode::CYP3;
-		case 8:
-			//return Panel::Auto_mode::CYP4;
-		case 9:
-			//return Panel::Auto_mode::FULLLOWBAR;
+			return Panel::Auto_mode::PORTCULLIS;
+		case 5: 
+			return Panel::Auto_mode::CHEVAL;
+		
 		default:
 			return Panel::Auto_mode::NOTHING;
 	}
