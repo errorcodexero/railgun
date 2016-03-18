@@ -437,6 +437,8 @@ Main::Mode next_mode(Main::Mode m,bool autonomous,bool autonomous_start,Toplevel
 							return Main::Mode::AUTO_STATICTWO;
 						case Panel::Auto_mode::STATICF:
 							return Main::Mode::AUTO_STATIC;
+						case Panel::Auto_mode::PORTCULLIS:
+							return Main::Mode::AUTO_PORTCULLIS;
 						default: assert(0);
 					}
 				} else {
@@ -507,6 +509,13 @@ Main::Mode next_mode(Main::Mode m,bool autonomous,bool autonomous_start,Toplevel
 		case Main::Mode::AUTO_TEST:
 			if(since_switch > 1 || !autonomous) return Main::Mode::TELEOP;
 			return Main::Mode::AUTO_TEST;
+		case Main::Mode::AUTO_PORTCULLIS:
+			if(since_switch > 2 || !autonomous) return Main::Mode::TELEOP;
+			return Main::Mode::AUTO_PORTCULLIS;
+		case Main::Mode::AUTO_CHEVAL:
+			if(since_switch > .8 || !autonomous) return Main::Mode::TELEOP;
+			return Main::Mode::AUTO_CHEVAL;
+	
 		default: assert(0);
 	}
 	return m;
@@ -635,6 +644,14 @@ Robot_outputs Main::operator()(Robot_inputs in,ostream&){
 			goals.drive.left=.10;
 			goals.drive.right=.10;
 			break;
+		case Mode::AUTO_PORTCULLIS:
+			goals.tilt=low;
+			goals.drive.left=-.75;
+			goals.drive.right=-.75;
+			break;
+		case Mode::AUTO_CHEVAL:
+			goals.drive.left=-.45;
+			goals.drive.right=-.45;
 		default: assert(0);
 	}
 	auto next=next_mode(mode,in.robot_mode.autonomous,autonomous_start_now,toplevel_status,since_switch.elapsed(),panel,nav2.navindex,nav2.NavV,nav2.stepcounter,nav2.Aturn);

@@ -29,7 +29,7 @@ struct Panel{
 	enum class Winch{UP,STOP,DOWN};
 	Winch winch;
 	//10 position switches:
-	enum class Auto_mode{NOTHING,REACH,STATICF,STATICS,CYLOWBAR,CYP1,CYP2,CYP3,CYP4,FULLLOWBAR};
+	enum class Auto_mode{NOTHING,REACH,STATICF,STATICS,PORTCULLIS,CHEVAL};
 	Auto_mode auto_mode;
 	//Dials:
 	float speed_dial;
