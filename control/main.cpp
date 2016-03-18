@@ -757,21 +757,21 @@ void test_teleop(){
 	}
 }
 
-Pt update_pos(Pt current_pos, Robot_outputs out, const Time INCREMENT){
+void update_pos(Pt &current_pos, Robot_outputs out, const Time INCREMENT){
 	const double FT_PER_SEC = 10;//ft/sec assumed for full power for now and that different percent powers correspond to the same percent of that assumption
 	const double RAD_PER_SEC = 1.96;//rad/sec assumed for now at full speed
 	double x_diff = 0, y_diff = 0, theta_diff = 0;
 	if (-out.pwm[0] == out.pwm[1]) {
 		double dist = FT_PER_SEC * INCREMENT;
-		x_diff = cos(current_pos.theta) * (dist * out.pwm[1]);
-		y_diff = sin(current_pos.theta) * (dist * out.pwm[1]);
+		x_diff = cos(current_pos.theta) * (dist * out.pwm[0]);
+		y_diff = sin(current_pos.theta) * (dist * out.pwm[0]);
 		if (fabs(x_diff) < .000001) x_diff = 0;
 		if (fabs(y_diff) < .000001) y_diff = 0;
-		cout<<"\nx:"<<cos(current_pos.theta)<<"   y:"<<sin(current_pos.theta)<<"    x:"<<x_diff<<"    y:"<<y_diff<<"    t:"<<theta_diff<<"\n";
+		//cout<<"\nx:"<<cos(current_pos.theta)<<"   y:"<<sin(current_pos.theta)<<"    x:"<<x_diff<<"    y:"<<y_diff<<"    t:"<<theta_diff<<"\n";
 	} else {
 		theta_diff = RAD_PER_SEC * INCREMENT * out.pwm[0];
 	}
-	return {current_pos.x + x_diff, current_pos.y + y_diff, current_pos.theta + theta_diff};
+	current_pos+={x_diff,y_diff,theta_diff};
 }
 
 void test_autonomous(Main::Mode mode){
@@ -796,7 +796,7 @@ void test_autonomous(Main::Mode mode){
 		stringstream ss;
 		Robot_outputs out=m(in,ss);
 		
-		pos=update_pos(pos,out,INCREMENT);
+		update_pos(pos,out,INCREMENT);
 		
 		if(SLOW_PRINT) cout<<"Now: "<<in.now<<"    Left wheels: "<<out.pwm[0]<<"     Right wheels: "<<out.pwm[1]<<"   Position: "<<pos<<"\n";
 		

@@ -8,13 +8,23 @@
 #include "../util/driver_station_interface.h"
 
 struct Shooter{
-	enum class Goal{};
+	#define GOALS X(PREP) X(OFF)
+	enum class Goal{
+		#define X(GOAL) GOAL,
+		GOALS
+		#undef X
+	};
 	
-	struct Status_detail{};
+	struct Status_detail{
+		int count_rev;//number or revolutions
+		double rpm;//rotations per minute
+	};
 	
-	typedef Status_detail Status;
+	typedef double Status;
 
-	struct Input{};
+	struct Input{
+		bool passing;
+	};
 	
 	struct Input_reader{
 		Shooter::Input operator()(Robot_inputs)const;
@@ -65,6 +75,7 @@ bool operator!=(Shooter,Shooter);
 std::set<Shooter::Input> examples(Shooter::Input*);
 std::set<Shooter::Goal> examples(Shooter::Goal*);
 std::set<Shooter::Status_detail> examples(Shooter::Status_detail*);
+std::set<Shooter::Status> examples(Shooter::Status*);
 
 Shooter::Output control(Shooter::Status_detail,Shooter::Goal);
 Shooter::Status status(Shooter::Status_detail);
