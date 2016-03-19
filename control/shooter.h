@@ -8,22 +8,24 @@
 #include "../util/driver_station_interface.h"
 
 struct Shooter{
-	#define GOALS X(PREP) X(OFF)
+	#define SHOOTER_GOALS X(STOP) X(GROUND_SHOT) X(CLIMB_SHOT) X(X)
 	enum class Goal{
-		#define X(GOAL) GOAL,
-		GOALS
+		#define X(name) name,
+		SHOOTER_GOALS
 		#undef X
 	};
 	
 	struct Status_detail{
-		int count_rev;//number or revolutions
-		double rpm;//rotations per minute
+		int speed;//rpm
+		
+		Status_detail();
+		Status_detail(int);
 	};
 	
-	typedef double Status;
+	typedef Status_detail Status;
 
 	struct Input{
-		bool passing;
+		int speed;//rpm
 	};
 	
 	struct Input_reader{
@@ -31,7 +33,12 @@ struct Shooter{
 		Robot_inputs operator()(Robot_inputs,Shooter::Input)const;
 	};
 
-	typedef Goal Output;
+	#define SHOOTER_OUTPUTS X(STOP) X(GROUND_SPEED) X(CLIMB_SPEED) X(FREE_SPIN)
+	enum class Output{
+		#define X(name) name,
+		SHOOTER_OUTPUTS
+		#undef X
+	};
 	
 	struct Output_applicator{
 		Shooter::Output operator()(Robot_outputs)const;
