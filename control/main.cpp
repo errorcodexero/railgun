@@ -21,6 +21,24 @@ static int print_count=0;
 
 #define PI 3.14159265358979
 
+bool file_exists(string const& name){
+	ifstream f(name);
+	return f.good();
+}
+
+string get_logfilename(){
+	int i=0;
+	auto name=[&](){
+		stringstream ss;
+		ss<<"/home/lvuser/log_"<<i<<".txt";
+		return ss.str();
+	};
+	while(file_exists(name())){
+		i++;
+	}
+	return name();
+}
+
 ostream& operator<<(ostream& o,Main::Mode a){
 	#define X(NAME) if(a==Main::Mode::NAME) return o<<""#NAME;
 	MODES
@@ -834,6 +852,8 @@ int main(){
 	test_modes();
 	
 	test_preset_rw();
+
+	cout<<get_logfilename()<<"\n";
 }
 
 #endif
