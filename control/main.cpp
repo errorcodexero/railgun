@@ -15,6 +15,7 @@
 using namespace std;
 
 ofstream myfile2;
+fstream loggerfile;
 
 static int print_count=0;
 #define SLOW_PRINT (print_count%10==0)
@@ -120,6 +121,7 @@ Main::Main():mode(Mode::TELEOP),autonomous_start(0),joy_collector_pos(Joy_collec
 	myfile2.open(NAVLOG2);
 	myfile2 << "test start" << endl;
 	tilt_presets=read_tilt_presets();
+	loggerfile.open("/media/sda1/taglog.csv",ofstream::out|ofstream::app);
 }
 
 
@@ -579,8 +581,9 @@ Robot_outputs Main::operator()(Robot_inputs in,ostream&){
 	switch(mode){
 		case Mode::TELEOP:
 			goals=teleop(in,main_joystick,gunner_joystick,panel,toplevel_status,level,low,top,cheval,portcullis);
-			//test
-			//tagThis("Line "<<__LINE<<": switch(mode) teleop", __FILE__);
+			//Logging outputs
+			loggerfile<<in<<endl;
+			
 			//cout<<"$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$tag!";
 			//test			
 			break;

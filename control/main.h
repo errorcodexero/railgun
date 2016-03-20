@@ -29,7 +29,7 @@ struct Main{
 	Force_interface force;
 	Perf_tracker perf;
 	Toplevel toplevel;
-	
+
 	Countup_timer since_switch,since_auto_start;
 
 	Posedge_trigger autonomous_start;
