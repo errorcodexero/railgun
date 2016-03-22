@@ -226,6 +226,11 @@ void visit(Func f,Winch::Status_detail const& r){
 	WINCH_STATUS_DETAIL(VISIT)
 }
 
+template<typename Func>
+void visit(Func f,Sides::Input const& a){
+	f.terminal(a);
+}
+
 struct Header{
 	ostream& o;
 	string name;

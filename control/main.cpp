@@ -171,7 +171,7 @@ Toplevel::Goal Main::teleop(
 		}();
 	}
 	
-	bool ball=(in.digital_io.in[6]==Digital_in::_0);
+	bool ball=toplevel_status.front.ball;
 	main_panel_output[Panel_outputs::BOULDER] = Panel_output(static_cast<int>(Panel_output_ports::BOULDER), ball);//control ball light on oi
 	
 	controller_auto.update(gunner_joystick.button[Gamepad_button::START]);

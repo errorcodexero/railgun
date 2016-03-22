@@ -11,12 +11,12 @@ using namespace std;
 struct Sides{
 	enum class Goal{IN,OFF,OUT};
 	
-	typedef Front::Status_detail Status_detail;
+	struct Input{};
+	
+	typedef Input Status_detail;
 
 	typedef Status_detail Status;
 
-	struct Input{};
-	
 	struct Input_reader{
 		Sides::Input operator()(Robot_inputs)const;
 		Robot_inputs operator()(Robot_inputs,Sides::Input)const;

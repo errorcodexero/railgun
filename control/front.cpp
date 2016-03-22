@@ -13,17 +13,12 @@ ostream& operator<<(ostream& o, Front::Goal a){
 	assert(0);
 }
 
-ostream& operator<<(ostream& o, Front::Status){ return o<<"Front::Status()";}
-ostream& operator<<(ostream& o, Front::Input){ return o<<"Front::Input()";}
+ostream& operator<<(ostream& o, Front::Input a){ return o<<"Front::Input(ball:"<<a.ball<<")";}
 ostream& operator<<(ostream& o, Front){ return o<<"Front()";}
 
-bool operator==(Front::Input, Front::Input){ return true;}
+bool operator==(Front::Input a, Front::Input b){ return a.ball==b.ball;}
 bool operator!=(Front::Input a, Front::Input b){ return !(a==b);}
-bool operator<(Front::Input, Front::Input){ return false;}
-
-bool operator<(Front::Status_detail, Front::Status_detail){ return false;}
-bool operator==(Front::Status_detail, Front::Status_detail){ return true;}
-bool operator!=(Front::Status_detail a, Front::Status_detail b){ return !(a==b);} 
+bool operator<(Front::Input a, Front::Input b){ return a.ball<b.ball;}
 
 bool operator==(Front::Input_reader,Front::Input_reader){ return 1;}
 bool operator<(Front::Input_reader, Front::Input_reader){ return 0;}
@@ -36,9 +31,16 @@ bool operator==(Front::Output_applicator, Front::Output_applicator){return 1;}
 bool operator==(Front a, Front b){ return (a.input_reader==b.input_reader && a.estimator==b.estimator && a.output_applicator==b.output_applicator);}
 bool operator!=(Front a, Front b){ return !(a==b);}
 
-Front::Input Front::Input_reader::operator()(Robot_inputs)const{ return {}; }
+static const unsigned BALL_SENSOR_DIO=6;
 
-Robot_inputs Front::Input_reader::operator()(Robot_inputs a, Front::Input)const{ return a; }
+Front::Input Front::Input_reader::operator()(Robot_inputs a)const{
+	return {a.digital_io.in[BALL_SENSOR_DIO]==Digital_in::_0};
+}
+
+Robot_inputs Front::Input_reader::operator()(Robot_inputs a, Front::Input b)const{
+	a.digital_io.in[BALL_SENSOR_DIO]=b.ball?Digital_in::_0:Digital_in::_1;
+	return a;
+}
 
 Robot_outputs Front::Output_applicator::operator()(Robot_outputs r, Front::Output out)const{
 	/*r.relay[FRONT_ADDRESS]=[&]{
@@ -54,7 +56,13 @@ Robot_outputs Front::Output_applicator::operator()(Robot_outputs r, Front::Outpu
 	return r;
 }
 
-Front::Status_detail Front::Estimator::get()const{ return Front::Status_detail{};}
+Front::Estimator::Estimator():input({0}){}
+
+Front::Status_detail Front::Estimator::get()const{ return input;}
+
+void Front::Estimator::update(Time,Front::Input input1,Front::Goal){
+	input=input1;
+}
 
 Front::Output Front::Output_applicator::operator()(Robot_outputs r)const{
 	//return (r.relay[FRONT_ADDRESS]==Relay_output::_01? Front::Output::OUT : (r.relay[FRONT_ADDRESS]==Relay_output::_10? Front::Output::IN : Front::Output::OFF));
@@ -64,13 +72,13 @@ Front::Output Front::Output_applicator::operator()(Robot_outputs r)const{
 	assert(0);
 }
 	
-set<Front::Input> examples(Front::Input*){ return {{}}; }
+set<Front::Input> examples(Front::Input*){
+	return {{0},{1}};
+}
 
 set<Front::Goal> examples(Front::Goal*){ 
 	return {Front::Goal::OUT,Front::Goal::OFF,Front::Goal::IN};
 }
-
-set<Front::Status_detail> examples(Front::Status_detail*){ return {{}}; }
 
 Front::Output control(Front::Status_detail, Front::Goal goal){
 	if(goal==Front::Goal::OUT)return Front::Output::OUT;

@@ -10,12 +10,13 @@ using namespace std;
 struct Front{
 	enum class Goal{IN,OFF,OUT};
 	
-	struct Status_detail{};
-
+	struct Input{
+		bool ball;
+	};
+	
+	typedef Input Status_detail;
 	typedef Status_detail Status;
 
-	struct Input{};
-	
 	struct Input_reader{
 		Front::Input operator()(Robot_inputs)const;
 		Robot_inputs operator()(Robot_inputs,Front::Input)const;
@@ -29,8 +30,11 @@ struct Front{
 	};
 
 	struct Estimator{
+		Input input;
+
+		Estimator();
 		Status_detail get()const;
-		void update(Time,Input,Output){};	
+		void update(Time,Input,Output);
 	};
 
 	Input_reader input_reader;
@@ -40,16 +44,11 @@ struct Front{
 
 ostream& operator<<(ostream&,Front::Goal);
 ostream& operator<<(ostream&,Front);
-ostream& operator<<(ostream&,Front::Status_detail);
 ostream& operator<<(ostream&,Front::Input);
 
 bool operator==(Front::Input,Front::Input);
 bool operator!=(Front::Input,Front::Input);
 bool operator<(Front::Input, Front::Input);
-
-bool operator<(Front::Status_detail, Front::Status_detail);
-bool operator==(Front::Status_detail, Front::Status_detail);
-bool operator!=(Front::Status_detail, Front::Status_detail);
 
 bool operator==(Front::Input_reader,Front::Input_reader);
 bool operator<(Front::Input_reader, Front::Input_reader);
@@ -64,7 +63,6 @@ bool operator!=(Front,Front);
 
 set<Front::Input> examples(Front::Input*);
 set<Front::Goal> examples(Front::Goal*);
-set<Front::Status_detail> examples(Front::Status_detail*);
 
 Front::Output control(Front::Status_detail, Front::Goal);
 Front::Status status(Front::Status_detail);

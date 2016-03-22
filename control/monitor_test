@@ -1,11 +1,11 @@
 g++ -Wall -Werror -std=c++0x -DMONITOR_TEST \
 	monitor.cpp \
+	front.cpp \
 	toplevel.cpp \
 	../util/fixVictor.cpp \
 	../util/interface.cpp \
 	../util/jag_interface.cpp \
 	pump.cpp \
-	front.cpp \
 	sides.cpp \
 	climb_release.cpp \
 	tilt.cpp \
