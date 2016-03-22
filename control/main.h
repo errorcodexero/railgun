@@ -10,6 +10,7 @@
 #include "../input/panel.h"
 #include "../util/nav.h"
 #include "../util/nav2.h"
+#include "log.h"
 
 struct Tilt_presets{
 	double top, level, low, cheval, portcullis;//angles (in degrees) that it will go to when set to the tilt goals
@@ -75,6 +76,7 @@ struct Main{
 	Checked_array<Panel_output,Panel_outputs::PANEL_OUTPUTS> main_panel_output;
 	
 	Tilt_presets tilt_presets;
+	Log log;
 
 	Toplevel::Goal teleop(Robot_inputs const&,Joystick_data const&,Joystick_data const&,Panel const&,Toplevel::Status_detail&,
 		Tilt::Goal,
@@ -90,8 +92,8 @@ struct Main{
 
 std::ostream& operator<<(std::ostream&,Main::Mode);
 
-bool operator==(Main,Main);
-bool operator!=(Main,Main);
-std::ostream& operator<<(std::ostream&,Main);
+bool operator==(Main const&,Main const&);
+bool operator!=(Main const&,Main const&);
+std::ostream& operator<<(std::ostream&,Main const&);
 
 #endif

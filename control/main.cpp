@@ -15,30 +15,11 @@
 using namespace std;
 
 ofstream myfile2;
-fstream loggerfile;
 
 static int print_count=0;
 #define SLOW_PRINT (print_count%10==0)
 
 #define PI 3.14159265358979
-
-bool file_exists(string const& name){
-	ifstream f(name);
-	return f.good();
-}
-
-string get_logfilename(){
-	int i=0;
-	auto name=[&](){
-		stringstream ss;
-		ss<<"/home/lvuser/log_"<<i<<".txt";
-		return ss.str();
-	};
-	while(file_exists(name())){
-		i++;
-	}
-	return name();
-}
 
 ostream& operator<<(ostream& o,Main::Mode a){
 	#define X(NAME) if(a==Main::Mode::NAME) return o<<""#NAME;
@@ -117,11 +98,16 @@ Tilt_presets read_tilt_presets(){
 }
 
 //TODO: at some point, might want to make this whatever is right to start autonomous mode.
-Main::Main():mode(Mode::TELEOP),autonomous_start(0),joy_collector_pos(Joy_collector_pos::STOP),collector_mode(Collector_mode::NOTHING),cheval_step(Cheval_steps::GO_DOWN){
+Main::Main():
+	mode(Mode::TELEOP),
+	autonomous_start(0),
+	joy_collector_pos(Joy_collector_pos::STOP),
+	collector_mode(Collector_mode::NOTHING),
+	cheval_step(Cheval_steps::GO_DOWN)
+{
 	myfile2.open(NAVLOG2);
 	myfile2 << "test start" << endl;
 	tilt_presets=read_tilt_presets();
-	loggerfile.open("/media/sda1/taglog.csv",ofstream::out|ofstream::app);
 }
 
 
@@ -581,11 +567,6 @@ Robot_outputs Main::operator()(Robot_inputs in,ostream&){
 	switch(mode){
 		case Mode::TELEOP:
 			goals=teleop(in,main_joystick,gunner_joystick,panel,toplevel_status,level,low,top,cheval,portcullis);
-			//Logging outputs
-			loggerfile<<in<<endl;
-			
-			//cout<<"$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$tag!";
-			//test			
 			break;
 		case Mode::AUTO_NULL:
 			break;
@@ -693,10 +674,11 @@ Robot_outputs Main::operator()(Robot_inputs in,ostream&){
 		input,
 		toplevel.output_applicator(r)
 	);
+	log(in,toplevel_status,r);
 	return r;
 }
 
-bool operator==(Main a,Main b){
+bool operator==(Main const& a,Main const& b){
 	return a.force==b.force && 
 		a.perf==b.perf && 
 		a.toplevel==b.toplevel && 
@@ -705,11 +687,11 @@ bool operator==(Main a,Main b){
 		a.autonomous_start==b.autonomous_start;
 }
 
-bool operator!=(Main a,Main b){
+bool operator!=(Main const& a,Main const& b){
 	return !(a==b);
 }
 
-ostream& operator<<(ostream& o,Main m){
+ostream& operator<<(ostream& o,Main const& m){
 	o<<"Main(";
 	o<<m.mode;
 	o<<m.force;
@@ -855,8 +837,6 @@ int main(){
 	test_modes();
 	
 	test_preset_rw();
-
-	cout<<get_logfilename()<<"\n";
 }
 
 #endif

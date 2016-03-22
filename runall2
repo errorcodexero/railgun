@@ -26,7 +26,7 @@ def makefile(out):
 
 	print>>out,'OBJDIR='+objdir
 	print>>out,'H_FILES=*.h */*.h'
-	print>>out,'CXXFLAGS=-Wall -Wextra -Werror -std=c++11 -O2'
+	print>>out,'CXXFLAGS=-Wall -Wextra -Werror -std=c++11 -g -O2'
 	print>>out,'export SHELL=/bin/bash' #so that later stderr redirection will work
 	print>>out,'.PHONY: clean'
 	print>>out,''
