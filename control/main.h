@@ -77,8 +77,6 @@ struct Main{
 	
 	Posedge_toggle learn;
 
-	Checked_array<Panel_output,Panel_outputs::PANEL_OUTPUTS> main_panel_output;
-	
 	Tilt_presets tilt_presets;
 	Log log;
 
@@ -91,6 +89,7 @@ struct Main{
 	);
 
 	Main();
+	bool get_learning()const;
 	Robot_outputs operator()(Robot_inputs,std::ostream& = std::cerr);
 };
 

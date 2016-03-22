@@ -1,5 +1,6 @@
 #include "front.h"
 #include <stdlib.h>
+#include "../util/util.h"
 
 using namespace std;
 
@@ -50,9 +51,12 @@ Robot_outputs Front::Output_applicator::operator()(Robot_outputs r, Front::Outpu
 			default: return Relay_output::_00;
 		}
 	}();*/
-	if(out==Front::Output::OUT) r.pwm[FRONT_ADDRESS]=-FRONT_SPEED;
-	else if(out==Front::Output::OFF) r.pwm[FRONT_ADDRESS]=0;
-	else if(out==Front::Output::IN) r.pwm[FRONT_ADDRESS]=FRONT_SPEED;
+	if(out.motor==Front::Goal::OUT) r.pwm[FRONT_ADDRESS]=-FRONT_SPEED;
+	else if(out.motor==Front::Goal::OFF) r.pwm[FRONT_ADDRESS]=0;
+	else if(out.motor==Front::Goal::IN) r.pwm[FRONT_ADDRESS]=FRONT_SPEED;
+
+	r.panel_output[Panel_outputs::BOULDER] = Panel_output(static_cast<int>(Panel_output_ports::BOULDER), out.ball_light);
+
 	return r;
 }
 
@@ -60,16 +64,20 @@ Front::Estimator::Estimator():input({0}){}
 
 Front::Status_detail Front::Estimator::get()const{ return input;}
 
-void Front::Estimator::update(Time,Front::Input input1,Front::Goal){
+void Front::Estimator::update(Time,Front::Input input1,Front::Output){
 	input=input1;
 }
 
 Front::Output Front::Output_applicator::operator()(Robot_outputs r)const{
 	//return (r.relay[FRONT_ADDRESS]==Relay_output::_01? Front::Output::OUT : (r.relay[FRONT_ADDRESS]==Relay_output::_10? Front::Output::IN : Front::Output::OFF));
-	if(r.pwm[FRONT_ADDRESS]==-FRONT_SPEED)return Front::Output::OUT;
-	if(r.pwm[FRONT_ADDRESS]==0)return Front::Output::OFF;
-	if(r.pwm[FRONT_ADDRESS]==FRONT_SPEED)return Front::Output::IN;
-	assert(0);
+	auto motor=[&](){
+		if(r.pwm[FRONT_ADDRESS]==-FRONT_SPEED)return Front::Goal::OUT;
+		if(r.pwm[FRONT_ADDRESS]==0)return Front::Goal::OFF;
+		if(r.pwm[FRONT_ADDRESS]==FRONT_SPEED)return Front::Goal::IN;
+		assert(0);
+	}();
+	bool ball_sensor=r.panel_output[Panel_outputs::BOULDER].value;
+	return Front::Output{motor,ball_sensor};
 }
 	
 set<Front::Input> examples(Front::Input*){
@@ -80,17 +88,39 @@ set<Front::Goal> examples(Front::Goal*){
 	return {Front::Goal::OUT,Front::Goal::OFF,Front::Goal::IN};
 }
 
-Front::Output control(Front::Status_detail, Front::Goal goal){
-	if(goal==Front::Goal::OUT)return Front::Output::OUT;
-	if(goal==Front::Goal::OFF)return Front::Output::OFF;
-	if(goal==Front::Goal::IN)return Front::Output::IN;
-	assert(0);
+Front::Output control(Front::Status_detail st, Front::Goal goal){
+	return {goal,st.ball};
 }
 
 Front::Status status(Front::Status_detail a){ return a;}
 
 bool ready(Front::Status, Front::Goal){ return 1;}
 
+bool operator==(Front::Output a,Front::Output b){
+	return a.motor==b.motor && a.ball_light==b.ball_light;
+}
+
+bool operator!=(Front::Output a,Front::Output b){ return !(a==b); }
+
+bool operator<(Front::Output a,Front::Output b){
+	if(a.motor<b.motor) return 1;
+	if(b.motor<a.motor) return 0;
+	return a.ball_light<b.ball_light;
+}
+
+ostream& operator<<(ostream& o,Front::Output a){
+	return o<<"("<<a.motor<<","<<a.ball_light<<")";
+}
+
+set<Front::Output> examples(Front::Output*){
+	set<Front::Output> r;
+	for(auto g:examples((Front::Goal*)nullptr)){
+		for(int i=0;i<2;i++){
+			r|=Front::Output{g,(bool)i};
+		}
+	}
+	return r;
+}
 
 #ifdef FRONT_TEST
 #include "formal.h"

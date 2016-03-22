@@ -125,6 +125,10 @@ array<double,LEN> floats_to_doubles(array<float,LEN> a){
 	return r;
 }
 
+bool Main::get_learning()const{
+	return learn.get() || !learn_delay.done();
+}
+
 Toplevel::Goal Main::teleop(
 	Robot_inputs const& in,
 	Joystick_data const& main_joystick,
@@ -172,7 +176,6 @@ Toplevel::Goal Main::teleop(
 	}
 	
 	bool ball=toplevel_status.front.ball;
-	main_panel_output[Panel_outputs::BOULDER] = Panel_output(static_cast<int>(Panel_output_ports::BOULDER), ball);//control ball light on oi
 	
 	controller_auto.update(gunner_joystick.button[Gamepad_button::START]);
 
@@ -181,9 +184,8 @@ Toplevel::Goal Main::teleop(
 		goals.sides=Sides::Goal::OFF;
 		goals.front=Front::Goal::OFF;
 		collector_mode=Collector_mode::NOTHING;
-	}	
-	bool learning=(learn.get() || !learn_delay.done());
-	main_panel_output[Panel_outputs::LEARNING] = Panel_output(static_cast<int>(Panel_output_ports::LEARNING), learning);//control learning light on oi
+	}
+	bool learning=get_learning();
 	
 	if(SLOW_PRINT) cout<<tilt_presets<<"\n";
 	
@@ -664,8 +666,8 @@ Robot_outputs Main::operator()(Robot_inputs in,ostream&){
 	Toplevel::Output r_out=control(toplevel_status,goals); 
 	auto r=toplevel.output_applicator(Robot_outputs{},r_out);
 	
-	r.panel_output = main_panel_output;	
-	
+	r.panel_output[Panel_outputs::LEARNING] = Panel_output(static_cast<int>(Panel_output_ports::LEARNING), get_learning());//control learning light on oi
+
 	r=force(r);
 	auto input=toplevel.input_reader(in);
 

@@ -22,7 +22,10 @@ struct Front{
 		Robot_inputs operator()(Robot_inputs,Front::Input)const;
 	};
 
-	typedef Goal Output;
+	struct Output{
+		Goal motor;
+		bool ball_light;
+	};
 	
 	struct Output_applicator{
 		Robot_outputs operator()(Robot_outputs,Front::Output)const;
@@ -45,10 +48,15 @@ struct Front{
 ostream& operator<<(ostream&,Front::Goal);
 ostream& operator<<(ostream&,Front);
 ostream& operator<<(ostream&,Front::Input);
+ostream& operator<<(ostream&,Front::Output);
 
 bool operator==(Front::Input,Front::Input);
 bool operator!=(Front::Input,Front::Input);
 bool operator<(Front::Input, Front::Input);
+
+bool operator==(Front::Output,Front::Output);
+bool operator!=(Front::Output,Front::Output);
+bool operator<(Front::Output, Front::Output);
 
 bool operator==(Front::Input_reader,Front::Input_reader);
 bool operator<(Front::Input_reader, Front::Input_reader);
