@@ -471,13 +471,13 @@ Main::Mode next_mode(Main::Mode m,bool autonomous,bool autonomous_start,Toplevel
 
 
 		case Main::Mode::AUTO_NAV_RUN:
-		
+			if(!autonomous) return Main::Mode::TELEOP;
+			assert(navindex<NavV.size());
 			if(since_switch>NavV[navindex].amount) {
 				navindex++;
 				myfile2 << "navindex:" << navindex << endl << "SS: " << since_switch << endl;
 				myfile2.flush();
-			
-			} 
+			}
 			if(navindex==NavV.size()) {
 				myfile2 << "done" << endl;
 				myfile2.flush();
@@ -835,7 +835,24 @@ void test_modes(){
 	#undef X
 }
 
+void test_next_mode(){
+	//Main::Mode next_mode(Main::Mode m,bool autonomous,bool autonomous_start,Toplevel::Status_detail /*status*/,Time since_switch, Panel panel,unsigned int navindex,vector<Nav2::NavS> NavV,int & stepcounter,Nav2::aturn Aturn){
+	vector<Main::Mode> MODE_LIST{
+		#define X(NAME) Main::Mode::NAME,
+		MODES
+		#undef X
+	};
+	for(auto mode:MODE_LIST){
+		Toplevel::Status_detail st=example((Toplevel::Status_detail*)nullptr);
+		int stepcounter=0;
+		auto next=next_mode(mode,0,0,st,0,Panel{},0,{},stepcounter,Nav2::aturn{});
+		assert(next==Main::Mode::TELEOP);
+	}
+}
+
 int main(){
+	test_next_mode();
+
 	test_modes();
 	
 	test_preset_rw();

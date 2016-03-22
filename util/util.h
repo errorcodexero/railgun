@@ -108,4 +108,11 @@ std::set<T> operator|(std::set<T> a,std::set<T> const& b){
 	return a;
 }
 
+template<typename T>
+T example(T* t){
+	auto e=examples(t);
+	assert(e.size());
+	return *begin(e);
+}
+
 #endif

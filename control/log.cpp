@@ -260,13 +260,6 @@ struct Data{
 	}
 };
 
-template<typename T>
-T example(T* t){
-	auto e=examples(t);
-	assert(e.size());
-	return *begin(e);
-}
-
 Log::Log():Log(get_logfilename()){}
 
 Log::Log(string const& filename):f(filename){
