@@ -10,6 +10,7 @@
 #include "../input/panel.h"
 #include "../util/nav.h"
 #include "../util/nav2.h"
+#include "log.h"
 
 struct Tilt_presets{
 	double top, level, low, cheval, portcullis;//angles (in degrees) that it will go to when set to the tilt goals
@@ -17,7 +18,12 @@ struct Tilt_presets{
 };
 
 struct Main{
-	#define MODES X(TELEOP) X(AUTO_MOVE) X(AUTO_NAV) X(AUTO_NAV_RUN) X(AUTO_NULL) X(AUTO_SCORE) X(AUTO_REACH) X(AUTO_STATIC) X(AUTO_STOP) X(AUTO_STATICTWO) X(AUTO_TEST) X(AUTO_PORTCULLIS) X(AUTO_CHEVAL)
+
+	#define MODES X(TELEOP) X(AUTO_MOVE) X(AUTO_NAV) X(AUTO_NAV_RUN) \
+		X(AUTO_NULL) X(AUTO_SCORE) X(AUTO_REACH) X(AUTO_STATIC) \
+		X(AUTO_STOP) X(AUTO_STATICTWO) X(AUTO_TEST) \
+		X(AUTO_PORTCULLIS) X(AUTO_CHEVAL)
+
 	enum class Mode{
 		#define X(NAME) NAME,
 		MODES
@@ -29,7 +35,7 @@ struct Main{
 	Force_interface force;
 	Perf_tracker perf;
 	Toplevel toplevel;
-	
+
 	Countup_timer since_switch,since_auto_start;
 
 	Posedge_trigger autonomous_start;
@@ -72,9 +78,8 @@ struct Main{
 	
 	Posedge_toggle learn;
 
-	Checked_array<Panel_output,Panel_outputs::PANEL_OUTPUTS> main_panel_output;
-	
 	Tilt_presets tilt_presets;
+	Log log;
 
 	Toplevel::Goal teleop(Robot_inputs const&,Joystick_data const&,Joystick_data const&,Panel const&,Toplevel::Status_detail&,
 		Tilt::Goal,
@@ -85,13 +90,14 @@ struct Main{
 	);
 
 	Main();
+	bool get_learning()const;
 	Robot_outputs operator()(Robot_inputs,std::ostream& = std::cerr);
 };
 
 std::ostream& operator<<(std::ostream&,Main::Mode);
 
-bool operator==(Main,Main);
-bool operator!=(Main,Main);
-std::ostream& operator<<(std::ostream&,Main);
+bool operator==(Main const&,Main const&);
+bool operator!=(Main const&,Main const&);
+std::ostream& operator<<(std::ostream&,Main const&);
 
 #endif

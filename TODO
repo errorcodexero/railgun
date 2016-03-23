@@ -1,16 +1,18 @@
 6-Hour Window:
-	- Connectivity test (check for issue we are/were having with the practice bot - NOT WORKING)
+	- Connectivity test
+	- Full system check 
 	
 
 HIGH PRIORITY for Auburn:
-	- Connectivity test (check for issue we are/were having with the practice bot - NOT WORKING)
+	- Connectivity test
 	- Autonomous* - Tristan
 		- Drive Encoders
 		- Testing on carpet field with measurements
 		- Complete all modes, ready for testing 
-	- Log currents from PDP
+	- Shooter code
 	- Logging - Jacob
 	- Turn off windows updates on all machines	
+
 
 LOW PRIORITY for Auburn:
 	- Log Analysis - Nick
@@ -24,8 +26,9 @@ NOT AS HIGH PRIORITY:
 			-Fix the "rm ~/.ssh/known_hosts" problem
 			-add "StrictHostKeyChecking no/UserKnownHostsFile=/dev/null" for robot
 
+
 NICE THINGS TO HAVE:
-	- Add tests into main.cpp, including autonomous
+	- Expand testing in main.cpp
 	- Clean-up stuff:
 		- Use enum class more places
 		- Use std::array in place of C arrays in several places

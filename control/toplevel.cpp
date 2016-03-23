@@ -138,7 +138,7 @@ Toplevel::Status::Status():
 	pump(Pump::Status::NOT_FULL),
 	tilt(0),
 	sides(Sides::Status{}),
-	front(Front::Status{}),
+	front(Front::Status{0}),
 	climb_release(Climb_release::Status::UNKNOWN)
 {}
 
@@ -331,7 +331,7 @@ set<Toplevel::Input> examples(Toplevel::Input*){
 		Pump::Input{},
 		*examples((Tilt::Input*)0).begin(),
 		Sides::Input{},
-		Front::Input{},
+		Front::Input{0},
 		Climb_release::Input{0},
 		Winch::Input{}
 	};

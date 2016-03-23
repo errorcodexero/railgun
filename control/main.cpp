@@ -98,7 +98,13 @@ Tilt_presets read_tilt_presets(){
 }
 
 //TODO: at some point, might want to make this whatever is right to start autonomous mode.
-Main::Main():mode(Mode::TELEOP),autonomous_start(0),joy_collector_pos(Joy_collector_pos::STOP),collector_mode(Collector_mode::NOTHING),cheval_step(Cheval_steps::GO_DOWN){
+Main::Main():
+	mode(Mode::TELEOP),
+	autonomous_start(0),
+	joy_collector_pos(Joy_collector_pos::STOP),
+	collector_mode(Collector_mode::NOTHING),
+	cheval_step(Cheval_steps::GO_DOWN)
+{
 	myfile2.open(NAVLOG2);
 	myfile2 << "test start" << endl;
 	tilt_presets=read_tilt_presets();
@@ -117,6 +123,10 @@ array<double,LEN> floats_to_doubles(array<float,LEN> a){
 	array<double,LEN> r;
 	for(size_t i=0;i<LEN;i++) r[i]=a[i];
 	return r;
+}
+
+bool Main::get_learning()const{
+	return learn.get() || !learn_delay.done();
 }
 
 Toplevel::Goal Main::teleop(
@@ -165,8 +175,7 @@ Toplevel::Goal Main::teleop(
 		}();
 	}
 	
-	bool ball=(in.digital_io.in[6]==Digital_in::_0);
-	main_panel_output[Panel_outputs::BOULDER] = Panel_output(static_cast<int>(Panel_output_ports::BOULDER), ball);//control ball light on oi
+	bool ball=toplevel_status.front.ball;
 	
 	controller_auto.update(gunner_joystick.button[Gamepad_button::START]);
 
@@ -175,9 +184,8 @@ Toplevel::Goal Main::teleop(
 		goals.sides=Sides::Goal::OFF;
 		goals.front=Front::Goal::OFF;
 		collector_mode=Collector_mode::NOTHING;
-	}	
-	bool learning=(learn.get() || !learn_delay.done());
-	main_panel_output[Panel_outputs::LEARNING] = Panel_output(static_cast<int>(Panel_output_ports::LEARNING), learning);//control learning light on oi
+	}
+	bool learning=get_learning();
 	
 	if(SLOW_PRINT) cout<<tilt_presets<<"\n";
 	
@@ -442,7 +450,7 @@ Main::Mode next_mode(Main::Mode m,bool autonomous,bool autonomous_start,Toplevel
 						default: assert(0);
 					}
 				} else {
-					return Main::Mode::AUTO_TEST; //during testing put the mode you want to test without the driverstation.
+					return Main::Mode::AUTO_NULL; //during testing put the mode you want to test without the driverstation.
 				}
 				return Main::Mode::TELEOP;
 			}
@@ -498,6 +506,7 @@ Main::Mode next_mode(Main::Mode m,bool autonomous,bool autonomous_start,Toplevel
 			if (!autonomous) return Main::Mode::TELEOP;
 			if(since_switch > 1.5) return Main::Mode::AUTO_STOP;
 			return Main::Mode::AUTO_STATIC;
+
 		case Main::Mode::AUTO_STATICTWO:
 			if(!autonomous) return Main::Mode::TELEOP;
 			if(since_switch > 2.5) return Main::Mode::AUTO_STOP;
@@ -506,12 +515,15 @@ Main::Mode next_mode(Main::Mode m,bool autonomous,bool autonomous_start,Toplevel
 		case Main::Mode::AUTO_STOP:
 			myfile2 << "NEXT_MODE:DONE=>TELEOP" << endl;
 			return Main::Mode::TELEOP;
+
 		case Main::Mode::AUTO_TEST:
 			if(since_switch > 1 || !autonomous) return Main::Mode::TELEOP;
 			return Main::Mode::AUTO_TEST;
+
 		case Main::Mode::AUTO_PORTCULLIS:
-			if(since_switch > 2 || !autonomous) return Main::Mode::TELEOP;
+			if(since_switch > 2.5|| !autonomous) return Main::Mode::TELEOP;
 			return Main::Mode::AUTO_PORTCULLIS;
+
 		case Main::Mode::AUTO_CHEVAL:
 			if(since_switch > .8 || !autonomous) return Main::Mode::TELEOP;
 			return Main::Mode::AUTO_CHEVAL;
@@ -561,10 +573,6 @@ Robot_outputs Main::operator()(Robot_inputs in,ostream&){
 	switch(mode){
 		case Mode::TELEOP:
 			goals=teleop(in,main_joystick,gunner_joystick,panel,toplevel_status,level,low,top,cheval,portcullis);
-			//test
-			//tagThis("Line "<<__LINE<<": switch(mode) teleop", __FILE__);
-			//cout<<"$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$tag!";
-			//test			
 			break;
 		case Mode::AUTO_NULL:
 			break;
@@ -608,9 +616,9 @@ Robot_outputs Main::operator()(Robot_inputs in,ostream&){
 			break;
 
 		case Mode::AUTO_NAV_RUN:
-			goals.tilt=level;
-			goals.drive.left=nav2.NavV[nav2.navindex].left;
-			goals.drive.right=nav2.NavV[nav2.navindex].right;
+			//goals.tilt=level;
+			//goals.drive.left=nav2.NavV[nav2.navindex].left;
+			//goals.drive.right=nav2.NavV[nav2.navindex].right;
 			break;
 
 		case Mode::AUTO_MOVE:
@@ -646,8 +654,10 @@ Robot_outputs Main::operator()(Robot_inputs in,ostream&){
 			break;
 		case Mode::AUTO_PORTCULLIS:
 			goals.tilt=low;
+			if(ready(toplevel_status.tilt.angle,goals.tilt=low)){
 			goals.drive.left=-.75;
 			goals.drive.right=-.75;
+			}
 			break;
 		case Mode::AUTO_CHEVAL:
 			goals.drive.left=-.45;
@@ -662,8 +672,8 @@ Robot_outputs Main::operator()(Robot_inputs in,ostream&){
 	Toplevel::Output r_out=control(toplevel_status,goals); 
 	auto r=toplevel.output_applicator(Robot_outputs{},r_out);
 	
-	r.panel_output = main_panel_output;	
-	
+	r.panel_output[Panel_outputs::LEARNING] = Panel_output(static_cast<int>(Panel_output_ports::LEARNING), get_learning());//control learning light on oi
+
 	r=force(r);
 	auto input=toplevel.input_reader(in);
 
@@ -676,10 +686,11 @@ Robot_outputs Main::operator()(Robot_inputs in,ostream&){
 		input,
 		toplevel.output_applicator(r)
 	);
+	log(in,toplevel_status,r);
 	return r;
 }
 
-bool operator==(Main a,Main b){
+bool operator==(Main const& a,Main const& b){
 	return a.force==b.force && 
 		a.perf==b.perf && 
 		a.toplevel==b.toplevel && 
@@ -688,11 +699,11 @@ bool operator==(Main a,Main b){
 		a.autonomous_start==b.autonomous_start;
 }
 
-bool operator!=(Main a,Main b){
+bool operator!=(Main const& a,Main const& b){
 	return !(a==b);
 }
 
-ostream& operator<<(ostream& o,Main m){
+ostream& operator<<(ostream& o,Main const& m){
 	o<<"Main(";
 	o<<m.mode;
 	o<<m.force;
@@ -779,21 +790,21 @@ void test_teleop(){
 	}
 }
 
-Pt update_pos(Pt current_pos, Robot_outputs out, const Time INCREMENT){
+void update_pos(Pt &current_pos, Robot_outputs out, const Time INCREMENT){
 	const double FT_PER_SEC = 10;//ft/sec assumed for full power for now and that different percent powers correspond to the same percent of that assumption
 	const double RAD_PER_SEC = 1.96;//rad/sec assumed for now at full speed
 	double x_diff = 0, y_diff = 0, theta_diff = 0;
 	if (-out.pwm[0] == out.pwm[1]) {
 		double dist = FT_PER_SEC * INCREMENT;
-		x_diff = cos(current_pos.theta) * (dist * out.pwm[1]);
-		y_diff = sin(current_pos.theta) * (dist * out.pwm[1]);
+		x_diff = cos(current_pos.theta) * (dist * out.pwm[0]);
+		y_diff = sin(current_pos.theta) * (dist * out.pwm[0]);
 		if (fabs(x_diff) < .000001) x_diff = 0;
 		if (fabs(y_diff) < .000001) y_diff = 0;
-		cout<<"\nx:"<<cos(current_pos.theta)<<"   y:"<<sin(current_pos.theta)<<"    x:"<<x_diff<<"    y:"<<y_diff<<"    t:"<<theta_diff<<"\n";
+		//cout<<"\nx:"<<cos(current_pos.theta)<<"   y:"<<sin(current_pos.theta)<<"    x:"<<x_diff<<"    y:"<<y_diff<<"    t:"<<theta_diff<<"\n";
 	} else {
 		theta_diff = RAD_PER_SEC * INCREMENT * out.pwm[0];
 	}
-	return {current_pos.x + x_diff, current_pos.y + y_diff, current_pos.theta + theta_diff};
+	current_pos+={x_diff,y_diff,theta_diff};
 }
 
 void test_autonomous(Main::Mode mode){
@@ -818,7 +829,7 @@ void test_autonomous(Main::Mode mode){
 		stringstream ss;
 		Robot_outputs out=m(in,ss);
 		
-		pos=update_pos(pos,out,INCREMENT);
+		update_pos(pos,out,INCREMENT);
 		
 		if(SLOW_PRINT) cout<<"Now: "<<in.now<<"    Left wheels: "<<out.pwm[0]<<"     Right wheels: "<<out.pwm[1]<<"   Position: "<<pos<<"\n";
 		
@@ -834,10 +845,22 @@ void test_modes(){
 	#undef X
 }
 
-int main(){
+
+int main(/*int argc, char **argv*/){
+	//string c;
+	//c = "--TEST";	
+	/*if(argc==1){*/
 	test_modes();
 	
 	test_preset_rw();
+
+
+	//}
+	
+	/*if(argv[1] == c) {
+		cout<<"!!! \n";
+	}*/
+
 }
 
 #endif

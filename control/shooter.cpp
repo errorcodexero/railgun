@@ -1,21 +1,41 @@
 #include "shooter.h"
 #include "stdlib.h"
 
-std::ostream& operator<<(std::ostream& o,Shooter::Goal){ return o<<"Shooter::Goal{}"; }
-std::ostream& operator<<(std::ostream& o,Shooter::Input){ return o<<"Shooter::Input{}"; }
-std::ostream& operator<<(std::ostream& o,Shooter::Status_detail){ return o<<"Shooter::Status_detail"; }
-std::ostream& operator<<(std::ostream& o,Shooter){ return o<<"Shooter{}"; }
+#define SHOOTER_WHEEL_LOC 0
+#define GROUND_RPM 1000
+#define CLIMB_RPM 750
 
-bool operator==(Shooter::Input,Shooter::Input){ return true; }
-bool operator!=(Shooter::Input,Shooter::Input){ return false; }
-bool operator<(Shooter::Input,Shooter::Input){ return false; }
+Shooter::Status_detail::Status_detail():speed(0){}
+Shooter::Status_detail::Status_detail(int s):speed(s){}
 
-bool operator<(Shooter::Status_detail,Shooter::Status_detail){ return false; }
-bool operator==(Shooter::Status_detail,Shooter::Status_detail){ return true; }
-bool operator!=(Shooter::Status_detail,Shooter::Status_detail){ return false; }
+std::ostream& operator<<(std::ostream& o,Shooter::Goal goal){
+	#define X(name) if(goal==Shooter::Goal::name) return o<<"Shooter::Goal("#name")";
+	SHOOTER_GOALS
+	#undef X
+	assert(0);
+}
+std::ostream& operator<<(std::ostream& o,Shooter::Input a){ return o<<"Shooter::Input( speed:"<<a.speed<<")"; }
+std::ostream& operator<<(std::ostream& o,Shooter::Status_detail a){ return o<<"Shooter::Status_detail( speed:"<<a.speed<<")"; }
+std::ostream& operator<<(std::ostream& o,Shooter::Output output){
+	#define X(name) if(output==Shooter::Output::name) return o<<"Shooter::Output("#name")";
+	SHOOTER_OUTPUTS
+	#undef X
+	assert(0);
+}
+std::ostream& operator<<(std::ostream& o,Shooter){ return o<<"Shooter()"; }
 
-bool operator==(Shooter::Input_reader,Shooter::Input_reader){ return true; }
+bool operator==(Shooter::Input a,Shooter::Input b){ return a.speed==b.speed; }
+bool operator!=(Shooter::Input a,Shooter::Input b){ return !(a==b); }
+bool operator<(Shooter::Input a,Shooter::Input b){ return a.speed < b.speed; } 
+
+bool operator<(Shooter::Status_detail a,Shooter::Status_detail b){
+	return a.speed<b.speed;
+}
+bool operator==(Shooter::Status_detail a,Shooter::Status_detail b){ return (a.speed==b.speed); }
+bool operator!=(Shooter::Status_detail a,Shooter::Status_detail b){ return !(a==b); }
+
 bool operator<(Shooter::Input_reader,Shooter::Input_reader){ return false; }
+bool operator==(Shooter::Input_reader,Shooter::Input_reader){ return true; }
 
 bool operator==(Shooter::Estimator,Shooter::Estimator){ return true; }
 bool operator!=(Shooter::Estimator,Shooter::Estimator){ return false; }
@@ -25,31 +45,84 @@ bool operator==(Shooter::Output_applicator,Shooter::Output_applicator){ return t
 bool operator==(Shooter a,Shooter b){ return (a.input_reader==b.input_reader && a.estimator==b.estimator && a.output_applicator==b.output_applicator); }
 bool operator!=(Shooter a,Shooter b){ return !(a==b); }
 
-Shooter::Input Shooter::Input_reader::operator()(Robot_inputs)const{ return {}; }
-Robot_inputs Shooter::Input_reader::operator()(Robot_inputs r,Shooter::Input)const{ return r; }
+Shooter::Input Shooter::Input_reader::operator()(Robot_inputs r)const{
+	return {r.talon_srx[SHOOTER_WHEEL_LOC].velocity};
+}
+Robot_inputs Shooter::Input_reader::operator()(Robot_inputs r,Shooter::Input in)const{
+	r.talon_srx[SHOOTER_WHEEL_LOC].velocity = in.speed;
+	return r;
+}
 
-Shooter::Output Shooter::Output_applicator::operator()(Robot_outputs)const{ return {}; }
-Robot_outputs Shooter::Output_applicator::operator()(Robot_outputs r,Shooter::Output)const{ return r; }
+Shooter::Output Shooter::Output_applicator::operator()(Robot_outputs r)const{
+	if (r.pwm[7]==0) return Shooter::Output::STOP;
+	if (r.pwm[7]==.5) return Shooter::Output::GROUND_SPEED;
+	if (r.pwm[7]==1) return Shooter::Output::CLIMB_SPEED;
+	if (r.pwm[7]==-1) return Shooter::Output::FREE_SPIN;
+	assert(0);
+}
+Robot_outputs Shooter::Output_applicator::operator()(Robot_outputs r,Shooter::Output out)const{ 
+	if (out==Shooter::Output::STOP) r.pwm[7] = 0;
+	if (out==Shooter::Output::GROUND_SPEED) r.pwm[7] = .5;
+	if (out==Shooter::Output::CLIMB_SPEED) r.pwm[7] = 1;
+	if (out==Shooter::Output::FREE_SPIN) r.pwm[7] = -1;	
+	return r;
+}
 
 Shooter::Status_detail Shooter::Estimator::get()const{ return {}; }
 void Shooter::Estimator::update(Time,Shooter::Input,Shooter::Output){} 
 
-std::set<Shooter::Input> examples(Shooter::Input*){ return {{}}; }
-std::set<Shooter::Goal> examples(Shooter::Goal*){ return {{}}; }
-std::set<Shooter::Status_detail> examples(Shooter::Status_detail*){ return {{}}; }
+std::set<Shooter::Input> examples(Shooter::Input*){
+	return {{true},{false}}; 
+}
+std::set<Shooter::Goal> examples(Shooter::Goal*){
+	std::set<Shooter::Goal> s;
+	#define X(name) s.insert(Shooter::Goal::name);
+	SHOOTER_GOALS
+	#undef X
+	return s;
+}
+std::set<Shooter::Status_detail> examples(Shooter::Status_detail*){
+	return {
+		Shooter::Status_detail{0}
+	};
+}
+std::set<Shooter::Output> examples(Shooter::Output*){
+	std::set<Shooter::Output> s;
+	#define X(name) s.insert(Shooter::Output::name);
+	SHOOTER_OUTPUTS
+	#undef X
+	return s;
+}
 
-Shooter::Output control(Shooter::Status_detail,Shooter::Goal){ return {}; }
-Shooter::Status status(Shooter::Status_detail a){ return a; }
-bool ready(Shooter::Status,Shooter::Goal){ return true; }
+Shooter::Output control(Shooter::Status_detail, Shooter::Goal goal){
+	switch(goal){
+		case Shooter::Goal::STOP: return Shooter::Output::STOP;
+		case Shooter::Goal::GROUND_SHOT: return Shooter::Output::GROUND_SPEED;
+		case Shooter::Goal::CLIMB_SHOT: return Shooter::Output::CLIMB_SPEED;
+		case Shooter::Goal::X: return Shooter::Output::FREE_SPIN;
+		default: assert(0);
+	}
+}
+Shooter::Status status(Shooter::Status_detail a){
+	return a;
+}
 
-
+bool ready(Shooter::Status status,Shooter::Goal goal){
+	switch(goal){
+		case Shooter::Goal::STOP: return status.speed==0;
+		case Shooter::Goal::GROUND_SHOT: return status.speed==GROUND_RPM;
+		case Shooter::Goal::CLIMB_SHOT: return status.speed==CLIMB_RPM;
+		case Shooter::Goal::X: return true;
+		default: assert(0);
+	}
+}
 
 #ifdef SHOOTER_TEST
 #include "formal.h"
 
 int main(){
-	//Shooter a;
-	//tester(a);
+	Shooter a;
+	tester(a);
 }
 
 #endif
