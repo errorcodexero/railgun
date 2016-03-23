@@ -66,7 +66,7 @@ Sides::Output control(Sides::Status_detail, Sides::Goal goal){
 
 bool ready(Sides::Status, Sides::Goal){ return 1;}
 
-//Sides::Status status(Sides::Status_detail a){ return a; }
+Sides::Status status(Sides::Status_detail a){ return a; }
 
 #ifdef SIDES_TEST
 #include "formal.h"
