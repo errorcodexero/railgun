@@ -155,24 +155,24 @@ Toplevel::Goal Main::teleop(
 			nudges[i].timer.update(in.now,enabled);
 		}
 		const double NUDGE_POWER=.4,NUDGE_CW_POWER=.4,NUDGE_CCW_POWER=-.4; 
-		goals.drive.left=[&]{
+		goals.drive.left=clip([&]{
+			if(!nudges[Nudges::FORWARD].timer.done()) return -NUDGE_POWER;
+			if(!nudges[Nudges::BACKWARD].timer.done()) return NUDGE_POWER;
+			if(!nudges[Nudges::CLOCKWISE].timer.done()) return -NUDGE_CW_POWER;
+			if(!nudges[Nudges::COUNTERCLOCKWISE].timer.done()) return -NUDGE_CCW_POWER;
 			double power=set_drive_speed(main_joystick.axis[Gamepad_axis::LEFTY],boost,slow);
 			if(spin) power+=set_drive_speed(-main_joystick.axis[Gamepad_axis::RIGHTX],boost,slow);
-			if(!nudges[Nudges::FORWARD].timer.done()) power=-NUDGE_POWER;
-			else if(!nudges[Nudges::BACKWARD].timer.done()) power=NUDGE_POWER;
-			else if(!nudges[Nudges::CLOCKWISE].timer.done()) power=-NUDGE_CW_POWER;
-			else if(!nudges[Nudges::COUNTERCLOCKWISE].timer.done()) power=-NUDGE_CCW_POWER;
-			return clip(power);
-		}();
-		goals.drive.right=[&]{
+			return power;
+		}());
+		goals.drive.right=clip([&]{
+			if(!nudges[Nudges::FORWARD].timer.done()) return -NUDGE_POWER;
+			else if(!nudges[Nudges::BACKWARD].timer.done()) return NUDGE_POWER;
+			else if(!nudges[Nudges::CLOCKWISE].timer.done()) return NUDGE_CW_POWER;
+			else if(!nudges[Nudges::COUNTERCLOCKWISE].timer.done()) return NUDGE_CCW_POWER;
 			double power=set_drive_speed(main_joystick.axis[Gamepad_axis::LEFTY],boost,slow);
 			if(spin) power+=set_drive_speed(main_joystick.axis[Gamepad_axis::RIGHTX],boost,slow);
-			if(!nudges[Nudges::FORWARD].timer.done()) power=-NUDGE_POWER;
-			else if(!nudges[Nudges::BACKWARD].timer.done()) power=NUDGE_POWER;
-			else if(!nudges[Nudges::CLOCKWISE].timer.done()) power=NUDGE_CW_POWER;
-			else if(!nudges[Nudges::COUNTERCLOCKWISE].timer.done()) power=NUDGE_CCW_POWER;
-			return clip(power);
-		}();
+			return power;
+		}());
 	}
 	
 	bool ball=toplevel_status.collector.front.ball;
@@ -194,24 +194,22 @@ Toplevel::Goal Main::teleop(
 			collector_mode=Collector_mode::SHOOT;
 			const Time TIME_TO_SHOOT=.7;
 			shoot_timer.set(TIME_TO_SHOOT);
-			
-		}
-		else if((gunner_pov==POV_section::UP && !joy_learn) || (panel.in_use && panel.collector_pos==Panel::Collector_pos::STOW && !learning)) collector_mode = Collector_mode::STOW;
+		}else if((gunner_pov==POV_section::UP && !joy_learn) || (panel.in_use && panel.collector_pos==Panel::Collector_pos::STOW && !learning)) collector_mode = Collector_mode::STOW;
 		else if((gunner_pov==POV_section::RIGHT && !joy_learn) || (panel.in_use && panel.cheval && !learning)) {
 			collector_mode = Collector_mode::CHEVAL;
 			cheval_lift_timer.set(.45);
 			cheval_drive_timer.set(2);
 			cheval_step = Cheval_steps::GO_DOWN;
-		}
-		else if((gunner_pov==POV_section::LEFT && !joy_learn) || (panel.in_use && panel.portcullis && !learning)){
+		}else if((gunner_pov==POV_section::LEFT && !joy_learn) || (panel.in_use && panel.portcullis && !learning)){
 			collector_mode = Collector_mode::PORTCULLIS;
 			const Time TIME_UNTIL_OVER=1;
 			portcullis_timer.set(TIME_UNTIL_OVER);	
-		}
-		else if((gunner_joystick.button[Gamepad_button::Y] && !joy_learn) || (panel.in_use && panel.eject && !learning)) collector_mode=Collector_mode::EJECT;
+		}else if((gunner_joystick.button[Gamepad_button::Y] && !joy_learn) || (panel.in_use && panel.eject && !learning)) collector_mode=Collector_mode::EJECT;
 		else if((main_joystick.button[Gamepad_button::START] && !joy_learn) || (panel.in_use && panel.collect && !learning)) collector_mode=Collector_mode::COLLECT;
 		else if((gunner_joystick.button[Gamepad_button::A] && !joy_learn) || (panel.in_use && panel.collector_pos==Panel::Collector_pos::LOW && !learning)) collector_mode=Collector_mode::LOW;
+
 		if(SLOW_PRINT)cout<<"collector_mode: "<<collector_mode<<"\n";
+
 		switch(collector_mode){
 			case Collector_mode::COLLECT:
 				goals.collector={Front::Goal::IN,Sides::Goal::IN,level};
