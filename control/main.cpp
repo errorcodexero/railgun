@@ -685,6 +685,10 @@ Robot_outputs Main::operator()(Robot_inputs in,ostream&){
 	r=force(r);
 	auto input=toplevel.input_reader(in);
 
+	auto talonPower = Talon_srx_output();
+	talonPower.power_level = .5;
+	r.talon_srx[0]= talonPower;
+	
 	toplevel.estimator.update(
 		in.now,
 		input,
