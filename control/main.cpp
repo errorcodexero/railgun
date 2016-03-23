@@ -850,7 +850,6 @@ int main(/*int argc, char **argv*/){
 	
 	test_preset_rw();
 
-	cout<<get_logfilename()<<"\n";
 
 	//}
 	
