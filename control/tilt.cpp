@@ -192,7 +192,7 @@ std::set<Tilt::Status_detail> examples(Tilt::Status_detail*){
 	};
 }
 
-std::set<Tilt::Status> examples(Tilt::Status*){
+std::set<Tilt::Output> examples(Tilt::Output*){
 	return {0,90,120};
 }
 
@@ -263,6 +263,10 @@ int main(){
 	t.check_outputs_exhaustive = 0;
 	t.input_exact=0;
 	tester(a, t);
+
+	for(double d=-90;d<=90;d+=30){
+		std::cout<<d<<"\t"<<volts_to_degrees(degrees_to_volts(d))<<"\n";
+	}
 }
 
 #endif

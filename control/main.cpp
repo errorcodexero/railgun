@@ -450,7 +450,7 @@ Main::Mode next_mode(Main::Mode m,bool autonomous,bool autonomous_start,Toplevel
 						default: assert(0);
 					}
 				} else {
-					return Main::Mode::AUTO_TEST; //during testing put the mode you want to test without the driverstation.
+					return Main::Mode::AUTO_NULL; //during testing put the mode you want to test without the driverstation.
 				}
 				return Main::Mode::TELEOP;
 			}
@@ -506,6 +506,7 @@ Main::Mode next_mode(Main::Mode m,bool autonomous,bool autonomous_start,Toplevel
 			if (!autonomous) return Main::Mode::TELEOP;
 			if(since_switch > 1.5) return Main::Mode::AUTO_STOP;
 			return Main::Mode::AUTO_STATIC;
+
 		case Main::Mode::AUTO_STATICTWO:
 			if(!autonomous) return Main::Mode::TELEOP;
 			if(since_switch > 2.5) return Main::Mode::AUTO_STOP;
@@ -514,12 +515,20 @@ Main::Mode next_mode(Main::Mode m,bool autonomous,bool autonomous_start,Toplevel
 		case Main::Mode::AUTO_STOP:
 			myfile2 << "NEXT_MODE:DONE=>TELEOP" << endl;
 			return Main::Mode::TELEOP;
+
 		case Main::Mode::AUTO_TEST:
 			if(since_switch > 1 || !autonomous) return Main::Mode::TELEOP;
 			return Main::Mode::AUTO_TEST;
+
 		case Main::Mode::AUTO_PORTCULLIS:
-			if(since_switch > 2 || !autonomous) return Main::Mode::TELEOP;
+			if(!autonomous) return Main::Mode::TELEOP;
+			if(since_switch > 2.5) return Main::Mode::AUTO_PORTCULLIS_DONE;
 			return Main::Mode::AUTO_PORTCULLIS;
+	
+		case Main::Mode::AUTO_PORTCULLIS_DONE:
+			if(since_switch > 2 || !autonomous) return Main::Mode::TELEOP;
+			return Main::Mode::AUTO_PORTCULLIS_DONE;
+
 		case Main::Mode::AUTO_CHEVAL:
 			if(since_switch > .8 || !autonomous) return Main::Mode::TELEOP;
 			return Main::Mode::AUTO_CHEVAL;
@@ -612,9 +621,9 @@ Robot_outputs Main::operator()(Robot_inputs in,ostream&){
 			break;
 
 		case Mode::AUTO_NAV_RUN:
-			goals.tilt=level;
-			goals.drive.left=nav2.NavV[nav2.navindex].left;
-			goals.drive.right=nav2.NavV[nav2.navindex].right;
+			//goals.tilt=level;
+			//goals.drive.left=nav2.NavV[nav2.navindex].left;
+			//goals.drive.right=nav2.NavV[nav2.navindex].right;
 			break;
 
 		case Mode::AUTO_MOVE:
@@ -650,8 +659,13 @@ Robot_outputs Main::operator()(Robot_inputs in,ostream&){
 			break;
 		case Mode::AUTO_PORTCULLIS:
 			goals.tilt=low;
+			if(ready(toplevel_status.tilt.angle,goals.tilt=low)){
 			goals.drive.left=-.75;
 			goals.drive.right=-.75;
+			}
+			break;
+		case Mode::AUTO_PORTCULLIS_DONE:
+			goals.tilt=top;
 			break;
 		case Mode::AUTO_CHEVAL:
 			goals.drive.left=-.45;
@@ -846,15 +860,14 @@ void test_next_mode(){
 		Toplevel::Status_detail st=example((Toplevel::Status_detail*)nullptr);
 		int stepcounter=0;
 		auto next=next_mode(mode,0,0,st,0,Panel{},0,{},stepcounter,Nav2::aturn{});
+		cout<<"Testing mode "<<mode<<" goes to "<<next<<"\n";
 		assert(next==Main::Mode::TELEOP);
 	}
 }
 
 int main(){
 	test_next_mode();
-
 	test_modes();
-	
 	test_preset_rw();
 }
 

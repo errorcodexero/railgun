@@ -70,6 +70,7 @@ bool operator==(Front,Front);
 bool operator!=(Front,Front);
 
 set<Front::Input> examples(Front::Input*);
+set<Front::Output> examples(Front::Output*);
 set<Front::Goal> examples(Front::Goal*);
 
 Front::Output control(Front::Status_detail, Front::Goal);

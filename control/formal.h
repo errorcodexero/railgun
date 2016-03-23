@@ -78,11 +78,13 @@ void tester(Part p,Tester_mode mode=Tester_mode{}){
 
 	for(auto a:examples((Input*)0)){
 		Robot_inputs all;
-		auto x=p.input_reader(p.input_reader(all,a));
+		auto intermediate=p.input_reader(all,a);
+		auto x=p.input_reader(intermediate);
 		//if(!approx_eq(a,x))
 		/*if(x!=a){
 			cout<<"x:"<<x<<"\n";
 			cout<<"a:"<<a<<"\n";
+			cout<<"intermediate:"<<intermediate<<"\n";
 		}*/
 		if(mode.input_exact){
 			assert(x==a);

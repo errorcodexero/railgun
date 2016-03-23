@@ -104,8 +104,8 @@ bool operator!=(Tilt,Tilt);
 
 std::set<Tilt::Input> examples(Tilt::Input*);
 std::set<Tilt::Goal> examples(Tilt::Goal*);
+std::set<Tilt::Status> examples(Tilt::Status*);
 std::set<Tilt::Status_detail> examples(Tilt::Status_detail*);
-std::set<Tilt::Output> examples(Tilt::Output*);
 
 Tilt::Output control(Tilt::Status_detail, Tilt::Goal);
 Tilt::Status status(Tilt::Status_detail);
