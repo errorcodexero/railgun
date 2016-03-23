@@ -78,6 +78,7 @@ bool operator<(Talon_srx_input,Talon_srx_input);
 bool operator<(Digital_out,Digital_out);
 bool operator==(Digital_out,Digital_out);
 bool operator!=(Digital_out,Digital_out);
+bool operator==(Panel_output,Panel_output);
 
 struct Robot_outputs{
 	static const unsigned PWMS=10;//Number of ports on the digital sidecar; roboRIO headers say 20 but there aren't that many ports on the board.
@@ -131,6 +132,7 @@ struct Joystick_data{
 
 	static Maybe<Joystick_data> parse(std::string const&);
 };
+bool operator<(Joystick_data,Joystick_data);
 bool operator==(Joystick_data,Joystick_data);
 bool operator!=(Joystick_data,Joystick_data);
 std::ostream& operator<<(std::ostream&,Joystick_data);
@@ -142,6 +144,7 @@ struct Robot_mode{
 	
 	Robot_mode();
 };
+bool operator<(Robot_mode,Robot_mode);
 bool operator==(Robot_mode,Robot_mode);
 bool operator!=(Robot_mode,Robot_mode);
 std::ostream& operator<<(std::ostream&,Robot_mode);
@@ -158,6 +161,7 @@ struct Digital_inputs{
 
 	Digital_inputs();
 };
+bool operator<(Digital_inputs const&,Digital_inputs const&);
 bool operator==(Digital_inputs const&,Digital_inputs const&);
 bool operator!=(Digital_inputs const&,Digital_inputs const&);
 std::ostream& operator<<(std::ostream&,Digital_inputs const&);
@@ -191,6 +195,7 @@ struct Robot_inputs{
 
 	Robot_inputs();
 };
+bool operator<(Robot_inputs,Robot_inputs);
 bool operator==(Robot_inputs,Robot_inputs);
 bool operator!=(Robot_inputs,Robot_inputs);
 std::ostream& operator<<(std::ostream& o,Robot_inputs);

@@ -52,6 +52,10 @@ Panel_output::Panel_output(int p, bool v) {
 	value = v;
 }
 
+bool operator==(Panel_output a,Panel_output b){
+	return a.port==b.port && a.value==b.value;
+}
+
 std::ostream& operator<<(std::ostream& o,Digital_out a){
 	switch(a.type()){
 		case Digital_out::Type::INPUT:
@@ -372,6 +376,13 @@ Maybe<Joystick_data> Joystick_data::parse(string const& s){
 	#endif
 }
 
+bool operator<(Joystick_data a,Joystick_data b){
+	#define X(NAME) if(a.NAME<b.NAME) return 1; if(b.NAME<a.NAME) return 0;
+	X(axis) X(button) X(pov)
+	#undef X
+	return 0;
+}
+
 bool operator==(Joystick_data a,Joystick_data b){
 	for(unsigned i=0;i<JOY_AXES;i++){
 		if(a.axis[i]!=b.axis[i]){
@@ -407,6 +418,13 @@ ostream& operator<<(ostream& o,Joystick_data a){
 }
 
 Robot_mode::Robot_mode():autonomous(0),enabled(0){}
+
+bool operator<(Robot_mode a,Robot_mode b){
+	#define X(NAME) if(a.NAME<b.NAME) return 1; if(b.NAME<a.NAME) return 0;
+	X(autonomous) X(enabled)
+	#undef X
+	return 0;
+}
 
 bool operator==(Robot_mode a,Robot_mode b){
 	return a.autonomous==b.autonomous && a.enabled==b.enabled;
@@ -476,6 +494,13 @@ Digital_inputs::Digital_inputs(){
 	}
 }
 
+bool operator<(Digital_inputs const& a,Digital_inputs const& b){
+	#define X(NAME) if(a.NAME<b.NAME) return 1; if(b.NAME<a.NAME) return 0;
+	X(in) X(encoder)
+	#undef X
+	return 0;
+}
+
 bool operator==(Digital_inputs const& a,Digital_inputs const& b){
 	return a.in==b.in && a.encoder==b.encoder;
 }
@@ -534,6 +559,23 @@ bool operator==(Robot_inputs a,Robot_inputs b){
 
 bool operator!=(Robot_inputs a,Robot_inputs b){
 	return !(a==b);
+}
+
+bool operator<(Robot_inputs a,Robot_inputs b){
+	#define X(NAME) if(a.NAME<b.NAME) return 1; if(b.NAME<a.NAME) return 0;
+	X(robot_mode)
+	X(now)
+	X(joystick)
+	X(digital_io)
+	X(analog)
+	X(talon_srx)
+	//X(jaguar) 
+	X(driver_station)
+	X(orientation)
+	X(current)
+	X(pump)
+	#undef X
+	return 0;
 }
 
 ostream& operator<<(ostream& o,Robot_inputs a){

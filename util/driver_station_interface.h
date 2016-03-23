@@ -29,6 +29,7 @@ struct Driver_station_input{
 	static Maybe<Driver_station_input> parse(std::string const&);
 	static Driver_station_input rand();
 };
+bool operator<(Driver_station_input,Driver_station_input);
 bool operator==(Driver_station_input,Driver_station_input);
 bool operator!=(Driver_station_input,Driver_station_input);
 std::ostream& operator<<(std::ostream&,Driver_station_input);

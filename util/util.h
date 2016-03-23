@@ -115,4 +115,13 @@ T example(T* t){
 	return *begin(e);
 }
 
+template<size_t LEN>
+bool operator<(std::bitset<LEN> a,std::bitset<LEN> b){
+	for(size_t i=0;i<LEN;i++){
+		if(a[i]<b[i]) return 1;
+		if(b[i]<a[i]) return 0;
+	}
+	return 0;
+}
+
 #endif

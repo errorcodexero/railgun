@@ -48,18 +48,15 @@ Driver_station_input Driver_station_input::rand(){
 	return r;
 }
 
+bool operator<(Driver_station_input a,Driver_station_input b){
+	#define X(NAME) if(a.NAME<b.NAME) return 1; if(b.NAME<a.NAME) return 0;
+	X(analog) X(digital)
+	#undef X
+	return 0;
+}
+
 bool operator==(Driver_station_input a,Driver_station_input b){
-	for(unsigned i=0;i<Driver_station_input::ANALOG_INPUTS;i++){
-		if(a.analog[i]!=b.analog[i]){
-			return 0;
-		}
-	}
-	for(unsigned i=0;i<Driver_station_input::DIGITAL_INPUTS;i++){
-		if(a.digital[i]!=b.digital[i]){
-			return 0;
-		}
-	}
-	return 1;
+	return a.analog==b.analog && a.digital==b.digital;
 }
 
 bool operator!=(Driver_station_input a,Driver_station_input b){

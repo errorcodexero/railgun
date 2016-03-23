@@ -33,8 +33,18 @@ struct Checked_array{
 };
 
 template<typename T,size_t LEN>
+bool operator<(Checked_array<T,LEN> const& a,Checked_array<T,LEN> const& b){
+	return a.inner<b.inner;
+}
+
+template<typename T,size_t LEN>
 bool operator==(Checked_array<T,LEN> const& a,Checked_array<T,LEN> const& b){
 	return a.inner==b.inner;
+}
+
+template<typename T,size_t LEN>
+bool operator!=(Checked_array<T,LEN> const& a,Checked_array<T,LEN> const& b){
+	return !(a==b);
 }
 
 template<typename T,size_t LEN>
