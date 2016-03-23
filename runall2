@@ -129,7 +129,7 @@ if __name__=='__main__':
 		func=makefile
 		func(open('t.mk','w'))
 		#r=os.system('make -f t.mk && make -f t.mk clean')
-		r=os.system('make -f t.mk')
+		r=os.system('make -f t.mk 2>&1')
 		assert r&0xff==0
 		return r>>8
 

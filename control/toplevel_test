@@ -21,4 +21,5 @@ g++ -Wall -Werror -std=c++0x -DTOPLEVEL_TEST \
 	tote_sensors.cpp\
 	tilt.cpp\
 	winch.cpp\
+	collector.cpp\
 	-o toplevel 2>&1 && ./toplevel 2>&1

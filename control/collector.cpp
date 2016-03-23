@@ -1,7 +1,5 @@
 #include "collector.h"
 
-#ifdef COLLECTOR_TEST
-#include "formal.h"
 #define nyi { cout<<"nyi "<<__LINE__<<"\n"; exit(44); }
 
 ostream& operator<<(ostream& o,Collector const&){
@@ -63,6 +61,14 @@ Collector::Input Collector::Input_reader::operator()(Robot_inputs const& a)const
 	};
 }
 
+bool operator==(Collector const&,Collector const&){
+	return 1;
+}
+
+bool operator!=(Collector const& a,Collector const& b){
+	return !(a==b);
+}
+
 bool operator<(Collector::Output a,Collector::Output b){
 	#define X(A,B) if(a.B<b.B) return 1; if(b.B<a.B) return 0;
 	COLLECTOR_ITEMS(X)
@@ -84,6 +90,21 @@ bool operator==(Collector::Status a,Collector::Status b){
 	COLLECTOR_ITEMS(X)
 	#undef X
 	return 1;
+}
+
+bool operator!=(Collector::Status a,Collector::Status b){
+	return !(a==b);
+}
+
+bool operator==(Collector::Estimator a,Collector::Estimator b){
+	#define X(A,B) if(a.B!=b.B) return 0;
+	COLLECTOR_ITEMS(X)
+	#undef X
+	return 1;
+}
+
+bool operator!=(Collector::Estimator a,Collector::Estimator b){
+	return !(a==b);
 }
 
 bool operator==(Collector::Output a,Collector::Output b){
@@ -113,6 +134,17 @@ bool operator<(Collector::Status a,Collector::Status b){
 	COLLECTOR_ITEMS(X)
 	#undef X
 	return 0;
+}
+
+bool operator==(Collector::Status_detail a,Collector::Status_detail b){
+	#define X(A,B) if(a.B!=b.B) return 0;	
+	COLLECTOR_ITEMS(X)
+	#undef X
+	return 1;
+}
+
+bool operator!=(Collector::Status_detail a,Collector::Status_detail b){
+	return !(a==b);
 }
 
 bool operator<(Collector::Status_detail a,Collector::Status_detail b){
@@ -248,6 +280,8 @@ bool ready(Collector::Status const& st,Collector::Goal const& goal){
 	return 1;
 }
 
+#ifdef COLLECTOR_TEST
+#include "formal.h"
 int main(){
 	Tester_mode mode;
 	mode.check_outputs_exhaustive=0;

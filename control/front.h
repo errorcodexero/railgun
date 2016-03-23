@@ -12,6 +12,9 @@ struct Front{
 	
 	struct Input{
 		bool ball;
+
+		Input();
+		explicit Input(bool);
 	};
 	
 	typedef Input Status_detail;

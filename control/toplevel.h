@@ -4,18 +4,18 @@
 #include<vector>
 #include "pump.h"
 #include "drivebase.h"
-#include "tilt.h"
-#include "sides.h"
-#include "front.h"
 #include "climb_release.h"
 #include "winch.h"
+#include "collector.h"
+
+/*	X(Tilt,tilt,Tilt::Goal::stop())\
+	X(Sides,sides,Sides::Goal::OFF)\
+	X(Front,front,Front::Goal::OFF) \*/
 
 #define TOPLEVEL_ITEMS\
 	X(Drivebase,drive,)\
 	X(Pump,pump,Pump::Goal::AUTO)\
-	X(Tilt,tilt,Tilt::Goal::stop())\
-	X(Sides,sides,Sides::Goal::OFF)\
-	X(Front,front,Front::Goal::OFF) \
+	X(Collector,collector,)\
 	X(Climb_release,climb_release,Climb_release::Goal::STOP)\
 	X(Winch,winch,Winch::Goal::STOP)
 

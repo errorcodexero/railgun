@@ -136,9 +136,10 @@ Toplevel::Status::Status():
 		0
 	),
 	pump(Pump::Status::NOT_FULL),
-	tilt(0),
+	/*tilt(0),
 	sides(Sides::Status{}),
-	front(Front::Status{0}),
+	front(Front::Status{0}),*/
+	collector(),
 	climb_release(Climb_release::Status::UNKNOWN)
 {}
 
@@ -309,11 +310,9 @@ set<Toplevel::Status_detail> examples(Toplevel::Status_detail*){
 	return {Toplevel::Status_detail{
 		*examples((Drivebase::Status_detail*)0).begin(),
 		Pump::Status_detail{},
-		*examples((Tilt::Status_detail*)0).begin(),
-		*examples((Sides::Status_detail*)0).begin(),
-		*examples((Front::Status_detail*)0).begin(),
+		example((Collector::Status_detail*)0),
 		*examples((Climb_release::Status_detail*)0).begin(),
-                *examples((Winch::Status_detail*)0).begin()
+		*examples((Winch::Status_detail*)0).begin()
 	}};
 }
 
@@ -329,9 +328,7 @@ set<Toplevel::Input> examples(Toplevel::Input*){
 	Toplevel::Input a{
 		*examples((Drivebase::Input*)0).begin(),
 		Pump::Input{},
-		*examples((Tilt::Input*)0).begin(),
-		Sides::Input{},
-		Front::Input{0},
+		example((Collector::Input*)0),
 		Climb_release::Input{0},
 		Winch::Input{}
 	};

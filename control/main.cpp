@@ -175,14 +175,14 @@ Toplevel::Goal Main::teleop(
 		}();
 	}
 	
-	bool ball=toplevel_status.front.ball;
+	bool ball=toplevel_status.collector.front.ball;
 	
 	controller_auto.update(gunner_joystick.button[Gamepad_button::START]);
 
 	if(gunner_joystick.button[Gamepad_button::BACK] || main_joystick.button[Gamepad_button::BACK]){//Override sets all collector goals to off
-		goals.tilt=Tilt::Goal::stop();
-		goals.sides=Sides::Goal::OFF;
-		goals.front=Front::Goal::OFF;
+		goals.collector.tilt=Tilt::Goal::stop();
+		goals.collector.sides=Sides::Goal::OFF;
+		goals.collector.front=Front::Goal::OFF;
 		collector_mode=Collector_mode::NOTHING;
 	}
 	bool learning=get_learning();
@@ -216,52 +216,52 @@ Toplevel::Goal Main::teleop(
 		if(SLOW_PRINT)cout<<"collector_mode: "<<collector_mode<<"\n";
 		switch(collector_mode){
 			case Collector_mode::COLLECT:
-				goals.front=Front::Goal::IN;
-				goals.sides=Sides::Goal::IN;
-				goals.tilt=level;
+				goals.collector.front=Front::Goal::IN;
+				goals.collector.sides=Sides::Goal::IN;
+				goals.collector.tilt=level;
 				if(ball) collector_mode=Collector_mode::STOW;
 				break;
 			case Collector_mode::STOW:
-				goals.front=Front::Goal::OFF;
-				goals.sides=Sides::Goal::OFF;
-				goals.tilt=top;
+				goals.collector.front=Front::Goal::OFF;
+				goals.collector.sides=Sides::Goal::OFF;
+				goals.collector.tilt=top;
 				break;
 			case Collector_mode::REFLECT:
-				goals.front=Front::Goal::OFF;
-				goals.sides=Sides::Goal::OUT;
-				goals.tilt=level;
+				goals.collector.front=Front::Goal::OFF;
+				goals.collector.sides=Sides::Goal::OUT;
+				goals.collector.tilt=level;
 				break;
 			case Collector_mode::EJECT:
-				goals.front=Front::Goal::OUT;
-				goals.sides=Sides::Goal::IN;
-				goals.tilt=level;
+				goals.collector.front=Front::Goal::OUT;
+				goals.collector.sides=Sides::Goal::IN;
+				goals.collector.tilt=level;
 				break;
 			case Collector_mode::SHOOT:
-				goals.front=Front::Goal::OUT;
-				goals.sides=Sides::Goal::OFF;
-				goals.tilt=top;
+				goals.collector.front=Front::Goal::OUT;
+				goals.collector.sides=Sides::Goal::OFF;
+				goals.collector.tilt=top;
 				shoot_timer.update(in.now, enabled);
 				if (shoot_timer.done()) collector_mode = Collector_mode::STOW;
 				break;
 			case Collector_mode::LOW:
-				goals.front=Front::Goal::OFF;
-				goals.sides=Sides::Goal::OFF;
-				goals.tilt=low;
+				goals.collector.front=Front::Goal::OFF;
+				goals.collector.sides=Sides::Goal::OFF;
+				goals.collector.tilt=low;
 				break;
 			case Collector_mode::NOTHING:
-				goals.front=Front::Goal::OFF;
-				goals.sides=Sides::Goal::OFF;
-				goals.tilt=Tilt::Goal::stop();
+				goals.collector.front=Front::Goal::OFF;
+				goals.collector.sides=Sides::Goal::OFF;
+				goals.collector.tilt=Tilt::Goal::stop();
 				break;
 			case Collector_mode::CHEVAL:
 				{
 					const double AUTO_POWER=-.5;
-					goals.front=Front::Goal::OFF;
-					goals.sides=Sides::Goal::OFF;
+					goals.collector.front=Front::Goal::OFF;
+					goals.collector.sides=Sides::Goal::OFF;
 					switch(cheval_step) {
 						case Cheval_steps::GO_DOWN: 
-							goals.tilt=cheval;
-							if(ready(status(toplevel_status.tilt),goals.tilt)) cheval_step=Cheval_steps::DRIVE;
+							goals.collector.tilt=cheval;
+							if(ready(status(toplevel_status.collector.tilt),goals.collector.tilt)) cheval_step=Cheval_steps::DRIVE;
 							break;
 						case Cheval_steps::DRIVE:
 							goals.drive.right=AUTO_POWER;
@@ -272,7 +272,7 @@ Toplevel::Goal Main::teleop(
 						case Cheval_steps::DRIVE_AND_STOW:
 							goals.drive.right=AUTO_POWER;
 							goals.drive.left=AUTO_POWER;
-							goals.tilt=top;
+							goals.collector.tilt=top;
 							cheval_drive_timer.update(in.now,enabled);
 							if (cheval_drive_timer.done()) collector_mode=Collector_mode::STOW;
 							break;
@@ -284,9 +284,9 @@ Toplevel::Goal Main::teleop(
 			case Collector_mode::PORTCULLIS:
 				{
 					portcullis_timer.update(in.now,enabled);
-					goals.front=Front::Goal::OFF;
-					goals.sides=Sides::Goal::OFF;
-					goals.tilt=portcullis;
+					goals.collector.front=Front::Goal::OFF;
+					goals.collector.sides=Sides::Goal::OFF;
+					goals.collector.tilt=portcullis;
 					const double AUTO_POWER=-.5;
 					goals.drive.right=AUTO_POWER;
 					goals.drive.left=AUTO_POWER;
@@ -298,18 +298,18 @@ Toplevel::Goal Main::teleop(
 	}
 	
 	if (!panel.in_use && !controller_auto.get()) {//Manual joystick controls 
-		goals.front=[&]{
+		goals.collector.front=[&]{
 			const double LIMIT=.5; 
 			if(gunner_joystick.axis[Gamepad_axis::LTRIGGER]>LIMIT) return Front::Goal::OUT;
 			if(gunner_joystick.axis[Gamepad_axis::RTRIGGER]>LIMIT) return Front::Goal::IN;
 			return Front::Goal::OFF;
 		}();
-		goals.sides=[&]{
+		goals.collector.sides=[&]{
 			if(gunner_joystick.button[Gamepad_button::RB]) return Sides::Goal::IN;
 			if(gunner_joystick.button[Gamepad_button::LB]) return Sides::Goal::OUT;
 			return Sides::Goal::OFF;
 		}();
-		goals.tilt=[&]{
+		goals.collector.tilt=[&]{
 			{
 				Joystick_section tilt_control = joystick_section(gunner_joystick.axis[Gamepad_axis::RIGHTX],gunner_joystick.axis[Gamepad_axis::RIGHTY]);
 				#define X(NAME,SECTION) bool NAME=tilt_control==Joystick_section::SECTION;
@@ -318,7 +318,7 @@ Toplevel::Goal Main::teleop(
 				if(low_b) joy_collector_pos = Joy_collector_pos::LOW;
 				else if(level_b) joy_collector_pos = Joy_collector_pos::LEVEL;
 				if(gunner_joystick.button[Gamepad_button::B]){//learn
-					double learn_this=toplevel_status.tilt.angle;
+					double learn_this=toplevel_status.collector.tilt.angle;
 					switch(joy_collector_pos){
 						case Joy_collector_pos::LOW:
 							tilt_presets.low=learn_this;
@@ -353,7 +353,7 @@ Toplevel::Goal Main::teleop(
 		//goals.tilt.percent_power=panel.speed_dial;
 		learn.update(panel.learn);
 		if(learn.get()){//learn
-			double learn_this=toplevel_status.tilt.angle;
+			double learn_this=toplevel_status.collector.tilt.angle;
 			bool done=false;
 			if(panel.collect || panel.eject){
 				tilt_presets.level=learn_this;
@@ -383,20 +383,20 @@ Toplevel::Goal Main::teleop(
 			}
 		}
 		if (!panel.front_auto) {
-			#define X(name) if(panel.front==Panel::Collector::name) goals.front = Front::Goal::name;
+			#define X(name) if(panel.front==Panel::Collector::name) goals.collector.front = Front::Goal::name;
 			X(IN) X(OUT) X(OFF)
 			#undef X
 		}
 		if (!panel.sides_auto) {
-			#define X(name) if(panel.sides==Panel::Collector::name) goals.sides = Sides::Goal::name;
+			#define X(name) if(panel.sides==Panel::Collector::name) goals.collector.sides = Sides::Goal::name;
 			X(IN) X(OFF) X(OUT)
 			#undef X
 		}
 		if (!panel.tilt_auto) {
-			goals.tilt=[&]{
+			goals.collector.tilt=[&]{
 				if (panel.collector_up) return Tilt::Goal::up();
 				if (panel.collector_down) return Tilt::Goal::down();
-				return goals.tilt=Tilt::Goal::stop();
+				return goals.collector.tilt=Tilt::Goal::stop();
 			}();
 		}
 	}
@@ -658,14 +658,14 @@ Robot_outputs Main::operator()(Robot_inputs in,ostream&){
 			goals.drive.right=.10;
 			break;
 		case Mode::AUTO_PORTCULLIS:
-			goals.tilt=low;
-			if(ready(toplevel_status.tilt.angle,goals.tilt=low)){
-			goals.drive.left=-.75;
-			goals.drive.right=-.75;
+			goals.collector.tilt=low;
+			if(ready(toplevel_status.collector.tilt.angle,goals.collector.tilt=low)){
+				goals.drive.left=-.75;
+				goals.drive.right=-.75;
 			}
 			break;
 		case Mode::AUTO_PORTCULLIS_DONE:
-			goals.tilt=top;
+			goals.collector.tilt=top;
 			break;
 		case Mode::AUTO_CHEVAL:
 			goals.drive.left=-.45;

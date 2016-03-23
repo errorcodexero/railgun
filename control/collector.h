@@ -70,13 +70,20 @@ struct Collector{
 	Output_applicator output_applicator;
 };
 
+bool operator!=(Collector const&,Collector const&);
 bool operator==(Collector::Input,Collector::Input);
+bool operator!=(Collector::Input,Collector::Input);
+bool operator<(Collector::Input,Collector::Input);
 bool operator<(Collector::Output,Collector::Output);
 bool operator==(Collector::Output,Collector::Output);
 bool operator!=(Collector::Output,Collector::Output);
+bool operator<(Collector::Goal,Collector::Goal);
 bool operator<(Collector::Status,Collector::Status);
 bool operator==(Collector::Status,Collector::Status);
+bool operator!=(Collector::Status,Collector::Status);
 bool operator<(Collector::Status_detail,Collector::Status_detail);
+bool operator!=(Collector::Status_detail,Collector::Status_detail);
+bool operator!=(Collector::Estimator,Collector::Estimator);
 
 std::ostream& operator<<(std::ostream&,Collector::Input const&);
 std::ostream& operator<<(std::ostream&,Collector::Output const&);
@@ -87,5 +94,9 @@ std::ostream& operator<<(std::ostream&,Collector const&);
 
 Collector::Status status(Collector::Status_detail const&);
 Collector::Output control(Collector::Status_detail const&,Collector::Goal const&);
+bool ready(Collector::Status const&,Collector::Goal const&);
+
+std::set<Collector::Input> examples(Collector::Input*);
+std::set<Collector::Status_detail> examples(Collector::Status_detail*);
 
 #endif

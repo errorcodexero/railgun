@@ -149,6 +149,11 @@ void visit(Func f,Robot_outputs const& r){
 }
 
 template<typename Func>
+void visit(Func f,Collector::Status_detail const& r){
+	COLLECTOR_ITEMS(VISIT_2ND)
+}
+
+template<typename Func>
 void visit(Func f,Toplevel::Status_detail const& a){
 	#define X(A,B,C) f(""#B,a.B);
 	TOPLEVEL_ITEMS

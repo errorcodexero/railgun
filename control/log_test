@@ -13,4 +13,5 @@ g++ -Wall -std=c++11 -DLOG_TEST \
 	front.cpp\
 	motor_check.cpp\
 	../util/countdown_timer.cpp\
+	collector.cpp\
 	-o log 2>&1 && ./log

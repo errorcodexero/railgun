@@ -23,12 +23,12 @@ struct Tilt{
 		#undef X
 	
 		private:
-		Goal();
-
 		Mode mode_;
 		double angle_min,angle_target,angle_max;//in degrees from top
 		
 		public:
+		Goal();
+
 		float percent_power;
 		Mode mode()const;
 		std::array<double,3> angle()const;

@@ -7,6 +7,10 @@ using namespace std;
 #define FRONT_ADDRESS 2
 #define FRONT_SPEED 1
 
+Front::Input::Input():ball(0){}
+
+Front::Input::Input(bool b):ball(b){}
+
 ostream& operator<<(ostream& o, Front::Goal a){
 	#define X(name) if(a==Front::Goal::name)return o<<"Front::Goal("#name")";
 	X(IN) X(OUT) X(OFF)
@@ -35,7 +39,7 @@ bool operator!=(Front a, Front b){ return !(a==b);}
 static const unsigned BALL_SENSOR_DIO=6;
 
 Front::Input Front::Input_reader::operator()(Robot_inputs a)const{
-	return {a.digital_io.in[BALL_SENSOR_DIO]==Digital_in::_0};
+	return Front::Input{a.digital_io.in[BALL_SENSOR_DIO]==Digital_in::_0};
 }
 
 Robot_inputs Front::Input_reader::operator()(Robot_inputs a, Front::Input b)const{
@@ -81,7 +85,7 @@ Front::Output Front::Output_applicator::operator()(Robot_outputs r)const{
 }
 	
 set<Front::Input> examples(Front::Input*){
-	return {{0},{1}};
+	return {Front::Input{0},Front::Input{1}};
 }
 
 set<Front::Goal> examples(Front::Goal*){ 
