@@ -12,7 +12,7 @@ string get_logfilename(){
 	int i=0;
 	auto name=[&](){
 		stringstream ss;
-		ss<<"/home/lvuser/log_"<<i<<".txt";
+		ss<<"/media/sda1/log_"<<i<<".txt";
 		return ss.str();
 	};
 	while(file_exists(name())){
