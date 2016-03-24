@@ -276,7 +276,8 @@ Toplevel::Goal Main::teleop(
 			default: assert(0);
 		}
 	}
-	
+	if(main_joystick.button[Gamepad_button::RB]) goals.shooter=Shooter::Goal::GROUND_SHOT;
+	else goals.shooter=Shooter::Goal::STOP;
 	if (!panel.in_use && !controller_auto.get()) {//Manual joystick controls 
 		goals.collector.front=[&]{
 			const double LIMIT=.5; 

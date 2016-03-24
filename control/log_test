@@ -5,6 +5,7 @@ g++ -Wall -std=c++11 -DLOG_TEST \
 	../util/util.cpp\
 	toplevel.cpp\
 	drivebase.cpp\
+	shooter.cpp\	
 	sides.cpp\
 	pump.cpp\
 	tilt.cpp\

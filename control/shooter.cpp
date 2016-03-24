@@ -16,13 +16,14 @@ std::ostream& operator<<(std::ostream& o,Shooter::Goal goal){
 }
 std::ostream& operator<<(std::ostream& o,Shooter::Input a){ return o<<"Shooter::Input( speed:"<<a.speed<<" beam:"<<a.beam<<")"; }
 std::ostream& operator<<(std::ostream& o,Shooter::Status_detail a){ return o<<"Shooter::Status_detail( speed:"<<a.speed<<")"; }
-std::ostream& operator<<(std::ostream& o,Shooter::Output output){
-	#define X(name) if(output==Shooter::Output::name) return o<<"Shooter::Output("#name")";
+std::ostream& operator<<(std::ostream& o,Shooter){ return o<<"Shooter()"; }
+
+std::ostream& operator<<(std::ostream& o,Shooter::Output out){
+	#define X(NAME) if(out==Shooter::Output::NAME) return o<<"Shooter::Output("#NAME")";
 	SHOOTER_OUTPUTS
 	#undef X
 	assert(0);
 }
-std::ostream& operator<<(std::ostream& o,Shooter){ return o<<"Shooter()"; }
 
 bool operator==(Shooter::Input a,Shooter::Input b){ return a.speed==b.speed && a.beam==b.beam; }
 bool operator!=(Shooter::Input a,Shooter::Input b){ return !(a==b); }

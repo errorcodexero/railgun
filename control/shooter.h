@@ -60,6 +60,7 @@ std::ostream& operator<<(std::ostream&,Shooter::Goal);
 std::ostream& operator<<(std::ostream&,Shooter::Input);
 std::ostream& operator<<(std::ostream&,Shooter::Status_detail);
 std::ostream& operator<<(std::ostream&,Shooter);
+std::ostream& operator<<(std::ostream&,Shooter::Output);
 
 bool operator==(Shooter::Input,Shooter::Input);
 bool operator!=(Shooter::Input,Shooter::Input);

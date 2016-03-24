@@ -236,6 +236,11 @@ void visit(Func f,Sides::Input const& a){
 	f.terminal(a);
 }
 
+template<typename Func>
+void visit(Func f,Shooter::Status_detail const& a){
+	f.terminal(a);
+}
+
 struct Header{
 	ostream& o;
 	string name;

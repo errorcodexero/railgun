@@ -312,7 +312,8 @@ set<Toplevel::Status_detail> examples(Toplevel::Status_detail*){
 		Pump::Status_detail{},
 		example((Collector::Status_detail*)0),
 		*examples((Climb_release::Status_detail*)0).begin(),
-		*examples((Winch::Status_detail*)0).begin()
+		*examples((Winch::Status_detail*)0).begin(),
+		*examples((Shooter::Status_detail*)0).begin()
 	}};
 }
 
@@ -330,7 +331,8 @@ set<Toplevel::Input> examples(Toplevel::Input*){
 		Pump::Input{},
 		example((Collector::Input*)0),
 		example((Climb_release::Input*)0),
-		Winch::Input{}
+		Winch::Input{},
+		example((Shooter::Input*)0)
 	};
 	return {a};
 }

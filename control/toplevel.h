@@ -7,6 +7,7 @@
 #include "climb_release.h"
 #include "winch.h"
 #include "collector.h"
+#include "shooter.h"
 
 /*	X(Tilt,tilt,Tilt::Goal::stop())\
 	X(Sides,sides,Sides::Goal::OFF)\
@@ -17,7 +18,8 @@
 	X(Pump,pump,Pump::Goal::AUTO)\
 	X(Collector,collector,)\
 	X(Climb_release,climb_release,Climb_release::Goal::STOP)\
-	X(Winch,winch,Winch::Goal::STOP)
+	X(Winch,winch,Winch::Goal::STOP) \
+	X(Shooter,shooter,Shooter::Goal::STOP)
 
 class Toplevel{
 	public:
