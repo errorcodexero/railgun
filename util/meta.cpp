@@ -283,7 +283,7 @@ int main(){
 
 	IO io{Robot_output{Pwm{0}}};
 	cout<<io<<"\n";
-	#define X(NAME) cout<<""#NAME<<" ios:"<<find_ios(NAME{})<<"\n";
+	#define X(NAME) { NAME x; cout<<""#NAME<<" ios:"<<find_ios(x)<<"\n"; }
 	X(Front) X(Tilt)
 	#undef X
 }
