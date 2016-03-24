@@ -6,6 +6,10 @@
 
 using namespace std;
 
+Nav2::Nav2::aturn::aturn():l(0),r(0),dur(0){}
+
+Nav2::Nav2::aturn::aturn(float a,float b,float c):l(a),r(b),dur(c){}
+
 vector<Nav2::NavS> Nav2::loadnav(navloadinput navin){
 
 	const string MYFILE="/home/lvuser/navlogs/navlog.txt";

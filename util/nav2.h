@@ -25,6 +25,8 @@ struct Nav2{
 		float l;
 		float r;
 		float dur;
+		aturn();
+		aturn(float,float,float);
 	};
 
 	int stepcounter;
