@@ -329,7 +329,7 @@ set<Toplevel::Input> examples(Toplevel::Input*){
 		*examples((Drivebase::Input*)0).begin(),
 		Pump::Input{},
 		example((Collector::Input*)0),
-		Climb_release::Input{0},
+		example((Climb_release::Input*)0),
 		Winch::Input{}
 	};
 	return {a};

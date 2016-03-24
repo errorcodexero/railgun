@@ -123,6 +123,8 @@ s1.pttwo.y=135;
 	
 	Aturn={0,0,0};
 	
+	navindex=0;
+
 	stepcounter = 1;
 }
 
