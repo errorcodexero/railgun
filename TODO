@@ -4,13 +4,16 @@
 	
 
 HIGH PRIORITY for Auburn:
-	- Connectivity test
+	- Connectivity debugging
 	- Autonomous* - Tristan
 		- Drive Encoders
 		- Testing on carpet field with measurements
 		- Complete all modes, ready for testing 
 	- Shooter code
-	- Logging - Jacob
+		- Beam sensor
+		- Implementation in main
+		- Update collector modes to manage it as well: keep ball from entering shooter until it has spun up to speed
+	- Logging
 	- Turn off windows updates on all machines	
 
 
