@@ -6,6 +6,7 @@
 HIGH PRIORITY for Auburn:
 	- Connectivity debugging
 	- Autonomous* - Tristan
+		- Auto_nav_run results in seg fault
 		- Drive Encoders
 		- Testing on carpet field with measurements
 		- Complete all modes, ready for testing 

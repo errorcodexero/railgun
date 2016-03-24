@@ -426,10 +426,9 @@ Main::Mode next_mode(Main::Mode m,bool autonomous,bool autonomous_start,Toplevel
 							return Main::Mode::AUTO_PORTCULLIS;
 						default: assert(0);
 					}
-				} else {
-					return Main::Mode::AUTO_NULL; //during testing put the mode you want to test without the driverstation.
 				}
-				return Main::Mode::TELEOP;
+				return Main::Mode::AUTO_NULL; //during testing put the mode you want to test without the driverstation.
+				//return Main::Mode::TELEOP;
 			}
 			return m;
 
@@ -469,8 +468,7 @@ Main::Mode next_mode(Main::Mode m,bool autonomous,bool autonomous_start,Toplevel
 
 		case Main::Mode::AUTO_SCORE:
 			if(!autonomous) return Main::Mode::TELEOP;
-			if(since_switch>1) 
-				return Main::Mode::AUTO_NAV;
+			if(since_switch>1) return Main::Mode::AUTO_NAV;
 			return Main::Mode::AUTO_MOVE;
  
 		case Main::Mode::AUTO_REACH:
@@ -512,8 +510,7 @@ Main::Mode next_mode(Main::Mode m,bool autonomous,bool autonomous_start,Toplevel
 	
 		default: assert(0);
 	}
-	return m;
-	
+	return m;	
 }
 
 Robot_outputs Main::operator()(Robot_inputs in,ostream&){
@@ -738,7 +735,6 @@ void test_preset_rw(){
 void test_teleop(){
 	Main m;
 	m.mode=Main::Mode::TELEOP;
-	cout<<"\nTest mode: "<<m.mode<<endl<<endl;
 	
 	Robot_inputs in;
 	in.now=0;
@@ -752,6 +748,8 @@ void test_teleop(){
 
 	const Time RUN_TIME=5;//in seconds
 	int print_count=0;
+	
+	const Time INCREMENT=.01;
 	
 	while(in.now<=RUN_TIME){	
 		static const Time PUSH_CHEVAL=1,RELEASE_CHEVAL=1.5,ARRIVE_AT_CHEVAL_GOAL=3;
@@ -770,7 +768,7 @@ void test_teleop(){
 			cout<<"    Left Wheels: "<<out.pwm[0]<<"    Right Wheels: "<<out.pwm[1]<<"\n";
 		}
 		
-		in.now+=.01;
+		in.now+=INCREMENT;
 		print_count++;
 	}
 }
@@ -787,7 +785,7 @@ void update_pos(Pt &current_pos, Robot_outputs out, const Time INCREMENT){
 		if (fabs(y_diff) < .000001) y_diff = 0;
 		//cout<<"\nx:"<<cos(current_pos.theta)<<"   y:"<<sin(current_pos.theta)<<"    x:"<<x_diff<<"    y:"<<y_diff<<"    t:"<<theta_diff<<"\n";
 	} else {
-		theta_diff = RAD_PER_SEC * INCREMENT * out.pwm[0];
+		theta_diff = RAD_PER_SEC * INCREMENT * out.pwm[0];//assuming robot is either driving straight or turning in place
 	}
 	current_pos+={x_diff,y_diff,theta_diff};
 }
@@ -796,7 +794,6 @@ void test_autonomous(Main::Mode mode){
 	Main m;
 	if(mode==Main::Mode::AUTO_NAV_RUN) mode=Main::Mode::AUTO_NULL;
 	m.mode=mode;
-	cout<<"\nTest mode: "<<m.mode<<"\n\n";
 	
 	Robot_inputs in;
 	in.now=0;
@@ -824,10 +821,16 @@ void test_autonomous(Main::Mode mode){
 }
 
 void test_modes(){
-	#define X(MODE) if(Main::Mode::MODE==Main::Mode::TELEOP) test_teleop(); \
-	else test_autonomous(Main::Mode::MODE);
-	MODES
-	#undef X
+	const vector<Main::Mode> MODE_LIST{
+		#define X(NAME) Main::Mode::NAME,
+		MODES
+		#undef X
+	};
+	for(Main::Mode mode:MODE_LIST){
+		cout<<"\nTest mode: "<<mode<<"\n\n"; 
+		if(mode==Main::Mode::TELEOP) test_teleop();
+		else test_autonomous(mode);
+	}
 }
 
 void test_next_mode(){
