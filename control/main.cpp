@@ -194,17 +194,17 @@ Toplevel::Goal Main::teleop(
 			collector_mode=Collector_mode::SHOOT;
 			const Time TIME_TO_SHOOT=.7;
 			shoot_timer.set(TIME_TO_SHOOT);
-		}else if((gunner_pov==POV_section::UP && !joy_learn) || (panel.in_use && panel.collector_pos==Panel::Collector_pos::STOW && !learning)) collector_mode = Collector_mode::STOW;
+		} else if((gunner_pov==POV_section::UP && !joy_learn) || (panel.in_use && panel.collector_pos==Panel::Collector_pos::STOW && !learning)) collector_mode = Collector_mode::STOW;
 		else if((gunner_pov==POV_section::RIGHT && !joy_learn) || (panel.in_use && panel.cheval && !learning)) {
 			collector_mode = Collector_mode::CHEVAL;
 			cheval_lift_timer.set(.45);
 			cheval_drive_timer.set(2);
 			cheval_step = Cheval_steps::GO_DOWN;
-		}else if((gunner_pov==POV_section::LEFT && !joy_learn) || (panel.in_use && panel.portcullis && !learning)){
+		} else if((gunner_pov==POV_section::LEFT && !joy_learn) || (panel.in_use && panel.portcullis && !learning)){
 			collector_mode = Collector_mode::PORTCULLIS;
 			const Time TIME_UNTIL_OVER=1;
 			portcullis_timer.set(TIME_UNTIL_OVER);	
-		}else if((gunner_joystick.button[Gamepad_button::Y] && !joy_learn) || (panel.in_use && panel.eject && !learning)) collector_mode=Collector_mode::EJECT;
+		} else if((gunner_joystick.button[Gamepad_button::Y] && !joy_learn) || (panel.in_use && panel.eject && !learning)) collector_mode=Collector_mode::EJECT;
 		else if((main_joystick.button[Gamepad_button::START] && !joy_learn) || (panel.in_use && panel.collect && !learning)) collector_mode=Collector_mode::COLLECT;
 		else if((gunner_joystick.button[Gamepad_button::A] && !joy_learn) || (panel.in_use && panel.collector_pos==Panel::Collector_pos::LOW && !learning)) collector_mode=Collector_mode::LOW;
 
@@ -308,8 +308,7 @@ Toplevel::Goal Main::teleop(
 							tilt_presets.level=learn_this;
 							write_tilt_presets(tilt_presets);
 							break;
-						default: break;
-						
+						default: break;	
 					}
 				} else {
 					Joy_collector_pos last = joy_collector_pos;
@@ -326,11 +325,9 @@ Toplevel::Goal Main::teleop(
 				default: assert(0);
 			}
 		}();	
-		//if(!panel.in_use) goals.tilt.percent_power=1.00;
 	}
 	learn_delay.update(in.now,enabled);
 	if (panel.in_use) {//Panel manual modes
-		//goals.tilt.percent_power=panel.speed_dial;
 		learn.update(panel.learn);
 		if(learn.get()){//learn
 			double learn_this=toplevel_status.collector.tilt.angle;

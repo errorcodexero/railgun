@@ -42,7 +42,7 @@ Tilt::Status_detail::Status_detail():top(0),angle(0){}
 
 Tilt::Status_detail::Status_detail(bool a,double b):top(a),angle(b){}
 
-Tilt::Goal::Goal():mode_(Tilt::Goal::Mode::STOP),angle_min(0),angle_target(0),angle_max(0),percent_power(1.00){}
+Tilt::Goal::Goal():mode_(Tilt::Goal::Mode::STOP),angle_min(0),angle_target(0),angle_max(0){}
 
 Robot_inputs Tilt::Input_reader::operator()(Robot_inputs r,Tilt::Input in)const{
 	r.analog[TILT_POT_LOC]=degrees_to_volts(in.angle);

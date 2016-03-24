@@ -29,7 +29,6 @@ struct Tilt{
 		public:
 		Goal();
 
-		float percent_power;
 		Mode mode()const;
 		std::array<double,3> angle()const;
 		
