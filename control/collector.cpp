@@ -285,7 +285,8 @@ bool ready(Collector::Status const& st,Collector::Goal const& goal){
 int main(){
 	Tester_mode mode;
 	mode.check_outputs_exhaustive=0;
-	tester(Collector{},mode);
+	Collector a;
+	tester(a,mode);
 	return 0;
 }
 #endif
