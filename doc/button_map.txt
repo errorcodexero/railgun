@@ -5,8 +5,8 @@ Driver:
  Y          - Forward nudge
  Start      - Collector auto up/down
  Back       - Stop collector
- RB         - Climber release out
- LB         - Climber release in
+ RB         - 
+ LB         - 
  RT         - Slow
  LT         - Turbo
  L_Joy:
