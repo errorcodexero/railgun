@@ -14,7 +14,7 @@ std::ostream& operator<<(std::ostream& o,Shooter::Goal goal){
 	#undef X
 	assert(0);
 }
-std::ostream& operator<<(std::ostream& o,Shooter::Input a){ return o<<"Shooter::Input( speed:"<<a.speed<<")"; }
+std::ostream& operator<<(std::ostream& o,Shooter::Input a){ return o<<"Shooter::Input( speed:"<<a.speed<<" beam:"<<a.beam<<")"; }
 std::ostream& operator<<(std::ostream& o,Shooter::Status_detail a){ return o<<"Shooter::Status_detail( speed:"<<a.speed<<")"; }
 std::ostream& operator<<(std::ostream& o,Shooter::Output output){
 	#define X(name) if(output==Shooter::Output::name) return o<<"Shooter::Output("#name")";
@@ -24,9 +24,13 @@ std::ostream& operator<<(std::ostream& o,Shooter::Output output){
 }
 std::ostream& operator<<(std::ostream& o,Shooter){ return o<<"Shooter()"; }
 
-bool operator==(Shooter::Input a,Shooter::Input b){ return a.speed==b.speed; }
+bool operator==(Shooter::Input a,Shooter::Input b){ return a.speed==b.speed && a.beam==b.beam; }
 bool operator!=(Shooter::Input a,Shooter::Input b){ return !(a==b); }
-bool operator<(Shooter::Input a,Shooter::Input b){ return a.speed < b.speed; } 
+bool operator<(Shooter::Input a,Shooter::Input b){
+	if(a.speed<b.speed) return true;
+	if(b.speed<a.speed) return true;
+	return a.beam && !b.beam;
+} 
 
 bool operator<(Shooter::Status_detail a,Shooter::Status_detail b){
 	return a.speed<b.speed;
@@ -45,11 +49,14 @@ bool operator==(Shooter::Output_applicator,Shooter::Output_applicator){ return t
 bool operator==(Shooter a,Shooter b){ return (a.input_reader==b.input_reader && a.estimator==b.estimator && a.output_applicator==b.output_applicator); }
 bool operator!=(Shooter a,Shooter b){ return !(a==b); }
 
+static const unsigned BEAM_SENSOR_DIO=5;
+
 Shooter::Input Shooter::Input_reader::operator()(Robot_inputs r)const{
-	return {r.talon_srx[SHOOTER_WHEEL_LOC].velocity};
+	return {r.talon_srx[SHOOTER_WHEEL_LOC].velocity,(r.digital_io.in[BEAM_SENSOR_DIO]==Digital_in::_1)};
 }
 Robot_inputs Shooter::Input_reader::operator()(Robot_inputs r,Shooter::Input in)const{
 	r.talon_srx[SHOOTER_WHEEL_LOC].velocity = in.speed;
+	r.digital_io.in[BEAM_SENSOR_DIO]=(in.beam? Digital_in::_1 : Digital_in::_0);
 	return r;
 }
 
@@ -72,7 +79,7 @@ Shooter::Status_detail Shooter::Estimator::get()const{ return {}; }
 void Shooter::Estimator::update(Time,Shooter::Input,Shooter::Output){} 
 
 std::set<Shooter::Input> examples(Shooter::Input*){
-	return {{true},{false}}; 
+	return {{true,true},{true,false},{false,true},{false,false}}; 
 }
 std::set<Shooter::Goal> examples(Shooter::Goal*){
 	std::set<Shooter::Goal> s;

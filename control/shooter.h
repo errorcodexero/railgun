@@ -26,6 +26,7 @@ struct Shooter{
 
 	struct Input{
 		int speed;//rpm
+		bool beam;//beam sensor
 	};
 	
 	struct Input_reader{
