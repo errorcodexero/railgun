@@ -496,7 +496,7 @@ Main::Mode next_mode(Main::Mode m,bool autonomous,bool autonomous_start,Toplevel
 
 		case Main::Mode::AUTO_PORTCULLIS:
 			if(!autonomous) return Main::Mode::TELEOP;
-			if(since_switch > 2.5) return Main::Mode::AUTO_PORTCULLIS_DONE;
+			if(since_switch > 4.5) return Main::Mode::AUTO_PORTCULLIS_DONE;
 			return Main::Mode::AUTO_PORTCULLIS;
 	
 		case Main::Mode::AUTO_PORTCULLIS_DONE:
@@ -631,13 +631,18 @@ Robot_outputs Main::operator()(Robot_inputs in,ostream&){
 			goals.drive.right=.10;
 			break;
 		case Mode::AUTO_PORTCULLIS:
+			goals.collector.front=Front::Goal::OFF;
+			goals.collector.sides=Sides::Goal::OFF;
 			goals.collector.tilt=low;
+
 			if(ready(toplevel_status.collector.tilt.angle,goals.collector.tilt=low)){
 				goals.drive.left=-.75;
 				goals.drive.right=-.75;
 			}
 			break;
 		case Mode::AUTO_PORTCULLIS_DONE:
+			//goals.drive.left=0;
+			//goals.drive.right=0;
 			goals.collector.tilt=top;
 			break;
 		case Mode::AUTO_CHEVAL:
