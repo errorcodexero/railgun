@@ -62,17 +62,20 @@ Robot_inputs Shooter::Input_reader::operator()(Robot_inputs r,Shooter::Input in)
 }
 
 Shooter::Output Shooter::Output_applicator::operator()(Robot_outputs r)const{
-	if (r.pwm[7]==0) return Shooter::Output::STOP;
-	if (r.pwm[7]==.5) return Shooter::Output::GROUND_SPEED;
-	if (r.pwm[7]==1) return Shooter::Output::CLIMB_SPEED;
-	if (r.pwm[7]==-1) return Shooter::Output::FREE_SPIN;
+	auto power = r.talon_srx[SHOOTER_WHEEL_LOC].power_level;
+	if (power==0) return Shooter::Output::STOP;
+	if (power==.5) return Shooter::Output::GROUND_SPEED;
+	if (power==1) return Shooter::Output::CLIMB_SPEED;
+	if (power==-1) return Shooter::Output::FREE_SPIN;
 	assert(0);
 }
 Robot_outputs Shooter::Output_applicator::operator()(Robot_outputs r,Shooter::Output out)const{ 
-	if (out==Shooter::Output::STOP) r.pwm[7] = 0;
-	if (out==Shooter::Output::GROUND_SPEED) r.pwm[7] = .5;
-	if (out==Shooter::Output::CLIMB_SPEED) r.pwm[7] = 1;
-	if (out==Shooter::Output::FREE_SPIN) r.pwm[7] = -1;	
+	auto power=0;
+	if (out==Shooter::Output::STOP) power = 0;
+	else if (out==Shooter::Output::GROUND_SPEED) power = .5;
+	else if (out==Shooter::Output::CLIMB_SPEED) power = 1;
+	else if (out==Shooter::Output::FREE_SPIN) power = -1;
+	r.talon_srx[SHOOTER_WHEEL_LOC].power_level = power;
 	return r;
 }
 
@@ -129,8 +132,8 @@ bool ready(Shooter::Status status,Shooter::Goal goal){
 #include "formal.h"
 
 int main(){
-	Shooter a;
-	tester(a);
+	//Shooter a;
+	//tester(a);
 }
 
 #endif
