@@ -129,6 +129,26 @@ bool Main::get_learning()const{
 	return learn.get() || !learn_delay.done();
 }
 
+double mean(double a,double b){
+	return (a+b)/2;
+}
+
+array<double,3> mean(array<double,3> a,array<double,3> b){
+	return array<double,3>{
+		mean(a[0],b[0]),
+		mean(a[1],b[1]),
+		mean(a[2],b[2])
+	};
+}
+
+Tilt::Goal mean(Tilt::Goal a,Tilt::Goal b){
+	if(a.mode()==Tilt::Goal::Mode::GO_TO_ANGLE && b.mode()==Tilt::Goal::Mode::GO_TO_ANGLE){
+		return Tilt::Goal::go_to_angle(mean(a.angle(),b.angle()));
+	}else{
+		return a;
+	}
+}
+
 Toplevel::Goal Main::teleop(
 	Robot_inputs const& in,
 	Joystick_data const& main_joystick,
@@ -203,7 +223,9 @@ Toplevel::Goal Main::teleop(
 		} else if((gunner_pov==POV_section::LEFT && !joy_learn) || (panel.in_use && panel.portcullis && !learning)){
 			collector_mode = Collector_mode::PORTCULLIS;
 			const Time TIME_UNTIL_OVER=1;
-			portcullis_timer.set(TIME_UNTIL_OVER);	
+			portcullis_timer.set(TIME_UNTIL_OVER);
+		}else if (panel.in_use && panel.draw_bridge && !learning){
+			collector_mode=Collector_mode::DRAW_BRIDGE;
 		} else if((gunner_joystick.button[Gamepad_button::Y] && !joy_learn) || (panel.in_use && panel.eject && !learning)) collector_mode=Collector_mode::EJECT;
 		else if((main_joystick.button[Gamepad_button::START] && !joy_learn) || (panel.in_use && panel.collect && !learning)) collector_mode=Collector_mode::COLLECT;
 		else if((gunner_joystick.button[Gamepad_button::A] && !joy_learn) || (panel.in_use && panel.collector_pos==Panel::Collector_pos::LOW && !learning)) collector_mode=Collector_mode::LOW;
@@ -273,6 +295,9 @@ Toplevel::Goal Main::teleop(
 					if(portcullis_timer.done()) collector_mode = Collector_mode::STOW;				
 					break;
 				}
+			case Collector_mode::DRAW_BRIDGE:
+				goals.collector={Front::Goal::OFF,Sides::Goal::OFF,mean(top,level)};
+				break;
 			default: assert(0);
 		}
 	}

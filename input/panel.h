@@ -9,7 +9,8 @@ struct Panel{
    	//Buttons:
 	bool learn;
 	bool cheval;
-	bool portcullis;
+	bool draw_bridge;
+	static const bool portcullis=0;
 	bool shoot_prep;
 	bool shoot;
 	bool collect;

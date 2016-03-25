@@ -11,7 +11,7 @@ Panel::Panel():
 	in_use(0),
 	learn(0),
 	cheval(0),
-	portcullis(0),
+	draw_bridge(0),
 	shoot_prep(0),
 	shoot(0),
 	collect(0),
@@ -67,7 +67,7 @@ ostream& operator<<(ostream& o,Panel p){
 	o<<"Panel(";
 	o<<"in_use:"<<p.in_use;
 	#define X(name) o<<", "#name":"<<p.name;
-	X(learn) X(cheval) X(portcullis) X(shoot_prep) X(shoot) X(collect) X(eject) X(collector_up) X(collector_down) //buttons
+	X(learn) X(cheval) X(draw_bridge) X(shoot_prep) X(shoot) X(collect) X(eject) X(collector_up) X(collector_down) //buttons
 	X(lock_climber) X(tilt_auto) X(front_auto) X(sides_auto) //2-pos switches
 	X(collector_pos) X(front) X(sides) X(winch) //3-pos switches
 	X(auto_mode) //10-pos switches
@@ -127,7 +127,7 @@ Panel interpret(Joystick_data d){
 		float op = d.axis[2];
 		static const float DEFAULT=-1, COLLECTOR_UP=-.8, COLLECTOR_DOWN=-.62, EJECT=-.45, COLLECT=-.29, SHOOT=-.11, SHOOT_PREP=.09, PORTCULLIS=.33, CHEVAL=.62, LEARN=1;
 		#define X(button) p.button = 0;
-		X(collector_up) X(collector_down) X(eject) X(collect) X(shoot) X(shoot_prep) X(portcullis) X(cheval) X(learn)
+		X(collector_up) X(collector_down) X(eject) X(collect) X(shoot) X(shoot_prep) X(draw_bridge) X(cheval) X(learn)
 		#undef X
 		AXIS_RANGE(op, DEFAULT, COLLECTOR_UP, COLLECTOR_DOWN, p.collector_up, 1)
 		else AXIS_RANGE(op, COLLECTOR_UP, COLLECTOR_DOWN, EJECT, p.collector_down, 1)
@@ -135,7 +135,7 @@ Panel interpret(Joystick_data d){
 		else AXIS_RANGE(op, EJECT, COLLECT, SHOOT, p.collect, 1)
 		else AXIS_RANGE(op, COLLECT, SHOOT, SHOOT_PREP, p.shoot, 1)
 		else AXIS_RANGE(op, SHOOT, SHOOT_PREP, PORTCULLIS, p.shoot_prep, 1)
-		else AXIS_RANGE(op, SHOOT_PREP, PORTCULLIS, CHEVAL, p.portcullis, 1)
+		else AXIS_RANGE(op, SHOOT_PREP, PORTCULLIS, CHEVAL, p.draw_bridge, 1)
 		else AXIS_RANGE(op, PORTCULLIS, CHEVAL, LEARN, p.cheval, 1)
 		else AXIS_RANGE(op, CHEVAL, LEARN, 1.38, p.learn, 1)
 	}
