@@ -320,7 +320,7 @@ Toplevel::Goal Main::teleop(
 				Joystick_section tilt_control = joystick_section(gunner_joystick.axis[Gamepad_axis::RIGHTX],gunner_joystick.axis[Gamepad_axis::RIGHTY]);
 				#define X(NAME,SECTION) bool NAME=tilt_control==Joystick_section::SECTION;
 				X(down_b,DOWN) X(up_b,UP) X(level_b,LEFT) X(low_b,RIGHT)
-				#undef X		
+				#undef X
 				if(low_b) joy_collector_pos = Joy_collector_pos::LOW;
 				else if(level_b) joy_collector_pos = Joy_collector_pos::LEVEL;
 				if(gunner_joystick.button[Gamepad_button::B]){//learn
@@ -683,16 +683,16 @@ Robot_outputs Main::operator()(Robot_inputs in,ostream&){
 	r=force(r);
 	auto input=toplevel.input_reader(in);
 
-	auto talonPower = Talon_srx_output();
+	/*auto talonPower = Talon_srx_output();
 	talonPower.power_level = .5;
-	r.talon_srx[0]= talonPower;
+	r.talon_srx[0]= talonPower;*/
 	
 	toplevel.estimator.update(
 		in.now,
 		input,
 		toplevel.output_applicator(r)
 	);
-	log(in,toplevel_status,r);
+	//log(in,toplevel_status,r);
 	return r;
 }
 
