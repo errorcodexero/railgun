@@ -14,9 +14,8 @@ HIGH PRIORITY for Auburn:
 		- Testing on carpet field with measurements
 		- Complete all modes, ready for testing 
 	- Shooter code
-		- Beam sensor
-		- Implementation in main
-		- Update collector modes to manage it as well: keep ball from entering shooter until it has spun up to speed
+		- Get shooter speed in rpm
+		- Use ready() to determine if it has spun up
 	- Logging
 	- Turn off windows updates on all machines	
 
