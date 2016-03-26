@@ -17,9 +17,10 @@ struct Shooter{
 	
 	struct Status_detail{
 		int speed;//rpm
-		
+		bool beam;//beam sensor	
+
 		Status_detail();
-		Status_detail(int);
+		Status_detail(int,bool);
 	};
 	
 	typedef Status_detail Status;
@@ -47,6 +48,8 @@ struct Shooter{
 	};
 
 	struct Estimator{
+		Shooter::Status_detail last;
+
 		Shooter::Status_detail get()const;
 		void update(Time,Shooter::Input,Shooter::Output);
 	};

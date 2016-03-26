@@ -28,6 +28,13 @@ ostream& operator<<(ostream& o,Main::Mode a){
 	assert(0);
 }
 
+ostream& operator<<(ostream& o,Main::Shoot_steps a){
+	#define X(NAME) if(a==Main::Shoot_steps::NAME) return o<<""#NAME;
+	SHOOT_STEPS
+	#undef X
+	assert(0);
+}
+
 ostream& operator<<(ostream& o,Main::Collector_mode a){
 	#define X(name) if(a==Main::Collector_mode::name) return o<<"Main::Collector_mode("#name")";
 	COLLECTOR_MODES
@@ -103,7 +110,8 @@ Main::Main():
 	autonomous_start(0),
 	joy_collector_pos(Joy_collector_pos::STOP),
 	collector_mode(Collector_mode::NOTHING),
-	cheval_step(Cheval_steps::GO_DOWN)
+	cheval_step(Cheval_steps::GO_DOWN),
+	shoot_step(Shoot_steps::CLEAR_BALL)
 {
 	myfile2.open(NAVLOG2);
 	myfile2 << "test start" << endl;
@@ -196,6 +204,7 @@ Toplevel::Goal Main::teleop(
 	}
 	
 	bool ball=toplevel_status.collector.front.ball;
+	bool beam=toplevel_status.shooter.beam;
 	
 	controller_auto.update(gunner_joystick.button[Gamepad_button::START]);
 
@@ -205,15 +214,18 @@ Toplevel::Goal Main::teleop(
 	}
 	bool learning=get_learning();
 	
-	if(SLOW_PRINT) cout<<tilt_presets<<"\n";
+	if(SLOW_PRINT) cout<<tilt_presets<<"\n"<<shoot_step<<"\n"<<toplevel_status.shooter<<"\n";
 	
 	if((!panel.in_use && controller_auto.get()) || (panel.in_use && (panel.tilt_auto || panel.front_auto || panel.sides_auto))) {//Automatic collector modes
 		bool joy_learn=gunner_joystick.button[Gamepad_button::B];
 		POV_section gunner_pov = pov_section(gunner_joystick.pov);
 		if(gunner_joystick.button[Gamepad_button::X] || (panel.in_use && panel.shoot)) {
 			collector_mode=Collector_mode::SHOOT;
-			const Time TIME_TO_SHOOT=.7;
-			shoot_timer.set(TIME_TO_SHOOT);
+			shoot_step = Shoot_steps::CLEAR_BALL;
+			const Time SPEED_UP_TIME=1;
+			const Time SHOOT_TIME=1;
+			speed_up_timer.set(SPEED_UP_TIME);//assumed time to speed up until the ready function can be used
+			shoot_timer.set(SHOOT_TIME);//time until we can assume the ball had been shot after being injected
 		} else if((gunner_pov==POV_section::UP && !joy_learn) || (panel.in_use && panel.collector_pos==Panel::Collector_pos::STOW && !learning)) collector_mode = Collector_mode::STOW;
 		else if((gunner_pov==POV_section::RIGHT && !joy_learn) || (panel.in_use && panel.cheval && !learning)) {
 			collector_mode = Collector_mode::CHEVAL;
@@ -224,9 +236,8 @@ Toplevel::Goal Main::teleop(
 			collector_mode = Collector_mode::PORTCULLIS;
 			const Time TIME_UNTIL_OVER=1;
 			portcullis_timer.set(TIME_UNTIL_OVER);
-		}else if (panel.in_use && panel.draw_bridge && !learning){
-			collector_mode=Collector_mode::DRAW_BRIDGE;
-		} else if((gunner_joystick.button[Gamepad_button::Y] && !joy_learn) || (panel.in_use && panel.eject && !learning)) collector_mode=Collector_mode::EJECT;
+		} else if (panel.in_use && panel.draw_bridge && !learning) collector_mode=Collector_mode::DRAW_BRIDGE;
+		else if((gunner_joystick.button[Gamepad_button::Y] && !joy_learn) || (panel.in_use && panel.eject && !learning)) collector_mode=Collector_mode::EJECT;
 		else if((main_joystick.button[Gamepad_button::START] && !joy_learn) || (panel.in_use && panel.collect && !learning)) collector_mode=Collector_mode::COLLECT;
 		else if((gunner_joystick.button[Gamepad_button::A] && !joy_learn) || (panel.in_use && panel.collector_pos==Panel::Collector_pos::LOW && !learning)) collector_mode=Collector_mode::LOW;
 
@@ -247,10 +258,33 @@ Toplevel::Goal Main::teleop(
 				goals.collector={Front::Goal::OUT,Sides::Goal::IN,level};
 				break;
 			case Collector_mode::SHOOT:
-				goals.collector={Front::Goal::OUT,Sides::Goal::OFF,top};
-				shoot_timer.update(in.now, enabled);
-				if (shoot_timer.done()) collector_mode = Collector_mode::STOW;
-				break;
+				{
+					goals.collector.sides = Sides::Goal::OFF;
+					goals.collector.tilt = top;
+					Shooter::Goal shoot_goal = Shooter::Goal::CLIMB_SHOT;
+					switch(shoot_step){
+						case Shoot_steps::CLEAR_BALL:
+							if(!beam) goals.collector.front = Front::Goal::OUT;
+							else shoot_step = Shoot_steps::SPEED_UP;
+							break;
+						case Shoot_steps::SPEED_UP:
+							goals.collector.front = Front::Goal::OFF;
+							goals.shooter = shoot_goal;
+							speed_up_timer.update(in.now,enabled);
+							if(speed_up_timer.done()) shoot_step = Shoot_steps::SHOOT;
+							//if(ready(toplevel_status.shooter,goals.shooter)) shoot_step = Shoot_steps::SHOOT;
+							break;
+						case Shoot_steps::SHOOT:
+							goals.collector.front = Front::Goal::IN;
+							goals.shooter = shoot_goal;
+							shoot_timer.update(in.now,enabled);
+							if(shoot_timer.done()) collector_mode = Collector_mode::STOW; 
+							break;
+						default:
+							assert(0);
+						}
+					break;
+				}
 			case Collector_mode::LOW:
 				goals.collector={Front::Goal::OFF,Sides::Goal::OFF,low};
 				break;
@@ -301,9 +335,9 @@ Toplevel::Goal Main::teleop(
 			default: assert(0);
 		}
 	}
-	if(main_joystick.button[Gamepad_button::RB]) goals.shooter=Shooter::Goal::GROUND_SHOT;
-	else goals.shooter=Shooter::Goal::STOP;
 	if (!panel.in_use && !controller_auto.get()) {//Manual joystick controls 
+		if(gunner_joystick.button[Gamepad_button::X]) goals.shooter=Shooter::Goal::CLIMB_SHOT;
+		else goals.shooter=Shooter::Goal::STOP;
 		goals.collector.front=[&]{
 			const double LIMIT=.5; 
 			if(gunner_joystick.axis[Gamepad_axis::LTRIGGER]>LIMIT) return Front::Goal::OUT;
@@ -320,7 +354,7 @@ Toplevel::Goal Main::teleop(
 				Joystick_section tilt_control = joystick_section(gunner_joystick.axis[Gamepad_axis::RIGHTX],gunner_joystick.axis[Gamepad_axis::RIGHTY]);
 				#define X(NAME,SECTION) bool NAME=tilt_control==Joystick_section::SECTION;
 				X(down_b,DOWN) X(up_b,UP) X(level_b,LEFT) X(low_b,RIGHT)
-				#undef X		
+				#undef X
 				if(low_b) joy_collector_pos = Joy_collector_pos::LOW;
 				else if(level_b) joy_collector_pos = Joy_collector_pos::LEVEL;
 				if(gunner_joystick.button[Gamepad_button::B]){//learn
@@ -718,16 +752,16 @@ Robot_outputs Main::operator()(Robot_inputs in,ostream&){
 	r=force(r);
 	auto input=toplevel.input_reader(in);
 
-	auto talonPower = Talon_srx_output();
+	/*auto talonPower = Talon_srx_output();
 	talonPower.power_level = .5;
-	r.talon_srx[0]= talonPower;
+	r.talon_srx[0]= talonPower;*/
 	
 	toplevel.estimator.update(
 		in.now,
 		input,
 		toplevel.output_applicator(r)
 	);
-	log(in,toplevel_status,r);
+	//log(in,toplevel_status,r);
 	return r;
 }
 

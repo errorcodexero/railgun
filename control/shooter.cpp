@@ -2,11 +2,12 @@
 #include "stdlib.h"
 
 #define SHOOTER_WHEEL_LOC 0
+#define BEAM_SENSOR_DIO 5
 #define GROUND_RPM 1000
 #define CLIMB_RPM 750
 
-Shooter::Status_detail::Status_detail():speed(0){}
-Shooter::Status_detail::Status_detail(int s):speed(s){}
+Shooter::Status_detail::Status_detail():speed(0),beam(0){}
+Shooter::Status_detail::Status_detail(int s,bool b):speed(s),beam(b){}
 
 std::ostream& operator<<(std::ostream& o,Shooter::Goal goal){
 	#define X(name) if(goal==Shooter::Goal::name) return o<<"Shooter::Goal("#name")";
@@ -14,9 +15,10 @@ std::ostream& operator<<(std::ostream& o,Shooter::Goal goal){
 	#undef X
 	assert(0);
 }
+std::ostream& operator<<(std::ostream& o,Shooter::Estimator a){ return o<<"Shooter::Estimator("<<a.get()<<")"; }
 std::ostream& operator<<(std::ostream& o,Shooter::Input a){ return o<<"Shooter::Input( speed:"<<a.speed<<" beam:"<<a.beam<<")"; }
-std::ostream& operator<<(std::ostream& o,Shooter::Status_detail a){ return o<<"Shooter::Status_detail( speed:"<<a.speed<<")"; }
-std::ostream& operator<<(std::ostream& o,Shooter){ return o<<"Shooter()"; }
+std::ostream& operator<<(std::ostream& o,Shooter::Status_detail a){ return o<<"Shooter::Status_detail( speed:"<<a.speed<<" beam:"<<a.beam<<")"; }
+std::ostream& operator<<(std::ostream& o,Shooter a){ return o<<"Shooter("<<a.estimator<<")"; }
 
 std::ostream& operator<<(std::ostream& o,Shooter::Output out){
 	#define X(NAME) if(out==Shooter::Output::NAME) return o<<"Shooter::Output("#NAME")";
@@ -34,23 +36,23 @@ bool operator<(Shooter::Input a,Shooter::Input b){
 } 
 
 bool operator<(Shooter::Status_detail a,Shooter::Status_detail b){
-	return a.speed<b.speed;
+	if(a.speed<b.speed) return true;
+	if(b.speed<a.speed) return true;
+	return a.beam && !b.beam;
 }
-bool operator==(Shooter::Status_detail a,Shooter::Status_detail b){ return (a.speed==b.speed); }
+bool operator==(Shooter::Status_detail a,Shooter::Status_detail b){ return (a.speed==b.speed && a.beam==b.beam); }
 bool operator!=(Shooter::Status_detail a,Shooter::Status_detail b){ return !(a==b); }
 
 bool operator<(Shooter::Input_reader,Shooter::Input_reader){ return false; }
 bool operator==(Shooter::Input_reader,Shooter::Input_reader){ return true; }
 
-bool operator==(Shooter::Estimator,Shooter::Estimator){ return true; }
-bool operator!=(Shooter::Estimator,Shooter::Estimator){ return false; }
+bool operator==(Shooter::Estimator a,Shooter::Estimator b){ return a.last==b.last; }
+bool operator!=(Shooter::Estimator a,Shooter::Estimator b){ return !(a==b); }
 
 bool operator==(Shooter::Output_applicator,Shooter::Output_applicator){ return true; }
 
 bool operator==(Shooter a,Shooter b){ return (a.input_reader==b.input_reader && a.estimator==b.estimator && a.output_applicator==b.output_applicator); }
 bool operator!=(Shooter a,Shooter b){ return !(a==b); }
-
-static const unsigned BEAM_SENSOR_DIO=5;
 
 Shooter::Input Shooter::Input_reader::operator()(Robot_inputs r)const{
 	return {r.talon_srx[SHOOTER_WHEEL_LOC].velocity,(r.digital_io.in[BEAM_SENSOR_DIO]==Digital_in::_1)};
@@ -80,8 +82,14 @@ Robot_outputs Shooter::Output_applicator::operator()(Robot_outputs r,Shooter::Ou
 	return r;
 }
 
-Shooter::Status_detail Shooter::Estimator::get()const{ return {}; }
-void Shooter::Estimator::update(Time,Shooter::Input,Shooter::Output){} 
+Shooter::Status_detail Shooter::Estimator::get()const{
+	return last;
+}
+
+void Shooter::Estimator::update(Time,Shooter::Input in,Shooter::Output){
+	last.beam=in.beam;
+	last.speed=in.speed;
+} 
 
 std::set<Shooter::Input> examples(Shooter::Input*){
 	return {{true,true},{true,false},{false,true},{false,false}}; 
@@ -95,7 +103,8 @@ std::set<Shooter::Goal> examples(Shooter::Goal*){
 }
 std::set<Shooter::Status_detail> examples(Shooter::Status_detail*){
 	return {
-		Shooter::Status_detail{0}
+		{0,0},
+		{0,1}
 	};
 }
 std::set<Shooter::Output> examples(Shooter::Output*){
