@@ -1,7 +1,10 @@
 6-Hour Window:
-	- Connectivity test
-	- Full system check 
-	
+	- Connectivity test/debugging
+	- Full system check
+		- Driving: forward, backward, turning, boost, and nudges
+		- Collector: presets, auto modes, and manual controls
+		- Climber: release and winch
+
 
 HIGH PRIORITY for Auburn:
 	- Connectivity debugging
