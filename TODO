@@ -15,7 +15,6 @@ HIGH PRIORITY for Auburn:
 		- Testing on carpet field with measurements
 		- Complete all modes, ready for testing 
 	- Shooter code
-		- Add low goal back in
 		- Get shoot prep to work
 		- Get shooter speed in rpm
 		- Use ready() to determine if it has spun up

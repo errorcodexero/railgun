@@ -12,9 +12,9 @@ struct Panel{
 	bool draw_bridge;
 	static const bool portcullis=0;
 	bool shoot_prep;
-	bool shoot;
+	bool shoot_low;
 	bool collect;
-	bool eject;
+	bool shoot_high;
 	bool collector_up;
 	bool collector_down;
 	//2 position swicthes:

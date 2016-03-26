@@ -179,8 +179,8 @@ void Main::shooter_protocol(Robot_inputs const& in,Toplevel::Goal& goals, Toplev
 		case Shoot_steps::SHOOT:
 			goals.collector.front = Front::Goal::IN;
 			goals.shooter = shoot_goal;
-			shoot_timer.update(in.now,enabled);
-			if(shoot_timer.done()) collector_mode = Collector_mode::STOW; 
+			shoot_high_timer.update(in.now,enabled);
+			if(shoot_high_timer.done()) collector_mode = Collector_mode::STOW; 
 			break;
 		default:
 			assert(0);
@@ -248,13 +248,10 @@ Toplevel::Goal Main::teleop(
 	if((!panel.in_use && controller_auto.get()) || (panel.in_use && (panel.tilt_auto || panel.front_auto || panel.sides_auto))) {//Automatic collector modes
 		bool joy_learn=gunner_joystick.button[Gamepad_button::B];
 		POV_section gunner_pov = pov_section(gunner_joystick.pov);
-		if(gunner_joystick.button[Gamepad_button::X] || (panel.in_use && panel.shoot)) {
-			collector_mode=Collector_mode::SHOOT;
-			shoot_step = Shoot_steps::CLEAR_BALL;
-			const Time SPEED_UP_TIME=1;
-			const Time SHOOT_TIME=2;
-			speed_up_timer.set(SPEED_UP_TIME);//assumed time to speed up until the ready function can be used
-			shoot_timer.set(SHOOT_TIME);//time until we can assume the ball had been shot after being injected
+		if(gunner_joystick.button[Gamepad_button::X] || (panel.in_use && panel.shoot_low)){
+			const Time SHOOT_TIME=1;			
+			collector_mode=Collector_mode::SHOOT_LOW;
+			shoot_low_timer.set(SHOOT_TIME);
 		} else if((gunner_pov==POV_section::UP && !joy_learn) || (panel.in_use && panel.collector_pos==Panel::Collector_pos::STOW && !learning)) collector_mode = Collector_mode::STOW;
 		else if((gunner_pov==POV_section::RIGHT && !joy_learn) || (panel.in_use && panel.cheval && !learning)) {
 			collector_mode = Collector_mode::CHEVAL;
@@ -266,8 +263,14 @@ Toplevel::Goal Main::teleop(
 			const Time TIME_UNTIL_OVER=1;
 			portcullis_timer.set(TIME_UNTIL_OVER);
 		} else if (panel.in_use && panel.draw_bridge && !learning) collector_mode=Collector_mode::DRAW_BRIDGE;
-		else if((gunner_joystick.button[Gamepad_button::Y] && !joy_learn) || (panel.in_use && panel.eject && !learning)) collector_mode=Collector_mode::EJECT;
-		else if((main_joystick.button[Gamepad_button::START] && !joy_learn) || (panel.in_use && panel.collect && !learning)) collector_mode=Collector_mode::COLLECT;
+		else if((gunner_joystick.button[Gamepad_button::Y] && !joy_learn) || (panel.in_use && panel.shoot_high && !learning)){
+			collector_mode=Collector_mode::SHOOT_HIGH;
+			shoot_step = Shoot_steps::CLEAR_BALL;
+			const Time SPEED_UP_TIME=1;
+			const Time SHOOT_TIME=2;
+			speed_up_timer.set(SPEED_UP_TIME);//assumed time to speed up until the ready function can be used
+			shoot_high_timer.set(SHOOT_TIME);//time until we can assume the ball had been shot after being injected
+		} else if((main_joystick.button[Gamepad_button::START] && !joy_learn) || (panel.in_use && panel.collect && !learning)) collector_mode=Collector_mode::COLLECT;
 		else if((gunner_joystick.button[Gamepad_button::A] && !joy_learn) || (panel.in_use && panel.collector_pos==Panel::Collector_pos::LOW && !learning)) collector_mode=Collector_mode::LOW;
 
 		if(SLOW_PRINT)cout<<"collector_mode: "<<collector_mode<<"\n";
@@ -283,11 +286,13 @@ Toplevel::Goal Main::teleop(
 			case Collector_mode::REFLECT:
 				goals.collector={Front::Goal::OFF,Sides::Goal::OUT,level};
 				break;
-			case Collector_mode::EJECT:
-				goals.collector={Front::Goal::OUT,Sides::Goal::IN,level};
-				break;
-			case Collector_mode::SHOOT:
+			case Collector_mode::SHOOT_HIGH:
 				shooter_protocol(in,goals,toplevel_status);
+				break;
+			case Collector_mode::SHOOT_LOW:
+				goals.collector={Front::Goal::OUT,Sides::Goal::OFF,top};
+				shoot_low_timer.update(in.now, enabled);
+				if (shoot_low_timer.done()) collector_mode = Collector_mode::STOW;
 				break;
 			case Collector_mode::LOW:
 				goals.collector={Front::Goal::OFF,Sides::Goal::OFF,low};
@@ -396,11 +401,11 @@ Toplevel::Goal Main::teleop(
 		if(learn.get()){//learn
 			double learn_this=toplevel_status.collector.tilt.angle;
 			bool done=false;
-			if(panel.collect || panel.eject){
+			/*if(panel.collect || panel.eject){
 				tilt_presets.level=learn_this;
 				done=true;
-			}
-			else if(panel.collector_pos==Panel::Collector_pos::STOW){
+			}*/
+			if(panel.collector_pos==Panel::Collector_pos::STOW){
 				tilt_presets.top=learn_this;
 				done=true;
 			}
