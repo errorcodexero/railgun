@@ -429,7 +429,7 @@ Toplevel::Goal Main::teleop(
 	return goals;
 }
 
-Main::Mode next_mode(Main::Mode m,bool autonomous,bool autonomous_start,Toplevel::Status_detail /*status*/,Time since_switch, Panel panel,unsigned int navindex,vector<Nav2::NavS> NavV,int & stepcounter,Nav2::aturn Aturn){
+Main::Mode next_mode(Main::Mode m,bool autonomous,bool autonomous_start,Toplevel::Status_detail /*status*/,Time since_switch, Panel panel,unsigned int navindex,vector<Nav2::NavS> NavV,int & stepcounter,Nav2::aturn Aturn,bool &toplready){
 	switch(m){
 		case Main::Mode::TELEOP:	
 			if(autonomous_start){
@@ -451,7 +451,7 @@ Main::Mode next_mode(Main::Mode m,bool autonomous,bool autonomous_start,Toplevel
 						default: assert(0);
 					}
 				}
-				return Main::Mode::AUTO_NULL; //during testing put the mode you want to test without the driverstation.
+				return Main::Mode::TELEOP; //during testing put the mode you want to test without the driverstation.
 				//return Main::Mode::TELEOP;
 			}
 			return m;
@@ -528,9 +528,24 @@ Main::Mode next_mode(Main::Mode m,bool autonomous,bool autonomous_start,Toplevel
 			if(since_switch > 2 || !autonomous) return Main::Mode::TELEOP;
 			return Main::Mode::AUTO_PORTCULLIS_DONE;
 
-		case Main::Mode::AUTO_CHEVAL:
-			if(since_switch > .8 || !autonomous) return Main::Mode::TELEOP;
-			return Main::Mode::AUTO_CHEVAL;
+		case Main::Mode::AUTO_CHEVALPOS:
+			if(!autonomous) return Main::Mode::TELEOP;
+			if(since_switch > .8) return Main::Mode::AUTO_CHEVALDROP;
+			return Main::Mode::AUTO_CHEVALPOS;
+
+		case Main::Mode::AUTO_CHEVALDROP:
+			if(!autonomous) return Main::Mode::TELEOP;
+			if(toplready) return Main::Mode::AUTO_CHEVALDRIVE;
+			return Main::Mode::AUTO_CHEVALDRIVE;
+				
+		case Main::Mode::AUTO_CHEVALDRIVE:
+			if(!autonomous) return Main::Mode::TELEOP;
+			if(since_switch > .45) return Main::Mode::AUTO_CHEVALSTOW;
+			return Main::Mode::AUTO_CHEVALDRIVE;
+		
+		case Main::Mode::AUTO_CHEVALSTOW:
+			if(since_switch > 2 || !autonomous) return Main::Mode::TELEOP;
+			return Main::Mode::AUTO_CHEVALSTOW;
 	
 		default: assert(0);
 	}
@@ -670,13 +685,28 @@ Robot_outputs Main::operator()(Robot_inputs in,ostream&){
 			//goals.drive.right=0;
 			goals.collector.tilt=top;
 			break;
-		case Mode::AUTO_CHEVAL:
+
+		case Mode::AUTO_CHEVALPOS:
 			goals.drive.left=-.45;
 			goals.drive.right=-.45;
 			break;
+		
+		case Mode::AUTO_CHEVALDROP:
+			goals.collector.tilt=cheval;
+			if(ready(toplevel_status.collector.tilt.angle,goals.collector.tilt=low)) Main::topready = true;
+			break;
+
+		case Mode::AUTO_CHEVALDRIVE:
+			goals.drive.right=-.5;
+			goals.drive.left=-.5;
+			
+		case Mode::AUTO_CHEVALSTOW:
+			goals.drive.right=-.5;
+			goals.drive.left=-.5;
+			goals.collector.tilt=top;
 		default: assert(0);
 	}
-	auto next=next_mode(mode,in.robot_mode.autonomous,autonomous_start_now,toplevel_status,since_switch.elapsed(),panel,nav2.navindex,nav2.NavV,nav2.stepcounter,nav2.Aturn);
+	auto next=next_mode(mode,in.robot_mode.autonomous,autonomous_start_now,toplevel_status,since_switch.elapsed(),panel,nav2.navindex,nav2.NavV,nav2.stepcounter,nav2.Aturn,topready);
 	since_switch.update(in.now,mode!=next);
 	mode=next;
 		
@@ -872,7 +902,8 @@ void test_next_mode(){
 	for(auto mode:MODE_LIST){
 		Toplevel::Status_detail st=example((Toplevel::Status_detail*)nullptr);
 		int stepcounter=0;
-		auto next=next_mode(mode,0,0,st,0,Panel{},0,{},stepcounter,Nav2::aturn{});
+		bool toplready = true;
+		auto next=next_mode(mode,0,0,st,0,Panel{},0,{},stepcounter,Nav2::aturn{},toplready);
 		cout<<"Testing mode "<<mode<<" goes to "<<next<<"\n";
 		assert(next==Main::Mode::TELEOP);
 	}

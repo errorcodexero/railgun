@@ -22,7 +22,7 @@ struct Main{
 	#define MODES X(TELEOP) X(AUTO_MOVE) X(AUTO_NAV) X(AUTO_NAV_RUN) \
 		X(AUTO_NULL) X(AUTO_SCORE) X(AUTO_REACH) X(AUTO_STATIC) \
 		X(AUTO_STOP) X(AUTO_STATICTWO) X(AUTO_TEST) \
-		X(AUTO_PORTCULLIS) X(AUTO_PORTCULLIS_DONE) X(AUTO_CHEVAL)
+		X(AUTO_PORTCULLIS) X(AUTO_PORTCULLIS_DONE) X(AUTO_CHEVALPOS) X(AUTO_CHEVALDROP) X(AUTO_CHEVALDRIVE) X(AUTO_CHEVALSTOW)
 
 	enum class Mode{
 		#define X(NAME) NAME,
@@ -35,6 +35,8 @@ struct Main{
 	Force_interface force;
 	Perf_tracker perf;
 	Toplevel toplevel;
+	bool topready;
+	bool simtest;
 
 	Countup_timer since_switch,since_auto_start;
 
