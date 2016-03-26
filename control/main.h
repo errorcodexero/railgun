@@ -66,7 +66,7 @@ struct Main{
 	
 	Countdown_timer learn_delay;
 
-	Countdown_timer shoot_timer, cheval_lift_timer, cheval_drive_timer, portcullis_timer;
+	Countdown_timer speed_up_timer, shoot_timer, cheval_lift_timer, cheval_drive_timer, portcullis_timer;
 
 	#define CHEVAL_STEPS X(GO_DOWN) X(DRIVE) X(DRIVE_AND_STOW)
 	enum class Cheval_steps{
@@ -75,6 +75,14 @@ struct Main{
 		#undef X
 	};
 	Cheval_steps cheval_step;
+		
+	#define SHOOT_STEPS X(CLEAR_BALL) X(SPEED_UP) X(SHOOT)
+	enum class Shoot_steps{
+		#define X(NAME) NAME,
+		SHOOT_STEPS
+		#undef X
+	};
+	Shoot_steps shoot_step;
 	
 	Posedge_toggle learn;
 

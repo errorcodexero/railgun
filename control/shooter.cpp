@@ -2,6 +2,7 @@
 #include "stdlib.h"
 
 #define SHOOTER_WHEEL_LOC 0
+#define BEAM_SENSOR_DIO 5
 #define GROUND_RPM 1000
 #define CLIMB_RPM 750
 
@@ -53,14 +54,12 @@ bool operator==(Shooter::Output_applicator,Shooter::Output_applicator){ return t
 bool operator==(Shooter a,Shooter b){ return (a.input_reader==b.input_reader && a.estimator==b.estimator && a.output_applicator==b.output_applicator); }
 bool operator!=(Shooter a,Shooter b){ return !(a==b); }
 
-static const unsigned BEAM_SENSOR_DIO=5;
-
 Shooter::Input Shooter::Input_reader::operator()(Robot_inputs r)const{
-	return {r.talon_srx[SHOOTER_WHEEL_LOC].velocity,(r.digital_io.in[BEAM_SENSOR_DIO]==Digital_in::_0)};
+	return {r.talon_srx[SHOOTER_WHEEL_LOC].velocity,(r.digital_io.in[BEAM_SENSOR_DIO]==Digital_in::_1)};
 }
 Robot_inputs Shooter::Input_reader::operator()(Robot_inputs r,Shooter::Input in)const{
 	r.talon_srx[SHOOTER_WHEEL_LOC].velocity = in.speed;
-	r.digital_io.in[BEAM_SENSOR_DIO]=(in.beam? Digital_in::_0 : Digital_in::_1);//beam is active low
+	r.digital_io.in[BEAM_SENSOR_DIO]=(in.beam? Digital_in::_1 : Digital_in::_0);
 	return r;
 }
 
