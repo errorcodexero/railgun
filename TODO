@@ -17,7 +17,11 @@ HIGH PRIORITY for Auburn:
 		- Get shooter speed in rpm
 		- Use ready() to determine if it has spun up
 	- Logging
-	- Turn off windows updates on all machines	
+	- Turn off windows updates on all machines
+		- Red                                                        - Done
+		- Gold                                                       - Done
+		- Software 2                                                 -
+		- Software 1 (shouldn't be used as a driver station laptop)  - 
 
 
 LOW PRIORITY for Auburn:
