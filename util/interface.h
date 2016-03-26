@@ -46,14 +46,17 @@ struct Talon_srx_input{
 	bool rev_limit_switch;
 	bool a;
 	bool b;
-	int velocity = 0;
+	int velocity;
 	double current;
-	Talon_srx_input():encoder_position(0),fwd_limit_switch(0),rev_limit_switch(0),a(0),b(0),current(0){}
+	Talon_srx_input():encoder_position(0),fwd_limit_switch(0),rev_limit_switch(0),a(0),b(0),velocity(0),current(0){}
 };
 
 struct Talon_srx_output{
 	double power_level;
-	Talon_srx_output():power_level(0){}
+	double speed;
+	enum class Mode{VOLTAGE,SPEED};
+	Mode mode;
+	Talon_srx_output():power_level(0),speed(0),mode(Talon_srx_output::Mode::VOLTAGE){}
 };
 
 enum Panel_outputs{LEARNING, BOULDER, PANEL_OUTPUTS};
