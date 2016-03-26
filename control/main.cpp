@@ -157,6 +157,36 @@ Tilt::Goal mean(Tilt::Goal a,Tilt::Goal b){
 	}
 }
 
+void Main::shooter_protocol(Robot_inputs const& in,Toplevel::Goal& goals, Toplevel::Status_detail const& toplevel_status){
+	bool beam=toplevel_status.shooter.beam;
+	bool enabled = in.robot_mode.enabled;
+	const Tilt::Goal top=Tilt::Goal::go_to_angle(make_tolerances(tilt_presets.top));
+	goals.collector.sides = Sides::Goal::OFF;
+	goals.collector.tilt = top;
+	static const Shooter::Goal shoot_goal = Shooter::Goal::CLIMB_SHOT;
+	switch(shoot_step){
+		case Shoot_steps::CLEAR_BALL:
+			if(!beam) goals.collector.front = Front::Goal::OUT;
+			else shoot_step = Shoot_steps::SPEED_UP;
+			break;
+		case Shoot_steps::SPEED_UP:
+			goals.collector.front = Front::Goal::OFF;
+			goals.shooter = shoot_goal;
+			speed_up_timer.update(in.now,enabled);
+			if(speed_up_timer.done()) shoot_step = Shoot_steps::SHOOT;
+			//if(ready(toplevel_status.shooter,goals.shooter)) shoot_step = Shoot_steps::SHOOT;
+			break;
+		case Shoot_steps::SHOOT:
+			goals.collector.front = Front::Goal::IN;
+			goals.shooter = shoot_goal;
+			shoot_timer.update(in.now,enabled);
+			if(shoot_timer.done()) collector_mode = Collector_mode::STOW; 
+			break;
+		default:
+			assert(0);
+	}
+}
+
 Toplevel::Goal Main::teleop(
 	Robot_inputs const& in,
 	Joystick_data const& main_joystick,
@@ -204,7 +234,6 @@ Toplevel::Goal Main::teleop(
 	}
 	
 	bool ball=toplevel_status.collector.front.ball;
-	bool beam=toplevel_status.shooter.beam;
 	
 	controller_auto.update(gunner_joystick.button[Gamepad_button::START]);
 
@@ -223,7 +252,7 @@ Toplevel::Goal Main::teleop(
 			collector_mode=Collector_mode::SHOOT;
 			shoot_step = Shoot_steps::CLEAR_BALL;
 			const Time SPEED_UP_TIME=1;
-			const Time SHOOT_TIME=1;
+			const Time SHOOT_TIME=2;
 			speed_up_timer.set(SPEED_UP_TIME);//assumed time to speed up until the ready function can be used
 			shoot_timer.set(SHOOT_TIME);//time until we can assume the ball had been shot after being injected
 		} else if((gunner_pov==POV_section::UP && !joy_learn) || (panel.in_use && panel.collector_pos==Panel::Collector_pos::STOW && !learning)) collector_mode = Collector_mode::STOW;
@@ -258,33 +287,8 @@ Toplevel::Goal Main::teleop(
 				goals.collector={Front::Goal::OUT,Sides::Goal::IN,level};
 				break;
 			case Collector_mode::SHOOT:
-				{
-					goals.collector.sides = Sides::Goal::OFF;
-					goals.collector.tilt = top;
-					Shooter::Goal shoot_goal = Shooter::Goal::CLIMB_SHOT;
-					switch(shoot_step){
-						case Shoot_steps::CLEAR_BALL:
-							if(!beam) goals.collector.front = Front::Goal::OUT;
-							else shoot_step = Shoot_steps::SPEED_UP;
-							break;
-						case Shoot_steps::SPEED_UP:
-							goals.collector.front = Front::Goal::OFF;
-							goals.shooter = shoot_goal;
-							speed_up_timer.update(in.now,enabled);
-							if(speed_up_timer.done()) shoot_step = Shoot_steps::SHOOT;
-							//if(ready(toplevel_status.shooter,goals.shooter)) shoot_step = Shoot_steps::SHOOT;
-							break;
-						case Shoot_steps::SHOOT:
-							goals.collector.front = Front::Goal::IN;
-							goals.shooter = shoot_goal;
-							shoot_timer.update(in.now,enabled);
-							if(shoot_timer.done()) collector_mode = Collector_mode::STOW; 
-							break;
-						default:
-							assert(0);
-						}
-					break;
-				}
+				shooter_protocol(in,goals,toplevel_status);
+				break;
 			case Collector_mode::LOW:
 				goals.collector={Front::Goal::OFF,Sides::Goal::OFF,low};
 				break;
@@ -607,6 +611,7 @@ Robot_outputs Main::operator()(Robot_inputs in,ostream&){
 		cout << "ENCODER '0': " <<  in.digital_io.encoder[0]<<  endl;
 		cout << "ENCODER '1': " << in.digital_io.encoder[1]<<  endl;	
 	}*/
+	if(!in.robot_mode.enabled) shoot_step = Main::Shoot_steps::CLEAR_BALL;
 	switch(mode){
 		case Mode::TELEOP:
 			goals=teleop(in,main_joystick,gunner_joystick,panel,toplevel_status,level,low,top,cheval,portcullis);

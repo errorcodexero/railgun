@@ -8,12 +8,15 @@
 
 HIGH PRIORITY for Auburn:
 	- Connectivity debugging
+	- Re-label OI
 	- Autonomous* - Tristan
 		- Auto_nav_run results in seg fault
 		- Drive Encoders
 		- Testing on carpet field with measurements
 		- Complete all modes, ready for testing 
 	- Shooter code
+		- Add low goal back in
+		- Get shoot prep to work
 		- Get shooter speed in rpm
 		- Use ready() to determine if it has spun up
 	- Logging
