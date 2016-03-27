@@ -467,6 +467,19 @@ Toplevel::Goal Main::teleop(
 	return goals;
 }
 
+pair<float,float> driveatwall(const Robot_inputs in){
+	const float targetinches=3; //Desired distance from wall
+	float currentinches=range(in);
+	pair<float,float> motorvoltmods;
+	//motorvoltmods.first = left; motorvoltmods.second = right
+	float adjustment=0;
+	if(targetinches<currentinches){
+		motorvoltmods.first=adjustment;
+		motorvoltmods.second=adjustment*-1;
+	}
+	return motorvoltmods;
+}
+
 Main::Mode next_mode(Main::Mode m,bool autonomous,bool autonomous_start,Toplevel::Status_detail /*status*/,Time since_switch, Panel panel,unsigned int navindex,vector<Nav2::NavS> NavV,int & stepcounter,Nav2::aturn Aturn){
 	switch(m){
 		case Main::Mode::TELEOP:	

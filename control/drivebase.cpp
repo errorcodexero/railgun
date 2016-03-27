@@ -58,6 +58,13 @@ Drivebase::Input Drivebase::Input_reader::operator()(Robot_inputs in)const{
 	};
 }
 
+float range(const Robot_inputs in){
+	float volts=in.analog[2];
+	const float voltsperinch=1; 
+	float inches=volts*voltsperinch;
+	return inches;
+}
+
 IMPL_STRUCT(Drivebase::Status::Status,DRIVEBASE_STATUS)
 IMPL_STRUCT(Drivebase::Input::Input,DRIVEBASE_INPUT)
 IMPL_STRUCT(Drivebase::Output::Output,DRIVEBASE_OUTPUT)
