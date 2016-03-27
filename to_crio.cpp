@@ -8,9 +8,6 @@
 
 using namespace std;
 
-
-
-
 void SendWOL (void)
 {
     int udpSocket;
