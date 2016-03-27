@@ -164,7 +164,7 @@ void Main::shooter_protocol(bool const& beam, bool const& enabled,Time const& no
 	static const Shooter::Goal shoot_goal = Shooter::Goal::CLIMB_SHOT;
 	switch(shoot_step){
 		case Shoot_steps::CLEAR_BALL:
-			if(!beam) goals.collector.front = Front::Goal::OUT;
+			if(!beam) goals.collector.front = Front::Goal::CLEAR_BALL;
 			else shoot_step = Shoot_steps::SPEED_UP;
 			break;
 		case Shoot_steps::SPEED_UP:
@@ -264,8 +264,8 @@ Toplevel::Goal Main::teleop(
 		else if((gunner_joystick.button[Gamepad_button::Y] && !joy_learn) || (panel.in_use && panel.shoot_high && !learning)){
 			collector_mode=Collector_mode::SHOOT_HIGH;
 			shoot_step = Shoot_steps::CLEAR_BALL;
-			const Time SPEED_UP_TIME=1;
-			const Time SHOOT_TIME=2;
+			const Time SPEED_UP_TIME=5;
+			const Time SHOOT_TIME=3;
 			speed_up_timer.set(SPEED_UP_TIME);//assumed time to speed up until the ready function can be used
 			shoot_high_timer.set(SHOOT_TIME);//time until we can assume the ball had been shot after being injected
 		} else if((main_joystick.button[Gamepad_button::START] && !joy_learn) || (panel.in_use && panel.collect && !learning)) collector_mode=Collector_mode::COLLECT;
