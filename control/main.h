@@ -89,7 +89,7 @@ struct Main{
 	Tilt_presets tilt_presets;
 	Log log;
 
-	void shooter_protocol(Robot_inputs const&,Toplevel::Goal& goals, Toplevel::Status_detail const&);
+	void shooter_protocol(bool const&,bool const&,Time const&,Toplevel::Goal& goals);
 
 	Toplevel::Goal teleop(Robot_inputs const&,Joystick_data const&,Joystick_data const&,Panel const&,Toplevel::Status_detail&,
 		Tilt::Goal,
