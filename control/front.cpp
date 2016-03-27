@@ -6,6 +6,7 @@ using namespace std;
 
 #define FRONT_ADDRESS 2
 #define FRONT_SPEED 1
+#define CLEAR_BALL_SPEED -.3
 
 Front::Input::Input():ball(0){}
 
@@ -58,7 +59,7 @@ Robot_outputs Front::Output_applicator::operator()(Robot_outputs r, Front::Outpu
 	if(out.motor==Front::Goal::OUT) r.pwm[FRONT_ADDRESS]=-FRONT_SPEED;
 	else if(out.motor==Front::Goal::OFF) r.pwm[FRONT_ADDRESS]=0;
 	else if(out.motor==Front::Goal::IN) r.pwm[FRONT_ADDRESS]=FRONT_SPEED;
-
+	else if(out.motor==Front::Goal::CLEAR_BALL) r.pwm[FRONT_ADDRESS]=CLEAR_BALL_SPEED;
 	r.panel_output[Panel_outputs::BOULDER] = Panel_output(static_cast<int>(Panel_output_ports::BOULDER), out.ball_light);
 
 	return r;
@@ -78,6 +79,7 @@ Front::Output Front::Output_applicator::operator()(Robot_outputs r)const{
 		if(r.pwm[FRONT_ADDRESS]==-FRONT_SPEED)return Front::Goal::OUT;
 		if(r.pwm[FRONT_ADDRESS]==0)return Front::Goal::OFF;
 		if(r.pwm[FRONT_ADDRESS]==FRONT_SPEED)return Front::Goal::IN;
+		if(r.pwm[FRONT_ADDRESS]==CLEAR_BALL_SPEED) return Front::Goal::CLEAR_BALL;
 		assert(0);
 	}();
 	bool ball_sensor=r.panel_output[Panel_outputs::BOULDER].value;

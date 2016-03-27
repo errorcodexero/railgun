@@ -8,7 +8,7 @@
 using namespace std;
 
 struct Front{
-	enum class Goal{IN,OFF,OUT};
+	enum class Goal{IN,OFF,OUT,CLEAR_BALL};
 	
 	struct Input{
 		bool ball;
