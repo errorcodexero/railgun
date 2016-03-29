@@ -9,7 +9,7 @@ struct Panel{
    	//Buttons:
 	bool learn;
 	bool cheval;
-	bool draw_bridge;
+	bool drawbridge;
 	static const bool portcullis=0;
 	bool shoot_prep;
 	bool shoot_low;
@@ -17,6 +17,7 @@ struct Panel{
 	bool shoot_high;
 	bool collector_up;
 	bool collector_down;
+	bool closed_loop;
 	//2 position swicthes:
 	bool lock_climber;
 	bool tilt_auto;
