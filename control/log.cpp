@@ -256,7 +256,7 @@ struct Header{
 	}
 };
 
-struct Data{
+struct Data_csv{
 	ostream& o;
 
 	template<typename T1,typename T2>
@@ -269,6 +269,19 @@ struct Data{
 		o<<t<<",";
 	}
 };
+
+/*struct Data_bin{
+	ostream& o;
+	template<typename T1,typename T2>
+	void operator()(T1 const&,T2 const& item)const{
+		visit(*this,item);
+	}
+
+	template<typename T>
+	void terminal(T const& t)const{
+		o.write((char*)&t,sizeof(t));
+	}
+};*/
 
 Log::Log():Log(get_logfilename()){}
 
@@ -283,11 +296,13 @@ Log::Log(string const& filename):f(filename){
 
 void Log::operator()(Robot_inputs const& in,Toplevel::Status_detail const& status,Robot_outputs const& out){
 	if(f.good()){
-		Data d{f};
+		stringstream ss;
+		Data_csv d{ss};
 		visit(d,in);
 		visit(d,status);
 		visit(d,out);
-		f<<"\n";
+		ss<<"\n";
+		f.write(ss.str().c_str(),ss.str().size());
 	}
 }
 
@@ -295,7 +310,7 @@ void Log::operator()(Robot_inputs const& in,Toplevel::Status_detail const& statu
 int main(){
 	Log log("x1.txt");
 	auto a=example((Toplevel::Status_detail*)nullptr);
-	for(int i=0;i<1000;i++){
+	for(int i=0;i<100;i++){
 		log(Robot_inputs{},a,Robot_outputs{});
 	}
 }

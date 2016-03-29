@@ -5,7 +5,7 @@ g++ -Wall -std=c++11 -DLOG_TEST \
 	../util/util.cpp\
 	toplevel.cpp\
 	drivebase.cpp\
-	shooter.cpp\	
+	shooter.cpp\
 	sides.cpp\
 	pump.cpp\
 	tilt.cpp\
@@ -15,4 +15,4 @@ g++ -Wall -std=c++11 -DLOG_TEST \
 	motor_check.cpp\
 	../util/countdown_timer.cpp\
 	collector.cpp\
-	-o log 2>&1 && ./log
+	-o log 2>&1 && time ./log
