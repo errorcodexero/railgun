@@ -463,7 +463,7 @@ Toplevel::Goal Main::teleop(
 	return goals;
 }
 
-Main::Mode next_mode(Main::Mode m,bool autonomous,bool autonomous_start,Toplevel::Status_detail /*status*/,Time since_switch, Panel panel,unsigned int navindex,vector<Nav2::NavS> NavV,int & stepcounter,Nav2::aturn Aturn,bool &toplready){
+Main::Mode next_mode(Main::Mode m,bool autonomous,bool autonomous_start,Toplevel::Status_detail& /*status*/,Time since_switch, Panel panel,unsigned int navindex,vector<Nav2::NavS> NavV,int & stepcounter,Nav2::aturn Aturn,bool const&toplready,Robot_inputs const& in){
 	switch(m){
 		case Main::Mode::TELEOP:	
 			if(autonomous_start){
@@ -482,6 +482,8 @@ Main::Mode next_mode(Main::Mode m,bool autonomous,bool autonomous_start,Toplevel
 							return Main::Mode::AUTO_STATIC;
 						case Panel::Auto_mode::PORTCULLIS:
 							return Main::Mode::AUTO_PORTCULLIS;
+						case Panel::Auto_mode::CHEVAL:
+							return Main::Mode::AUTO_CHEVALPOS;
 						default: assert(0);
 					}
 				}
@@ -522,11 +524,6 @@ Main::Mode next_mode(Main::Mode m,bool autonomous,bool autonomous_start,Toplevel
 		case Main::Mode::AUTO_MOVE:
 			if (!autonomous) return Main::Mode::TELEOP;
 			if(since_switch>Aturn.dur) return Main::Mode::AUTO_NAV;
-			return Main::Mode::AUTO_MOVE;
-
-		case Main::Mode::AUTO_SCORE:
-			if(!autonomous) return Main::Mode::TELEOP;
-			if(since_switch>1) return Main::Mode::AUTO_NAV;
 			return Main::Mode::AUTO_MOVE;
  
 		case Main::Mode::AUTO_REACH:
@@ -580,8 +577,34 @@ Main::Mode next_mode(Main::Mode m,bool autonomous,bool autonomous_start,Toplevel
 		case Main::Mode::AUTO_CHEVALSTOW:
 			if(since_switch > 2 || !autonomous) return Main::Mode::TELEOP;
 			return Main::Mode::AUTO_CHEVALSTOW;
-	
-		default: assert(0);
+		case Main::Mode::AUTO_SCORELOW:
+			if(!autonomous) return Main::Mode::TELEOP;
+			if(since_switch > 4.5) return Main::Mode::AUTO_SCOREBAR;
+			return Main::Mode::AUTO_SCORELOW;
+		case Main::Mode::AUTO_SCOREBAR:
+			if(since_switch > 2 || !autonomous) return Main::Mode::TELEOP;
+			return Main::Mode::AUTO_SCOREBAR;
+		case Main::Mode::AUTO_SCOREDRIVE:{
+			bool first_run=true;
+			int ioencoder;
+			int curencoder;
+
+			first_run=false;
+			curencoder = in.digital_io.encoder[0];
+
+			if(first_run==false){
+				ioencoder=0;
+			} else {
+				ioencoder = curencoder;
+			}
+			
+			if((in.digital_io.encoder[0]) > ((curencoder - ioencoder) == 1000)) //return Main::Mode::AUTO_SCOREPREP;
+			return Main::Mode::AUTO_SCOREDRIVE;
+		}
+		default:
+			if(!autonomous) return Main::Mode::TELEOP;
+			return Main::Mode::AUTO_NULL;
+		//default: assert(0);
 	}
 	return m;	
 }
@@ -677,9 +700,6 @@ Robot_outputs Main::operator()(Robot_inputs in,ostream&){
 			goals.drive.left=nav2.Aturn.l;
 			goals.drive.right=nav2.Aturn.r;
 			break;
-		case Mode::AUTO_SCORE:
-			//score on low goal.
-			break;
 		case Mode::AUTO_REACH:
 			myfile2 << "RUN:ON" << endl;
 			goals.drive.left=-.45;
@@ -738,9 +758,11 @@ Robot_outputs Main::operator()(Robot_inputs in,ostream&){
 			goals.drive.right=-.5;
 			goals.drive.left=-.5;
 			goals.collector.tilt=top;
+
+		//shooter_protical call in here takes in robot inputs,toplevel goal,toplevel status detail
 		default: assert(0);
 	}
-	auto next=next_mode(mode,in.robot_mode.autonomous,autonomous_start_now,toplevel_status,since_switch.elapsed(),panel,nav2.navindex,nav2.NavV,nav2.stepcounter,nav2.Aturn,topready);
+	auto next=next_mode(mode,in.robot_mode.autonomous,autonomous_start_now,toplevel_status,since_switch.elapsed(),panel,nav2.navindex,nav2.NavV,nav2.stepcounter,nav2.Aturn,topready,in);
 	since_switch.update(in.now,mode!=next);
 	mode=next;
 		
@@ -937,7 +959,8 @@ void test_next_mode(){
 		Toplevel::Status_detail st=example((Toplevel::Status_detail*)nullptr);
 		int stepcounter=0;
 		bool toplready = true;
-		auto next=next_mode(mode,0,0,st,0,Panel{},0,{},stepcounter,Nav2::aturn{},toplready);
+		Robot_inputs in;
+		auto next=next_mode(mode,0,0,st,0,Panel{},0,{},stepcounter,Nav2::aturn{},toplready,in);
 		cout<<"Testing mode "<<mode<<" goes to "<<next<<"\n";
 		assert(next==Main::Mode::TELEOP);
 	}
