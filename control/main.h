@@ -13,7 +13,7 @@
 #include "log.h"
 
 struct Tilt_presets{
-	double top, level, low, cheval, portcullis;//angles (in degrees) that it will go to when set to the tilt goals
+	double top, level, low, cheval, drawbridge;//angles (in degrees) that it will go to when set to the tilt goals
 	Tilt_presets();
 };
 
@@ -66,7 +66,7 @@ struct Main{
 	
 	Countdown_timer learn_delay;
 
-	Countdown_timer speed_up_timer, shoot_high_timer, shoot_low_timer, cheval_lift_timer, cheval_drive_timer, portcullis_timer;
+	Countdown_timer speed_up_timer, shoot_high_timer, shoot_low_timer, cheval_lift_timer, cheval_drive_timer, drawbridge_timer;
 
 	#define CHEVAL_STEPS X(GO_DOWN) X(DRIVE) X(DRIVE_AND_STOW)
 	enum class Cheval_steps{

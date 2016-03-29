@@ -17,7 +17,8 @@ HIGH PRIORITY for Auburn:
 	- Shooter code
 		- Get shoot prep to work
 		- Get shooter speed in rpm
-		- Use ready() to determine if it has spun up
+		- Get both closed loop control and open loop control working for shooter
+		- Add voltage and speed modes for talon_srx control
 	- Logging
 	- Turn off windows updates on all machines
 		- Red                                                        - Done
