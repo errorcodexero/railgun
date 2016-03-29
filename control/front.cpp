@@ -6,7 +6,7 @@ using namespace std;
 
 #define FRONT_ADDRESS 2
 #define FRONT_SPEED 1
-#define CLEAR_BALL_SPEED -.3
+#define CLEAR_BALL_SPEED -.6
 
 Front::Input::Input():ball(0){}
 
