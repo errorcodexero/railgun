@@ -1,6 +1,7 @@
 #include "WPILib.h"
 #include "control/main.h"
 #include "dio_control.h"
+#include "talon_srx_control.h"
 #include <netinet/in.h>
 #include <arpa/inet.h>
 #include <unistd.h>
@@ -228,6 +229,7 @@ class To_crio
 	int error_code;
 	USER_CODE main;
 	int skipped;
+	Talon_srx_control talon_srx[Robot_outputs::TALON_SRX_OUTPUTS];
 	//Jag_control jaguar[Robot_outputs::CAN_JAGUARS];
 	//DriverStationLCD *lcd;
 	//NetworkTable *table;
@@ -525,7 +527,7 @@ public:
 		/*cerr<<"Going to set LCD\n";
 		cerr.flush();
 		
-		//string s="hell owrld\n";
+		ALON//string s="hell owrld\n";
 		static const unsigned SIZE=USER_DS_LCD_DATA_SIZE;
 		char s[SIZE];
 		memset(s,' ',SIZE);
