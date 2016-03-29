@@ -82,8 +82,16 @@ std::ostream& operator<<(std::ostream& o, Talon_srx_input in){
 	return o<<")";
 }
 
-std::ostream& operator<<(std::ostream& o, Talon_srx_output in){
-	o<<"(power_level: "<<in.power_level;
+std::ostream& operator<<(std::ostream& o, Talon_srx_output::Mode a){
+	if(a==Talon_srx_output::Mode::VOLTAGE) o<<"VOLTAGE";
+	else if(a==Talon_srx_output::Mode::SPEED) o<<"SPEED";
+	return o;
+}
+
+std::ostream& operator<<(std::ostream& o, Talon_srx_output a){
+	o<<"(mode: "<<a.mode;
+	if(a.mode==Talon_srx_output::Mode::VOLTAGE) o<<" power_level: "<<a.power_level;
+	else if(a.mode==Talon_srx_output::Mode::SPEED) o<<" speed: "<<a.speed;
 	return o<<")";
 }
 
@@ -174,7 +182,10 @@ bool operator<(Talon_srx_input a, Talon_srx_input b){
 }
 
 bool operator==(Talon_srx_output a,Talon_srx_output b){
-	return a.power_level==b.power_level;
+	if(a.mode!=b.mode) return false;
+	if(a.mode==Talon_srx_output::Mode::VOLTAGE) return a.power_level==b.power_level;
+	if(a.mode==Talon_srx_output::Mode::SPEED) return a.speed==b.speed;
+	return false;
 }
 
 bool operator!=(Talon_srx_output a,Talon_srx_output b){
@@ -182,7 +193,10 @@ bool operator!=(Talon_srx_output a,Talon_srx_output b){
 }
 
 bool operator<(Talon_srx_output a, Talon_srx_output b){
-	return a.power_level<b.power_level;
+	if(a.mode!=b.mode) return a.mode<b.mode;
+	if(a.mode==Talon_srx_output::Mode::VOLTAGE) return a.power_level<b.power_level;
+	if(a.mode==Talon_srx_output::Mode::SPEED) return a.speed<b.speed;
+	return false;
 }
 
 bool operator==(Digital_out a, Digital_out b){

@@ -237,11 +237,11 @@ class To_crio
 	//Gyro *gyro;
 	PowerDistributionPanel *power;
 	Compressor *compressor;
-	CANTalon test1;
+	CANTalon talon_1;
 	//CANTalon test2;
-	const int TEST1_ID = 0;
+	const int TALON_1_ID = 0;
 public:
-	To_crio():error_code(0),skipped(0),test1(TEST1_ID)//,test2(1)//,gyro(NULL)
+	To_crio():error_code(0),skipped(0),talon_1(TALON_1_ID)//,test2(1)//,gyro(NULL)
 	{
 		power = new PowerDistributionPanel();
 		// Wake the NUC by sending a Wake-on-LAN magic UDP packet:
@@ -307,7 +307,7 @@ public:
 		
 		//Slave
 		//test2.SetControlMode(CANSpeedController::kFollower);
-		//test2.Set(TEST1_ID);
+		//test2.Set(TALON_1_ID);
 		
 		cout<<"Initialization Complete."<<endl<<flush;
 	}
@@ -433,7 +433,7 @@ public:
 		//cout << "d_io: " << digital_io << endl << "o.d.io: " << out.digital_io << endl ;
 
 		//test.Set(1);
-		test1.Set(out.talon_srx[TEST1_ID].power_level);
+		talon_1.Set(out.talon_srx[TALON_1_ID].power_level);
 		//test2.Set(out.talon_srx[1].power_level);
 		//test2.SetSensorDirection(0);
 		{
@@ -570,7 +570,7 @@ public:
 			in.talon_srx[index].a=talon_srx.GetPinStateQuadA();
 			in.talon_srx[index].b=talon_srx.GetPinStateQuadB();
 		};
-		f(TEST1_ID,test1);
+		f(TALON_1_ID,talon_1);
 		//f(1,test2);
 		//cout<<"in:"<<in<<"\n";
 		//}

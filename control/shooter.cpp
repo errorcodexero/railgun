@@ -66,17 +66,17 @@ Robot_inputs Shooter::Input_reader::operator()(Robot_inputs r,Shooter::Input in)
 Shooter::Output Shooter::Output_applicator::operator()(Robot_outputs r)const{
 	double power = r.talon_srx[SHOOTER_WHEEL_LOC].power_level;
 	if (power==0) return Shooter::Output::STOP;
-	if (power==.5) return Shooter::Output::GROUND_SPEED;
-	if (power==1) return Shooter::Output::CLIMB_SPEED;
-	if (power==-1) return Shooter::Output::FREE_SPIN;
+	if (power==-.5) return Shooter::Output::GROUND_SPEED;
+	if (power==-1) return Shooter::Output::CLIMB_SPEED;
+	if (power==1) return Shooter::Output::FREE_SPIN;
 	assert(0);
 }
 Robot_outputs Shooter::Output_applicator::operator()(Robot_outputs r,Shooter::Output out)const{ 
 	r.talon_srx[SHOOTER_WHEEL_LOC].power_level = [&]{
 		if (out==Shooter::Output::STOP) return 0.0;
-		else if (out==Shooter::Output::GROUND_SPEED) return .5;
-		else if (out==Shooter::Output::CLIMB_SPEED) return 1.0;
-		else if (out==Shooter::Output::FREE_SPIN) return -1.0;
+		else if (out==Shooter::Output::GROUND_SPEED) return -.5;
+		else if (out==Shooter::Output::CLIMB_SPEED) return -1.0;
+		else if (out==Shooter::Output::FREE_SPIN) return 1.0;
 		assert(0);
 	}();
 	return r;

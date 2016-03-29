@@ -59,7 +59,7 @@ struct Main{
 	Joy_collector_pos joy_collector_pos;
 		
 	Posedge_toggle controller_auto;
-	#define COLLECTOR_MODES X(CHEVAL) X(PORTCULLIS) X(NOTHING) X(COLLECT) X(STOW) X(EJECT) X(REFLECT) X(SHOOT) X(LOW) X(DRAW_BRIDGE)
+	#define COLLECTOR_MODES X(CHEVAL) X(PORTCULLIS) X(NOTHING) X(COLLECT) X(STOW) X(SHOOT_HIGH) X(REFLECT) X(SHOOT_LOW) X(LOW) X(DRAW_BRIDGE)
 	enum class Collector_mode{
 		#define X(name) name,
 		COLLECTOR_MODES
@@ -69,7 +69,7 @@ struct Main{
 	
 	Countdown_timer learn_delay;
 
-	Countdown_timer speed_up_timer, shoot_timer, cheval_lift_timer, cheval_drive_timer, portcullis_timer;
+	Countdown_timer speed_up_timer, shoot_high_timer, shoot_low_timer, cheval_lift_timer, cheval_drive_timer, portcullis_timer;
 
 	#define CHEVAL_STEPS X(GO_DOWN) X(DRIVE) X(DRIVE_AND_STOW)
 	enum class Cheval_steps{
@@ -91,6 +91,8 @@ struct Main{
 
 	Tilt_presets tilt_presets;
 	Log log;
+
+	void shooter_protocol(bool const&,bool const&,Time const&,Toplevel::Goal& goals);
 
 	Toplevel::Goal teleop(Robot_inputs const&,Joystick_data const&,Joystick_data const&,Panel const&,Toplevel::Status_detail&,
 		Tilt::Goal,
