@@ -236,11 +236,11 @@ class To_crio
 	//Gyro *gyro;
 	PowerDistributionPanel *power;
 	Compressor *compressor;
-	CANTalon talon_1;
+	//CANTalon talon_1;
 	//CANTalon test2;
 	const int TALON_1_ID = 0;
 public:
-	To_crio():error_code(0),skipped(0),talon_1(TALON_1_ID)//,test2(1)//,gyro(NULL)
+	To_crio():error_code(0),skipped(0)//,talon_1(TALON_1_ID)//,test2(1)//,gyro(NULL)
 	{
 		power = new PowerDistributionPanel();
 		// Wake the NUC by sending a Wake-on-LAN magic UDP packet:
@@ -432,7 +432,7 @@ public:
 		//cout << "d_io: " << digital_io << endl << "o.d.io: " << out.digital_io << endl ;
 
 		//test.Set(1);
-		talon_1.Set(out.talon_srx[TALON_1_ID].power_level);
+		talon_srx[TALON_1_ID].set(out.talon_srx[TALON_1_ID],1);//talon_1.Set(out.talon_srx[TALON_1_ID].power_level);
 		//test2.Set(out.talon_srx[1].power_level);
 		//test2.SetSensorDirection(0);
 		{
@@ -556,6 +556,7 @@ public:
 			//in.digital_io[i]=digital_io[i].get();
 		}
 		in.digital_io=digital_io.get();
+		#if 0
 		auto f=[&](int index,CANTalon& talon_srx) {
 			in.talon_srx[index].fwd_limit_switch=talon_srx.IsFwdLimitSwitchClosed();
 			in.talon_srx[index].rev_limit_switch=talon_srx.IsRevLimitSwitchClosed();
@@ -570,6 +571,7 @@ public:
 			in.talon_srx[index].b=talon_srx.GetPinStateQuadB();
 		};
 		f(TALON_1_ID,talon_1);
+		#endif
 		//f(1,test2);
 		//cout<<"in:"<<in<<"\n";
 		//}
