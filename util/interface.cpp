@@ -7,6 +7,8 @@
 
 using namespace std;
 
+Talon_srx_output::PID_coefficients::PID_coefficients():p(.3),i(.003),d(0){}
+
 Digital_out::Digital_out():type_(Type::INPUT){}
 
 Digital_out::Type Digital_out::type()const{ return type_; }

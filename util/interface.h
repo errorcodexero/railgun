@@ -52,6 +52,11 @@ struct Talon_srx_input{
 };
 
 struct Talon_srx_output{
+	struct PID_coefficients{
+		float p,i,d;
+		PID_coefficients();
+	};
+	PID_coefficients pid;
 	double power_level;
 	double speed;
 	enum class Mode{VOLTAGE,SPEED};
