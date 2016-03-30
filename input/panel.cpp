@@ -89,8 +89,8 @@ Panel::Auto_mode auto_mode_convert(int potin){
 			return Panel::Auto_mode::STATICF;
 		case 4:
 			return Panel::Auto_mode::PORTCULLIS;
-		//case 5: 
-			//return Panel::Auto_mode::CHEVAL;
+		case 5: 
+			return Panel::Auto_mode::CHEVAL;
 		
 		default:
 			return Panel::Auto_mode::NOTHING;

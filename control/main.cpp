@@ -479,8 +479,8 @@ pair<float,float> driveatwall(const Robot_inputs in){
 	}
 	return motorvoltmods;
 }
-
-Main::Mode next_mode(Main::Mode m,bool autonomous,bool autonomous_start,Toplevel::Status_detail /*status*/,Time since_switch, Panel panel,unsigned int navindex,vector<Nav2::NavS> NavV,int & stepcounter,Nav2::aturn Aturn){
+Main::Mode next_mode(Main::Mode m,bool autonomous,bool autonomous_start,Toplevel::Status_detail& /*status*/,Time since_switch, Panel panel,bool const&toplready,Robot_inputs const& in){
+	cout << "M: " << m << endl;
 	switch(m){
 		case Main::Mode::TELEOP:	
 			if(autonomous_start){
@@ -499,10 +499,12 @@ Main::Mode next_mode(Main::Mode m,bool autonomous,bool autonomous_start,Toplevel
 							return Main::Mode::AUTO_STATIC;
 						case Panel::Auto_mode::PORTCULLIS:
 							return Main::Mode::AUTO_PORTCULLIS;
+						case Panel::Auto_mode::CHEVAL:
+							return Main::Mode::AUTO_CHEVALPOS;
 						default: assert(0);
 					}
 				}
-				return Main::Mode::AUTO_NULL; //during testing put the mode you want to test without the driverstation.
+				return Main::Mode::TELEOP; //during testing put the mode you want to test without the driverstation.
 				//return Main::Mode::TELEOP;
 			}
 			return m;
@@ -510,42 +512,6 @@ Main::Mode next_mode(Main::Mode m,bool autonomous,bool autonomous_start,Toplevel
 		case Main::Mode::AUTO_NULL:
 			return Main::Mode::TELEOP;
 		
-		case Main::Mode::AUTO_NAV:
-			//if(stepcounter==1 /* || stepcounter==2*/){
-				//stepcounter ++;
-				if(!autonomous) return Main::Mode::TELEOP;
-				return Main::Mode::AUTO_NAV_RUN;
-			//}else if(stepcounter==2)
-				//return Main::Mode::AUTO_MOVE;
-
-			myfile2 << "AUTO_NAV:next:" << stepcounter << endl;
-
-
-		case Main::Mode::AUTO_NAV_RUN:
-			if(!autonomous) return Main::Mode::TELEOP;
-			assert(navindex<NavV.size());
-			if(since_switch>NavV[navindex].amount) {
-				navindex++;
-				myfile2 << "navindex:" << navindex << endl << "SS: " << since_switch << endl;
-				myfile2.flush();
-			}
-			if(navindex==NavV.size()) {
-				myfile2 << "done" << endl;
-				myfile2.flush();
-				return Main::Mode::AUTO_NAV;
-			}
-			return Main::Mode::AUTO_NAV_RUN;
-
-		case Main::Mode::AUTO_MOVE:
-			if (!autonomous) return Main::Mode::TELEOP;
-			if(since_switch>Aturn.dur) return Main::Mode::AUTO_NAV;
-			return Main::Mode::AUTO_MOVE;
-
-		case Main::Mode::AUTO_SCORE:
-			if(!autonomous) return Main::Mode::TELEOP;
-			if(since_switch>1) return Main::Mode::AUTO_NAV;
-			return Main::Mode::AUTO_MOVE;
- 
 		case Main::Mode::AUTO_REACH:
 			myfile2 << "NEXT_MODE:SS" << since_switch << endl;
 			if(!autonomous) return Main::Mode::TELEOP;
@@ -572,17 +538,66 @@ Main::Mode next_mode(Main::Mode m,bool autonomous,bool autonomous_start,Toplevel
 
 		case Main::Mode::AUTO_PORTCULLIS:
 			if(!autonomous) return Main::Mode::TELEOP;
-			if(since_switch > 2.5) return Main::Mode::AUTO_PORTCULLIS_DONE;
+			if(since_switch > 4.5) return Main::Mode::AUTO_PORTCULLIS_DONE;
 			return Main::Mode::AUTO_PORTCULLIS;
 	
 		case Main::Mode::AUTO_PORTCULLIS_DONE:
 			if(since_switch > 2 || !autonomous) return Main::Mode::TELEOP;
 			return Main::Mode::AUTO_PORTCULLIS_DONE;
 
-		case Main::Mode::AUTO_CHEVAL:
-			if(since_switch > .8 || !autonomous) return Main::Mode::TELEOP;
-			return Main::Mode::AUTO_CHEVAL;
-	
+		case Main::Mode::AUTO_CHEVALPOS:
+			if(!autonomous) return Main::Mode::TELEOP;
+			if(since_switch > .9) return Main::Mode::AUTO_CHEVALDROP;
+			return Main::Mode::AUTO_CHEVALPOS;
+
+		case Main::Mode::AUTO_CHEVALDROP:
+			if(!autonomous) return Main::Mode::TELEOP;
+			if(toplready) return Main::Mode::AUTO_CHEVALDRIVE;
+			return Main::Mode::AUTO_CHEVALDROP;
+				
+		case Main::Mode::AUTO_CHEVALDRIVE:
+			if(!autonomous) return Main::Mode::TELEOP;
+			if(since_switch > .45) return Main::Mode::AUTO_CHEVALSTOW;
+			return Main::Mode::AUTO_CHEVALDRIVE;
+		
+		case Main::Mode::AUTO_CHEVALSTOW:
+			if(since_switch > 2 || !autonomous) return Main::Mode::TELEOP;
+			return Main::Mode::AUTO_CHEVALSTOW;
+
+		case Main::Mode::AUTO_SCORELOW:
+			if(!autonomous) return Main::Mode::TELEOP;
+			if(since_switch > 4.5) return Main::Mode::AUTO_SCOREBAR;
+			return Main::Mode::AUTO_SCORELOW;
+		case Main::Mode::AUTO_SCOREBAR:
+			if(since_switch > 2 || !autonomous) return Main::Mode::TELEOP;
+			return Main::Mode::AUTO_SCOREBAR;
+		case Main::Mode::AUTO_SCOREDRIVE:
+			{
+				bool first_run=true;
+				int ioencoder;
+				int curencoder;
+
+				first_run=false;
+				curencoder = in.digital_io.encoder[0];
+
+				if(!autonomous) return Main::Mode::TELEOP;
+
+				if(first_run==false){
+					ioencoder=0;
+				} else {
+					ioencoder = curencoder;
+				}
+			
+				if((in.digital_io.encoder[0]) > ((curencoder - ioencoder) == 1000)) return Main::Mode::AUTO_SCOREPREP;
+
+					return Main::Mode::AUTO_SCOREDRIVE;
+			}
+		/*default:
+			if(!autonomous) return Main::Mode::TELEOP;
+			return Main::Mode::AUTO_NULL;*/
+		case Main::Mode::AUTO_SCOREPREP:
+			if(!autonomous) return Main::Mode::TELEOP;
+			return Main::Mode::AUTO_SCOREPREP;
 		default: assert(0);
 	}
 	return m;	
@@ -631,58 +646,6 @@ Robot_outputs Main::operator()(Robot_inputs in,ostream&){
 			break;
 		case Mode::AUTO_NULL:
 			break;
-		case Mode::AUTO_NAV:
-			
-			myfile2 << "AUTO_NAV:" << nav2.stepcounter << endl;
-
-			//if(stepcounter==1) {
-				nav2.NavV = nav2.loadnav(nav2.s1);
-				myfile2 << "doing S1" << endl;
-			//} else if(stepcounter==2) {
-				//NavV = loadnav(s2);
-				//myfile2 << "doing S2" << endl;
-			//} else if(stepcounter==3){
-				//Aturn.l = -.45;
-				//Aturn.r = .45;
-				//Aturn.dur=1;
-			//	break;
-			//}
-			//else if(stepcounter==4)
-				//fire the ball!
-				//break;
-			//else if(stepcounter==5)
-				//all done
-				//break;
-			/*
-			else if(stepcounter==5)
-			
-				break;
-			else if(stepcounter==6)
-				NavV = loadnav(s3);
-			else if(stepcounter==7)
-				NavV = loadnav(s4);
-			*/
-			//else
-			//	assert(0);
-
-			nav2.navindex = 0;
-			myfile2 << "Nav loaded:" << nav2.NavV.size() << endl;
-			myfile2.flush();
-			break;
-
-		case Mode::AUTO_NAV_RUN:
-			//goals.tilt=level;
-			//goals.drive.left=nav2.NavV[nav2.navindex].left;
-			//goals.drive.right=nav2.NavV[nav2.navindex].right;
-			break;
-
-		case Mode::AUTO_MOVE:
-			goals.drive.left=nav2.Aturn.l;
-			goals.drive.right=nav2.Aturn.r;
-			break;
-		case Mode::AUTO_SCORE:
-			//score on low goal.
-			break;
 		case Mode::AUTO_REACH:
 			myfile2 << "RUN:ON" << endl;
 			goals.drive.left=-.45;
@@ -708,22 +671,65 @@ Robot_outputs Main::operator()(Robot_inputs in,ostream&){
 			goals.drive.right=.10;
 			break;
 		case Mode::AUTO_PORTCULLIS:
+			goals.collector.front=Front::Goal::OFF;
+			goals.collector.sides=Sides::Goal::OFF;
 			goals.collector.tilt=low;
+
 			if(ready(toplevel_status.collector.tilt.angle,goals.collector.tilt=low)){
 				goals.drive.left=-.75;
 				goals.drive.right=-.75;
 			}
 			break;
 		case Mode::AUTO_PORTCULLIS_DONE:
+			//goals.drive.left=0;
+			//goals.drive.right=0;
 			goals.collector.tilt=top;
 			break;
-		case Mode::AUTO_CHEVAL:
+
+		case Mode::AUTO_CHEVALPOS:
+			goals.collector.front=Front::Goal::OFF;
+			goals.collector.sides=Sides::Goal::OFF;
 			goals.drive.left=-.45;
 			goals.drive.right=-.45;
 			break;
+		
+		case Mode::AUTO_CHEVALDROP:
+			goals.drive.left=0;
+			goals.drive.right=0;
+			goals.collector.front=Front::Goal::OFF;
+			goals.collector.sides=Sides::Goal::OFF;
+			goals.collector.tilt=cheval;
+			Main::topready=ready(toplevel_status.collector.tilt.angle,goals.collector.tilt);
+			
+			break;
+
+		case Mode::AUTO_CHEVALDRIVE:
+			goals.collector.front=Front::Goal::OFF;
+			goals.collector.sides=Sides::Goal::OFF;
+			goals.drive.right=-.5;
+			goals.drive.left=-.5;
+			break;
+			
+		case Mode::AUTO_CHEVALSTOW:
+			goals.collector.front=Front::Goal::OFF;
+			goals.collector.sides=Sides::Goal::OFF;
+			goals.drive.right=-.5;
+			goals.drive.left=-.5;
+			goals.collector.tilt=top;
+			break;
+		case Mode::AUTO_SCORELOW:
+			break;
+		case Mode::AUTO_SCOREBAR:
+			break;
+		case Mode::AUTO_SCOREDRIVE:
+			break;
+		case Mode::AUTO_SCOREPREP:	
+			break;
+
+		//shooter_protical call in here takes in robot inputs,toplevel goal,toplevel status detail
 		default: assert(0);
 	}
-	auto next=next_mode(mode,in.robot_mode.autonomous,autonomous_start_now,toplevel_status,since_switch.elapsed(),panel,nav2.navindex,nav2.NavV,nav2.stepcounter,nav2.Aturn);
+	auto next=next_mode(mode,in.robot_mode.autonomous,autonomous_start_now,toplevel_status,since_switch.elapsed(),panel,topready,in);
 	since_switch.update(in.now,mode!=next);
 	mode=next;
 		
@@ -868,7 +874,7 @@ void update_pos(Pt &current_pos, Robot_outputs out, const Time INCREMENT){
 
 void test_autonomous(Main::Mode mode){
 	Main m;
-	if(mode==Main::Mode::AUTO_NAV_RUN) mode=Main::Mode::AUTO_NULL;
+
 	m.mode=mode;
 	
 	Robot_inputs in;
@@ -918,8 +924,11 @@ void test_next_mode(){
 	};
 	for(auto mode:MODE_LIST){
 		Toplevel::Status_detail st=example((Toplevel::Status_detail*)nullptr);
-		int stepcounter=0;
-		auto next=next_mode(mode,0,0,st,0,Panel{},0,{},stepcounter,Nav2::aturn{});
+		bool toplready = true;
+		Robot_inputs in;
+		
+		
+		auto next=next_mode(mode,0,0,st,0,Panel{},toplready,in);
 		cout<<"Testing mode "<<mode<<" goes to "<<next<<"\n";
 		assert(next==Main::Mode::TELEOP);
 	}
