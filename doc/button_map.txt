@@ -23,8 +23,8 @@ Driver:
 Gunner:
  A          - Low
  B          - (NOT CURRENTLY) Learn (used in combination with the tilt positions buttons)
- X          - Shoot
- Y          - Eject
+ X          - Shoot_low
+ Y          - Shoot_high
  Start      - Collector auto/manual toggle
  Back       - All collector off
  RB         - Side belt in
