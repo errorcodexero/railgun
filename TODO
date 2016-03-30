@@ -72,3 +72,6 @@ Eric's random thoughts:
 	-I should try to figure out what the Joy_collector_position logic is doing
 	-Why is there a variable 'simtest' in main?
 	-The printout of the mode every cycle in main should go away.
+	-Don't do this before Auburn: There shouldn't be seperate "panel output" and driver station output
+	-There's a better way to do SLOW_PRINT
+	-Probably not this season: Should try to put a little more structure so that autonomous modes are less prone to be spaghetti-like
