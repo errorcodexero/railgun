@@ -52,8 +52,8 @@ ostream& operator<<(ostream& o,Main::Cheval_steps a){
 Tilt_presets::Tilt_presets(){
 	top=0;
 	level=83;
-	low=100;
-	cheval=100;
+	low=110;
+	cheval=110;
 	drawbridge=83;
 }
 
@@ -538,16 +538,16 @@ Main::Mode next_mode(Main::Mode m,bool autonomous,bool autonomous_start,Toplevel
 
 		case Main::Mode::AUTO_PORTCULLIS:
 			if(!autonomous) return Main::Mode::TELEOP;
-			if(since_switch > 1.5) return Main::Mode::AUTO_PORTCULLIS_DONE;
+			if(since_switch > 2.5) return Main::Mode::AUTO_PORTCULLIS_DONE;
 			return Main::Mode::AUTO_PORTCULLIS;
 	
 		case Main::Mode::AUTO_PORTCULLIS_DONE:
-			if(since_switch > 1.5 || !autonomous) return Main::Mode::TELEOP;
+			if(since_switch > 2.5 || !autonomous) return Main::Mode::TELEOP;
 			return Main::Mode::AUTO_PORTCULLIS_DONE;
 
 		case Main::Mode::AUTO_CHEVALPOS:
 			if(!autonomous) return Main::Mode::TELEOP;
-			if(since_switch > .9) return Main::Mode::AUTO_CHEVALDROP;
+			if(since_switch > .75) return Main::Mode::AUTO_CHEVALDROP;
 			return Main::Mode::AUTO_CHEVALPOS;
 
 		case Main::Mode::AUTO_CHEVALDROP:
@@ -561,7 +561,7 @@ Main::Mode next_mode(Main::Mode m,bool autonomous,bool autonomous_start,Toplevel
 			return Main::Mode::AUTO_CHEVALDRIVE;
 		
 		case Main::Mode::AUTO_CHEVALSTOW:
-			if(since_switch > 2 || !autonomous) return Main::Mode::TELEOP;
+			if(since_switch > 1.5 || !autonomous) return Main::Mode::TELEOP;
 			return Main::Mode::AUTO_CHEVALSTOW;
 
 		case Main::Mode::AUTO_SCORELOW:
