@@ -9,6 +9,7 @@
 HIGH PRIORITY for Auburn:
 	- Connectivity debugging
 	- Re-label OI
+	- Remove drawbridge learning
 	- Autonomous - Tristan
 		- Auto_nav_run results in seg fault
 		- Drive Encoders
