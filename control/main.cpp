@@ -400,7 +400,11 @@ Toplevel::Goal Main::teleop(
 		if(learn.get()){//learn
 			double learn_this=toplevel_status.collector.tilt.angle;
 			bool done=false;
-			if(panel.collector_pos==Panel::Collector_pos::STOW || panel.shoot_low){
+			if(panel.collect){
+				tilt_presets.level=learn_this;
+				done=true;
+			}
+			else if(panel.collector_pos==Panel::Collector_pos::STOW || panel.shoot_low){
 				tilt_presets.top=learn_this;
 				done=true;
 			}
