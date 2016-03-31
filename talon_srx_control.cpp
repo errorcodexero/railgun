@@ -4,9 +4,9 @@
 
 using namespace std;
 
-Talon_srx_control::Talon_srx_control():talon(NULL),mode(Talon_srx_control::Mode::INIT){}
+Talon_srx_control::Talon_srx_control():talon(NULL),mode(Mode::INIT){}
 
-Talon_srx_control::Talon_srx_control(int CANBusAddress) {
+Talon_srx_control::Talon_srx_control(int CANBusAddress):talon(NULL),mode(Mode::INIT) {
 	talon = new CANTalon(CANBusAddress);
 }
 

@@ -26,7 +26,7 @@ class Talon_srx_control {
 	public:
 	Talon_srx_control();
 	~Talon_srx_control();
-	explicit Talon_srx_control(int);
+	explicit Talon_srx_control(int CANBusAddress);
 	
 	void set(Talon_srx_output, bool);
 	Talon_srx_input get();

@@ -229,7 +229,8 @@ class To_crio
 	int error_code;
 	USER_CODE main;
 	int skipped;
-	Talon_srx_control talon_srx[Robot_outputs::TALON_SRX_OUTPUTS];
+	const int SHOOTER_ID = 0;
+	Talon_srx_control talon_srx_control;
 	//Jag_control jaguar[Robot_outputs::CAN_JAGUARS];
 	//DriverStationLCD *lcd;
 	//NetworkTable *table;
@@ -238,9 +239,8 @@ class To_crio
 	Compressor *compressor;
 	//CANTalon talon_1;
 	//CANTalon test2;
-	const int TALON_1_ID = 0;
 public:
-	To_crio():error_code(0),skipped(0)//,talon_1(TALON_1_ID)//,test2(1)//,gyro(NULL)
+	To_crio():error_code(0),skipped(0),talon_srx_control(SHOOTER_ID)//,talon_1(TALON_1_ID)//,test2(1)//,gyro(NULL)
 	{
 		power = new PowerDistributionPanel();
 		// Wake the NUC by sending a Wake-on-LAN magic UDP packet:
@@ -432,7 +432,7 @@ public:
 		//cout << "d_io: " << digital_io << endl << "o.d.io: " << out.digital_io << endl ;
 
 		//test.Set(1);
-		talon_srx[TALON_1_ID].set(out.talon_srx[TALON_1_ID],1);//talon_1.Set(out.talon_srx[TALON_1_ID].power_level);
+		talon_srx_control.set(out.talon_srx[SHOOTER_ID],true); //talon_1.Set(out.talon_srx[TALON_1_ID].power_level);
 		//test2.Set(out.talon_srx[1].power_level);
 		//test2.SetSensorDirection(0);
 		{
