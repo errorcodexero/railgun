@@ -24,6 +24,8 @@ struct Collector{
 		#define X(A,B) A::Goal B;
 		COLLECTOR_ITEMS(X)
 		#undef X
+		Goal();
+		Goal(Front::Goal,Sides::Goal,Tilt::Goal);
 	};
 
 	struct Input_reader{

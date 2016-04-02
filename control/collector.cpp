@@ -2,6 +2,10 @@
 
 #define nyi { cout<<"nyi "<<__LINE__<<"\n"; exit(44); }
 
+Collector::Goal::Goal():front(Front::Goal::OFF),sides(Sides::Goal::OFF),tilt(Tilt::Goal::stop()){}
+
+Collector::Goal::Goal(Front::Goal f,Sides::Goal s, Tilt::Goal t):front(f),sides(s),tilt(t){}
+
 ostream& operator<<(ostream& o,Collector const&){
 	return o<<"Collector()";
 }
