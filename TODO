@@ -8,8 +8,8 @@
 
 HIGH PRIORITY for Auburn:
 	- Connectivity debugging
-	- Re-label OI
 	- Remove drawbridge learning
+	- Debug netconsole
 	- Autonomous - Tristan
 		- Auto_nav_run results in seg fault
 		- Drive Encoders
@@ -24,8 +24,8 @@ HIGH PRIORITY for Auburn:
 	- Turn off windows updates on all machines
 		- Red                                                        - Done
 		- Gold                                                       - Done
-		- Software 2                                                 -
-		- Software 1 (shouldn't be used as a driver station laptop)  - 
+		- Software 2                                                 - Done
+		- Software 1 (shouldn't be used as a driver station laptop)  - Done
 
 
 LOW PRIORITY for Auburn:
