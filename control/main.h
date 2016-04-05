@@ -13,7 +13,7 @@
 #include "log.h"
 
 struct Tilt_presets{
-	double top, level, low, cheval, drawbridge;//angles (in degrees) that it will go to when set to the tilt goals
+	double top, level, low, cheval;//angles (in degrees) that it will go to when set to the tilt goals
 	Tilt_presets();
 };
 
