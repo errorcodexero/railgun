@@ -1,14 +1,18 @@
-6-Hour Window:
-	- Connectivity test/debugging
+Wednesday Window:
 	- Full system check
 		- Driving: forward, backward, turning, boost, and nudges
 		- Collector: presets, auto modes, and manual controls
 		- Climber: release and winch
+		- High goal shooter
+
+Thursday Window: 
+	- Full system check
+	- Sensor testing for autonomous?
 
 
-HIGH PRIORITY for Auburn:
-	- Connectivity debugging
+HIGH PRIORITY for Portland:
 	- Remove drawbridge learning
+	- Maybe prevent climber release when collector is at top
 	- Debug netconsole
 	- Autonomous - Tristan
 		- Auto_nav_run results in seg fault
@@ -21,14 +25,9 @@ HIGH PRIORITY for Auburn:
 		- Get both closed loop control and open loop control working for shooter
 		- Add voltage and speed modes for talon_srx control
 	- Logging
-	- Turn off windows updates on all machines
-		- Red                                                        - Done
-		- Gold                                                       - Done
-		- Software 2                                                 - Done
-		- Software 1 (shouldn't be used as a driver station laptop)  - Done
 
 
-LOW PRIORITY for Auburn:
+LOW PRIORITY for Portland:
 	- Log Analysis - Nick
 	- PWM mode outputs for blinky lights (DIO 9)
 	- Add auto-shut off for climber with the hall effect sensor	
