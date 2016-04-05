@@ -190,7 +190,7 @@ struct Robot_inputs{
 	static const unsigned ANALOG_INPUTS=4;
 	Checked_array<Volt,ANALOG_INPUTS> analog;
 
-	static const unsigned TALON_SRX_INPUTS=2;
+	static const unsigned TALON_SRX_INPUTS=1;
 	Checked_array<Talon_srx_input, TALON_SRX_INPUTS> talon_srx;
 	
 	Checked_array<Jaguar_input,Robot_outputs::CAN_JAGUARS> jaguar;
