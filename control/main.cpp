@@ -54,10 +54,9 @@ Tilt_presets::Tilt_presets(){
 	level=83;
 	low=110;
 	cheval=110;
-	drawbridge=83;
 }
 
-#define PRESETS X(top) X(level) X(low) X(cheval) X(drawbridge)
+#define PRESETS X(top) X(level) X(low) X(cheval)
 
 bool operator==(Tilt_presets const& a,Tilt_presets const& b){
 	#define X(NAME) if(a.NAME!=b.NAME) return 0;
@@ -67,7 +66,7 @@ bool operator==(Tilt_presets const& a,Tilt_presets const& b){
 }
 
 ostream& operator<<(ostream& o,Tilt_presets const& a){
-	return o<<"Presets( top:"<<a.top<<"  level:"<<a.level<<"  low:"<<a.low<<"  cheval:"<<a.cheval<<"   drawbridge:"<<a.drawbridge<<")";
+	return o<<"Presets( top:"<<a.top<<"  level:"<<a.level<<"  low:"<<a.low<<"  cheval:"<<a.cheval<<")";
 }
 
 #ifdef MAIN_TEST
@@ -335,7 +334,7 @@ Toplevel::Goal Main::teleop(
 					break;
 				}*/
 			case Collector_mode::DRAWBRIDGE:
-				goals.collector={Front::Goal::OFF,Sides::Goal::OFF,mean(top,level)};
+				goals.collector={Front::Goal::OFF,Sides::Goal::OFF,drawbridge};
 				break;
 			default: assert(0);
 		}
@@ -407,10 +406,6 @@ Toplevel::Goal Main::teleop(
 			}
 			else if(panel.cheval){
 				tilt_presets.cheval=learn_this;
-				done=true;
-			}
-			else if(panel.drawbridge){
-				tilt_presets.drawbridge=learn_this;
 				done=true;
 			}
 			else if(panel.collector_pos==Panel::Collector_pos::LOW){
@@ -615,7 +610,7 @@ Robot_outputs Main::operator()(Robot_inputs in,ostream&){
 	Tilt::Goal low=Tilt::Goal::go_to_angle(make_tolerances(tilt_presets.low));
 	Tilt::Goal top=Tilt::Goal::go_to_angle(make_tolerances(tilt_presets.top));
 	Tilt::Goal cheval=Tilt::Goal::go_to_angle(make_tolerances(tilt_presets.cheval));
-	Tilt::Goal drawbridge=Tilt::Goal::go_to_angle(make_tolerances(tilt_presets.drawbridge));
+	Tilt::Goal drawbridge=mean(top,level);
 
 	force.update(
 		main_joystick.button[Gamepad_button::A],
