@@ -59,7 +59,7 @@ struct Main{
 	Joy_collector_pos joy_collector_pos;
 		
 	Posedge_toggle controller_auto;
-	#define COLLECTOR_MODES X(CHEVAL) X(PORTCULLIS) X(NOTHING) X(COLLECT) X(STOW) X(SHOOT_HIGH) X(REFLECT) X(SHOOT_LOW) X(LOW) X(DRAW_BRIDGE)
+	#define COLLECTOR_MODES X(CHEVAL) /*X(PORTCULLIS)*/ X(NOTHING) X(COLLECT) X(STOW) X(SHOOT_HIGH) X(REFLECT) X(SHOOT_LOW) X(LOW) X(DRAWBRIDGE)
 	enum class Collector_mode{
 		#define X(name) name,
 		COLLECTOR_MODES

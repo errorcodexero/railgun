@@ -11,7 +11,7 @@
 struct Climb_release{
 	enum class Goal{IN,STOP,OUT};
 	
-	enum class Status_detail{IN,OUT,UNKNOWN};
+	enum class Status_detail{IN,OUT,PROBABLY_OUT,UNKNOWN};
 	
 	typedef Status_detail Status;
 
@@ -34,6 +34,8 @@ struct Climb_release{
 	struct Estimator{
 		Status_detail last;
 		Countdown_timer timer;
+		Countdown_timer refresh_timer;
+
 		Climb_release::Output last_output;
 		Climb_release::Status_detail get()const;
 		void update(Time,Climb_release::Input,Climb_release::Output);

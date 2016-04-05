@@ -18,7 +18,7 @@ std::ostream& operator<<(std::ostream& o,Climb_release::Input a){
 
 std::ostream& operator<<(std::ostream& o,Climb_release::Status_detail a){
 	#define X(name) if(a==Climb_release::Status_detail::name) return o<<"Climb_release::Status_detail("#name")";
-	X(IN) X(OUT) X(UNKNOWN)
+	X(IN) X(OUT) X(UNKNOWN) X(PROBABLY_OUT)
 	#undef X
 	assert(0);
 }
@@ -79,7 +79,10 @@ Climb_release::Status_detail Climb_release::Estimator::get()const{ return last; 
 
 void Climb_release::Estimator::update(Time time,Climb_release::Input in,Climb_release::Output output){
 	timer.update(time,in.enabled);
+	refresh_timer.update(time,in.enabled);
 	static const float MOVE_TIME=1;
+	static const float REFRESH=15;
+	static const float PULSE=1;
 	switch(last){
 		case Status::IN:
 			if(output==Output::OUT){
@@ -91,7 +94,16 @@ void Climb_release::Estimator::update(Time time,Climb_release::Input in,Climb_re
 			if(output==Output::IN){
 				last=Status::UNKNOWN;
 				timer.set(MOVE_TIME);
+			} else if(output==Output::STOP && last_output==Output::OUT){
+				refresh_timer.set(REFRESH);
 			}
+			if(refresh_timer.done()) last=Status::PROBABLY_OUT;
+			break;
+		case Status::PROBABLY_OUT:
+			if(output==Output::OUT){
+				last=Status::UNKNOWN;
+				timer.set(PULSE);
+			}	
 			break;
 		case Status::UNKNOWN:
 			if(output!=last_output){
@@ -123,7 +135,7 @@ std::set<Climb_release::Input> examples(Climb_release::Input*){ return {{0},{1}}
 std::set<Climb_release::Goal> examples(Climb_release::Goal*){ return {Climb_release::Goal::IN,Climb_release::Goal::STOP,Climb_release::Goal::OUT}; }
 
 std::set<Climb_release::Status_detail> examples(Climb_release::Status_detail*){
-	return {Climb_release::Status_detail::IN,Climb_release::Status_detail::OUT,Climb_release::Status_detail::UNKNOWN};
+	return {Climb_release::Status_detail::IN,Climb_release::Status_detail::OUT,Climb_release::Status_detail::PROBABLY_OUT,Climb_release::Status_detail::UNKNOWN};
 }
 
 Climb_release::Output control(Climb_release::Status_detail status,Climb_release::Goal goal){

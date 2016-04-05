@@ -52,8 +52,8 @@ ostream& operator<<(ostream& o,Main::Cheval_steps a){
 Tilt_presets::Tilt_presets(){
 	top=0;
 	level=83;
-	low=100;
-	cheval=100;
+	low=110;
+	cheval=110;
 	drawbridge=83;
 }
 
@@ -198,6 +198,7 @@ Toplevel::Goal Main::teleop(
 	Tilt::Goal drawbridge
 
 ){
+	(void)drawbridge;
 	Toplevel::Goal goals;
 	
 	bool enabled = in.robot_mode.enabled;
@@ -257,11 +258,7 @@ Toplevel::Goal Main::teleop(
 			cheval_lift_timer.set(.45);
 			cheval_drive_timer.set(2);
 			cheval_step = Cheval_steps::GO_DOWN;
-		} else if((gunner_pov==POV_section::LEFT && !joy_learn) || (panel.in_use && panel.drawbridge && !learning)){
-			collector_mode = Collector_mode::PORTCULLIS;
-			const Time TIME_UNTIL_OVER=1;
-			drawbridge_timer.set(TIME_UNTIL_OVER);
-		} else if (panel.in_use && panel.drawbridge && !learning) collector_mode=Collector_mode::DRAW_BRIDGE;
+		} else if (panel.in_use && panel.drawbridge && !learning) collector_mode=Collector_mode::DRAWBRIDGE;
 		else if((gunner_joystick.button[Gamepad_button::Y] && !joy_learn) || (panel.in_use && panel.shoot_high && !learning)){
 			collector_mode=Collector_mode::SHOOT_HIGH;
 			shoot_step = Shoot_steps::CLEAR_BALL;
@@ -327,7 +324,7 @@ Toplevel::Goal Main::teleop(
 					}
 					break;
 				}
-			case Collector_mode::PORTCULLIS:
+			/*case Collector_mode::PORTCULLIS:
 				{
 					drawbridge_timer.update(in.now,enabled);
 					goals.collector={Front::Goal::OFF,Sides::Goal::OFF,drawbridge};
@@ -336,8 +333,8 @@ Toplevel::Goal Main::teleop(
 					goals.drive.left=AUTO_POWER;
 					if(drawbridge_timer.done()) collector_mode = Collector_mode::STOW;				
 					break;
-				}
-			case Collector_mode::DRAW_BRIDGE:
+				}*/
+			case Collector_mode::DRAWBRIDGE:
 				goals.collector={Front::Goal::OFF,Sides::Goal::OFF,mean(top,level)};
 				break;
 			default: assert(0);
@@ -400,7 +397,11 @@ Toplevel::Goal Main::teleop(
 		if(learn.get()){//learn
 			double learn_this=toplevel_status.collector.tilt.angle;
 			bool done=false;
-			if(panel.collector_pos==Panel::Collector_pos::STOW || panel.shoot_low){
+			if(panel.collect){
+				tilt_presets.level=learn_this;
+				done=true;
+			}
+			else if(panel.collector_pos==Panel::Collector_pos::STOW || panel.shoot_low){
 				tilt_presets.top=learn_this;
 				done=true;
 			}
@@ -480,7 +481,6 @@ pair<float,float> driveatwall(const Robot_inputs in){
 	return motorvoltmods;
 }
 Main::Mode next_mode(Main::Mode m,bool autonomous,bool autonomous_start,Toplevel::Status_detail& /*status*/,Time since_switch, Panel panel,bool const&toplready,Robot_inputs const& in){
-	cout << "M: " << m << endl;
 	switch(m){
 		case Main::Mode::TELEOP:	
 			if(autonomous_start){
@@ -538,16 +538,16 @@ Main::Mode next_mode(Main::Mode m,bool autonomous,bool autonomous_start,Toplevel
 
 		case Main::Mode::AUTO_PORTCULLIS:
 			if(!autonomous) return Main::Mode::TELEOP;
-			if(since_switch > 4.5) return Main::Mode::AUTO_PORTCULLIS_DONE;
+			if(since_switch > 2.5) return Main::Mode::AUTO_PORTCULLIS_DONE;
 			return Main::Mode::AUTO_PORTCULLIS;
 	
 		case Main::Mode::AUTO_PORTCULLIS_DONE:
-			if(since_switch > 2 || !autonomous) return Main::Mode::TELEOP;
+			if(since_switch > 2.5 || !autonomous) return Main::Mode::TELEOP;
 			return Main::Mode::AUTO_PORTCULLIS_DONE;
 
 		case Main::Mode::AUTO_CHEVALPOS:
 			if(!autonomous) return Main::Mode::TELEOP;
-			if(since_switch > .9) return Main::Mode::AUTO_CHEVALDROP;
+			if(since_switch > .75) return Main::Mode::AUTO_CHEVALDROP;
 			return Main::Mode::AUTO_CHEVALPOS;
 
 		case Main::Mode::AUTO_CHEVALDROP:
@@ -561,7 +561,7 @@ Main::Mode next_mode(Main::Mode m,bool autonomous,bool autonomous_start,Toplevel
 			return Main::Mode::AUTO_CHEVALDRIVE;
 		
 		case Main::Mode::AUTO_CHEVALSTOW:
-			if(since_switch > 2 || !autonomous) return Main::Mode::TELEOP;
+			if(since_switch > 1.5 || !autonomous) return Main::Mode::TELEOP;
 			return Main::Mode::AUTO_CHEVALSTOW;
 
 		case Main::Mode::AUTO_SCORELOW:
@@ -639,6 +639,8 @@ Robot_outputs Main::operator()(Robot_inputs in,ostream&){
 		cout << "ENCODER '0': " <<  in.digital_io.encoder[0]<<  endl;
 		cout << "ENCODER '1': " << in.digital_io.encoder[1]<<  endl;	
 	}*/
+	goals.collector.front=Front::Goal::OFF;
+	goals.collector.sides=Sides::Goal::OFF;
 	if(!in.robot_mode.enabled) shoot_step = Main::Shoot_steps::CLEAR_BALL;
 	switch(mode){
 		case Mode::TELEOP:
