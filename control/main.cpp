@@ -258,7 +258,7 @@ Toplevel::Goal Main::teleop(
 			cheval_drive_timer.set(2);
 			cheval_step = Cheval_steps::GO_DOWN;
 		} else if (panel.in_use && panel.drawbridge && !learning) collector_mode=Collector_mode::DRAWBRIDGE;
-		else if((gunner_joystick.button[Gamepad_button::Y] && !joy_learn) || (panel.in_use && panel.shoot_high && !learning)){
+		else if(gunner_joystick.button[Gamepad_button::Y] || (panel.in_use && panel.shoot_high && !learning)){
 			collector_mode=Collector_mode::SHOOT_HIGH;
 			shoot_step = Shoot_steps::CLEAR_BALL;
 			const Time SPEED_UP_TIME=5;
@@ -605,6 +605,8 @@ Robot_outputs Main::operator()(Robot_inputs in,ostream&){
 	Joystick_data main_joystick=in.joystick[0];
 	Joystick_data gunner_joystick=in.joystick[1];
 	Panel panel=interpret(in.joystick[2]);
+
+	if(!in.robot_mode.enabled) collector_mode=Collector_mode::NOTHING;
 
 	Tilt::Goal level=Tilt::Goal::go_to_angle(make_tolerances(tilt_presets.level));
 	Tilt::Goal low=Tilt::Goal::go_to_angle(make_tolerances(tilt_presets.low));
