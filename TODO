@@ -62,7 +62,8 @@ LOG LIST:
 	-Driver inputs			120chars
 	-RIO Connection status and ip	12chars
 	-DriverStation outputs		4chars
-					488 chars total		
+					488 chars total
+
 Eric's random thoughts:
 	-I should try to figure out how the learning logic interacts w/ going into auto, etc.
 	-Nav stuff should be a little more collected together

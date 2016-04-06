@@ -156,22 +156,22 @@ Tilt::Goal mean(Tilt::Goal a,Tilt::Goal b){
 	}
 }
 
-void Main::shooter_protocol(bool const& beam, bool const& enabled,Time const& now, Toplevel::Goal& goals){
+void Main::shooter_protocol(Shooter::Status_detail const& shooter_status, bool const& enabled,Time const& now, Toplevel::Goal& goals){
 	const Tilt::Goal top=Tilt::Goal::go_to_angle(make_tolerances(tilt_presets.top));
 	goals.collector.sides = Sides::Goal::OFF;
 	goals.collector.tilt = top;
 	static const Shooter::Goal shoot_goal = Shooter::Goal::CLIMB_SHOT;
 	switch(shoot_step){
 		case Shoot_steps::CLEAR_BALL:
-			if(!beam) goals.collector.front = Front::Goal::CLEAR_BALL;
+			if(!shooter_status.beam) goals.collector.front = Front::Goal::CLEAR_BALL;
 			else shoot_step = Shoot_steps::SPEED_UP;
 			break;
 		case Shoot_steps::SPEED_UP:
 			goals.collector.front = Front::Goal::OFF;
 			goals.shooter = shoot_goal;
 			speed_up_timer.update(now,enabled);
-			if(speed_up_timer.done()) shoot_step = Shoot_steps::SHOOT;
-			//if(ready(toplevel_status.shooter,goals.shooter)) shoot_step = Shoot_steps::SHOOT;
+			//if(speed_up_timer.done()) shoot_step = Shoot_steps::SHOOT;
+			if(ready(shooter_status,goals.shooter)) shoot_step = Shoot_steps::SHOOT;
 			break;
 		case Shoot_steps::SHOOT:
 			goals.collector.front = Front::Goal::IN;
@@ -282,7 +282,7 @@ Toplevel::Goal Main::teleop(
 				goals.collector={Front::Goal::OFF,Sides::Goal::OUT,level};
 				break;
 			case Collector_mode::SHOOT_HIGH:
-				shooter_protocol(toplevel_status.shooter.beam,in.robot_mode.enabled,in.now,goals);
+				shooter_protocol(toplevel_status.shooter,in.robot_mode.enabled,in.now,goals);
 				break;
 			case Collector_mode::SHOOT_LOW:
 				goals.collector={Front::Goal::OUT,Sides::Goal::OFF,top};
