@@ -123,7 +123,7 @@ Panel interpret(Joystick_data d){
 	p.tilt_auto = d.button[1];
 	p.sides_auto = d.button[2];
 	p.front_auto = d.button[3];
-	p.closed_loop = d.button[4];
+	p.closed_loop = !d.button[4];
 	#define AXIS_RANGE(axis, last, curr, next, var, val) if (axis > curr-(curr-last)/2 && axis < curr+(next-curr)/2) var = val;
 	{
 		float op = d.axis[2];
