@@ -638,8 +638,6 @@ Robot_outputs Main::operator()(Robot_inputs in,ostream&){
 		cout << "ENCODER '0': " <<  in.digital_io.encoder[0]<<  endl;
 		cout << "ENCODER '1': " << in.digital_io.encoder[1]<<  endl;	
 	}*/
-	goals.collector.front=Front::Goal::OFF;
-	goals.collector.sides=Sides::Goal::OFF;
 	switch(mode){
 		case Mode::TELEOP:
 			goals=teleop(in,main_joystick,gunner_joystick,panel,toplevel_status,level,low,top,cheval,drawbridge);
