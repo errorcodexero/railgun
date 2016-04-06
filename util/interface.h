@@ -75,6 +75,7 @@ struct Panel_output {
 
 std::ostream& operator<<(std::ostream&,Digital_out);
 std::ostream& operator<<(std::ostream&,Talon_srx_input);
+std::ostream& operator<<(std::ostream&,Talon_srx_output::Mode);
 std::ostream& operator<<(std::ostream&,Talon_srx_output);
 std::ostream& operator<<(std::ostream&,Panel_output);
 bool operator==(Talon_srx_output,Talon_srx_output);
