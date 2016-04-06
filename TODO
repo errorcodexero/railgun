@@ -12,11 +12,11 @@ Thursday Window:
 
 HIGH PRIORITY for Portland:
 	- Debug netconsole.py not printing anything sometimes
+	- Re-label OI
 	- High goal shooter code
 		- Get shoot prep to work
 		- Get shooter speed in rpm
-		- Get both closed loop control working for shooter
-		- Add voltage and speed modes for talon_srx control
+		- Get closed loop control working for shooter
 	- Maybe prevent climber release when collector is at top
 	- Autonomous - Tristan
 		- Auto_nav_run results in seg fault
