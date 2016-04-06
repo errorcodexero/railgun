@@ -388,7 +388,7 @@ Toplevel::Goal Main::teleop(
 			}
 		}();	
 	}
-	learn_delay.update(in.now,enabled);
+	learn_delay.update(in.now,true);//update always because it's just a nice delay, not actually a key part of functionality
 	if (panel.in_use) {//Panel manual modes
 		learn.update(panel.learn);
 		if(learn.get()){//learn
