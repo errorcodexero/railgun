@@ -69,7 +69,7 @@ struct Main{
 	
 	Countdown_timer learn_delay;
 
-	Countdown_timer speed_up_timer, shoot_high_timer, shoot_low_timer, cheval_lift_timer, cheval_drive_timer, drawbridge_timer;
+	Countdown_timer shoot_high_timer, shoot_low_timer, cheval_lift_timer, cheval_drive_timer, drawbridge_timer;
 
 	#define CHEVAL_STEPS X(GO_DOWN) X(DRIVE) X(DRIVE_AND_STOW)
 	enum class Cheval_steps{
