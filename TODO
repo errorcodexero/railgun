@@ -3,32 +3,31 @@ Wednesday Window:
 		- Driving: forward, backward, turning, boost, and nudges
 		- Collector: presets, auto modes, and manual controls
 		- Climber: release and winch
-		- High goal shooter
+	- High goal shooter
 
 Thursday Window: 
-	- Full system check
+	- Full system check (including high goal shooter if it's working, otherwise continue work on it)
 	- Sensor testing for autonomous?
 
 
 HIGH PRIORITY for Portland:
-	- Debug netconsole
+	- Debug netconsole.py not printing anything sometimes
 	- High goal shooter code
 		- Get shoot prep to work
 		- Get shooter speed in rpm
 		- Get both closed loop control and open loop control working for shooter
 		- Add voltage and speed modes for talon_srx control
-	-Maybe prevent climber release when collector is at top
+	- Maybe prevent climber release when collector is at top
 	- Autonomous - Tristan
 		- Auto_nav_run results in seg fault
 		- Drive Encoders
 		- Testing on carpet field with measurements
-		- Complete all modes, ready for testing 
+		- Low goal auto mode 
 	- Logging
 
 
 LOW PRIORITY for Portland:
 	- Log Analysis - Nick
-	- PWM mode outputs for blinky lights (DIO 9)
 	- Add auto-shut off for climber with the hall effect sensor	
 		
 
@@ -41,6 +40,7 @@ NOT AS HIGH PRIORITY:
 
 NICE THINGS TO HAVE:
 	- Expand testing in main.cpp
+	- PWM mode outputs for blinky lights (DIO 9)
 	- Clean-up stuff:
 		- Use enum class more places
 		- Use std::array in place of C arrays in several places
@@ -70,7 +70,6 @@ Eric's random thoughts:
 	-Some of the nav types aren't following the naming convention
 	-I should try to figure out what the Joy_collector_position logic is doing
 	-Why is there a variable 'simtest' in main?
-	-The printout of the mode every cycle in main should go away.
 	-Don't do this before Auburn: There shouldn't be seperate "panel output" and driver station output
 	-There's a better way to do SLOW_PRINT
 	-Probably not this season: Should try to put a little more structure so that autonomous modes are less prone to be spaghetti-like
