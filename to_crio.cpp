@@ -229,8 +229,7 @@ class To_crio
 	int error_code;
 	USER_CODE main;
 	int skipped;
-	const int SHOOTER_ID = 0;
-	Talon_srx_control talon_srx_control;
+	Talon_srx_controls talon_srx_controls;
 	//Jag_control jaguar[Robot_outputs::CAN_JAGUARS];
 	//DriverStationLCD *lcd;
 	//NetworkTable *table;
@@ -240,7 +239,7 @@ class To_crio
 	//CANTalon talon_1;
 	//CANTalon test2;
 public:
-	To_crio():error_code(0),skipped(0),talon_srx_control(SHOOTER_ID)//,talon_1(TALON_1_ID)//,test2(1)//,gyro(NULL)
+	To_crio():error_code(0),skipped(0)//,talon_1(TALON_1_ID)//,test2(1)//,gyro(NULL)
 	{
 		power = new PowerDistributionPanel();
 		// Wake the NUC by sending a Wake-on-LAN magic UDP packet:
@@ -257,6 +256,7 @@ public:
 				if(!solenoid[i]) error_code|=8;
 			//}
 		}
+		talon_srx_controls.init();
 		
 		for(unsigned i=0;i<Robot_outputs::PWMS;i++){
 			pwm[i]=new VictorSP(i);//untested
@@ -432,7 +432,14 @@ public:
 		//cout << "d_io: " << digital_io << endl << "o.d.io: " << out.digital_io << endl ;
 
 		//test.Set(1);
-		talon_srx_control.set(out.talon_srx[SHOOTER_ID],true); //talon_1.Set(out.talon_srx[TALON_1_ID].power_level);
+		{
+			Checked_array<bool,Robot_outputs::TALON_SRX_OUTPUTS> enable_all;
+			for(unsigned int i=0; i<Robot_outputs::TALON_SRX_OUTPUTS; i++){
+				enable_all[i]=true;
+			}
+			talon_srx_controls.set(out.talon_srx,enable_all); 
+		}
+		//talon_1.Set(out.talon_srx[TALON_1_ID].power_level);
 		//test2.Set(out.talon_srx[1].power_level);
 		//test2.SetSensorDirection(0);
 		{
@@ -556,6 +563,7 @@ public:
 			//in.digital_io[i]=digital_io[i].get();
 		}
 		in.digital_io=digital_io.get();
+		in.talon_srx=talon_srx_controls.get();
 		#if 0
 		auto f=[&](int index,CANTalon& talon_srx) {
 			in.talon_srx[index].fwd_limit_switch=talon_srx.IsFwdLimitSwitchClosed();
