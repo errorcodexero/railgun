@@ -6,7 +6,7 @@
 
 class CANTalon;
 
-class Talon_srx_control {
+class Talon_srx_control{
 	private:
 	CANTalon *talon;
 	
@@ -35,7 +35,7 @@ class Talon_srx_control {
 	void init(int CANBusAddress);
 	void set(Talon_srx_output, bool);
 	Talon_srx_input get();
-	void output(std::ostream&)const;
+	friend std::ostream& operator<<(std::ostream&,Talon_srx_control);
 };
 
 class Talon_srx_controls{
@@ -52,5 +52,5 @@ class Talon_srx_controls{
 };
 
 std::ostream& operator<<(std::ostream&,Talon_srx_control::Mode);
-std::ostream& operator<<(std::ostream&,Talon_srx_control);
+
 #endif

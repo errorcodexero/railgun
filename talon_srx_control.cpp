@@ -30,12 +30,9 @@ ostream& operator<<(ostream& o,Talon_srx_control::Mode a){
 	assert(0);
 }
 
-void Talon_srx_control::output(ostream& o)const{
-	o<<"Talon_srx_control( mode"<<mode<<" out:"<<out<<" last_out:"<<last_out<<" init:"<<!!talon<<" since_query:"<<since_query<<" in:"<<in<<")";
-}
-
 ostream& operator<<(ostream& o,Talon_srx_control a){
-	a.output(o);
+	//a.output(o);
+	o<<"Talon_srx_control( mode"<<a.mode<<" out:"<<a.out<<" last_out:"<<a.last_out<<" init:"<<!!a.talon<<" since_query:"<<a.since_query<<" in:"<<a.in<<")";
 	return o;
 }
 
