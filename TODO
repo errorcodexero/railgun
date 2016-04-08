@@ -3,11 +3,10 @@ Wednesday Window:
 		- Driving: forward, backward, turning, boost, and nudges
 		- Collector: presets, auto modes, and manual controls
 		- Climber: release and winch
-	- High goal shooter
+
 
 Thursday Window: 
-	- Full system check (including high goal shooter if it's working, otherwise continue work on it)
-	- Sensor testing for autonomous?
+	- Full system check
 
 
 HIGH PRIORITY for Portland:
@@ -19,6 +18,7 @@ HIGH PRIORITY for Portland:
 		- Get closed loop control working for shooter
 	- Maybe prevent climber release when collector is at top
 	- Autonomous - Tristan
+		- Sensors
 		- Auto_nav_run results in seg fault
 		- Drive Encoders
 		- Testing on carpet field with measurements
@@ -45,6 +45,7 @@ NICE THINGS TO HAVE:
 		- Use enum class more places
 		- Use std::array in place of C arrays in several places
 	- Update c++ compilers to use c++14 for runall2 tests	
+	- Clean up panel interpret
 	- Meta IO information
 		- Add a function that will discover which IOs different parts use (and make a nice list)
 		- Make a data type to talk about different inputs
