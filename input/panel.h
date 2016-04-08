@@ -10,7 +10,6 @@ struct Panel{
 	bool learn;
 	bool cheval;
 	bool drawbridge;
-	static const bool portcullis=0;
 	bool shoot_prep;
 	bool shoot_low;
 	bool collect;
