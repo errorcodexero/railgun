@@ -513,7 +513,7 @@ Main::Mode next_mode(Main::Mode m,bool autonomous,bool autonomous_start,Toplevel
 
 		case Main::Mode::AUTO_STATIC:
 			if (!autonomous) return Main::Mode::TELEOP;
-			if(since_switch > 1.5) return Main::Mode::AUTO_STOP;
+			if(since_switch > 2) return Main::Mode::AUTO_STOP; //Time used to be 1.5, prior to match 65 PNW, where it was ~3in short on the rampart crossings
 			return Main::Mode::AUTO_STATIC;
 
 		case Main::Mode::AUTO_STATICTWO:
