@@ -31,9 +31,7 @@ ostream& operator<<(ostream& o,Talon_srx_control::Mode a){
 }
 
 ostream& operator<<(ostream& o,Talon_srx_control a){
-	//a.output(o);
-	o<<"Talon_srx_control( mode"<<a.mode<<" out:"<<a.out<<" last_out:"<<a.last_out<<" init:"<<!!a.talon<<" since_query:"<<a.since_query<<" in:"<<a.in<<")";
-	return o;
+	return o<<"Talon_srx_control( mode"<<a.mode<<" out:"<<a.out<</*" last_out:"<<a.last_out<<*/" init:"<<!!a.talon<<" since_query:"<<a.since_query<<" in:"<<a.in<<")";
 }
 
 bool pid_approx(Talon_srx_output::PID_coefficients a,Talon_srx_output::PID_coefficients b){
@@ -42,6 +40,7 @@ bool pid_approx(Talon_srx_output::PID_coefficients a,Talon_srx_output::PID_coeff
 }
 
 void Talon_srx_control::set(Talon_srx_output a, bool enable) {
+	static const float EXPIRATION=2.0;
 	assert(mode!=Mode::INIT);
 	if(!enable){
 		if(mode!=Talon_srx_control::Mode::DISABLE){ 
@@ -56,12 +55,12 @@ void Talon_srx_control::set(Talon_srx_output a, bool enable) {
 		if(mode!=Talon_srx_control::Mode::VOLTAGE){
 			talon->SetControlMode(CANTalon::kVoltage);
 			talon->EnableControl();
-			talon->SetExpiration(2.0);
+			talon->SetExpiration(EXPIRATION);
 			talon->SetSafetyEnabled(true);
 			talon->Set(a.power_level);
 			out=a;
 			mode=Talon_srx_control::Mode::VOLTAGE;
-		} else if((a.speed!=out.speed || since_query==1) && out!=last_out){
+		} else if((a.speed!=out.speed || since_query==1) /*&& out!=last_out*/){
 			talon->Set(a.speed);
 			out.speed=a.speed;
 		}	
@@ -71,26 +70,23 @@ void Talon_srx_control::set(Talon_srx_output a, bool enable) {
 			talon->SetPID(a.pid.p,a.pid.i,a.pid.d);	
 			talon->EnableControl();
 			talon->ConfigEncoderCodesPerRev(1);
-			talon->SetExpiration(2.0);
+			talon->SetExpiration(EXPIRATION);
 			talon->SetSafetyEnabled(true);
 			talon->Set(a.speed);
 			out=a;
 			mode=Talon_srx_control::Mode::SPEED;
-		} else if((a.speed!=out.speed || since_query==1) && out!=last_out){ 
+		} else if((a.speed!=out.speed || since_query==1) /*&& out!=last_out*/){ 
 			talon->Set(a.speed);
 			out.speed=a.speed;
 		}
 	}
-	last_out=out;
+	//last_out=out;
 }
 
 Talon_srx_input Talon_srx_control::get(){
 	if(since_query>20){
-		if(mode==Talon_srx_control::Mode::VOLTAGE){
-			in.current=talon->GetBusVoltage();
-		} else if(mode==Talon_srx_control::Mode::SPEED){
-			in.velocity=talon->GetSpeed();
-		}
+		if(mode==Talon_srx_control::Mode::VOLTAGE) in.current=talon->GetBusVoltage();
+		else if(mode==Talon_srx_control::Mode::SPEED) in.velocity=talon->GetSpeed();
 	}
 	since_query++;
 	return in;
@@ -127,9 +123,10 @@ Checked_array<Talon_srx_input,Robot_inputs::TALON_SRX_INPUTS> Talon_srx_controls
 ostream& operator<<(ostream& o,Talon_srx_controls const& t){
 	o<<"Talon_srx_controls(";
 	o<< "init:"<<t.init_;
-	o<<" talons:";
+	o<<" talons(";
 	for(unsigned int i=0;i<Robot_outputs::TALON_SRX_OUTPUTS; i++){
 		o<<t.talons[i]<<"  ";
 	}
-	return o<<")";
+	return o<<"))";
 }
+

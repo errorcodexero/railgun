@@ -11,7 +11,7 @@ class Talon_srx_control{
 	CANTalon *talon;
 	
 	Talon_srx_output out;
-	Talon_srx_output last_out;
+	//Talon_srx_output last_out;
 	Talon_srx_input in;
 	
 	int since_query;
@@ -39,6 +39,7 @@ class Talon_srx_control{
 };
 
 class Talon_srx_controls{
+	private:
 	Checked_array<Talon_srx_control,Robot_outputs::TALON_SRX_OUTPUTS> talons;
 	bool init_;
 
