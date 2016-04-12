@@ -5,19 +5,16 @@ Wednesday Window:
 		- Climber: release and winch
 
 
-Thursday Window: 
-	- Full system check
 
-
-HIGH PRIORITY for Portland:
+HIGH PRIORITY for Worlds:
 	- Debug netconsole.py not printing anything sometimes
 	- Re-label OI
+	- Maybe prevent climber release when collector is at top
 	- High goal shooter code
-		- Get shoot prep to work
+		- Get shoot prep to work (?)
 		- Get shooter speed in rpm
 		- Get closed loop control working for shooter
-	- Maybe prevent climber release when collector is at top
-	- Autonomous - Tristan
+	- Autonomous 
 		- Sensors
 		- Auto_nav_run results in seg fault
 		- Drive Encoders
@@ -26,7 +23,7 @@ HIGH PRIORITY for Portland:
 	- Logging
 
 
-LOW PRIORITY for Portland:
+LOW PRIORITY for Worlds:
 	- Log Analysis - Nick
 	- Add auto-shut off for climber with the hall effect sensor	
 		
@@ -40,7 +37,7 @@ NOT AS HIGH PRIORITY:
 
 NICE THINGS TO HAVE:
 	- Expand testing in main.cpp
-	- PWM mode outputs for blinky lights (DIO 9)
+	- PWM outputs for blinky lights (DIO 9)
 	- Clean-up stuff:
 		- Use enum class more places
 		- Use std::array in place of C arrays in several places
@@ -64,6 +61,7 @@ LOG LIST:
 	-RIO Connection status and ip	12chars
 	-DriverStation outputs		4chars
 					488 chars total
+
 
 Eric's random thoughts:
 	-I should try to figure out how the learning logic interacts w/ going into auto, etc.
