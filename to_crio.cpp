@@ -427,7 +427,6 @@ public:
 		
 		//cout << "d_io: " << digital_io << endl << "o.d.io: " << out.digital_io << endl ;
 
-		//test.Set(1);
 		{
 			Checked_array<bool,Robot_outputs::TALON_SRX_OUTPUTS> enable_all;
 			for(unsigned int i=0; i<Robot_outputs::TALON_SRX_OUTPUTS; i++){
@@ -458,7 +457,7 @@ public:
 			//cerr<<out.jaguar[i]<<"\n";
 			//cerr<<jaguar[i].jaguar->GetSpeed()<<"\n";
 		//}
-/*			cerr<<"\n"<<jaguar[0].jaguar->GetSpeed()<<"\n";
+		/*	cerr<<"\n"<<jaguar[0].jaguar->GetSpeed()<<"\n";
 			cerr<<jaguar[1].jaguar->GetSpeed()<<"\n";
 			cerr<<jaguar[2].jaguar->GetSpeed()<<"\n";
 			cerr<<jaguar[3].jaguar->GetSpeed()<<"\n";*/
@@ -509,17 +508,18 @@ public:
 			cout<<"in: "<<in<<"\n";
 			cout<<"main: "<<main<<"\n";
 			cout<<"out: "<<out<<"\n";
+			cout<<"talon_srx_controls: "<<talon_srx_controls<<"\n";
 			cout<<"CLEAR_SCREEN\n";
 		}
 		int x=set_outputs(out,in.robot_mode.enabled);
 		if(x) cout<<"x was:"<<x<<"\n";
-		static int i=0;
+		/*static int i=0;
 		if(!i){
 			for(unsigned i=0;i<Robot_outputs::DIGITAL_IOS;i++){
 				//cerr<<"dio"<<i<<":"<<digital_io[i]<<"\n";
 			}
 		}
-		i=(i+1)%100;
+		i=(i+1)%100;*/
 		print_out_speed++;
 	}
 	

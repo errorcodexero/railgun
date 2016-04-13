@@ -5,12 +5,13 @@
 #define BEAM_SENSOR_DIO 5
 #define GROUND_RPM 1000
 #define CLIMB_RPM 750
+#define FREE_SPIN_RPM -750
 
 Shooter::Status_detail::Status_detail():speed(0),beam(0){}
 Shooter::Status_detail::Status_detail(int s,bool b):speed(s),beam(b){}
 Shooter::Estimator::Estimator():last({}),speed_up_timer({}),last_output(Shooter::Output::Mode::CLIMB_SPEED){}
-Shooter::Output::Output():talon_mode(Talon_srx_output::Mode::VOLTAGE){}
-Shooter::Output::Output(Shooter::Output::Mode m):mode(m),talon_mode(Talon_srx_output::Mode::VOLTAGE){}
+Shooter::Output::Output():talon_mode(Talon_srx_output::Mode::SPEED){}
+Shooter::Output::Output(Shooter::Output::Mode m):mode(m),talon_mode(Talon_srx_output::Mode::SPEED){}
 Shooter::Output::Output(Shooter::Output::Mode m,Talon_srx_output::Mode tm):mode(m),talon_mode(tm){}
 
 std::ostream& operator<<(std::ostream& o,Shooter::Goal goal){
@@ -84,25 +85,46 @@ Robot_inputs Shooter::Input_reader::operator()(Robot_inputs r,Shooter::Input in)
 Shooter::Output Shooter::Output_applicator::operator()(Robot_outputs r)const{
 	Shooter::Output out;
 	out.talon_mode=r.talon_srx[SHOOTER_WHEEL_LOC].mode;
-	double power = r.talon_srx[SHOOTER_WHEEL_LOC].power_level;
-	if (power==0) out.mode=Shooter::Output::Mode::STOP;
-	else if (power==-.5) out.mode=Shooter::Output::Mode::GROUND_SPEED;
-	else if (power==-1) out.mode=Shooter::Output::Mode::CLIMB_SPEED;
-	else if (power==1) out.mode=Shooter::Output::Mode::FREE_SPIN;
-	else assert(0);
+	if(out.talon_mode==Talon_srx_output::Mode::VOLTAGE){
+		double power = r.talon_srx[SHOOTER_WHEEL_LOC].power_level;
+		if (power==0) out.mode=Shooter::Output::Mode::STOP;
+		else if (power==-.5) out.mode=Shooter::Output::Mode::GROUND_SPEED;
+		else if (power==-1) out.mode=Shooter::Output::Mode::CLIMB_SPEED;
+		else if (power==1) out.mode=Shooter::Output::Mode::FREE_SPIN;
+		else assert(0);
+	} else if(out.talon_mode==Talon_srx_output::Mode::SPEED){
+		double speed = r.talon_srx[SHOOTER_WHEEL_LOC].speed;
+		if(speed==0) out.mode=Shooter::Output::Mode::STOP;
+		else if(speed==GROUND_RPM) out.mode=Shooter::Output::Mode::GROUND_SPEED;
+		else if(speed==CLIMB_RPM) out.mode=Shooter::Output::Mode::CLIMB_SPEED;
+		else if(speed==FREE_SPIN_RPM) out.mode=Shooter::Output::Mode::FREE_SPIN;
+		else assert(0);
+	}
 	return out;
 }
 Robot_outputs Shooter::Output_applicator::operator()(Robot_outputs r,Shooter::Output out)const{ 
 	r.talon_srx[SHOOTER_WHEEL_LOC].mode=out.talon_mode;
-	r.talon_srx[SHOOTER_WHEEL_LOC].power_level = [&]{
-		switch(out.mode){
-			case Shooter::Output::Mode::STOP: return 0.0;
-			case Shooter::Output::Mode::GROUND_SPEED: return -.5;
-		 	case Shooter::Output::Mode::CLIMB_SPEED: return -1.0;
-			case Shooter::Output::Mode::FREE_SPIN: return 1.0;
-			default: assert(0);
-		}
-	}();
+	if(out.talon_mode==Talon_srx_output::Mode::VOLTAGE){
+		r.talon_srx[SHOOTER_WHEEL_LOC].power_level = [&]{
+			switch(out.mode){
+				case Shooter::Output::Mode::STOP: return 0.0;
+				case Shooter::Output::Mode::GROUND_SPEED: return -.5;
+			 	case Shooter::Output::Mode::CLIMB_SPEED: return -1.0;
+				case Shooter::Output::Mode::FREE_SPIN: return 1.0;
+				default: assert(0);
+			}
+		}();
+	} else if(out.talon_mode==Talon_srx_output::Mode::SPEED){
+		r.talon_srx[SHOOTER_WHEEL_LOC].speed = [&]{
+			switch(out.mode){
+				case Shooter::Output::Mode::STOP: return 0.0;
+				case Shooter::Output::Mode::GROUND_SPEED: return (double)GROUND_RPM;
+				case Shooter::Output::Mode::CLIMB_SPEED: return (double)CLIMB_RPM;
+				case Shooter::Output::Mode::FREE_SPIN: return (double)FREE_SPIN_RPM;
+				default: assert(0);
+			}
+		}();
+	}
 	return r;
 }
 
@@ -129,6 +151,7 @@ void Shooter::Estimator::update(Time time,Shooter::Input in,Shooter::Output outp
 				last.speed=CLIMB_RPM;
 				break;
 			case Shooter::Output::Mode::FREE_SPIN:
+				last.speed=FREE_SPIN_RPM;
 				break; 
 			default:
 				assert(0);
@@ -166,7 +189,7 @@ std::set<Shooter::Status_detail> examples(Shooter::Status_detail*){
 }
 std::set<Shooter::Output> examples(Shooter::Output*){
 	std::set<Shooter::Output> s;
-	#define X(name) s.insert({Shooter::Output::Mode::name,Talon_srx_output::Mode::VOLTAGE});
+	#define X(name) s.insert({Shooter::Output::Mode::name,Talon_srx_output::Mode::SPEED});
 	SHOOTER_MODES
 	#undef X
 	return s;
