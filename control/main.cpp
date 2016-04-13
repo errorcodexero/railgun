@@ -242,6 +242,7 @@ Toplevel::Goal Main::teleop(
 	
 	if(SLOW_PRINT) cout<<tilt_presets<<"\n";
 	
+
 	if((!panel.in_use && controller_auto.get()) || (panel.in_use && (panel.tilt_auto || panel.front_auto || panel.sides_auto))) {//Automatic collector modes
 		bool joy_learn=gunner_joystick.button[Gamepad_button::B];
 		POV_section gunner_pov = pov_section(gunner_joystick.pov);
@@ -458,6 +459,7 @@ Toplevel::Goal Main::teleop(
 		}
 		return Winch::Goal::STOP;
 	}();
+	if(panel.shoot_high)goals.shooter=Shooter::Goal::CLIMB_SHOT;
 	return goals;
 }
 
