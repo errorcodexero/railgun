@@ -10,16 +10,26 @@
 Shooter::Status_detail::Status_detail():speed(0),beam(0){}
 Shooter::Status_detail::Status_detail(int s,bool b):speed(s),beam(b){}
 Shooter::Estimator::Estimator():last({}),speed_up_timer({}),last_output(Shooter::Output::Mode::CLIMB_SPEED){}
-Shooter::Output::Output():talon_mode(Talon_srx_output::Mode::SPEED){}
-Shooter::Output::Output(Shooter::Output::Mode m):mode(m),talon_mode(Talon_srx_output::Mode::SPEED){}
+Shooter::Goal::Goal():mode(Talon_srx_output::Mode::VOLTAGE),type(Shooter::Goal::Type::STOP){}
+Shooter::Goal::Goal(Shooter::Goal::Type t):mode(Talon_srx_output::Mode::VOLTAGE),type(t){}
+Shooter::Goal::Goal(Talon_srx_output::Mode tm,Shooter::Goal::Type t):mode(tm),type(t){}
+Shooter::Output::Output():talon_mode(Talon_srx_output::Mode::VOLTAGE){}
+Shooter::Output::Output(Shooter::Output::Mode m):mode(m),talon_mode(Talon_srx_output::Mode::VOLTAGE){}
 Shooter::Output::Output(Shooter::Output::Mode m,Talon_srx_output::Mode tm):mode(m),talon_mode(tm){}
 
-std::ostream& operator<<(std::ostream& o,Shooter::Goal goal){
-	#define X(name) if(goal==Shooter::Goal::name) return o<<"Shooter::Goal("#name")";
+std::ostream& operator<<(std::ostream& o,Shooter::Goal::Type a){
+	#define X(name) if(a==Shooter::Goal::Type::name) return o<<#name")";
 	SHOOTER_GOALS
 	#undef X
 	assert(0);
 }
+
+std::ostream& operator<<(std::ostream& o,Shooter::Goal goal){
+	o<<"Shooter::Goal(";
+	o<<" mode:"<<goal.mode;
+	return o<<" type:"<<goal.type<<")";
+}
+
 std::ostream& operator<<(std::ostream& o,Shooter::Estimator a){ return o<<"Shooter::Estimator( last:"<<a.get()<<" last_output:"<<a.last_output<<" speed_up_timer:"<<a.speed_up_timer<<")"; }
 std::ostream& operator<<(std::ostream& o,Shooter::Input a){ return o<<"Shooter::Input( speed:"<<a.speed<<" beam:"<<a.beam<<" enabled:"<<a.enabled<<")"; }
 std::ostream& operator<<(std::ostream& o,Shooter::Status_detail a){ return o<<"Shooter::Status_detail( speed:"<<a.speed<<" beam:"<<a.beam<<")"; }
@@ -40,16 +50,26 @@ bool operator==(Shooter::Input a,Shooter::Input b){ return a.speed==b.speed && a
 bool operator!=(Shooter::Input a,Shooter::Input b){ return !(a==b); }
 bool operator<(Shooter::Input a,Shooter::Input b){
 	if(a.speed<b.speed) return true;
-	if(b.speed<a.speed) return true;
+	if(b.speed<a.speed) return false;
 	if(a.enabled<b.enabled) return true;
+	if(b.enabled<a.enabled) return false;
 	return a.beam && !b.beam;
 } 
 
 bool operator<(Shooter::Status_detail a,Shooter::Status_detail b){
 	if(a.speed<b.speed) return true;
-	if(b.speed<a.speed) return true;
+	if(b.speed<a.speed) return false;
 	return a.beam && !b.beam;
 }
+
+bool operator==(Shooter::Goal a,Shooter::Goal b){ return a.mode==b.mode && a.type==b.type; }
+bool operator!=(Shooter::Goal a,Shooter::Goal b){ return !(a==b); }
+bool operator<(Shooter::Goal a,Shooter::Goal b){
+	if(a.type<b.type) return true;
+	if(b.type<a.type) return false;
+	return a.mode<b.mode;
+}
+
 bool operator==(Shooter::Output a,Shooter::Output b){ return a.mode==b.mode && a.talon_mode==b.talon_mode; }
 bool operator!=(Shooter::Output a,Shooter::Output b){ return !(a==b); }
 bool operator<(Shooter::Output a,Shooter::Output b){
@@ -72,6 +92,10 @@ bool operator==(Shooter::Output_applicator,Shooter::Output_applicator){ return t
 bool operator==(Shooter a,Shooter b){ return (a.input_reader==b.input_reader && a.estimator==b.estimator && a.output_applicator==b.output_applicator); }
 bool operator!=(Shooter a,Shooter b){ return !(a==b); }
 
+void Shooter::Goal::operator()(Talon_srx_output::Mode const& m){
+	mode=m;
+}
+
 Shooter::Input Shooter::Input_reader::operator()(Robot_inputs r)const{
 	return {r.talon_srx[SHOOTER_WHEEL_LOC].velocity,(r.digital_io.in[BEAM_SENSOR_DIO]==Digital_in::_1),r.robot_mode.enabled};
 }
@@ -85,45 +109,58 @@ Robot_inputs Shooter::Input_reader::operator()(Robot_inputs r,Shooter::Input in)
 Shooter::Output Shooter::Output_applicator::operator()(Robot_outputs r)const{
 	Shooter::Output out;
 	out.talon_mode=r.talon_srx[SHOOTER_WHEEL_LOC].mode;
-	if(out.talon_mode==Talon_srx_output::Mode::VOLTAGE){
-		double power = r.talon_srx[SHOOTER_WHEEL_LOC].power_level;
-		if (power==0) out.mode=Shooter::Output::Mode::STOP;
-		else if (power==-.5) out.mode=Shooter::Output::Mode::GROUND_SPEED;
-		else if (power==-1) out.mode=Shooter::Output::Mode::CLIMB_SPEED;
-		else if (power==1) out.mode=Shooter::Output::Mode::FREE_SPIN;
-		else assert(0);
-	} else if(out.talon_mode==Talon_srx_output::Mode::SPEED){
-		double speed = r.talon_srx[SHOOTER_WHEEL_LOC].speed;
-		if(speed==0) out.mode=Shooter::Output::Mode::STOP;
-		else if(speed==GROUND_RPM) out.mode=Shooter::Output::Mode::GROUND_SPEED;
-		else if(speed==CLIMB_RPM) out.mode=Shooter::Output::Mode::CLIMB_SPEED;
-		else if(speed==FREE_SPIN_RPM) out.mode=Shooter::Output::Mode::FREE_SPIN;
-		else assert(0);
+	switch(r.talon_srx[SHOOTER_WHEEL_LOC].mode){
+		case Talon_srx_output::Mode::VOLTAGE: 
+			out.mode=[&]{
+				double power = r.talon_srx[SHOOTER_WHEEL_LOC].power_level;
+				if (power==0) return Shooter::Output::Mode::STOP;
+				if (power==-.5) return Shooter::Output::Mode::GROUND_SPEED;
+				if (power==-1) return Shooter::Output::Mode::CLIMB_SPEED;
+				if (power==1) return Shooter::Output::Mode::FREE_SPIN;
+				assert(0);
+			}();
+			break;
+		case Talon_srx_output::Mode::SPEED: 
+			out.mode=[&]{
+				double speed = r.talon_srx[SHOOTER_WHEEL_LOC].speed;
+				if(speed==0) return Shooter::Output::Mode::STOP;
+				if(speed==GROUND_RPM) return Shooter::Output::Mode::GROUND_SPEED;
+				if(speed==CLIMB_RPM) return Shooter::Output::Mode::CLIMB_SPEED;
+				if(speed==FREE_SPIN_RPM) return Shooter::Output::Mode::FREE_SPIN;
+				assert(0);
+			}();
+			break;
+		default: assert(0);
 	}
 	return out;
 }
+
 Robot_outputs Shooter::Output_applicator::operator()(Robot_outputs r,Shooter::Output out)const{ 
 	r.talon_srx[SHOOTER_WHEEL_LOC].mode=out.talon_mode;
-	if(out.talon_mode==Talon_srx_output::Mode::VOLTAGE){
-		r.talon_srx[SHOOTER_WHEEL_LOC].power_level = [&]{
-			switch(out.mode){
-				case Shooter::Output::Mode::STOP: return 0.0;
-				case Shooter::Output::Mode::GROUND_SPEED: return -.5;
-			 	case Shooter::Output::Mode::CLIMB_SPEED: return -1.0;
-				case Shooter::Output::Mode::FREE_SPIN: return 1.0;
-				default: assert(0);
-			}
-		}();
-	} else if(out.talon_mode==Talon_srx_output::Mode::SPEED){
-		r.talon_srx[SHOOTER_WHEEL_LOC].speed = [&]{
-			switch(out.mode){
-				case Shooter::Output::Mode::STOP: return 0.0;
-				case Shooter::Output::Mode::GROUND_SPEED: return (double)GROUND_RPM;
-				case Shooter::Output::Mode::CLIMB_SPEED: return (double)CLIMB_RPM;
-				case Shooter::Output::Mode::FREE_SPIN: return (double)FREE_SPIN_RPM;
-				default: assert(0);
-			}
-		}();
+	switch(out.talon_mode){
+		case Talon_srx_output::Mode::VOLTAGE:
+			r.talon_srx[SHOOTER_WHEEL_LOC].power_level = [&]{
+				switch(out.mode){
+					case Shooter::Output::Mode::STOP: return 0.0;
+					case Shooter::Output::Mode::GROUND_SPEED: return -.5;
+					case Shooter::Output::Mode::CLIMB_SPEED: return -1.0;
+					case Shooter::Output::Mode::FREE_SPIN: return 1.0;
+					default: assert(0);
+				}
+			}();
+			break;
+		case Talon_srx_output::Mode::SPEED:
+			r.talon_srx[SHOOTER_WHEEL_LOC].speed = [&]{
+				switch(out.mode){
+					case Shooter::Output::Mode::STOP: return 0.0;
+					case Shooter::Output::Mode::GROUND_SPEED: return (double)GROUND_RPM;
+					case Shooter::Output::Mode::CLIMB_SPEED: return (double)CLIMB_RPM;
+					case Shooter::Output::Mode::FREE_SPIN: return (double)FREE_SPIN_RPM;
+					default: assert(0);
+				}
+			}();
+			break;
+		default: assert(0);
 	}
 	return r;
 }
@@ -176,19 +213,32 @@ std::set<Shooter::Input> examples(Shooter::Input*){
 }
 std::set<Shooter::Goal> examples(Shooter::Goal*){
 	std::set<Shooter::Goal> s;
-	#define X(name) s.insert(Shooter::Goal::name);
+	#define X(name) s.insert({Talon_srx_output::Mode::VOLTAGE,Shooter::Goal::Type::name});
+	SHOOTER_GOALS
+	#undef X
+	#define X(name) s.insert({Talon_srx_output::Mode::SPEED,Shooter::Goal::Type::name});
 	SHOOTER_GOALS
 	#undef X
 	return s;
 }
 std::set<Shooter::Status_detail> examples(Shooter::Status_detail*){
-	return {
-		{0,0},
-		{0,1}
-	};
+	std::set<Shooter::Status_detail> s;
+	bool beam=false;
+	for(unsigned int i=0; i<2; i++){
+		s.insert({0,beam});
+		s.insert({GROUND_RPM,beam});
+		s.insert({CLIMB_RPM,beam});
+		s.insert({FREE_SPIN_RPM,beam});
+		beam=true;
+	}
+	return s;
 }
+
 std::set<Shooter::Output> examples(Shooter::Output*){
 	std::set<Shooter::Output> s;
+	#define X(name) s.insert({Shooter::Output::Mode::name,Talon_srx_output::Mode::VOLTAGE});
+	SHOOTER_MODES
+	#undef X
 	#define X(name) s.insert({Shooter::Output::Mode::name,Talon_srx_output::Mode::SPEED});
 	SHOOTER_MODES
 	#undef X
@@ -196,24 +246,29 @@ std::set<Shooter::Output> examples(Shooter::Output*){
 }
 
 Shooter::Output control(Shooter::Status_detail, Shooter::Goal goal){
-	switch(goal){
-		case Shooter::Goal::STOP: return Shooter::Output::Mode::STOP;
-		case Shooter::Goal::GROUND_SHOT: return Shooter::Output::Mode::GROUND_SPEED;
-		case Shooter::Goal::CLIMB_SHOT: return Shooter::Output::Mode::CLIMB_SPEED;
-		case Shooter::Goal::X: return Shooter::Output::Mode::FREE_SPIN;
-		default: assert(0);
-	}
+	Shooter::Output out;
+	out.talon_mode=goal.mode;
+	out.mode=[&]{
+		switch(goal.type){
+			case Shooter::Goal::Type::STOP: return Shooter::Output::Mode::STOP;
+			case Shooter::Goal::Type::GROUND_SHOT: return Shooter::Output::Mode::GROUND_SPEED;
+			case Shooter::Goal::Type::CLIMB_SHOT: return Shooter::Output::Mode::CLIMB_SPEED;
+			case Shooter::Goal::Type::X: return Shooter::Output::Mode::FREE_SPIN;
+			default: assert(0);
+		}
+	}();
+	return out;
 }
 Shooter::Status status(Shooter::Status_detail a){
 	return a;
 }
 
 bool ready(Shooter::Status status,Shooter::Goal goal){
-	switch(goal){
-		case Shooter::Goal::STOP: return status.speed==0;
-		case Shooter::Goal::GROUND_SHOT: return status.speed==GROUND_RPM;
-		case Shooter::Goal::CLIMB_SHOT: return status.speed==CLIMB_RPM;
-		case Shooter::Goal::X: return true;
+	switch(goal.type){
+		case Shooter::Goal::Type::STOP: return status.speed==0;
+		case Shooter::Goal::Type::GROUND_SHOT: return status.speed==GROUND_RPM;
+		case Shooter::Goal::Type::CLIMB_SHOT: return status.speed==CLIMB_RPM;
+		case Shooter::Goal::Type::X: return true;
 		default: assert(0);
 	}
 }

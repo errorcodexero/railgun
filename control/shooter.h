@@ -10,10 +10,18 @@
 
 struct Shooter{
 	#define SHOOTER_GOALS X(STOP) X(GROUND_SHOT) X(CLIMB_SHOT) X(X)
-	enum class Goal{
-		#define X(name) name,
-		SHOOTER_GOALS
-		#undef X
+	struct Goal{
+		enum class Type{
+			#define X(name) name,
+			SHOOTER_GOALS
+			#undef X
+		};
+		Talon_srx_output::Mode mode;
+		Type type;
+		Goal();
+		Goal(Shooter::Goal::Type);
+		Goal(Talon_srx_output::Mode,Shooter::Goal::Type);
+		void operator()(Talon_srx_output::Mode const&);
 	};
 	
 	struct Status_detail{
@@ -84,6 +92,10 @@ bool operator<(Shooter::Input,Shooter::Input);
 bool operator<(Shooter::Status_detail,Shooter::Status_detail);
 bool operator==(Shooter::Status_detail,Shooter::Status_detail);
 bool operator!=(Shooter::Status_detail,Shooter::Status_detail);
+
+bool operator==(Shooter::Goal,Shooter::Goal);
+bool operator!=(Shooter::Goal,Shooter::Goal);
+bool operator<(Shooter::Goal,Shooter::Goal);
 
 bool operator==(Shooter::Output,Shooter::Output);
 bool operator!=(Shooter::Output,Shooter::Output);
