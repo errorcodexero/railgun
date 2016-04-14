@@ -160,20 +160,20 @@ void Main::shooter_protocol(Shooter::Status_detail const& shooter_status, bool c
 	const Tilt::Goal top=Tilt::Goal::go_to_angle(make_tolerances(tilt_presets.top));
 	goals.collector.sides = Sides::Goal::OFF;
 	goals.collector.tilt = top;
-	static const Shooter::Goal shoot_goal = Shooter::Goal::CLIMB_SHOT;
+	static const Shooter::Goal::Type shoot_goal = Shooter::Goal::Type::CLIMB_SHOT;
 	switch(shoot_step){
 		case Shoot_steps::CLEAR_BALL:
-			if(!shooter_status.beam) goals.collector.front = Front::Goal::CLEAR_BALL;
+			if(false/*!shooter_status.beam*/) goals.collector.front = Front::Goal::CLEAR_BALL;
 			else shoot_step = Shoot_steps::SPEED_UP;
 			break;
 		case Shoot_steps::SPEED_UP:
 			goals.collector.front = Front::Goal::OFF;
-			goals.shooter = shoot_goal;
+			goals.shooter.type = shoot_goal;
 			if(ready(shooter_status,goals.shooter)) shoot_step = Shoot_steps::SHOOT;
 			break;
 		case Shoot_steps::SHOOT:
 			goals.collector.front = Front::Goal::IN;
-			goals.shooter = shoot_goal;
+			goals.shooter.type = shoot_goal;
 			shoot_high_timer.update(now,enabled);
 			if(shoot_high_timer.done()) collector_mode = Collector_mode::STOW; 
 			break;
@@ -242,6 +242,8 @@ Toplevel::Goal Main::teleop(
 	
 	if(SLOW_PRINT) cout<<tilt_presets<<"\n";
 	
+	if(gunner_joystick.button[Gamepad_button::R_JOY]) goals.shooter.mode=Talon_srx_output::Mode::SPEED;
+	else goals.shooter.mode=Talon_srx_output::Mode::VOLTAGE;
 
 	if((!panel.in_use && controller_auto.get()) || (panel.in_use && (panel.tilt_auto || panel.front_auto || panel.sides_auto))) {//Automatic collector modes
 		bool joy_learn=gunner_joystick.button[Gamepad_button::B];
@@ -257,7 +259,7 @@ Toplevel::Goal Main::teleop(
 			cheval_drive_timer.set(2);
 			cheval_step = Cheval_steps::GO_DOWN;
 		} else if (panel.in_use && panel.drawbridge && !learning) collector_mode=Collector_mode::DRAWBRIDGE;
-		else if(gunner_joystick.button[Gamepad_button::Y] || (panel.in_use && panel.shoot_high && !learning)){
+		else if(gunner_joystick.button[Gamepad_button::Y] || (panel.in_use && panel.shoot_high)){
 			collector_mode=Collector_mode::SHOOT_HIGH;
 			shoot_step = Shoot_steps::CLEAR_BALL;
 			const Time SHOOT_TIME=2;
@@ -267,7 +269,7 @@ Toplevel::Goal Main::teleop(
 
 		if(SLOW_PRINT){
 			cout<<"collector_mode: "<<collector_mode;
-			if(collector_mode==Collector_mode::SHOOT_HIGH) cout<<" "<<shoot_step<<"  "<<toplevel_status.shooter;
+			if(collector_mode==Collector_mode::SHOOT_HIGH) cout<<" "<<shoot_step<<"  "<<toplevel_status.shooter<<"   "<<goals.shooter;
 			cout<<"\n";
 		}
 
@@ -391,6 +393,8 @@ Toplevel::Goal Main::teleop(
 	}
 	learn_delay.update(in.now,true);//update always because it's just a nice delay, not actually a key part of functionality
 	if (panel.in_use) {//Panel manual modes
+		if(panel.closed_loop) goals.shooter.mode=Talon_srx_output::Mode::SPEED;
+		else goals.shooter.mode=Talon_srx_output::Mode::VOLTAGE;
 		learn.update(panel.learn);
 		if(learn.get()){//learn
 			double learn_this=toplevel_status.collector.tilt.angle;
@@ -459,7 +463,7 @@ Toplevel::Goal Main::teleop(
 		}
 		return Winch::Goal::STOP;
 	}();
-	if(panel.shoot_high)goals.shooter=Shooter::Goal::CLIMB_SHOT;
+	if(panel.shoot_high)goals.shooter.type=Shooter::Goal::Type::CLIMB_SHOT;
 	return goals;
 }
 

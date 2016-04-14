@@ -4,7 +4,7 @@
 #define SHOOTER_WHEEL_LOC 0
 #define BEAM_SENSOR_DIO 5
 #define GROUND_RPM 1000
-#define CLIMB_RPM 750
+#define CLIMB_RPM 30
 #define FREE_SPIN_RPM -750
 
 Shooter::Status_detail::Status_detail():speed(0),beam(0){}
@@ -170,32 +170,34 @@ Shooter::Status_detail Shooter::Estimator::get()const{
 }
 
 void Shooter::Estimator::update(Time time,Shooter::Input in,Shooter::Output output){
-	static const float SPEED_UP_TIME=5;
-	if(output!=last_output){
-		speed_up_timer.set(SPEED_UP_TIME);
-		
-	}
-	speed_up_timer.update(time,in.enabled);
-	if(speed_up_timer.done()){
-		switch(output.mode){
-			case Shooter::Output::Mode::STOP: 
-				last.speed=0;
-				break;
-			case Shooter::Output::Mode::GROUND_SPEED:
-				last.speed=GROUND_RPM;
-				break;
-			case Shooter::Output::Mode::CLIMB_SPEED:
-				last.speed=CLIMB_RPM;
-				break;
-			case Shooter::Output::Mode::FREE_SPIN:
-				last.speed=FREE_SPIN_RPM;
-				break; 
-			default:
-				assert(0);
+	if(output.talon_mode==Talon_srx_output::Mode::VOLTAGE){
+		static const float SPEED_UP_TIME=5;
+		if(output!=last_output){
+			speed_up_timer.set(SPEED_UP_TIME);	
 		}
+		speed_up_timer.update(time,in.enabled);
+		if(speed_up_timer.done()){
+			switch(output.mode){
+				case Shooter::Output::Mode::STOP: 
+					last.speed=0;
+					break;
+				case Shooter::Output::Mode::GROUND_SPEED:
+					last.speed=GROUND_RPM;
+					break;
+				case Shooter::Output::Mode::CLIMB_SPEED:
+					last.speed=CLIMB_RPM;
+					break;
+				case Shooter::Output::Mode::FREE_SPIN:
+					last.speed=FREE_SPIN_RPM;
+					break; 
+				default:
+				assert(0);
+			}
+		}
+	} else if(output.talon_mode==Talon_srx_output::Mode::SPEED){
+		last.speed=in.speed;
 	}
 	last.beam=in.beam;
-	//last.speed=in.speed;
 	last_output=output;
 } 
 
