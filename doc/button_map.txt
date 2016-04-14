@@ -42,7 +42,7 @@ Gunner:
   Down      - Collector down
   Left      - Collector level
   Right     - Collector low
-  Pushed in - 
+  Pushed in - Closed/open loop control
  POV        
   Center     -
   Up         - Stow 
