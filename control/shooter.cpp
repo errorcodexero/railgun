@@ -4,7 +4,7 @@
 #define SHOOTER_WHEEL_LOC 0
 #define BEAM_SENSOR_DIO 5
 #define GROUND_RPM 1000
-#define CLIMB_RPM 30
+#define CLIMB_RPM 750
 #define FREE_SPIN_RPM -750
 
 Shooter::Status_detail::Status_detail():speed(0),beam(0){}
