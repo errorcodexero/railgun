@@ -163,7 +163,7 @@ void Main::shooter_protocol(Shooter::Status_detail const& shooter_status, bool c
 	static const Shooter::Goal shoot_goal = Shooter::Goal::CLIMB_SHOT;
 	switch(shoot_step){
 		case Shoot_steps::CLEAR_BALL:
-			if(!shooter_status.beam) goals.collector.front = Front::Goal::CLEAR_BALL;
+			if(false/*!shooter_status.beam*/) goals.collector.front = Front::Goal::CLEAR_BALL;
 			else shoot_step = Shoot_steps::SPEED_UP;
 			break;
 		case Shoot_steps::SPEED_UP:
