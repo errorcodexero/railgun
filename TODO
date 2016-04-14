@@ -1,10 +1,8 @@
-Wednesday Window:
-	- Full system check
-		- Driving: forward, backward, turning, boost, and nudges
-		- Collector: presets, auto modes, and manual controls
-		- Climber: release and winch
-
-
+AUTO MODE LIST:
+	- Define networking API
+	- Prove reliable comms from TEGRA <-> ROBORIO
+	- Drive detect at various angles
+	- Drive to goal from various angles	
 
 HIGH PRIORITY for Worlds:
 	- Debug netconsole.py not printing anything sometimes
