@@ -2,6 +2,7 @@
 #include "WPILib.h"
 #include "util/util.h"
 #include <cmath>
+#include <cassert>
 
 using namespace std;
 
@@ -41,7 +42,7 @@ bool pid_approx(Talon_srx_output::PID_coefficients a,Talon_srx_output::PID_coeff
 }
 
 void Talon_srx_control::set(Talon_srx_output a, bool enable) {
-	static const float EXPIRATION=2.0;
+	//static const float EXPIRATION=2.0;
 	assert(mode!=Mode::INIT);
 	if(!enable){
 		if(mode!=Talon_srx_control::Mode::DISABLE){ 
@@ -53,10 +54,11 @@ void Talon_srx_control::set(Talon_srx_output a, bool enable) {
 		return;
 	}
 	if(a.mode==Talon_srx_output::Mode::VOLTAGE){
+		assert(a.power_level==clip(a.power_level));
 		if(mode!=Talon_srx_control::Mode::VOLTAGE){
-			talon->SetControlMode(CANTalon::kVoltage);
+			talon->SetControlMode(CANSpeedController::kPercentVbus);
 			talon->EnableControl();
-			talon->SetExpiration(EXPIRATION);
+			//talon->SetExpiration(EXPIRATION);
 			talon->SetSafetyEnabled(true);
 			talon->Set(a.power_level);
 			out=a;
@@ -66,20 +68,20 @@ void Talon_srx_control::set(Talon_srx_output a, bool enable) {
 			out.power_level=a.power_level;
 		}	
 	} else if(a.mode==Talon_srx_output::Mode::SPEED){
-		double error = in.velocity-a.speed;
-		double power = clip(error);
+		//assert(a.speed==clip(a.speed));
 		if(mode!=Talon_srx_control::Mode::SPEED || !pid_approx(out.pid,a.pid)){
-			talon->SetControlMode(CANTalon::kSpeed);
+			talon->SetControlMode(CANSpeedController::kSpeed);
 			talon->SetPID(a.pid.p,a.pid.i,a.pid.d);	
 			talon->EnableControl();
-			talon->ConfigEncoderCodesPerRev(1);
-			talon->SetExpiration(EXPIRATION);
+			talon->SetFeedbackDevice(CANTalon::QuadEncoder);
+			talon->ConfigEncoderCodesPerRev(200);
+			//talon->SetExpiration(EXPIRATION);
 			talon->SetSafetyEnabled(true);
-			talon->Set(power);
+			talon->Set(a.speed);
 			out=a;
 			mode=Talon_srx_control::Mode::SPEED;
 		} else if((a.speed!=out.speed || since_query==1) /*&& out!=last_out*/){ 
-			talon->Set(power);
+			talon->Set(a.speed);
 			out.speed=a.speed;
 		}
 	}
@@ -88,15 +90,21 @@ void Talon_srx_control::set(Talon_srx_output a, bool enable) {
 
 Talon_srx_input Talon_srx_control::get(){
 	if(since_query>20){
-		switch(mode){
-			case Talon_srx_control::Mode::VOLTAGE:
+	//	switch(mode){
+			//case Talon_srx_control::Mode::VOLTAGE:
 				in.current=talon->GetBusVoltage();
-				break;
-			case Talon_srx_control::Mode::SPEED:
+			//	break;
+	//		case Talon_srx_control::Mode::SPEED:
 				in.velocity=talon->GetSpeed();
-				break;
-			default: break;
-		}
+				in.a=talon->GetPinStateQuadA();
+				in.b=talon->GetPinStateQuadB();
+				in.fwd_limit_switch=talon->IsFwdLimitSwitchClosed();
+				in.rev_limit_switch=talon->IsRevLimitSwitchClosed();
+				in.encoder_position=talon->GetEncPosition();
+	//			break;
+	//		default: break;
+	//	}
+		since_query=0;
 	}
 	since_query++;
 	return in;
