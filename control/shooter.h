@@ -18,6 +18,7 @@ struct Shooter{
 		};
 		Talon_srx_output::Mode mode;
 		Type type;
+		float percentage;//varries goal by a percentage
 		Goal();
 		Goal(Shooter::Goal::Type);
 		Goal(Talon_srx_output::Mode,Shooter::Goal::Type);
@@ -25,11 +26,11 @@ struct Shooter{
 	};
 	
 	struct Status_detail{
-		int speed;//rpm
+		double speed;//rpm
 		bool beam;//beam sensor	
 
 		Status_detail();
-		Status_detail(int,bool);
+		Status_detail(double,bool);
 	};
 	
 	typedef Status_detail Status;
@@ -45,18 +46,12 @@ struct Shooter{
 		Robot_inputs operator()(Robot_inputs,Shooter::Input)const;
 	};
 
-	#define SHOOTER_MODES X(STOP) X(GROUND_SPEED) X(CLIMB_SPEED) X(FREE_SPIN)
-	struct Output{
-		enum class Mode{
-			#define X(name) name,
-			SHOOTER_MODES
-			#undef X
-		};
-		Mode mode;
+	struct Output{//maybe replace with a full Talon_srx_output or have one within
+		double speed;//rpm
 		Talon_srx_output::Mode talon_mode;
 		Output();
-		Output(Shooter::Output::Mode);
-		Output(Shooter::Output::Mode,Talon_srx_output::Mode);
+		Output(double);
+		Output(double,Talon_srx_output::Mode);
 	};
 	
 	struct Output_applicator{
