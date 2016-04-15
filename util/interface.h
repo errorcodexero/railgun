@@ -40,6 +40,11 @@ class Digital_out{
 	static Digital_out encoder(int encoder_index,bool input_a);
 };
 
+struct PID_values{
+	float p,i,d;
+	PID_values();
+};
+
 struct Talon_srx_input{
 	int encoder_position;
 	bool fwd_limit_switch;
@@ -51,12 +56,9 @@ struct Talon_srx_input{
 	Talon_srx_input():encoder_position(0),fwd_limit_switch(0),rev_limit_switch(0),a(0),b(0),velocity(0),current(0){}
 };
 
+
 struct Talon_srx_output{
-	struct PID_coefficients{
-		float p,i,d;
-		PID_coefficients();
-	};
-	PID_coefficients pid;
+	PID_values pid;
 	double power_level;
 	double speed;
 	enum class Mode{VOLTAGE,SPEED};

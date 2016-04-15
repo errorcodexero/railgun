@@ -36,7 +36,7 @@ ostream& operator<<(ostream& o,Talon_srx_control a){
 	return o<<"Talon_srx_control( mode:"<<a.mode<<" out:"<<a.out<</*" last_out:"<<a.last_out<<*/" init:"<<!!a.talon<<" since_query:"<<a.since_query<<" in:"<<a.in<<")";
 }
 
-bool pid_approx(Talon_srx_output::PID_coefficients a,Talon_srx_output::PID_coefficients b){
+bool pid_approx(Talon_srx_output::PID_values a,Talon_srx_output::PID_values b){
 	const float TOLERANCE=.001;
 	return fabs(a.p-b.p)<TOLERANCE && fabs(a.i-b.i)<TOLERANCE && fabs(a.d-b.d)<TOLERANCE;
 }
@@ -90,20 +90,13 @@ void Talon_srx_control::set(Talon_srx_output a, bool enable) {
 
 Talon_srx_input Talon_srx_control::get(){
 	if(since_query>20){
-	//	switch(mode){
-			//case Talon_srx_control::Mode::VOLTAGE:
-				in.current=talon->GetBusVoltage();
-			//	break;
-	//		case Talon_srx_control::Mode::SPEED:
-				in.velocity=talon->GetSpeed();
-				in.a=talon->GetPinStateQuadA();
-				in.b=talon->GetPinStateQuadB();
-				in.fwd_limit_switch=talon->IsFwdLimitSwitchClosed();
-				in.rev_limit_switch=talon->IsRevLimitSwitchClosed();
-				in.encoder_position=talon->GetEncPosition();
-	//			break;
-	//		default: break;
-	//	}
+		in.current=talon->GetBusVoltage();
+		in.velocity=talon->GetSpeed();
+		in.a=talon->GetPinStateQuadA();
+		in.b=talon->GetPinStateQuadB();
+		in.fwd_limit_switch=talon->IsFwdLimitSwitchClosed();
+		in.rev_limit_switch=talon->IsRevLimitSwitchClosed();
+		in.encoder_position=talon->GetEncPosition();
 		since_query=0;
 	}
 	since_query++;

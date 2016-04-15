@@ -7,7 +7,7 @@
 
 using namespace std;
 
-Talon_srx_output::PID_coefficients::PID_coefficients():p(.3),i(.003),d(0){}
+PID_values::PID_values():p(.3),i(.003),d(0){}
 
 Digital_out::Digital_out():type_(Type::INPUT){}
 
@@ -91,7 +91,7 @@ std::ostream& operator<<(std::ostream& o, Talon_srx_output::Mode a){
 }
 
 std::ostream& operator<<(std::ostream& o, Talon_srx_output a){
-	o<<"(mode: "<<a.mode;
+	o<<"Talon_srx_output(mode: "<<a.mode;
 	if(a.mode==Talon_srx_output::Mode::VOLTAGE) o<<" power_level: "<<a.power_level;
 	else if(a.mode==Talon_srx_output::Mode::SPEED) o<<" speed: "<<a.speed;
 	return o<<")";
@@ -633,6 +633,7 @@ int main(){
 	cout<<Robot_inputs()<<"\n";
 	cout<<Joystick_data()<<"\n";
 	cout<<Jaguar_output()<<"\n";
+	cout<<Talon_srx_output()<<"\n";
 	cout<<Jaguar_output::speedOut(10)<<"\n";
 	cout<<Jaguar_output::voltageOut(1.0)<<"\n";
 	for(auto a:digital_ins()){
