@@ -6,6 +6,7 @@ AUTO MODE LIST:
 
 HIGH PRIORITY for Worlds:
 	- Debug netconsole.py not printing anything sometimes
+	- Prevent print out to netconsole when robot is not receiving packets from the driverstation
 	- Re-label OI
 	- Maybe prevent climber release when collector is at top
 	- High goal shooter code
