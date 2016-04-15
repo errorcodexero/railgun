@@ -7,7 +7,7 @@
 
 using namespace std;
 
-PID_values::PID_values():p(.3),i(.003),d(0){}
+PID_values::PID_values():p(.5),i(0),d(0.25),f(4000){}//from testing with shooter 2016
 
 Digital_out::Digital_out():type_(Type::INPUT){}
 
@@ -80,7 +80,7 @@ std::ostream& operator<<(std::ostream& o,Digital_out a){
 }
 
 std::ostream& operator<<(std::ostream& o, PID_values a){
-	return o<<"(p:"<<a.p<<" i:"<<a.i<<" d:"<<a.d<<")";
+	return o<<"(p:"<<a.p<<" i:"<<a.i<<" d:"<<a.d<<" d:"<<a.f<<")";
 }
 
 std::ostream& operator<<(std::ostream& o, Talon_srx_input in){

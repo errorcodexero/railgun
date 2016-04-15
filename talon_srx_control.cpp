@@ -36,13 +36,13 @@ ostream& operator<<(ostream& o,Talon_srx_control a){
 	return o<<"Talon_srx_control( mode:"<<a.mode<<" out:"<<a.out<</*" last_out:"<<a.last_out<<*/" init:"<<!!a.talon<<" since_query:"<<a.since_query<<" in:"<<a.in<<")";
 }
 
-bool pid_approx(Talon_srx_output::PID_values a,Talon_srx_output::PID_values b){
+bool pid_approx(PID_values a,PID_values b){
 	const float TOLERANCE=.001;
-	return fabs(a.p-b.p)<TOLERANCE && fabs(a.i-b.i)<TOLERANCE && fabs(a.d-b.d)<TOLERANCE;
+	return fabs(a.p-b.p)<TOLERANCE && fabs(a.i-b.i)<TOLERANCE && fabs(a.d-b.d)<TOLERANCE && fabs(a.f-b.f)<TOLERANCE;
 }
 
 void Talon_srx_control::set(Talon_srx_output a, bool enable) {
-	//static const float EXPIRATION=2.0;
+	static const float EXPIRATION=2.0;
 	assert(mode!=Mode::INIT);
 	if(!enable){
 		if(mode!=Talon_srx_control::Mode::DISABLE){ 
@@ -58,7 +58,7 @@ void Talon_srx_control::set(Talon_srx_output a, bool enable) {
 		if(mode!=Talon_srx_control::Mode::VOLTAGE){
 			talon->SetControlMode(CANSpeedController::kPercentVbus);
 			talon->EnableControl();
-			//talon->SetExpiration(EXPIRATION);
+			talon->SetExpiration(EXPIRATION);
 			talon->SetSafetyEnabled(true);
 			talon->Set(a.power_level);
 			out=a;
@@ -68,14 +68,13 @@ void Talon_srx_control::set(Talon_srx_output a, bool enable) {
 			out.power_level=a.power_level;
 		}	
 	} else if(a.mode==Talon_srx_output::Mode::SPEED){
-		//assert(a.speed==clip(a.speed));
 		if(mode!=Talon_srx_control::Mode::SPEED || !pid_approx(out.pid,a.pid)){
 			talon->SetControlMode(CANSpeedController::kSpeed);
-			talon->SetPID(a.pid.p,a.pid.i,a.pid.d);	
+			talon->SetPID(a.pid.p,a.pid.i,a.pid.d,a.pid.f);	
 			talon->EnableControl();
 			talon->SetFeedbackDevice(CANTalon::QuadEncoder);
 			talon->ConfigEncoderCodesPerRev(200);
-			//talon->SetExpiration(EXPIRATION);
+			talon->SetExpiration(EXPIRATION);
 			talon->SetSafetyEnabled(true);
 			talon->Set(a.speed);
 			out=a;
@@ -134,7 +133,9 @@ array<Talon_srx_input,Robot_inputs::TALON_SRX_INPUTS> Talon_srx_controls::get(){
 ostream& operator<<(ostream& o,Talon_srx_controls const& t){
 	o<<"Talon_srx_controls(";
 	o<< "init:"<<t.init_;
-	//o<<" talons("<<t.talons;
-	return o<<"))";
+	for(unsigned int i=0;i<t.talons.size(); i++){
+		//o<<" talon_srx_"<<i<<t.talons[i];
+	}
+	return o<<")";
 }
 

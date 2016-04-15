@@ -4,7 +4,7 @@
 #define SHOOTER_WHEEL_LOC 0
 #define BEAM_SENSOR_DIO 5
 #define GROUND_RPM 1000
-#define CLIMB_RPM 750
+#define CLIMB_RPM 7050
 #define FREE_SPIN_RPM -750
 
 Shooter::Status_detail::Status_detail():speed(0),beam(0){}
@@ -44,6 +44,11 @@ std::ostream& operator<<(std::ostream& o,Shooter::Output::Mode mode){
 
 std::ostream& operator<<(std::ostream& o,Shooter::Output out){
 	return o<<"Shooter::Output( mode:"<<out.mode<<" talon_mode:"<<out.talon_mode<<")";
+}
+
+bool approx_equal(int a,int b){//speed approx equal
+	static const int TOLERANCE=100;
+	return (a-TOLERANCE>b && a+TOLERANCE<b);
 }
 
 bool operator==(Shooter::Input a,Shooter::Input b){ return a.speed==b.speed && a.beam==b.beam; }
@@ -267,9 +272,9 @@ Shooter::Status status(Shooter::Status_detail a){
 
 bool ready(Shooter::Status status,Shooter::Goal goal){
 	switch(goal.type){
-		case Shooter::Goal::Type::STOP: return status.speed==0;
-		case Shooter::Goal::Type::GROUND_SHOT: return status.speed==GROUND_RPM;
-		case Shooter::Goal::Type::CLIMB_SHOT: return status.speed==CLIMB_RPM;
+		case Shooter::Goal::Type::STOP: return approx_equal(status.speed,0);
+		case Shooter::Goal::Type::GROUND_SHOT: return approx_equal(status.speed,GROUND_RPM);
+		case Shooter::Goal::Type::CLIMB_SHOT: return approx_equal(status.speed,CLIMB_RPM);
 		case Shooter::Goal::Type::X: return true;
 		default: assert(0);
 	}

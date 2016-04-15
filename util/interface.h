@@ -41,7 +41,7 @@ class Digital_out{
 };
 
 struct PID_values{
-	float p,i,d;
+	float p,i,d,f;
 	PID_values();
 };
 
