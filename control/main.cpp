@@ -473,7 +473,30 @@ pair<float,float> driveatwall(const Robot_inputs in){
 	}
 	return motorvoltmods;
 }
-Main::Mode next_mode(Main::Mode m,bool autonomous,bool autonomous_start,Toplevel::Status_detail& /*status*/,Time since_switch, Panel panel,bool const&toplready,Robot_inputs const& in){
+pair<float,float> VisionRotateAssit(int visiongoalx){
+		//  <right,left >
+		pair<float,float> MotorAssist;
+		float mleft;
+		float mright;
+		if(visiongoalx > 10){
+			mleft=-.025;
+			mright=.025;
+		}
+		else if(visiongoalx < 10){
+			mleft=.025;
+			mright=-.025;
+		}
+		else{
+			mleft=0;
+			mright=0;
+		}
+		MotorAssist.first=mright;
+		MotorAssist.second=mleft;
+		return MotorAssist;
+}
+			
+		
+Main::Mode next_mode(Main::Mode m,bool autonomous,bool autonomous_start,Toplevel::Status_detail& /*status*/,Time since_switch, Panel panel,bool const&toplready/*,Robot_inputs const& in*/){
 	switch(m){
 		case Main::Mode::TELEOP:	
 			if(autonomous_start){
@@ -494,6 +517,12 @@ Main::Mode next_mode(Main::Mode m,bool autonomous,bool autonomous_start,Toplevel
 							return Main::Mode::AUTO_PORTCULLIS;
 						case Panel::Auto_mode::CHEVAL:
 							return Main::Mode::AUTO_CHEVALPOS;
+						case Panel::Auto_mode::LBLS:
+							return Main::Mode::AUTO_LBLS_CROSS_LB;
+						case Panel::Auto_mode::DRT:
+							return Main::Mode::AUTO_LG_ROTATE;
+						case Panel::Auto_mode::DAT:
+							return Main::Mode::AUTO_LG_FORWARD;
 						default: assert(0);
 					}
 				}
@@ -525,10 +554,6 @@ Main::Mode next_mode(Main::Mode m,bool autonomous,bool autonomous_start,Toplevel
 			myfile2 << "NEXT_MODE:DONE=>TELEOP" << endl;
 			return Main::Mode::TELEOP;
 
-		case Main::Mode::AUTO_TEST:
-			if(since_switch > 1 || !autonomous) return Main::Mode::TELEOP;
-			return Main::Mode::AUTO_TEST;
-
 		case Main::Mode::AUTO_PORTCULLIS:
 			if(!autonomous) return Main::Mode::TELEOP;
 			if(since_switch > 2.5) return Main::Mode::AUTO_PORTCULLIS_DONE;
@@ -557,40 +582,45 @@ Main::Mode next_mode(Main::Mode m,bool autonomous,bool autonomous_start,Toplevel
 			if(since_switch > 1.5 || !autonomous) return Main::Mode::TELEOP;
 			return Main::Mode::AUTO_CHEVALSTOW;
 
-		case Main::Mode::AUTO_SCORELOW:
+		case Main::Mode::AUTO_LBLS_CROSS_LB:
 			if(!autonomous) return Main::Mode::TELEOP;
-			if(since_switch > 4.5) return Main::Mode::AUTO_SCOREBAR;
-			return Main::Mode::AUTO_SCORELOW;
-		case Main::Mode::AUTO_SCOREBAR:
-			if(since_switch > 2 || !autonomous) return Main::Mode::TELEOP;
-			return Main::Mode::AUTO_SCOREBAR;
-		case Main::Mode::AUTO_SCOREDRIVE:
-			{
-				bool first_run=true;
-				int ioencoder;
-				int curencoder;
+			if(since_switch > 4) return Main::Mode::AUTO_LBLS_CROSS_MU;
+			return Main::Mode::AUTO_LBLS_CROSS_LB;
 
-				first_run=false;
-				curencoder = in.digital_io.encoder[0];
-
-				if(!autonomous) return Main::Mode::TELEOP;
-
-				if(first_run==false){
-					ioencoder=0;
-				} else {
-					ioencoder = curencoder;
-				}
-			
-				if((in.digital_io.encoder[0]) > ((curencoder - ioencoder) == 1000)) return Main::Mode::AUTO_SCOREPREP;
-
-					return Main::Mode::AUTO_SCOREDRIVE;
-			}
-		/*default:
+		case Main::Mode::AUTO_LBLS_CROSS_MU:
 			if(!autonomous) return Main::Mode::TELEOP;
-			return Main::Mode::AUTO_NULL;*/
-		case Main::Mode::AUTO_SCOREPREP:
+			if(toplready) return Main::Mode::AUTO_LBLS_SCORE_SEEK;
+			return Main::Mode::AUTO_LBLS_CROSS_MU;
+
+		case Main::Mode::AUTO_LBLS_SCORE_SEEK:
 			if(!autonomous) return Main::Mode::TELEOP;
-			return Main::Mode::AUTO_SCOREPREP;
+			if(since_switch > 1) return Main::Mode::AUTO_LBLS_SCORE_LOCATE;
+			return Main::Mode::AUTO_LBLS_SCORE_SEEK;
+
+		case Main::Mode::AUTO_LBLS_SCORE_LOCATE:
+			if(!autonomous) return Main::Mode::TELEOP;
+			if(since_switch > 1) return Main::Mode::AUTO_LBLS_SCORE_CD;
+			return Main::Mode::AUTO_LBLS_SCORE_LOCATE;
+
+		case Main::Mode::AUTO_LBLS_SCORE_CD:
+			if(!autonomous) return Main::Mode::TELEOP;
+			if(since_switch > 1) return Main::Mode::AUTO_LBLS_SCORE_EJECT;//when vision is in remove.
+			/*
+			if(VisionY > 100) return Main::Mode::AUTO_LBLS_SCORE_EJECT;
+
+			*/
+			return Main::Mode::AUTO_LBLS_SCORE_CD;
+		
+		case Main::Mode::AUTO_LBLS_SCORE_EJECT:
+			if(since_switch > 1 || !autonomous) return Main::Mode::TELEOP;
+			return Main::Mode::AUTO_LBLS_SCORE_EJECT;
+		case Main::Mode::AUTO_LG_ROTATE:
+			if(since_switch > 10 || !autonomous) return Main::Mode::TELEOP;
+			return Main::Mode::AUTO_LG_ROTATE;
+		case Main::Mode::AUTO_LG_FORWARD:
+			if(since_switch > 4 || !autonomous) return Main::Mode::TELEOP;
+			return Main::Mode::AUTO_LG_FORWARD;
+
 		default: assert(0);
 	}
 	return m;	
@@ -664,10 +694,6 @@ Robot_outputs Main::operator()(Robot_inputs in,ostream&){
 			goals.drive.left=0;
 			goals.drive.right=0;
 			break;
-		case Mode::AUTO_TEST:
-			goals.drive.left=.10;
-			goals.drive.right=.10;
-			break;
 		case Mode::AUTO_PORTCULLIS:
 			goals.collector.front=Front::Goal::OFF;
 			goals.collector.sides=Sides::Goal::OFF;
@@ -715,19 +741,50 @@ Robot_outputs Main::operator()(Robot_inputs in,ostream&){
 			goals.drive.left=-.5;
 			goals.collector.tilt=top;
 			break;
-		case Mode::AUTO_SCORELOW:
+		case Main::Mode::AUTO_LBLS_CROSS_LB:
+			goals.collector.front=Front::Goal::OFF;
+			goals.collector.sides=Sides::Goal::OFF;
+
+			goals.collector.tilt=low;
+			if(ready(toplevel_status.collector.tilt.angle,goals.collector.tilt=low)){
+				goals.drive.left=-.25;
+				goals.drive.right=-.25;
+			}
 			break;
-		case Mode::AUTO_SCOREBAR:
+		case Main::Mode::AUTO_LBLS_CROSS_MU:
+			goals.collector.front=Front::Goal::OFF;
+			goals.collector.sides=Sides::Goal::OFF;
+
+			goals.collector.tilt=top;
+			Main::topready=ready(toplevel_status.collector.tilt.angle,goals.collector.tilt);
 			break;
-		case Mode::AUTO_SCOREDRIVE:
+		
+		case Main::Mode::AUTO_LBLS_SCORE_SEEK:
+			goals.drive.right=.25;
+			goals.drive.left= -.25;
 			break;
-		case Mode::AUTO_SCOREPREP:	
+		case Main::Mode::AUTO_LBLS_SCORE_LOCATE:
+			break;
+		case Main::Mode::AUTO_LBLS_SCORE_CD:
+			goals.drive.right=-.25;
+			goals.drive.left=-.25;
+			break;
+		case Main::Mode::AUTO_LBLS_SCORE_EJECT:
+			goals.collector={Front::Goal::OUT,Sides::Goal::OFF,top};
+			break;
+		case Main::Mode::AUTO_LG_ROTATE:
+			goals.drive.right=.1+VisionRotateAssit(0).first;
+			goals.drive.left=-.1+VisionRotateAssit(0).second;
+			break;
+		case Main::Mode::AUTO_LG_FORWARD:
+			goals.drive.right=-.1+VisionRotateAssit(0).first;
+			goals.drive.left=-.1+VisionRotateAssit(0).second;	
 			break;
 
 		//shooter_protical call in here takes in robot inputs,toplevel goal,toplevel status detail
 		default: assert(0);
 	}
-	auto next=next_mode(mode,in.robot_mode.autonomous,autonomous_start_now,toplevel_status,since_switch.elapsed(),panel,topready,in);
+	auto next=next_mode(mode,in.robot_mode.autonomous,autonomous_start_now,toplevel_status,since_switch.elapsed(),panel,topready/*,in*/);
 	since_switch.update(in.now,mode!=next);
 	mode=next;
 		
@@ -926,7 +983,7 @@ void test_next_mode(){
 		Robot_inputs in;
 		
 		
-		auto next=next_mode(mode,0,0,st,0,Panel{},toplready,in);
+		auto next=next_mode(mode,0,0,st,0,Panel{},toplready/*,in*/);
 		cout<<"Testing mode "<<mode<<" goes to "<<next<<"\n";
 		assert(next==Main::Mode::TELEOP);
 	}
