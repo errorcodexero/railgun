@@ -1,5 +1,4 @@
 #include "network.hpp"
-
 using namespace std;
 
 void *getInAddr(struct sockaddr *sa) {
@@ -27,7 +26,7 @@ int sendAll(int _iS, char* _szBuf, int* _iLen) {
 
 	return iN==-1?-1:0;
 }
-
+/*
 void sigChildHandler(int s)
 {
     // waitpid() might overwrite errno, so we save and restore it:
@@ -36,7 +35,7 @@ void sigChildHandler(int s)
     while(waitpid(-1, NULL, WNOHANG) > 0);
 
     errno = saved_errno;
-}
+}*/
 Client::Client(const char* _szIP, const char* _szPort, int _iSockType, char _szDelimiter = '\n') {
 	vector <char* > vszIP;
 	//int iPort = 0; //Only a temporary, validation value
@@ -177,7 +176,7 @@ bool Client::bSendTo(const char* _szBuf) {
 char* Client::szGetData() {
 	return this->szBuf;
 }
-
+/*
 Server::Server (const char* _szPort, int _iSockType, int _iBacklog, unsigned int _iMaxClients, bool _bIsPersistant) {
 
 	this->szPORT = _szPort;
@@ -314,3 +313,4 @@ bool Server::bListen() {
 char* Server::szGetData() {
 	return this->szBuf;
 }
+*/

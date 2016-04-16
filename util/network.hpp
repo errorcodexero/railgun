@@ -50,7 +50,7 @@ private:
 	struct addrinfo aiHints, *aiServInfo, *aiP;
 
 };
-
+/*
 class Server {
 public:
 
@@ -94,3 +94,4 @@ private:
 	struct sockaddr_storage saCliAddr;
 
 };
+*/
