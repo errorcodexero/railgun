@@ -1,22 +1,5 @@
-extern "C" {
-#include <stdio.h>
-#include <stdlib.h>
-#include <unistd.h>
-#include <errno.h>
-#include <string.h>
-#include <sys/types.h>
-#include <sys/socket.h>
-#include <netinet/in.h>
-#include <netdb.h>
-#include <arpa/inet.h>
-#include <sys/wait.h>
-#include <signal.h>
-#include <fcntl.h>
-#include <ctype.h>
-#include <stdarg.h>
-}
-
-#include "string_utils.hpp"
+#ifndef _NETWORK_H_
+#define _NETWORK_H_
 
 void *getInAddr(struct sockaddr *sa);
 
@@ -31,23 +14,17 @@ public:
 	char* szGetData();
 
 	//bool bNewIP(const char* _szIP);
-protected:
-
-
 private:
 
 	int iSockfd;
-	int iNumBytes;
-	int iRV;
 	int iSockType;
 
 	const char* szPORT;
 	const char* szIP;
 	char szBuf[512];
-	char szS[INET6_ADDRSTRLEN];
 	char szDelimiter;
 
-	struct addrinfo aiHints, *aiServInfo, *aiP;
+	struct addrinfo *aiP;
 
 };
 /*
@@ -61,10 +38,6 @@ public:
 
 	bool bBroadcast(const char* _szBuf); //Only use if your using TCP sockets
 	bool bListen(); //Only use if your using UDP sockets
-
-
-protected:
-
 
 private:
 
@@ -95,3 +68,4 @@ private:
 
 };
 */
+#endif /* _NETWORK_H_ */
