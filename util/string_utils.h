@@ -1,13 +1,6 @@
 #define _STRING_UTILS_H_
 #ifndef _STRING_UTILS_H_
 #define _STRING_UTILS_H_
-
-#include <iostream>
-#include <fstream>
-#include <vector>
-#include <string>
-#include <string.h>
-#include <stdio.h>
 void exitWithError(std::string _strErrorMsg, int _iExitNumber);
 
 bool bIsStringIP(const char * _szString);
