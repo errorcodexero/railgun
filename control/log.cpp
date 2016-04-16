@@ -303,6 +303,7 @@ void Log::operator()(Robot_inputs const& in,Toplevel::Status_detail const& statu
 		visit(d,out);
 		ss<<"\n";
 		f.write(ss.str().c_str(),ss.str().size());
+		f.flush();
 	}
 }
 

@@ -240,7 +240,7 @@ Toplevel::Goal Main::teleop(
 	}
 	bool learning=get_learning();
 	
-	if(SLOW_PRINT) cout<<tilt_presets<<"\n";
+	//if(SLOW_PRINT) cout<<tilt_presets<<"\n";
 	
 	if((!panel.in_use && controller_auto.get()) || (panel.in_use && (panel.tilt_auto || panel.front_auto || panel.sides_auto))) {//Automatic collector modes
 		bool joy_learn=gunner_joystick.button[Gamepad_button::B];
@@ -264,11 +264,11 @@ Toplevel::Goal Main::teleop(
 		} else if((main_joystick.button[Gamepad_button::START] && !joy_learn) || (panel.in_use && panel.collect && !learning)) collector_mode=Collector_mode::COLLECT;
 		else if((gunner_joystick.button[Gamepad_button::A] && !joy_learn) || (panel.in_use && panel.collector_pos==Panel::Collector_pos::LOW && !learning)) collector_mode=Collector_mode::LOW;
 
-		if(SLOW_PRINT){
+		/*if(SLOW_PRINT){
 			cout<<"collector_mode: "<<collector_mode;
 			if(collector_mode==Collector_mode::SHOOT_HIGH) cout<<" "<<shoot_step<<"  "<<toplevel_status.shooter;
 			cout<<"\n";
-		}
+		}*/
 
 		switch(collector_mode){
 			case Collector_mode::COLLECT:
@@ -627,7 +627,7 @@ Robot_outputs Main::operator()(Robot_inputs in,ostream&){
 	
 	Toplevel::Status_detail toplevel_status=toplevel.estimator.get();
 		
-	if(SLOW_PRINT) cout<<"panel: "<<panel<<"\n";	
+	//if(SLOW_PRINT) cout<<"panel: "<<panel<<"\n";	
 		
 	bool autonomous_start_now=autonomous_start(in.robot_mode.autonomous && in.robot_mode.enabled);
 	since_auto_start.update(in.now,autonomous_start_now);
@@ -748,7 +748,7 @@ Robot_outputs Main::operator()(Robot_inputs in,ostream&){
 		input,
 		toplevel.output_applicator(r)
 	);
-	//log(in,toplevel_status,r);
+	log(in,toplevel_status,r);
 	return r;
 }
 
