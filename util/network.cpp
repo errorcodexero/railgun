@@ -106,7 +106,7 @@ Client::Client(const char* _szIP, const char* _szPort, int _iSockType, char _szD
 	        } else if (iSockType == SOCK_DGRAM) {
 	        	//Doesn't need a special connect statement
 	        } else {
-	        	exitWithError("Not Valid Socket Type, or Socket Type Not Yet Implemented",6);
+	        	//exitWithError("Not Valid Socket Type, or Socket Type Not Yet Implemented",6);
 	        }
 	        break;
 	}
@@ -340,3 +340,9 @@ char* Server::szGetData() {
 	return szBuf;
 }
 */
+
+#ifdef NETWORK_TEST
+int main() {
+	
+}
+#endif
