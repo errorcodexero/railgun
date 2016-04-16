@@ -94,7 +94,7 @@ Client::Client(const char* _szIP, const char* _szPort, int _iSockType, char _szD
 
 	inet_ntop(this->aiP->ai_family, getInAddr((struct sockaddr *)this->aiP->ai_addr),
 	            this->szS, sizeof this->szS);
-	//fcntl(this->iSockfd, F_SETFL, O_NONBLOCK);
+	fcntl(this->iSockfd, F_SETFL, O_NONBLOCK);
 	printf("client: connecting to %s\n", this->szS);
 
 	freeaddrinfo(this->aiServInfo);

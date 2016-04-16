@@ -30,13 +30,15 @@ public:
 
 	char* szGetData();
 
+	int iSockfd;
+
 	//bool bNewIP(const char* _szIP);
 protected:
 
 
 private:
 
-	int iSockfd;
+
 	int iNumBytes;
 	int iRV;
 	int iSockType;

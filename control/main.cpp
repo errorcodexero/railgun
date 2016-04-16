@@ -106,6 +106,7 @@ Tilt_presets read_tilt_presets(){
 //TODO: at some point, might want to make this whatever is right to start autonomous mode.
 Main::Main():
 	mode(Mode::TELEOP),
+	Vision("10.14.24.11","6425",SOCK_STREAM,'\n'),
 	autonomous_start(0),
 	joy_collector_pos(Joy_collector_pos::STOP),
 	collector_mode(Collector_mode::NOTHING),
@@ -494,22 +495,23 @@ pair<float,float> VisionRotateAssit(int visiongoalx){
 		MotorAssist.second=mleft;
 		return MotorAssist;
 }
-bool VisionBool(string input){
-	float x,y;
+bool Main::VisionBool(float &x,float &y){
 	int n;
-	n = sscanf(input.c_str(), "%f,%f", &x, &y);
-	if(n) return true;
-	else return false;
+	char * input;
+
+	if(!Vision.bRecv()) return false;
+	
+	input = Vision.szGetData();
+	
+	n = sscanf(input, "%f,%f", &x, &y);
+	
+	if(n==0) return false;
+	
+	return true;
 }
 
-pair<float,float> VisionValues(string input){
-	float x,y;
-	pair<float,float> Values;			
-	sscanf(input.c_str(), "%f,%f", &x, &y);
-	Values.first = x;
-	Values.second = y;
-	return Values;
-}	
+
+	
 Main::Mode next_mode(Main::Mode m,bool autonomous,bool autonomous_start,Toplevel::Status_detail& /*status*/,Time since_switch, Panel panel,bool const&toplready/*,Robot_inputs const& in*/){
 	switch(m){
 		case Main::Mode::TELEOP:	

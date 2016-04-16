@@ -11,6 +11,7 @@
 #include "../util/nav.h"
 #include "../util/nav2.h"
 #include "log.h"
+#include "../util/network.hpp"
 
 struct Tilt_presets{
 	double top, level, low, cheval;//angles (in degrees) that it will go to when set to the tilt goals
@@ -30,7 +31,7 @@ struct Main{
 		#undef X
 	};
 	Mode mode;
-
+	Client Vision;
 	Nav2 nav2;
 	Force_interface force;
 	Perf_tracker perf;
@@ -38,6 +39,8 @@ struct Main{
 	bool topready;
 	bool simtest;
 	Robot_inputs in_i;
+
+	bool VisionBool(float &x,float &y);
 
 	Countup_timer since_switch,since_auto_start;
 
