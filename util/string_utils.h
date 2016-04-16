@@ -1,5 +1,5 @@
-#ifndef _UTILS_H_
-#define _UTILS_H_
+#ifndef _STRING_UTILS_H_
+#define _STRING_UTILS_H_
 
 #include <iostream>
 #include <fstream>
@@ -38,5 +38,5 @@ typedef int int32;
 
 //Done with types
 */
-#endif /* _UTILS_H_*/
+#endif /* _STRING_UTILS_H_*/
 
