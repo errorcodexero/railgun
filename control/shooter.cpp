@@ -13,9 +13,9 @@ Shooter::Estimator::Estimator():last({}),speed_up_timer({}),last_output({CLIMB_R
 Shooter::Goal::Goal():mode(Talon_srx_output::Mode::VOLTAGE),type(Shooter::Goal::Type::STOP),percentage(1.0){}
 Shooter::Goal::Goal(Shooter::Goal::Type t):mode(Talon_srx_output::Mode::VOLTAGE),type(t),percentage(1.0){}
 Shooter::Goal::Goal(Talon_srx_output::Mode tm,Shooter::Goal::Type t):mode(tm),type(t),percentage(1.0){}
-Shooter::Output::Output():speed(0),talon_mode(Talon_srx_output::Mode::VOLTAGE){}
-Shooter::Output::Output(double s):speed(s),talon_mode(Talon_srx_output::Mode::VOLTAGE){}
-Shooter::Output::Output(double s,Talon_srx_output::Mode tm):speed(s),talon_mode(tm){}
+Shooter::Output::Output():speed(0),mode(Talon_srx_output::Mode::VOLTAGE){}
+Shooter::Output::Output(double s):speed(s),mode(Talon_srx_output::Mode::VOLTAGE){}
+Shooter::Output::Output(double s,Talon_srx_output::Mode tm):speed(s),mode(tm){}
 
 std::ostream& operator<<(std::ostream& o,Shooter::Goal::Type a){
 	#define X(name) if(a==Shooter::Goal::Type::name) return o<<#name")";
@@ -38,7 +38,7 @@ std::ostream& operator<<(std::ostream& o,Shooter::Status_detail a){ return o<<"S
 std::ostream& operator<<(std::ostream& o,Shooter a){ return o<<"Shooter("<<a.estimator<<")"; }
 
 std::ostream& operator<<(std::ostream& o,Shooter::Output out){
-	return o<<"Shooter::Output( speed:"<<out.speed<<" talon_mode:"<<out.talon_mode<<")";
+	return o<<"Shooter::Output( speed:"<<out.speed<<" mode:"<<out.mode<<")";
 }
 
 bool operator==(Shooter::Input a,Shooter::Input b){ return a.speed==b.speed && a.beam==b.beam; }
@@ -67,12 +67,12 @@ bool operator<(Shooter::Goal a,Shooter::Goal b){
 	return a.percentage<b.percentage;
 }
 
-bool operator==(Shooter::Output a,Shooter::Output b){ return a.speed==b.speed && a.talon_mode==b.talon_mode; }
+bool operator==(Shooter::Output a,Shooter::Output b){ return a.speed==b.speed && a.mode==b.mode; }
 bool operator!=(Shooter::Output a,Shooter::Output b){ return !(a==b); }
 bool operator<(Shooter::Output a,Shooter::Output b){
 	if(a.speed<b.speed) return true;
 	if(b.speed<a.speed) return false;
-	return a.talon_mode<b.talon_mode;
+	return a.mode<b.mode;
 }
 
 bool operator==(Shooter::Status_detail a,Shooter::Status_detail b){ return (a.speed==b.speed && a.beam==b.beam); }
@@ -105,7 +105,7 @@ Robot_inputs Shooter::Input_reader::operator()(Robot_inputs r,Shooter::Input in)
 
 Shooter::Output Shooter::Output_applicator::operator()(Robot_outputs r)const{
 	Shooter::Output out;
-	out.talon_mode=r.talon_srx[SHOOTER_WHEEL_LOC].mode;
+	out.mode=r.talon_srx[SHOOTER_WHEEL_LOC].mode;
 	switch(r.talon_srx[SHOOTER_WHEEL_LOC].mode){
 		case Talon_srx_output::Mode::VOLTAGE: 
 			out.speed=r.talon_srx[SHOOTER_WHEEL_LOC].power_level;
@@ -119,8 +119,8 @@ Shooter::Output Shooter::Output_applicator::operator()(Robot_outputs r)const{
 }
 
 Robot_outputs Shooter::Output_applicator::operator()(Robot_outputs r,Shooter::Output out)const{ 
-	r.talon_srx[SHOOTER_WHEEL_LOC].mode=out.talon_mode;
-	switch(out.talon_mode){
+	r.talon_srx[SHOOTER_WHEEL_LOC].mode=out.mode;
+	switch(out.mode){
 		case Talon_srx_output::Mode::VOLTAGE:
 			r.talon_srx[SHOOTER_WHEEL_LOC].power_level = out.speed;
 			break;
@@ -137,7 +137,7 @@ Shooter::Status_detail Shooter::Estimator::get()const{
 }
 
 void Shooter::Estimator::update(Time time,Shooter::Input in,Shooter::Output output){
-	if(output.talon_mode==Talon_srx_output::Mode::VOLTAGE){
+	if(output.mode==Talon_srx_output::Mode::VOLTAGE){
 		static const float SPEED_UP_TIME=5;
 		if(output!=last_output){
 			speed_up_timer.set(SPEED_UP_TIME);	
@@ -152,7 +152,7 @@ void Shooter::Estimator::update(Time time,Shooter::Input in,Shooter::Output outp
 				assert(0);
 			}();
 		}
-	} else if(output.talon_mode==Talon_srx_output::Mode::SPEED){
+	} else if(output.mode==Talon_srx_output::Mode::SPEED){
 		last.speed=in.speed;
 	}
 	last.beam=in.beam;
@@ -207,7 +207,7 @@ std::set<Shooter::Output> examples(Shooter::Output*){
 
 Shooter::Output control(Shooter::Status_detail, Shooter::Goal goal){
 	Shooter::Output out;
-	out.talon_mode=goal.mode;
+	out.mode=goal.mode;
 	out.speed=[&]{
 		switch(goal.mode){
 			case Talon_srx_output::Mode::VOLTAGE:

@@ -46,9 +46,9 @@ struct Shooter{
 		Robot_inputs operator()(Robot_inputs,Shooter::Input)const;
 	};
 
-	struct Output{//maybe replace with a full Talon_srx_output or have one within
+	struct Output{
 		double speed;//rpm
-		Talon_srx_output::Mode talon_mode;
+		Talon_srx_output::Mode mode;
 		Output();
 		Output(double);
 		Output(double,Talon_srx_output::Mode);

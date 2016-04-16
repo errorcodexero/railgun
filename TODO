@@ -9,13 +9,14 @@ Wednesday Window:
 HIGH PRIORITY for Worlds:
 	- Debug netconsole.py not printing anything sometimes
 	- Prevent print out to netconsole when robot is not receiving packets from the driverstation
-	- Make OI dial +/- 20% speed
 	- Re-label OI
 	- Maybe prevent climber release when collector is at top
 	- High goal shooter code
 		- Get shoot prep to work (?)
-		- Get shooter speed in rpm
-		- Get closed loop control working for shooter
+		- Make OI dial +/- 20% speed
+		- Speed learning
+		- Figure out why printing talon_srx_controls to netconsole restarts robot code constantly
+		- Change Shooter::Output to be more like Talon_srx_output (i.e. separate power_level and speed variables instead of the terrible, combined version that exists now)
 	- Autonomous 
 		- Sensors
 		- Auto_nav_run results in seg fault
