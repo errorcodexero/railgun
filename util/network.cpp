@@ -1,4 +1,4 @@
-#include "network.hpp"
+#include "network.h"
 using namespace std;
 
 void *getInAddr(struct sockaddr *sa) {
