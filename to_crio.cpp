@@ -1,15 +1,13 @@
 #include "WPILib.h"
 #include "control/main.h"
 #include "dio_control.h"
+#include "talon_srx_control.h"
 #include <netinet/in.h>
 #include <arpa/inet.h>
 #include <unistd.h>
 #include <iostream>
 
 using namespace std;
-
-
-
 
 void SendWOL (void)
 {
@@ -231,17 +229,15 @@ class To_crio
 	int error_code;
 	USER_CODE main;
 	int skipped;
+	Talon_srx_controls talon_srx_controls;
 	//Jag_control jaguar[Robot_outputs::CAN_JAGUARS];
 	//DriverStationLCD *lcd;
 	//NetworkTable *table;
 	//Gyro *gyro;
 	PowerDistributionPanel *power;
 	Compressor *compressor;
-	CANTalon talon_1;
-	//CANTalon test2;
-	const int TALON_1_ID = 0;
 public:
-	To_crio():error_code(0),skipped(0),talon_1(TALON_1_ID)//,test2(1)//,gyro(NULL)
+	To_crio():error_code(0),skipped(0)//,gyro(NULL)
 	{
 		power = new PowerDistributionPanel();
 		// Wake the NUC by sending a Wake-on-LAN magic UDP packet:
@@ -258,6 +254,7 @@ public:
 				if(!solenoid[i]) error_code|=8;
 			//}
 		}
+		talon_srx_controls.init();
 		
 		for(unsigned i=0;i<Robot_outputs::PWMS;i++){
 			pwm[i]=new VictorSP(i);//untested
@@ -306,8 +303,6 @@ public:
 		}
 		
 		//Slave
-		//test2.SetControlMode(CANSpeedController::kFollower);
-		//test2.Set(TALON_1_ID);
 		
 		cout<<"Initialization Complete."<<endl<<flush;
 	}
@@ -432,10 +427,13 @@ public:
 		
 		//cout << "d_io: " << digital_io << endl << "o.d.io: " << out.digital_io << endl ;
 
-		//test.Set(1);
-		talon_1.Set(out.talon_srx[TALON_1_ID].power_level);
-		//test2.Set(out.talon_srx[1].power_level);
-		//test2.SetSensorDirection(0);
+		{
+			Checked_array<bool,Robot_outputs::TALON_SRX_OUTPUTS> enable_all;
+			for(unsigned int i=0; i<Robot_outputs::TALON_SRX_OUTPUTS; i++){
+				enable_all[i]=true;
+			}
+			talon_srx_controls.set(out.talon_srx,enable_all); 
+		}
 		{
 			/*DriverStation *ds=DriverStation::GetInstance();
 			if(ds){
@@ -459,7 +457,7 @@ public:
 			//cerr<<out.jaguar[i]<<"\n";
 			//cerr<<jaguar[i].jaguar->GetSpeed()<<"\n";
 		//}
-/*			cerr<<"\n"<<jaguar[0].jaguar->GetSpeed()<<"\n";
+		/*	cerr<<"\n"<<jaguar[0].jaguar->GetSpeed()<<"\n";
 			cerr<<jaguar[1].jaguar->GetSpeed()<<"\n";
 			cerr<<jaguar[2].jaguar->GetSpeed()<<"\n";
 			cerr<<jaguar[3].jaguar->GetSpeed()<<"\n";*/
@@ -506,21 +504,22 @@ public:
 	void run(Robot_inputs in){
 		static int print_out_speed=0;
 		Robot_outputs out=main(in);
-		/*if((print_out_speed%10)==0){
+		if((print_out_speed%10)==0){
 			cout<<"in: "<<in<<"\n";
 			cout<<"main: "<<main<<"\n";
 			cout<<"out: "<<out<<"\n";
+			cout<<"talon_srx_controls: "<<talon_srx_controls<<"\n";
 			cout<<"CLEAR_SCREEN\n";
-		}*/
+		}
 		int x=set_outputs(out,in.robot_mode.enabled);
 		if(x) cout<<"x was:"<<x<<"\n";
-		static int i=0;
+		/*static int i=0;
 		if(!i){
 			for(unsigned i=0;i<Robot_outputs::DIGITAL_IOS;i++){
 				//cerr<<"dio"<<i<<":"<<digital_io[i]<<"\n";
 			}
 		}
-		i=(i+1)%100;
+		i=(i+1)%100;*/
 		print_out_speed++;
 	}
 	
@@ -528,7 +527,7 @@ public:
 		/*cerr<<"Going to set LCD\n";
 		cerr.flush();
 		
-		//string s="hell owrld\n";
+		ALON//string s="hell owrld\n";
 		static const unsigned SIZE=USER_DS_LCD_DATA_SIZE;
 		char s[SIZE];
 		memset(s,' ',SIZE);
@@ -557,21 +556,7 @@ public:
 			//in.digital_io[i]=digital_io[i].get();
 		}
 		in.digital_io=digital_io.get();
-		auto f=[&](int index,CANTalon& talon_srx) {
-			in.talon_srx[index].fwd_limit_switch=talon_srx.IsFwdLimitSwitchClosed();
-			in.talon_srx[index].rev_limit_switch=talon_srx.IsRevLimitSwitchClosed();
-			/*if(index==0){
-				in.talon_srx[index].encoder_position=-talon_srx.GetEncPosition();
-				in.talon_srx[index].velocity = -talon_srx.GetEncVel();
-			}else{*/
-				in.talon_srx[index].encoder_position=talon_srx.GetEncPosition();
-				in.talon_srx[index].velocity = talon_srx.GetEncVel();
-			//}
-			in.talon_srx[index].a=talon_srx.GetPinStateQuadA();
-			in.talon_srx[index].b=talon_srx.GetPinStateQuadB();
-		};
-		f(TALON_1_ID,talon_1);
-		//f(1,test2);
+		in.talon_srx=talon_srx_controls.get();
 		//cout<<"in:"<<in<<"\n";
 		//}
 		/*if(gyro){

@@ -19,7 +19,7 @@
 	X(Collector,collector,)\
 	X(Climb_release,climb_release,Climb_release::Goal::STOP)\
 	X(Winch,winch,Winch::Goal::STOP) \
-	X(Shooter,shooter,Shooter::Goal::STOP)
+	X(Shooter,shooter,Shooter::Goal::Type::STOP)
 
 class Toplevel{
 	public:
