@@ -7,7 +7,7 @@
 
 using namespace std;
 
-PID_values::PID_values():p(.5),i(0),d(0.25),f(4000){}//from testing with shooter 2016
+PID_values::PID_values():p(.5),i(0.002),d(0.25),f(1933){}//from testing with shooter 2016
 
 Digital_out::Digital_out():type_(Type::INPUT){}
 

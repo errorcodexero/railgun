@@ -21,7 +21,7 @@ Driver:
 
 
 Gunner:
- A          - Low
+ A          - 
  B          - Learn (used in combination with the tilt positions buttons)
  X          - Shoot low
  Y          - Shoot high

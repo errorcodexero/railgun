@@ -16,7 +16,6 @@ struct Panel{
 	bool shoot_high;
 	bool collector_up;
 	bool collector_down;
-	bool closed_loop;
 	//2 position swicthes:
 	bool lock_climber;
 	bool tilt_auto;
@@ -29,6 +28,8 @@ struct Panel{
 	Collector front, sides;
 	enum class Winch{UP,STOP,DOWN};
 	Winch winch;
+	enum class Shooter_mode{OPEN,CLOSED_MANUAL,CLOSED_AUTO};
+	Shooter_mode shooter_mode;
 	//10 position switches:
 	enum class Auto_mode{NOTHING,REACH,STATICF,STATICS,PORTCULLIS,CHEVAL};
 	Auto_mode auto_mode;
@@ -40,6 +41,7 @@ struct Panel{
 std::ostream& operator<<(std::ostream&,Panel::Collector_pos);
 std::ostream& operator<<(std::ostream&,Panel::Collector);
 std::ostream& operator<<(std::ostream&,Panel::Winch);
+std::ostream& operator<<(std::ostream&,Panel::Shooter_mode);
 std::ostream& operator<<(std::ostream&,Panel::Auto_mode);
 std::ostream& operator<<(std::ostream&,Panel);
 

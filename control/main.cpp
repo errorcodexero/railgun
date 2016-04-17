@@ -19,8 +19,6 @@ ofstream myfile2;
 static int print_count=0;
 #define SLOW_PRINT (print_count%10==0)
 
-#define PI 3.14159265358979
-
 ostream& operator<<(ostream& o,Main::Mode a){
 	#define X(NAME) if(a==Main::Mode::NAME) return o<<""#NAME;
 	MODES
@@ -195,7 +193,6 @@ Toplevel::Goal Main::teleop(
 	Tilt::Goal drawbridge
 
 ){
-	(void)drawbridge;
 	Toplevel::Goal goals;
 	
 	bool enabled = in.robot_mode.enabled;
@@ -240,11 +237,8 @@ Toplevel::Goal Main::teleop(
 	}
 	bool learning=get_learning();
 	
-	if(SLOW_PRINT) cout<<tilt_presets<<"\n";
+	//if(SLOW_PRINT) cout<<tilt_presets<<"\n";
 	
-	if(gunner_joystick.button[Gamepad_button::R_JOY]) goals.shooter.mode=Talon_srx_output::Mode::SPEED;
-	else goals.shooter.mode=Talon_srx_output::Mode::VOLTAGE;
-
 	if((!panel.in_use && controller_auto.get()) || (panel.in_use && (panel.tilt_auto || panel.front_auto || panel.sides_auto))) {//Automatic collector modes
 		bool joy_learn=gunner_joystick.button[Gamepad_button::B];
 		POV_section gunner_pov = pov_section(gunner_joystick.pov);
@@ -265,13 +259,9 @@ Toplevel::Goal Main::teleop(
 			const Time SHOOT_TIME=2;
 			shoot_high_timer.set(SHOOT_TIME);//time until we can assume the ball had been shot after being injected
 		} else if((main_joystick.button[Gamepad_button::START] && !joy_learn) || (panel.in_use && panel.collect && !learning)) collector_mode=Collector_mode::COLLECT;
-		else if((gunner_joystick.button[Gamepad_button::A] && !joy_learn) || (panel.in_use && panel.collector_pos==Panel::Collector_pos::LOW && !learning)) collector_mode=Collector_mode::LOW;
+		else if(panel.in_use && panel.collector_pos==Panel::Collector_pos::LOW && !learning) collector_mode=Collector_mode::LOW;
 
-		if(SLOW_PRINT){
-			cout<<"collector_mode: "<<collector_mode;
-			if(collector_mode==Collector_mode::SHOOT_HIGH) cout<<" "<<shoot_step<<"  "<<toplevel_status.shooter<<"   "<<goals.shooter;
-			cout<<"\n";
-		}
+		//if(SLOW_PRINT)cout<<"collector_mode: "<<collector_mode<<"\n";
 
 		switch(collector_mode){
 			case Collector_mode::COLLECT:
@@ -326,16 +316,6 @@ Toplevel::Goal Main::teleop(
 					}
 					break;
 				}
-			/*case Collector_mode::PORTCULLIS:
-				{
-					drawbridge_timer.update(in.now,enabled);
-					goals.collector={Front::Goal::OFF,Sides::Goal::OFF,drawbridge};
-					const double AUTO_POWER=-.5;
-					goals.drive.right=AUTO_POWER;
-					goals.drive.left=AUTO_POWER;
-					if(drawbridge_timer.done()) collector_mode = Collector_mode::STOW;				
-					break;
-				}*/
 			case Collector_mode::DRAWBRIDGE:
 				goals.collector={Front::Goal::OFF,Sides::Goal::OFF,drawbridge};
 				break;
@@ -389,12 +369,18 @@ Toplevel::Goal Main::teleop(
 				case Joy_collector_pos::LEVEL: return level;
 				default: assert(0);
 			}
-		}();	
+		}();
 	}
 	learn_delay.update(in.now,true);//update always because it's just a nice delay, not actually a key part of functionality
+	if(!panel.in_use){
+		if(gunner_joystick.button[Gamepad_button::R_JOY]) goals.shooter.mode=Shooter::Goal::Mode::SPEED_AUTO;
+		else goals.shooter.mode=Shooter::Goal::Mode::VOLTAGE;
+	}
 	if (panel.in_use) {//Panel manual modes
-		if(panel.closed_loop) goals.shooter.mode=Talon_srx_output::Mode::SPEED;
-		else goals.shooter.mode=Talon_srx_output::Mode::VOLTAGE;
+		if(panel.shooter_mode==Panel::Shooter_mode::CLOSED_AUTO) goals.shooter.mode=Shooter::Goal::Mode::SPEED_AUTO;
+		else if(panel.shooter_mode==Panel::Shooter_mode::CLOSED_MANUAL) goals.shooter.mode=Shooter::Goal::Mode::SPEED_MANUAL;
+		else if(panel.shooter_mode==Panel::Shooter_mode::OPEN) goals.shooter.mode=Shooter::Goal::Mode::VOLTAGE;
+		if (SLOW_PRINT) cout<<panel.shooter_mode<<"       "<<goals.shooter.mode<<endl;
 		learn.update(panel.learn);
 		if(learn.get()){//learn
 			double learn_this=toplevel_status.collector.tilt.angle;
@@ -439,6 +425,7 @@ Toplevel::Goal Main::teleop(
 				return goals.collector.tilt=Tilt::Goal::stop();
 			}();
 		}
+		if(panel.shoot_high)goals.shooter.type=Shooter::Goal::Type::CLIMB_SHOT;
 	}
 	goals.climb_release=[&]{
 		if(panel.in_use) {
@@ -448,22 +435,26 @@ Toplevel::Goal Main::teleop(
 		return Climb_release::Goal::OUT;
 	}();
 	goals.winch=[&]{
-		switch (joystick_section(gunner_joystick.axis[Gamepad_axis::LEFTX], gunner_joystick.axis[Gamepad_axis::LEFTY])){
-			case Joystick_section::UP: 
-			case Joystick_section::DOWN: return Winch::Goal::IN;
-			default: break;
-		}
-		if(panel.in_use && toplevel_status.climb_release==Climb_release::Status_detail::IN){
-			switch(panel.winch){
-				case Panel::Winch::UP: 
-				case Panel::Winch::DOWN: return Winch::Goal::IN;	
-				case Panel::Winch::STOP: return Winch::Goal::STOP;
-				default: assert(0);
+		if(toplevel_status.climb_release==Climb_release::Status_detail::IN){
+			if(!panel.in_use){
+				switch (joystick_section(gunner_joystick.axis[Gamepad_axis::LEFTX], gunner_joystick.axis[Gamepad_axis::LEFTY])){
+					case Joystick_section::UP: 
+					case Joystick_section::DOWN: return Winch::Goal::IN;
+					default: break;
+				}
+			} else {
+				switch(panel.winch){
+					case Panel::Winch::UP: 
+					case Panel::Winch::DOWN: return Winch::Goal::IN;	
+					case Panel::Winch::STOP: return Winch::Goal::STOP;
+					default: assert(0);
+				}
 			}
 		}
 		return Winch::Goal::STOP;
 	}();
-	if(panel.shoot_high)goals.shooter.type=Shooter::Goal::Type::CLIMB_SHOT;
+	goals.shooter.mode=Shooter::Goal::Mode::SPEED_AUTO;
+	if(SLOW_PRINT) cout<<" "<<shoot_step<<"  "<<toplevel_status.shooter<<"   "<<goals.shooter<<"\ntilt:  "<<toplevel_status.collector.tilt<<"\n";
 	return goals;
 }
 
@@ -479,13 +470,13 @@ pair<float,float> driveatwall(const Robot_inputs in){
 	}
 	return motorvoltmods;
 }
+
 Main::Mode next_mode(Main::Mode m,bool autonomous,bool autonomous_start,Toplevel::Status_detail& /*status*/,Time since_switch, Panel panel,bool const&toplready,Robot_inputs const& in){
 	switch(m){
 		case Main::Mode::TELEOP:	
 			if(autonomous_start){
 				myfile2 << "NEXT_MODE:AUTO_REACH***" << endl;
 				//return Main::Mode::AUTO_STATIC;//just for testing purposes
-
 				if (panel.in_use) {
 					switch(panel.auto_mode){ 
 						case Panel::Auto_mode::NOTHING:
@@ -504,7 +495,6 @@ Main::Mode next_mode(Main::Mode m,bool autonomous,bool autonomous_start,Toplevel
 					}
 				}
 				return Main::Mode::TELEOP; //during testing put the mode you want to test without the driverstation.
-				//return Main::Mode::TELEOP;
 			}
 			return m;
 

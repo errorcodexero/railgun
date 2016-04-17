@@ -14,8 +14,6 @@
 
 #define ANGLE_TOLERANCE 5//in degrees
 
-#define PI 3.14159265//It's pi. What more do you want?
-
 #define TILT_PDB_LOC 8 //pdb # 
 #define TILT_POT_LOC 0 //pot analog #
 #define TILT_LIM_LOC 9 //limit switch dio #
