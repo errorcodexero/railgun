@@ -81,11 +81,11 @@ bool bIsStringIP( const char* _szString) {
 
 	return false;
 }
-
+*/
 #ifdef STRING_UTILS_TEST
 int main() {
 	
 }
 #endif
 
-*/
+
