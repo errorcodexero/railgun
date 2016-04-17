@@ -4,6 +4,7 @@ AUTO MODE LIST:
 	- Drive detect at various angles
 	- Drive to goal from various angles	
 
+
 HIGH PRIORITY for Worlds:
 	- Debug netconsole.py not printing anything sometimes
 	- Prevent print out to netconsole when robot is not receiving packets from the driverstation
@@ -14,7 +15,7 @@ HIGH PRIORITY for Worlds:
 		- Make OI dial +/- 20% speed
 		- Speed learning
 		- Figure out why printing talon_srx_controls to netconsole restarts robot code constantly
-		- Wait between ready() is true and shooting to minimize overshoot
+		- Make high goal rpm more consistent (and change pid values to be ones we actually want)
 	- Autonomous 
 		- Sensors
 		- Auto_nav_run results in seg fault

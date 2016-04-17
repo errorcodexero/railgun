@@ -21,7 +21,7 @@ Shooter::Output::Output():speed(0),mode(Talon_srx_output::Mode::VOLTAGE){}
 Shooter::Output::Output(double s,double v,Talon_srx_output::Mode m):speed(s),voltage(v),mode(m){}
 
 std::ostream& operator<<(std::ostream& o,Shooter::Goal::Type a){
-	#define X(name) if(a==Shooter::Goal::Type::name) return o<<#name")";
+	#define X(name) if(a==Shooter::Goal::Type::name) return o<<#name;
 	SHOOTER_TYPES
 	#undef X
 	assert(0);
@@ -29,7 +29,7 @@ std::ostream& operator<<(std::ostream& o,Shooter::Goal::Type a){
 
 
 std::ostream& operator<<(std::ostream& o,Shooter::Goal::Mode a){
-	#define X(name) if(a==Shooter::Goal::Mode::name) return o<<#name")";
+	#define X(name) if(a==Shooter::Goal::Mode::name) return o<<#name;
 	SHOOTER_MODES
 	#undef X
 	assert(0);
@@ -40,7 +40,7 @@ std::ostream& operator<<(std::ostream& o,Shooter::Goal goal){
 	o<<" mode:"<<goal.mode;
 	o<<" type:"<<goal.type;
 	o<<" percentage:"<<goal.percentage;
-	return o;
+	return o<<")";
 }
 
 std::ostream& operator<<(std::ostream& o,Shooter::Estimator a){ return o<<"Shooter::Estimator( last:"<<a.get()<<" last_output:"<<a.last_output<<" speed_up_timer:"<<a.speed_up_timer<<")"; }

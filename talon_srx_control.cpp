@@ -33,7 +33,12 @@ ostream& operator<<(ostream& o,Talon_srx_control::Mode a){
 }
 
 ostream& operator<<(ostream& o,Talon_srx_control a){
-	return o<<"Talon_srx_control( mode:"<<a.mode<<" out:"<<a.out<</*" last_out:"<<a.last_out<<*/" init:"<<!!a.talon<<" since_query:"<<a.since_query<<" in:"<<a.in<<")";
+	o<<"Talon_srx_control( mode:"<<a.mode;
+	if(!!a.talon) o<<" out:"<<a.out;/*" last_out:"<<a.last_out<<*/
+	o<<" init:"<<!!a.talon;
+	o<<" since_query:"<<a.since_query;
+	o<<" in:"<<a.in;
+	return o<<")";
 }
 
 bool pid_approx(PID_values a,PID_values b){
