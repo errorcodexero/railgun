@@ -14,7 +14,7 @@ HIGH PRIORITY for Worlds:
 		- Make OI dial +/- 20% speed
 		- Speed learning
 		- Figure out why printing talon_srx_controls to netconsole restarts robot code constantly
-		- Change Shooter::Output to be more like Talon_srx_output (i.e. separate power_level and speed variables instead of the terrible, combined version that exists now)
+		- Wait between ready() is true and shooting to minimize overshoot
 	- Autonomous 
 		- Sensors
 		- Auto_nav_run results in seg fault

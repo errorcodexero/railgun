@@ -380,7 +380,7 @@ Toplevel::Goal Main::teleop(
 		if(panel.shooter_mode==Panel::Shooter_mode::CLOSED_AUTO) goals.shooter.mode=Shooter::Goal::Mode::SPEED_AUTO;
 		else if(panel.shooter_mode==Panel::Shooter_mode::CLOSED_MANUAL) goals.shooter.mode=Shooter::Goal::Mode::SPEED_MANUAL;
 		else if(panel.shooter_mode==Panel::Shooter_mode::OPEN) goals.shooter.mode=Shooter::Goal::Mode::VOLTAGE;
-		if (SLOW_PRINT) cout<<panel.shooter_mode<<"       "<<goals.shooter.mode<<endl;
+		//if (SLOW_PRINT) cout<<panel.shooter_mode<<"       "<<goals.shooter.mode<<endl;
 		learn.update(panel.learn);
 		if(learn.get()){//learn
 			double learn_this=toplevel_status.collector.tilt.angle;
@@ -454,7 +454,7 @@ Toplevel::Goal Main::teleop(
 		return Winch::Goal::STOP;
 	}();
 	goals.shooter.mode=Shooter::Goal::Mode::SPEED_AUTO;
-	if(SLOW_PRINT) cout<<" "<<shoot_step<<"  "<<toplevel_status.shooter<<"   "<<goals.shooter<<"\ntilt:  "<<toplevel_status.collector.tilt<<"\n";
+	if(SLOW_PRINT) cout<<" "<<shoot_step<<"  "<<toplevel_status.shooter<<"   "<<goals.shooter<<"\n";
 	return goals;
 }
 

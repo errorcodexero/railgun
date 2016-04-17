@@ -88,7 +88,7 @@ void Talon_srx_control::set(Talon_srx_output a, bool enable) {
 }
 
 Talon_srx_input Talon_srx_control::get(){
-	if(since_query>20){
+	if(since_query>0){
 		in.current=talon->GetBusVoltage();
 		in.velocity=talon->GetSpeed();
 		in.a=talon->GetPinStateQuadA();

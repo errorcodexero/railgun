@@ -139,7 +139,7 @@ Shooter::Status_detail Shooter::Estimator::get()const{
 void Shooter::Estimator::update(Time time,Shooter::Input in,Shooter::Output output){
 	last.speed=in.speed;
 	if(output.mode==Talon_srx_output::Mode::VOLTAGE){
-		static const float SPEED_UP_TIME=4;
+		static const float SPEED_UP_TIME=3;
 		if(output!=last_output) speed_up_timer.set(SPEED_UP_TIME);
 		speed_up_timer.update(time,in.enabled);
 		if(speed_up_timer.done()){
