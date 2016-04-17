@@ -6,17 +6,17 @@
 using namespace std;
 
 ostream& operator<<(ostream& o,Joystick_section j){
-        switch(j){
-                #define X(name) case Joystick_section::name: return o<<""#name;
-                X(LEFT)
-                X(RIGHT)
-                X(UP)
-                X(DOWN)
-                X(CENTER)
-                #undef X
-                default: assert(0); break;
-        }
-        return o;
+	switch(j){
+		#define X(name) case Joystick_section::name: return o<<""#name;
+		X(LEFT)
+		X(RIGHT)
+		X(UP)
+		X(DOWN)
+		X(CENTER)
+		#undef X
+		default: assert(0); break;
+	}
+	return o;
 }
 
 ostream& operator<<(ostream& o,POV_section p){
@@ -30,18 +30,18 @@ ostream& operator<<(ostream& o,POV_section p){
 }
 
 Joystick_section joystick_section(double x,double y){
-        static const double LIM=.25;
-        if(fabs(x)<LIM && fabs(y)<LIM){
-                return Joystick_section::CENTER;
-        }
-        if(x<y){
-                if(x>-y){
-                        return Joystick_section::DOWN;
-                }
-                return Joystick_section::LEFT;
-        }
-        if(x>-y) return Joystick_section::RIGHT;
-        return Joystick_section::UP;
+	static const double LIM=.25;
+	if(fabs(x)<LIM && fabs(y)<LIM){
+		return Joystick_section::CENTER;
+	}
+	if(x<y){
+		if(x>-y){
+			return Joystick_section::DOWN;
+		}
+		return Joystick_section::LEFT;
+	}
+	if(x>-y) return Joystick_section::RIGHT;
+	return Joystick_section::UP;
 }
 
 Joystick_section divide_vertical(double y){ return joystick_section(0,y); }
@@ -88,14 +88,14 @@ unsigned interpret_10_turn_pot(Volt v){
 
 #ifdef INPUT_UTIL_TEST
 void joystick_section_test(){
-        assert(joystick_section(0,0)==Joystick_section::CENTER);
-        assert(joystick_section(-1,0)==Joystick_section::LEFT);
-        assert(joystick_section(1,0)==Joystick_section::RIGHT);
-        assert(joystick_section(0,-1)==Joystick_section::UP);
-        assert(joystick_section(0,1)==Joystick_section::DOWN);
+	assert(joystick_section(0,0)==Joystick_section::CENTER);
+	assert(joystick_section(-1,0)==Joystick_section::LEFT);
+	assert(joystick_section(1,0)==Joystick_section::RIGHT);
+	assert(joystick_section(0,-1)==Joystick_section::UP);
+	assert(joystick_section(0,1)==Joystick_section::DOWN);
 }
 
 int main(){
-        joystick_section_test();
+	joystick_section_test();
 }
 #endif

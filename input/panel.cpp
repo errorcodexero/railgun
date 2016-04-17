@@ -48,11 +48,11 @@ ostream& operator<<(ostream& o,Panel::Collector a){
 }
 
 ostream& operator<<(ostream& o,Panel::Winch a){
-        o<<"Panel::Winch(";
-        #define X(name) if(a==Panel::Winch::name)o<<""#name;
-        X(UP) X(STOP) X(DOWN)
-        #undef X
-        return o<<")";
+	o<<"Panel::Winch(";
+	#define X(name) if(a==Panel::Winch::name)o<<""#name;
+	X(UP) X(STOP) X(DOWN)
+	#undef X
+	return o<<")";
 }
 
 ostream& operator<<(ostream& o,Panel::Shooter_mode a){
@@ -162,18 +162,18 @@ Panel interpret(Joystick_data d){
 	}
 	{
 		float sides = d.axis[6];
-                static const float OUT=-1, OFF=0, IN=1;
-                p.sides = Panel::Collector::OUT;
-               	AXIS_RANGE(sides, OUT, OFF, IN, p.sides, Panel::Collector::OFF)
-                else AXIS_RANGE(sides, OFF, IN, 1.5, p.sides, Panel::Collector::IN)
+		static const float OUT=-1, OFF=0, IN=1;
+		p.sides = Panel::Collector::OUT;
+		AXIS_RANGE(sides, OUT, OFF, IN, p.sides, Panel::Collector::OFF)
+		else AXIS_RANGE(sides, OFF, IN, 1.5, p.sides, Panel::Collector::IN)
 	}
-        {
-                float winch = d.axis[3];
-                static const float UP=-1, STOP=0, DOWN=1;
-                p.winch = Panel::Winch::UP;
-                AXIS_RANGE(winch, UP, STOP, DOWN, p.winch, Panel::Winch::STOP)
-                else AXIS_RANGE(winch, STOP, DOWN, 1.5, p.winch, Panel::Winch::DOWN)
-        }
+	{
+		float winch = d.axis[3];
+		static const float UP=-1, STOP=0, DOWN=1;
+		p.winch = Panel::Winch::UP;
+		AXIS_RANGE(winch, UP, STOP, DOWN, p.winch, Panel::Winch::STOP)
+		else AXIS_RANGE(winch, STOP, DOWN, 1.5, p.winch, Panel::Winch::DOWN)
+	}
 	{
 		float shooter_mode = d.axis[7];
 		static const float OPEN=-1, CLOSED_MANUAL=0, CLOSED_AUTO=1;

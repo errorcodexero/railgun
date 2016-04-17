@@ -6,7 +6,7 @@
 
 struct Panel{
 	bool in_use;
-   	//Buttons:
+	//Buttons:
 	bool learn;
 	bool cheval;
 	bool drawbridge;

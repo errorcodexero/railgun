@@ -90,7 +90,7 @@ Tilt_presets read_tilt_presets(){
 	Tilt_presets r;
 	ifstream f(PRESET_FILE);
 	if(!f.good()){
- 		//if can't open file then just return the defaults
+		//if can't open file then just return the defaults
 		cerr<<"Error: could not open preset file.  Using defaults.\n";
 		return r;
 	}

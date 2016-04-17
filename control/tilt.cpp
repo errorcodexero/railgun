@@ -125,7 +125,7 @@ std::ostream& operator<<(std::ostream& o, Tilt::Goal a){
 std::ostream& operator<<(std::ostream& o, Tilt::Output_applicator){ return o<<"Tilt::Output_applicator()";} 
 std::ostream& operator<<(std::ostream& o, Tilt::Input_reader){ return o<<"Tilt::Input_reader()";}
 std::ostream& operator<<(std::ostream& o, Tilt::Estimator a){ return o<<"Tilt::Estimator( last:"<<a.get()<<")";}
- 
+
 std::ostream& operator<<(std::ostream& o, Tilt a){
 	o<<"Tilt(";
 	o<<" "<<a.output_applicator;

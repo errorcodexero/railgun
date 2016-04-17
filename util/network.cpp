@@ -28,12 +28,11 @@
 using namespace std;
 
 void *getInAddr(struct sockaddr *sa) {
-    if (sa->sa_family == AF_INET) {
-        return &(((struct sockaddr_in*)sa)->sin_addr);
-    }
+	if (sa->sa_family == AF_INET) {
+		return &(((struct sockaddr_in*)sa)->sin_addr);
+	}
 
-    return &(((struct sockaddr_in6*)sa)->sin6_addr);
-
+	return &(((struct sockaddr_in6*)sa)->sin6_addr);
 }
 
 int sendAll(int _iS, char* _szBuf, int* _iLen) {
@@ -55,12 +54,12 @@ int sendAll(int _iS, char* _szBuf, int* _iLen) {
 /*
 void sigChildHandler(int s)
 {
-    // waitpid() might overwrite errno, so we save and restore it:
-    int saved_errno = errno;
+	// waitpid() might overwrite errno, so we save and restore it:
+	int saved_errno = errno;
 
-    while(waitpid(-1, NULL, WNOHANG) > 0);
+	while(waitpid(-1, NULL, WNOHANG) > 0);
 
-    errno = saved_errno;
+	errno = saved_errno;
 }*/
 Client::Client(const char* _szIP, const char* _szPort, int _iSockType, char _szDelimiter = '\n') {
 	vector <char* > vszIP;

@@ -11,69 +11,66 @@ using namespace std;
 
 void SendWOL (void)
 {
-    int udpSocket;
-    if ((udpSocket = socket(AF_INET, SOCK_DGRAM, 0)) == ERROR)
-    {
-        perror("Failed to create a UDP socket!");
-        exit(1);
-    }
+	int udpSocket;
+	if ((udpSocket = socket(AF_INET, SOCK_DGRAM, 0)) == ERROR){
+		perror("Failed to create a UDP socket!");
+		exit(1);
+	}
 
-    // you need to set this so you can broadcast:
-    int broadcast = 1;
-    if (setsockopt(udpSocket, SOL_SOCKET, SO_BROADCAST, reinterpret_cast<char*>(&broadcast), sizeof(broadcast)) == ERROR)
-    {
-        perror("setsockopt (SO_BROADCAST)");
-        exit(1);
-    }
+	// you need to set this so you can broadcast:
+	int broadcast = 1;
+	if (setsockopt(udpSocket, SOL_SOCKET, SO_BROADCAST, reinterpret_cast<char*>(&broadcast), sizeof(broadcast)) == ERROR){
+		perror("setsockopt (SO_BROADCAST)");
+		exit(1);
+	}
 
-    struct sockaddr_in udpClient;
-    udpClient.sin_family      = AF_INET;
-    udpClient.sin_addr.s_addr = INADDR_ANY;
-    udpClient.sin_port        = 0;
+	struct sockaddr_in udpClient;
+	udpClient.sin_family      = AF_INET;
+	udpClient.sin_addr.s_addr = INADDR_ANY;
+	udpClient.sin_port        = 0;
 
-    if (bind(udpSocket, (struct sockaddr*) &udpClient, sizeof(udpClient)) == ERROR)
-    {
-        perror("Failed to bind the cRioServer port!");
-        close (udpSocket);
-        exit(1);
-    }
+	if (bind(udpSocket, (struct sockaddr*) &udpClient, sizeof(udpClient)) == ERROR){
+		perror("Failed to bind the cRioServer port!");
+		close (udpSocket);
+		exit(1);
+	}
 
-    // build the magic packet:
-    //
-    //     6 * 255 or (0xff)
-    //    16 * MAC Address of target PC
+	// build the magic packet:
+	//
+	//     6 * 255 or (0xff)
+	//    16 * MAC Address of target PC
 
-    unsigned char tosend[102];
-    unsigned char mac[6];
+	unsigned char tosend[102];
+	unsigned char mac[6];
 
-    // first 6 bytes of 255:
-    for (int i = 0; i < 6; i++) 
-        tosend[i] = 0xFF;
+	// first 6 bytes of 255:
+	for (int i = 0; i < 6; i++) 
+		tosend[i] = 0xFF;
 
-    // Store mac address of the NUC (ec:a8:6b:fe:fc:e6) :
-    mac[0] = 0xec;
-    mac[1] = 0xa8;
-    mac[2] = 0x6b;
-    mac[3] = 0xfe;
-    mac[4] = 0xfc;
-    mac[5] = 0xe6;
+	// Store mac address of the NUC (ec:a8:6b:fe:fc:e6) :
+	mac[0] = 0xec;
+	mac[1] = 0xa8;
+	mac[2] = 0x6b;
+	mac[3] = 0xfe;
+	mac[4] = 0xfc;
+	mac[5] = 0xe6;
 
-    // append it 16 times to packet:
-    for(int i = 1; i <= 16; i++) 
-        memcpy(&tosend[i * 6], &mac, 6 * sizeof(unsigned char));
+	// append it 16 times to packet:
+	for(int i = 1; i <= 16; i++) 
+		memcpy(&tosend[i * 6], &mac, 6 * sizeof(unsigned char));
 
-    // set server end point (the broadcast addres):
-    struct sockaddr_in udpServer;
-    udpServer.sin_family      = AF_INET;
-    udpServer.sin_addr.s_addr = inet_addr("10.14.25.255");
-    udpServer.sin_port        = htons(9);
+	// set server end point (the broadcast addres):
+	struct sockaddr_in udpServer;
+	udpServer.sin_family      = AF_INET;
+	udpServer.sin_addr.s_addr = inet_addr("10.14.25.255");
+	udpServer.sin_port        = htons(9);
 
-    // send the packet:
-    sendto(udpSocket, reinterpret_cast<char*>(&tosend), sizeof(unsigned char) * 102, 0, (struct sockaddr*)&udpServer, sizeof(udpServer));
+	// send the packet:
+	sendto(udpSocket, reinterpret_cast<char*>(&tosend), sizeof(unsigned char) * 102, 0, (struct sockaddr*)&udpServer, sizeof(udpServer));
 
-    cerr << "Sent WOL packet to NUC." << endl;
-    
-    close(udpSocket);
+	cerr << "Sent WOL packet to NUC." << endl;
+
+	close(udpSocket);
 }
 
 Joystick_data read_joystick(DriverStation& ds,int port){
@@ -565,12 +562,12 @@ public:
 		run(in);
 
 /*                // Network Table update:
-                enum dsMode_t { DS_OTHER = 0, DS_AUTO = 1, DS_TELE = 2 };
-                dsMode_t dsMode = 
-                    (in.robot_mode.autonomous && in.robot_mode.enabled) ? DS_AUTO :
-                    (in.robot_mode.enabled) ? DS_TELE : DS_OTHER;
-                table->PutBoolean ("isEnabled", in.robot_mode.enabled);
-                table->PutNumber  ("dsMode",    dsMode);*/
+		enum dsMode_t { DS_OTHER = 0, DS_AUTO = 1, DS_TELE = 2 };
+		dsMode_t dsMode = 
+			(in.robot_mode.autonomous && in.robot_mode.enabled) ? DS_AUTO :
+			(in.robot_mode.enabled) ? DS_TELE : DS_OTHER;
+			table->PutBoolean ("isEnabled", in.robot_mode.enabled);
+			table->PutNumber  ("dsMode",    dsMode);*/
 	}
 };
 
@@ -624,29 +621,29 @@ class Robot_adapter: public SampleRobot{
 };
 
 /*void initialize(FRCCommonControlData &a){
-    a.packetIndex = 0;
-    a.control = 0;
+	a.packetIndex = 0;
+	a.control = 0;
 
-    //joystick axis values to neutral
-    for(unsigned i=0;i<Joystick_data::AXES;i++){
-    	a.stick0Axes[i]=0;
-    	a.stick1Axes[i]=0;
-    	a.stick2Axes[i]=0;
-    	a.stick3Axes[i]=0;
-    }
+	//joystick axis values to neutral
+	for(unsigned i=0;i<Joystick_data::AXES;i++){
+		a.stick0Axes[i]=0;
+		a.stick1Axes[i]=0;
+		a.stick2Axes[i]=0;
+		a.stick3Axes[i]=0;
+	}
 	
-    //buttons initially off
-    a.stick0Buttons = 0;
-    a.stick1Buttons = 0;
-    a.stick2Buttons = 0;
-    a.stick3Buttons = 0;
+	//buttons initially off
+	a.stick0Buttons = 0;
+	a.stick1Buttons = 0;
+	a.stick2Buttons = 0;
+	a.stick3Buttons = 0;
 
-    //analog and digital data from the drivers' station
-    a.analog1 = 0;
-    a.analog2 = 0;
-    a.analog3 = 0;
-    a.analog4 = 0;
-    a.dsDigitalIn = 0;
+	//analog and digital data from the drivers' station
+	a.analog1 = 0;
+	a.analog2 = 0;
+	a.analog3 = 0;
+	a.analog4 = 0;
+	a.dsDigitalIn = 0;
 }
 
 struct Com_data{
