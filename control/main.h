@@ -19,7 +19,6 @@ struct Tilt_presets{
 };
 
 struct Main{
-
 	#define MODES X(TELEOP)\
 		X(AUTO_NULL) X(AUTO_REACH) X(AUTO_STATIC) \
 		X(AUTO_STOP) X(AUTO_STATICTWO)\
@@ -60,7 +59,7 @@ struct Main{
 	Joy_collector_pos joy_collector_pos;
 		
 	Posedge_toggle controller_auto;
-	#define COLLECTOR_MODES X(CHEVAL) /*X(PORTCULLIS)*/ X(NOTHING) X(COLLECT) X(STOW) X(SHOOT_HIGH) X(REFLECT) X(SHOOT_LOW) X(LOW) X(DRAWBRIDGE)
+	#define COLLECTOR_MODES X(CHEVAL) X(NOTHING) X(COLLECT) X(STOW) X(SHOOT_HIGH) X(REFLECT) X(SHOOT_LOW) X(LOW) X(DRAWBRIDGE)
 	enum class Collector_mode{
 		#define X(name) name,
 		COLLECTOR_MODES
@@ -87,6 +86,8 @@ struct Main{
 		#undef X
 	};
 	Shoot_steps shoot_step;
+
+	Posedge_toggle controller_closed_loop;
 	
 	Posedge_toggle learn;
 

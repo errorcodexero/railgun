@@ -66,7 +66,7 @@ vector<Nav2::NavS> Nav2::loadnav(navloadinput navin){
 			assert(0);
 
 		navelement.amount = amount;
- 
+
 		myfile << "Pushing " << "navelm.left " << navelement.left << " navelm.right " << navelement.right << " amount " << navelement.amount << endl;
 		nav.push_back(navelement);
 

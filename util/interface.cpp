@@ -7,6 +7,8 @@
 
 using namespace std;
 
+PID_values::PID_values():p(.5),i(0.002),d(0.25),f(1933){}//from testing with shooter 2016
+
 Digital_out::Digital_out():type_(Type::INPUT){}
 
 Digital_out::Type Digital_out::type()const{ return type_; }
@@ -77,6 +79,10 @@ std::ostream& operator<<(std::ostream& o,Digital_out a){
 	return o;
 }
 
+std::ostream& operator<<(std::ostream& o, PID_values a){
+	return o<<"(p:"<<a.p<<" i:"<<a.i<<" d:"<<a.d<<" d:"<<a.f<<")";
+}
+
 std::ostream& operator<<(std::ostream& o, Talon_srx_input in){
 	o<<"(encoder_position: "<<in.encoder_position<<" velocity:"<<in.velocity<<" fwd_limit_switch: "<<in.fwd_limit_switch<<" rev_limit_switch: "<<in.rev_limit_switch<<" a: "<<in.a<<" b: "<<in.b;
 	return o<<")";
@@ -89,7 +95,8 @@ std::ostream& operator<<(std::ostream& o, Talon_srx_output::Mode a){
 }
 
 std::ostream& operator<<(std::ostream& o, Talon_srx_output a){
-	o<<"(mode: "<<a.mode;
+	o<<"Talon_srx_output(mode: "<<a.mode;
+	o<<" pid:"<<a.pid;
 	if(a.mode==Talon_srx_output::Mode::VOLTAGE) o<<" power_level: "<<a.power_level;
 	else if(a.mode==Talon_srx_output::Mode::SPEED) o<<" speed: "<<a.speed;
 	return o<<")";
@@ -631,6 +638,7 @@ int main(){
 	cout<<Robot_inputs()<<"\n";
 	cout<<Joystick_data()<<"\n";
 	cout<<Jaguar_output()<<"\n";
+	cout<<Talon_srx_output()<<"\n";
 	cout<<Jaguar_output::speedOut(10)<<"\n";
 	cout<<Jaguar_output::voltageOut(1.0)<<"\n";
 	for(auto a:digital_ins()){

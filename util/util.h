@@ -9,8 +9,8 @@
 #include<set>
 #include "interface.h"
 
-#ifndef M_PI
-#define M_PI 3.1415
+#ifndef PI
+#define PI 3.14159265
 #endif
 
 Pwm_output pwm_convert(double);

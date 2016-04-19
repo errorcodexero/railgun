@@ -9,7 +9,7 @@ static const float WINCH_POWER = .8;
 Winch::Input::Input():deployed(0){}
 
 std::set<Winch::Goal> examples(Winch::Goal*){
-       return {Winch::Goal::IN, Winch::Goal::OUT, Winch::Goal::STOP};
+	return {Winch::Goal::IN, Winch::Goal::OUT, Winch::Goal::STOP};
 }
 
 std::set<Winch::Input> examples(Winch::Input*){
