@@ -16,12 +16,7 @@
 #include <ctype.h>
 #include <stdarg.h>
 
-#include <iostream>
-#include <fstream>
-#include <vector>
-#include <string>
-#include <string.h>
-#include <stdio.h>
+
 
 //#include "string_utils.h"
 
