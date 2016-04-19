@@ -78,7 +78,7 @@ struct Main{
 	};
 	Cheval_steps cheval_step;
 		
-	#define SHOOT_STEPS X(CLEAR_BALL) X(SPEED_UP) X(SHOOT)
+	#define SHOOT_STEPS X(CLEAR_BALL) X(SPEED_UP) X(SPUN_UP) X(SHOOT)
 	enum class Shoot_steps{
 		#define X(NAME) NAME,
 		SHOOT_STEPS
@@ -93,7 +93,7 @@ struct Main{
 	Tilt_presets tilt_presets;
 	Log log;
 
-	void shooter_protocol(Shooter::Status_detail const&,bool const&,Time const&,Toplevel::Goal& goals);
+	void shooter_protocol(Shooter::Status_detail const&,bool const&,Time const&,Toplevel::Goal& goals,bool);
 
 	Toplevel::Goal teleop(Robot_inputs const&,Joystick_data const&,Joystick_data const&,Panel const&,Toplevel::Status_detail&,
 		Tilt::Goal,

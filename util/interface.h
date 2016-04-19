@@ -66,8 +66,8 @@ struct Talon_srx_output{
 	Talon_srx_output():power_level(0),speed(0),mode(Talon_srx_output::Mode::VOLTAGE){}
 };
 
-enum Panel_outputs{LEARNING, BOULDER, PANEL_OUTPUTS};
-enum class Panel_output_ports{LEARNING=11, BOULDER=10};
+enum Panel_outputs{SPUN_UP, BOULDER, PANEL_OUTPUTS};
+enum class Panel_output_ports{SPUN_UP=11, BOULDER=10};
 struct Panel_output {
 	int port;
 	bool value;

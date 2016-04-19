@@ -23,7 +23,7 @@ struct Shooter{
 			#undef X
 		};
 		Type type;		
-		float percentage;//varries goal by a percentage
+		float percentage;//varies goal by a percentage
 		Goal();
 		Goal(Shooter::Goal::Type);
 		Goal(Shooter::Goal::Mode,Shooter::Goal::Type,float);
@@ -54,9 +54,10 @@ struct Shooter{
 	struct Output{
 		double speed;//rpm
 		double voltage;
+		double percentage;
 		Talon_srx_output::Mode mode;
 		Output();
-		Output(double,double,Talon_srx_output::Mode);
+		Output(double,double,double,Talon_srx_output::Mode);
 	};
 	
 	struct Output_applicator{

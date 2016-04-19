@@ -420,7 +420,7 @@ public:
 		}
 			
 		SmartDashboard::PutBoolean("Ball: ", out.panel_output[Panel_outputs::BOULDER].value);
-		SmartDashboard::PutBoolean("Learning: ", out.panel_output[Panel_outputs::LEARNING].value);
+		SmartDashboard::PutBoolean("Spun Up: ", out.panel_output[Panel_outputs::SPUN_UP].value);
 		
 		//cout << "d_io: " << digital_io << endl << "o.d.io: " << out.digital_io << endl ;
 
