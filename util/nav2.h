@@ -10,39 +10,39 @@ struct Nav2{
 		float right;
 		float amount;
 	};
-	struct navloadinput{
-		point ptone;
-		point pttwo;
-		direction dirone;
-		direction dirtwo;
+	struct Navloadinput{
+		Pt2 ptone;
+		Pt2 pttwo;
+		Direction dirone;
+		Direction dirtwo;
 	};
 	
-	struct navinput{
-		point navpt;
-		direction navdir;
+	struct Navinput{
+		Pt2 navpt;
+		Direction navdir;
 	};
-	struct aturn{
+	struct Aturn{
 		float l;
 		float r;
 		float dur;
-		aturn();
-		aturn(float,float,float);
+		Aturn();
+		Aturn(float,float,float);
 	};
 
 	int stepcounter;
-	navloadinput s1;
-	navloadinput s2;
-	navloadinput s3;
-	navloadinput s4;
-	navloadinput s5;
+	Navloadinput s1;
+	Navloadinput s2;
+	Navloadinput s3;
+	Navloadinput s4;
+	Navloadinput s5;
 	
-	aturn Aturn;
+	Aturn Aturn;
 
 	
 	unsigned int navindex;
 	std::vector<NavS> NavV;
 		
-	std::vector<NavS> loadnav(navloadinput navin);
+	std::vector<NavS> loadnav(Navloadinput navin);
 	
 	Nav2();
 };

@@ -562,8 +562,8 @@ public:
 		run(in);
 
 /*                // Network Table update:
-		enum dsMode_t { DS_OTHER = 0, DS_AUTO = 1, DS_TELE = 2 };
-		dsMode_t dsMode = 
+		enum DsMode_t { DS_OTHER = 0, DS_AUTO = 1, DS_TELE = 2 };
+		DsMode_t dsMode = 
 			(in.robot_mode.autonomous && in.robot_mode.enabled) ? DS_AUTO :
 			(in.robot_mode.enabled) ? DS_TELE : DS_OTHER;
 			table->PutBoolean ("isEnabled", in.robot_mode.enabled);

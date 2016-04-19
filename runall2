@@ -25,13 +25,43 @@ def start_good(s):
 		raise
 	return 1
 
+#any(a) => [a]->[(a,a)]
+def adjacent_pairs(a):
+	r=[]
+	i=0
+	while i+1<len(a):
+		r.append((a[i],a[i+1]))
+		i+=1
+	return r
+
+def type_name_ok(s):
+	return s[0].isupper() or s in ['sockaddr_in','dirent','js_event','addrinfo','sigaction','sockaddr_storage']
+
+def rm_line_comment(s):
+	out=''
+	for (a,b) in adjacent_pairs(s):
+		if a=='/' and b=='/':
+			return out
+		out+=a
+	return out
+
+def decl_ok(s):
+	sp=rm_line_comment(s).split()
+	for (a,b) in adjacent_pairs(sp):
+		if a in ['struct','class'] or (a=='enum' and b!='class'):
+			if not type_name_ok(b):
+				return 0
+	return 1
+
 #str->[str(error)]
 def check_file(contents):
 	lines=contents.splitlines()
 	r=[]
 	for line_num,s in enumerate_from(1,lines):
 		if not start_good(s):
-			r.append((line_num,'starts w/ space'))
+			r.append((line_num,'starts w/ space',s))
+		if not decl_ok(s):
+			r.append((line_num,'type names',s))
 	return r
 
 #returns int
