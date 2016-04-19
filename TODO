@@ -11,6 +11,7 @@ HIGH PRIORITY for Worlds:
 	- Re-label OI
 	- Maybe prevent climber release when collector is at top
 	- High goal shooter code
+		- Make shooter shoot in open loop mode at any speed
 		- Make shooter mode go back to speeding up mode if ready no longer returns true
 		- Make OI dial +/- 20% speed
 		- Consider changing the current assumption that the ball's left after 1.5sec to when the ball sensor isn't seeing it
