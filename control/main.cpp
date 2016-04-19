@@ -106,7 +106,7 @@ Tilt_presets read_tilt_presets(){
 //TODO: at some point, might want to make this whatever is right to start autonomous mode.
 Main::Main():
 	mode(Mode::TELEOP),
-	Vision("10.14.24.11","6425",SOCK_STREAM,'\n'),
+	Vision("10.14.24.11","6425",1,'\n'),
 	autonomous_start(0),
 	joy_collector_pos(Joy_collector_pos::STOP),
 	collector_mode(Collector_mode::NOTHING),
@@ -495,7 +495,7 @@ pair<float,float> VisionRotateAssit(int visiongoalx){
 		MotorAssist.second=mleft;
 		return MotorAssist;
 }
-bool Main::VisionBool(float &x,float &y){
+bool VisionBool(Client& Vision,float& x,float& y){
 	int n;
 	char * input;
 
@@ -512,7 +512,7 @@ bool Main::VisionBool(float &x,float &y){
 
 
 	
-Main::Mode next_mode(Main::Mode m,bool autonomous,bool autonomous_start,Toplevel::Status_detail& /*status*/,Time since_switch, Panel panel,bool const&toplready/*,Robot_inputs const& in*/){
+Main::Mode next_mode(Main::Mode m,bool autonomous,bool autonomous_start,Toplevel::Status_detail& /*status*/,Time since_switch, Panel panel,bool const&toplready/*,Robot_inputs const& in*/,Client& Vision){
 	switch(m){
 		case Main::Mode::TELEOP:	
 			if(autonomous_start){
@@ -647,10 +647,12 @@ Main::Mode next_mode(Main::Mode m,bool autonomous,bool autonomous_start,Toplevel
 			if(toplready) return Main::Mode::AUTO_VLBLS_SCORE_SEEK;
 			return Main::Mode::AUTO_VLBLS_CROSS_MU;
 
-		case Main::Mode::AUTO_VLBLS_SCORE_SEEK:
+		case Main::Mode::AUTO_VLBLS_SCORE_SEEK:{
+			float visx,visy;
 			if(!autonomous) return Main::Mode::TELEOP;
-			if(since_switch > 1) return Main::Mode::AUTO_VLBLS_SCORE_LOCATE;
+			if(VisionBool(Vision,visx,visy)) return Main::Mode::AUTO_VLBLS_SCORE_LOCATE;
 			return Main::Mode::AUTO_VLBLS_SCORE_SEEK;
+		}
 
 		case Main::Mode::AUTO_VLBLS_SCORE_LOCATE:
 			if(!autonomous) return Main::Mode::TELEOP;
@@ -868,7 +870,7 @@ Robot_outputs Main::operator()(Robot_inputs in,ostream&){
 		//shooter_protical call in here takes in robot inputs,toplevel goal,toplevel status detail
 		default: assert(0);
 	}
-	auto next=next_mode(mode,in.robot_mode.autonomous,autonomous_start_now,toplevel_status,since_switch.elapsed(),panel,topready/*,in*/);
+	auto next=next_mode(mode,in.robot_mode.autonomous,autonomous_start_now,toplevel_status,since_switch.elapsed(),panel,topready/*,in*/,Vision);
 	since_switch.update(in.now,mode!=next);
 	mode=next;
 		
@@ -1062,22 +1064,23 @@ void test_next_mode(){
 		MODES
 		#undef X
 	};
+	Client Vision("10.14.24.11","6425",1,'\n');
 	for(auto mode:MODE_LIST){
 		Toplevel::Status_detail st=example((Toplevel::Status_detail*)nullptr);
 		bool toplready = true;
 		Robot_inputs in;
 		
 		
-		auto next=next_mode(mode,0,0,st,0,Panel{},toplready/*,in*/);
+		auto next=next_mode(mode,0,0,st,0,Panel{},toplready/*,in*/,Vision);
 		cout<<"Testing mode "<<mode<<" goes to "<<next<<"\n";
 		assert(next==Main::Mode::TELEOP);
 	}
 }
 
 int main(){
-	test_next_mode();
-	test_modes();
-	test_preset_rw();
+	//test_next_mode();
+	//test_modes();
+	//test_preset_rw();
 }
 
 #endif

@@ -123,12 +123,10 @@ Client::Client(const char* _szIP, const char* _szPort, int _iSockType, char _szD
 	        exit(2);
 	    }
 
-
-	inet_ntop(this->aiP->ai_family, getInAddr((struct sockaddr *)this->aiP->ai_addr),
-	            this->szS, sizeof this->szS);
-	fcntl(this->iSockfd, F_SETFL, O_NONBLOCK);
-	printf("client: connecting to %s\n", this->szS);
-
+	inet_ntop(aiP->ai_family, getInAddr((struct sockaddr *)aiP->ai_addr),
+	            szS, sizeof szS);
+	//fcntl(iSockfd, F_SETFL, O_NONBLOCK);
+	printf("client: connecting to %s\n", szS);
 
 	freeaddrinfo(aiServInfo);
 

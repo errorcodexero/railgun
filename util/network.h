@@ -13,18 +13,10 @@ public:
 
 	char* szGetData();
 
-	int iSockfd;
-
 	//bool bNewIP(const char* _szIP);
 private:
 
-<<<<<<< HEAD:util/network.hpp
-
-	int iNumBytes;
-	int iRV;
-=======
 	int iSockfd;
->>>>>>> 8b90e4f1fb59f192b102b62680d1482f285cac2f:util/network.h
 	int iSockType;
 
 	const char* szPORT;
