@@ -54,9 +54,10 @@ struct Shooter{
 	struct Output{
 		double speed;//rpm
 		double voltage;
+		double percentage;
 		Talon_srx_output::Mode mode;
 		Output();
-		Output(double,double,Talon_srx_output::Mode);
+		Output(double,double,double,Talon_srx_output::Mode);
 	};
 	
 	struct Output_applicator{
