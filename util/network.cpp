@@ -16,6 +16,7 @@
 #include <ctype.h>
 #include <stdarg.h>
 
+#include <vector>
 
 
 //#include "string_utils.h"
@@ -61,7 +62,7 @@ Client::Client(const char* _szIP, const char* _szPort, int _iSockType, char _szD
 	//int iPort = 0; //Only a temporary, validation value
 	//do some validation
 	//vszIP = vszParseString(_szIP, '.');
-	//cout << vszIP.size() << "\n";
+	////cout << vszIP.size() << "\n";
 	//if (vszIP.size() != 3)
 		//exitWithError("Not a valid IP", 3);
 
@@ -139,9 +140,9 @@ bool Client::bRecv() {
 	if (iSockfd == -1)
 		exit(1);
 	if(iSockType == SOCK_STREAM) {
-		//cout << sizeof szBuf << "\n";
+		////cout << sizeof szBuf << "\n";
 		do	{
-			if ((iNumBytes = recv(iSockfd, szTmpBuffer, 1, 0)) == -1 /* && cout << szTmpBuffer*/) {
+			if ((iNumBytes = recv(iSockfd, szTmpBuffer, 1, 0)) == -1 /* && //cout << szTmpBuffer*/) {
 				return false;
 			} else {
 				i++;
@@ -149,18 +150,18 @@ bool Client::bRecv() {
 				if (i > sizeof szBuf - 1){
 					break;
 				}
-				//cout << index;
+				////cout << index;
 				szBuf[i] = szTmpBuffer[0];
-				//cout << szTmpBuffer << " "<< szBuf[i] << "\n";
+				////cout << szTmpBuffer << " "<< szBuf[i] << "\n";
 				//szTmpBuffer[0] = '\0';
 			}
 
 		} while (szTmpBuffer[0] != szDelimiter);
-		cout << szBuf;
+		//cout << szBuf;
 
 		return true;
 	} else {
-		cout << "Error: Not Stream Socket\n";
+		//cout << "Error: Not Stream Socket\n";
 		return false;
 	}
 	return false;
@@ -177,14 +178,14 @@ bool Client::bSendTo(const char* _szBuf) {
 		else
 			return true;
 	} else {
-		cout << "Error: Not Datagram Socket\n";
+		//cout << "Error: Not Datagram Socket\n";
 		return false;
 	}
 }
 
 /*bool Client::bNewIP(const char* _szIP) {
 #ifdef DEBUG
-	cout << "NOTE: This function clears the buffer\n";
+	//cout << "NOTE: This function clears the buffer\n";
 #endif
 	int i = sizeof szBuf;
 	memset(szBuf, 0, i);
@@ -284,7 +285,7 @@ Server::~Server() {
 	szBuf = (char *) "";
 	if (iSockfd == -1 && iNewfd == -1){
 #ifdef DEBUG
-		cout << "Socket Closed\n";
+		//cout << "Socket Closed\n";
 #endif
 	}
 	else{
@@ -304,7 +305,7 @@ bool Server::bBroadcast(const char* _szBuf) {
 	//szBuf = _szBuf;
 
 	while (i < iMaxClients) {
-		cout << i << "\n";
+		//cout << i << "\n";
 		slSinSize = sizeof saCliAddr;
 		iNewfd = accept(iSockfd, (struct sockaddr *)&saCliAddr, &slSinSize);
 
