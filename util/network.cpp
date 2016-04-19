@@ -15,6 +15,8 @@
 #include <fcntl.h>
 #include <ctype.h>
 #include <stdarg.h>
+#include <iostream>
+#include <vector>
 
 
 

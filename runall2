@@ -19,7 +19,7 @@ def enumerate_from(i,a):
 #str->bool
 def start_good(s):
 	for c in s:
-		if c.isdigit() or c.isalpha() or c in '#{}\t/*)->': return 1
+		if c.isdigit() or c.isalpha() or c in '#{}\t/*)-><=': return 1
 		if c==' ': return 0
 		print 'nyi \"%s\"'%c
 		raise

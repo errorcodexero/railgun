@@ -19,7 +19,7 @@ ofstream myfile2;
 static int print_count=0;
 #define SLOW_PRINT (print_count%10==0)
 
-#define PI 3.14159265358979
+
 
 ostream& operator<<(ostream& o,Main::Mode a){
 	#define X(NAME) if(a==Main::Mode::NAME) return o<<""#NAME;
@@ -92,7 +92,7 @@ Tilt_presets read_tilt_presets(){
 	Tilt_presets r;
 	ifstream f(PRESET_FILE);
 	if(!f.good()){
- 		//if can't open file then just return the defaults
+	//if can't open file then just return the defaults
 		cerr<<"Error: could not open preset file.  Using defaults.\n";
 		return r;
 	}
@@ -161,7 +161,7 @@ void Main::shooter_protocol(Shooter::Status_detail const& shooter_status, bool c
 	const Tilt::Goal top=Tilt::Goal::go_to_angle(make_tolerances(tilt_presets.top));
 	goals.collector.sides = Sides::Goal::OFF;
 	goals.collector.tilt = top;
-	static const Shooter::Goal shoot_goal = Shooter::Goal::CLIMB_SHOT;
+	static const Shooter::Goal::Type shoot_goal = Shooter::Goal::Type::CLIMB_SHOT;
 	switch(shoot_step){
 		case Shoot_steps::CLEAR_BALL:
 			if(false/*!shooter_status.beam*/) goals.collector.front = Front::Goal::CLEAR_BALL;
@@ -169,12 +169,12 @@ void Main::shooter_protocol(Shooter::Status_detail const& shooter_status, bool c
 			break;
 		case Shoot_steps::SPEED_UP:
 			goals.collector.front = Front::Goal::OFF;
-			goals.shooter = shoot_goal;
+			goals.shooter.type = shoot_goal;
 			if(ready(shooter_status,goals.shooter)) shoot_step = Shoot_steps::SHOOT;
 			break;
 		case Shoot_steps::SHOOT:
 			goals.collector.front = Front::Goal::IN;
-			goals.shooter = shoot_goal;
+			goals.shooter.type = shoot_goal;
 			shoot_high_timer.update(now,enabled);
 			if(shoot_high_timer.done()) collector_mode = Collector_mode::STOW; 
 			break;
@@ -542,7 +542,7 @@ Main::Mode next_mode(Main::Mode m,bool autonomous,bool autonomous_start,Toplevel
 						default: assert(0);
 					}
 				}
-				return Main::Mode::TELEOP; //during testing put the mode you want to test without the driverstation.
+				return Main::Mode::AUTO_VTEST; //during testing put the mode you want to test without the driverstation.
 				//return Main::Mode::TELEOP;
 			}
 			return m;
@@ -671,6 +671,9 @@ Main::Mode next_mode(Main::Mode m,bool autonomous,bool autonomous_start,Toplevel
 		case Main::Mode::AUTO_VLBLS_SCORE_EJECT:
 			if(since_switch > 1 || !autonomous) return Main::Mode::TELEOP;
 			return Main::Mode::AUTO_VLBLS_SCORE_EJECT;
+		case Main::Mode::AUTO_VTEST:
+			if(!autonomous) return Main::Mode::TELEOP;
+			return Main::Mode::AUTO_VTEST;
 		default: assert(0);
 	}
 	return m;	
@@ -865,6 +868,13 @@ Robot_outputs Main::operator()(Robot_inputs in,ostream&){
 			break;
 		case Main::Mode::AUTO_VLBLS_SCORE_EJECT:
 			goals.collector={Front::Goal::OUT,Sides::Goal::OFF,top};
+			break;
+		case Main::Mode::AUTO_VTEST:
+		{
+			float visix,visiy;
+			VisionBool(Vision,visix,visiy);
+			cout << "x: " << visix << "," << "y: " << visiy << endl;
+		}
 			break;
 
 		//shooter_protical call in here takes in robot inputs,toplevel goal,toplevel status detail

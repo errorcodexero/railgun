@@ -66,12 +66,9 @@ ostream& operator<<(ostream& o,Panel::Shooter_mode a){
 ostream& operator<<(ostream& o,Panel::Auto_mode a){
 	o<<"Panel::Auto_mode(";
 	#define X(name) if(a==Panel::Auto_mode::name)o<<""#name;
-<<<<<<< HEAD
-	
+
 	X(NOTHING) X(REACH) X(STATICS) X(STATICF) X(PORTCULLIS) X(CHEVAL) X(LBLS) X(DRT) X(DAT)
-=======
-	X(NOTHING) X(REACH) X(STATICS) X(STATICF) X(PORTCULLIS) X(CHEVAL)
->>>>>>> 8092abc3a545c96b3e6a2a6bff7092cc9051ea2a
+
 	#undef X
 	return o<<")";
 }
@@ -102,7 +99,6 @@ Panel::Auto_mode auto_mode_convert(int potin){
 		case 4:
 			return Panel::Auto_mode::PORTCULLIS;
 		case 5: 
-<<<<<<< HEAD
 			return Panel::Auto_mode::CHEVAL;
 		case 6:
 			return Panel::Auto_mode::LBLS;
@@ -111,9 +107,6 @@ Panel::Auto_mode auto_mode_convert(int potin){
 		case 8:
 			return Panel::Auto_mode::DAT;
 		
-=======
-			return Panel::Auto_mode::CHEVAL;	
->>>>>>> 8092abc3a545c96b3e6a2a6bff7092cc9051ea2a
 		default:
 			return Panel::Auto_mode::NOTHING;
 	}
