@@ -26,15 +26,15 @@ using namespace std;
 // All Structures
 /////////////////////////////////////////////////////////////////////////////
 
-struct mapstruct {
+struct Mapstruct {
 	int width;
 	int length;
 	bool walls[MAPWIDTH][MAPLENGTH];
 };
 
-struct list{
-	point pt;
-	point prev;
+struct List{
+	Pt2 pt;
+	Pt2 prev;
 	bool v;
 };
 /////////////////////////////////////////////////////////////////////////////
@@ -42,16 +42,16 @@ struct list{
 //
 // allow the use of diffrent things with the structure point
 /////////////////////////////////////////////////////////////////////////////
-bool operator!=(point a,point b){
+bool operator!=(Pt2 a,Pt2 b){
 	return (a.x != b.x || a.y != b.y);
 }
 
-ostream&operator<<(ostream& o, point a){
+ostream&operator<<(ostream& o, Pt2 a){
 	o<< a.x << "," << a.y << endl;
 	return o;
 }
 
-bool operator==(point a,point b){
+bool operator==(Pt2 a,Pt2 b){
 	if ((a.x == b.x) & (a.y == b.y))return true;
 	return false;
 }
@@ -67,7 +67,7 @@ ostream&operator<<(ostream& o, vector<A,B> const& p){
 	return o;
 }
 
-ostream&operator<<(ostream& o, movedir const& p){
+ostream&operator<<(ostream& o, Movedir const& p){
 	if(p==MFORWARD)o<< "Forward";
 	else if( p==MRIGHT)o<< "Right";
 	else if (p==MLEFT)o<<"Left";
@@ -88,7 +88,7 @@ string pbool(bool b){
 //
 //takes in a enum variable and returns a string that is the equivilent to the enum's values
 ///////////////////////////////////////////////////////////////////////////////////////////
-string pmovedir(movedir a){
+string pmovedir(Movedir a){
 	string b;
 	if(a == MLEFT) return "Left";
 	else if(a == MRIGHT) return "Right";
@@ -102,7 +102,7 @@ string pmovedir(movedir a){
 //
 // returns true if p is in the grid
 /////////////////////////////////////////////////////////////////////////////
-bool bounderies(point p,mapstruct const& map){
+bool bounderies(Pt2 p,Mapstruct const& map){
 	bool xvalid = p.x >=0+ROBOTSPACE && p.x < map.width;
 	bool yvalid = p.y >=0+ROBOTSPACE && p.y < map.length;
 	return xvalid && yvalid;
@@ -113,7 +113,7 @@ bool bounderies(point p,mapstruct const& map){
 //
 // returns true if p is not a wall
 //////////////////////////////////////////////////////////////////////////////
-bool Walls(point p,mapstruct const& map){
+bool Walls(Pt2 p,Mapstruct const& map){
 	return !map.walls[p.x][p.y];	
 }
 /////////////////////////////////////////////////////////////////////////////
@@ -121,7 +121,7 @@ bool Walls(point p,mapstruct const& map){
 //																		   
 // returns true if p is not a wall or boundry                              
 /////////////////////////////////////////////////////////////////////////////
-bool valid(point p,mapstruct  const& map){
+bool valid(Pt2 p,Mapstruct  const& map){
 	return (bounderies(p,map) && Walls(p,map));
 }
 
@@ -130,7 +130,7 @@ bool valid(point p,mapstruct  const& map){
 //
 // returns true if the given point is not a wall or boundry and has not been visited
 /////////////////////////////////////////////////////////////////////////////
-bool validpoint(vector<list>  const& v,point q,mapstruct const& map){
+bool validpoint(vector<List>  const& v,Pt2 q,Mapstruct const& map){
 	int i;
 	int max;
 	bool p ;
@@ -153,20 +153,20 @@ bool validpoint(vector<list>  const& v,point q,mapstruct const& map){
 //
 // returns adjacent points
 /////////////////////////////////////////////////////////////////////////////
-point leftp(point p){
-	return point{p.x - 1,p.y};
+Pt2 leftp(Pt2 p){
+	return Pt2{p.x - 1,p.y};
 }
 
-point rightp(point p){
-	return point{p.x + 1,p.y};
+Pt2 rightp(Pt2 p){
+	return Pt2{p.x + 1,p.y};
 }
 
-point upp(point p){
-	return point{p.x,p.y - 1};
+Pt2 upp(Pt2 p){
+	return Pt2{p.x,p.y - 1};
 }
 
-point downp(point p){
-	return point{p.x,p.y + 1};
+Pt2 downp(Pt2 p){
+	return Pt2{p.x,p.y + 1};
 }
 /////////////////////////////////////////////////////////////////////////////
 // nextp
@@ -174,7 +174,7 @@ point downp(point p){
 
 //returns next point that has not been visited
 ////////////////////////////////////////////////////////////////////////////
-int nextp(vector<list> const& v){
+int nextp(vector<List> const& v){
 	int max;
 	int i;
 
@@ -192,13 +192,13 @@ int nextp(vector<list> const& v){
 //
 // given a point will return a vector of points that are valid
 /////////////////////////////////////////////////////////////////////////////
-vector<point> getpoint(vector<list> const& v,point p,mapstruct const& map){
-	point a;
-	point b;
-	point c;
-	point d;
+vector<Pt2> getpoint(vector<List> const& v,Pt2 p,Mapstruct const& map){
+	Pt2 a;
+	Pt2 b;
+	Pt2 c;
+	Pt2 d;
 
-	vector<point> validpoints;
+	vector<Pt2> validpoints;
 	
 	a = leftp(p);
 	b = rightp(p);
@@ -227,11 +227,11 @@ vector<point> getpoint(vector<list> const& v,point p,mapstruct const& map){
 }
 
 /////////////////////////////////////////////////////////////////////////////
-//Find Point
+//Find Pt2
 //
 //finds point
 ////////////////////////////////////////////////////////////////////////////
-int findpoint(vector<list> const& v,point q){
+int findpoint(vector<List> const& v,Pt2 q){
 	int max;
 	int i;
 	max = v.size();
@@ -258,7 +258,7 @@ int  getnum(){
 //
 //loads an array that is what the program navigates
 ////////////////////////////////////////////////////////////////////////////
-void loadmap(mapstruct & a){
+void loadmap(Mapstruct & a){
 	a.width = MAPWIDTH;
 	a.length = MAPLENGTH;
 
@@ -299,7 +299,7 @@ void loadmap(mapstruct & a){
 //
 //takes in two points and determines dirction reletive to the first point and returns an enum
 /////////////////////////////////////////////////////////////////////////////////////////////
-direction whatdir(point a,point b){
+Direction whatdir(Pt2 a,Pt2 b){
 	if (a.x > b.x)return LEFT;
 	else if (a.x < b.x)return RIGHT;
 	else if (a.y > b.y)return UP;
@@ -312,7 +312,7 @@ direction whatdir(point a,point b){
 //
 //takes in two directions and then finds orentation based on that
 ////////////////////////////////////////////////////////////////////////////
-movedir whatmove(direction one, direction two){
+Movedir whatmove(Direction one, Direction two){
 	if(one == two)	return MFORWARD;
 	else if(one == RIGHT){
 		if(two == UP)return MLEFT;
@@ -348,8 +348,8 @@ movedir whatmove(direction one, direction two){
 //
 //takes in a vector and reverses its order
 ////////////////////////////////////////////////////////////////////////////
-vector<point> invertvector(vector<point> v){
-	vector<point> nv;
+vector<Pt2> invertvector(vector<Pt2> v){
+	vector<Pt2> nv;
 	for(int i = v.size() - 1; i > -1;i--)
 		nv.push_back(v[i]);
 	return nv;
@@ -359,13 +359,13 @@ vector<point> invertvector(vector<point> v){
 //
 //finds common orentations in secsession.
 ////////////////////////////////////////////////////////////////////////////
-vector<pair<int,direction>> findlist(vector<direction> v){
-	vector<pair<int,direction>> pairs;
-	pair<int,direction> p;
+vector<pair<int,Direction>> findlist(vector<Direction> v){
+	vector<pair<int,Direction>> pairs;
+	pair<int,Direction> p;
 	
 
 	for(unsigned int i=0; i < v.size(); i++){//loops throught the vector.
-		direction FCE;
+		Direction FCE;
 		FCE = v[i];
 		
 		p.first=0;
@@ -385,11 +385,11 @@ vector<pair<int,direction>> findlist(vector<direction> v){
 //
 //finds common relative orentations in secsession.
 ////////////////////////////////////////////////////////////////////////////
-vector<pair<int,movedir>> findlist2(direction crdir,vector<pair<int,direction>> v,direction enddir){
-	vector<pair<int,movedir>> pairs;
-	pair<int,movedir> p;
-	direction LCD = crdir;
-	movedir turn;
+vector<pair<int,Movedir>> findlist2(Direction crdir,vector<pair<int,Direction>> v,Direction enddir){
+	vector<pair<int,Movedir>> pairs;
+	pair<int,Movedir> p;
+	Direction LCD = crdir;
+	Movedir turn;
 
 	for(unsigned int i=0; i < v.size(); i++){//loops throught the vector.
 		turn = whatmove(LCD,v[i].second);//figures out orentation
@@ -413,24 +413,24 @@ vector<pair<int,movedir>> findlist2(direction crdir,vector<pair<int,direction>> 
 	return pairs;
 }
 
-vector<pair<int,movedir>> solvemaze(point start,point end,direction startdir,direction enddir){
+vector<pair<int,Movedir>> solvemaze(Pt2 start,Pt2 end,Direction startdir,Direction enddir){
 	//declarations	
-	point p;
-	point e;
-	point f;
-	list log;
-	mapstruct map;	
-	direction nextdir;
-	vector<list> info;
-	vector<point> nextpoint;
-	vector<point> path;
-	vector<point> ipath;
-	vector<movedir> drivec;
-	vector<movedir> fdrive;
-	vector<pair<int,direction>> pear;
-	vector<pair<int,movedir>> pear2;
-	vector<movedir> finnalout;
-	vector<direction> vnextdir;
+	Pt2 p;
+	Pt2 e;
+	Pt2 f;
+	List log;
+	Mapstruct map;	
+	Direction nextdir;
+	vector<List> info;
+	vector<Pt2> nextpoint;
+	vector<Pt2> path;
+	vector<Pt2> ipath;
+	vector<Movedir> drivec;
+	vector<Movedir> fdrive;
+	vector<pair<int,Direction>> pear;
+	vector<pair<int,Movedir>> pear2;
+	vector<Movedir> finnalout;
+	vector<Direction> vnextdir;
 	int lastline;
 	int lineofvector;
 	bool endpoint;
@@ -515,8 +515,8 @@ vector<pair<int,movedir>> solvemaze(point start,point end,direction startdir,dir
 	return pear2;	
 }
 
-point randpoint(mapstruct map){
-	point a;
+Pt2 randpoint(Mapstruct map){
+	Pt2 a;
 	
 	while (true){
 		a.x = rand() % 119;

@@ -6,19 +6,19 @@
 
 using namespace std;
 
-Nav2::Nav2::aturn::aturn():l(0),r(0),dur(0){}
+Nav2::Nav2::Aturn::Aturn():l(0),r(0),dur(0){}
 
-Nav2::Nav2::aturn::aturn(float a,float b,float c):l(a),r(b),dur(c){}
+Nav2::Nav2::Aturn::Aturn(float a,float b,float c):l(a),r(b),dur(c){}
 
-vector<Nav2::NavS> Nav2::loadnav(navloadinput navin){
+vector<Nav2::NavS> Nav2::loadnav(Navloadinput navin){
 
 	const string MYFILE="/home/lvuser/navlogs/navlog.txt";
 
 	float amount = 0;
 	vector<NavS> nav;
 	NavS navelement;
-	navinput start, end;
-	vector<pair<int,movedir>> v;
+	Navinput start, end;
+	vector<pair<int,Movedir>> v;
 	ofstream myfile(MYFILE);
 	//oiload oinav;
 

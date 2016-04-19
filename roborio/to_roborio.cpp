@@ -420,7 +420,7 @@ public:
 		}
 			
 		SmartDashboard::PutBoolean("Ball: ", out.panel_output[Panel_outputs::BOULDER].value);
-		SmartDashboard::PutBoolean("Learning: ", out.panel_output[Panel_outputs::LEARNING].value);
+		SmartDashboard::PutBoolean("Spun Up: ", out.panel_output[Panel_outputs::SPUN_UP].value);
 		
 		//cout << "d_io: " << digital_io << endl << "o.d.io: " << out.digital_io << endl ;
 
@@ -562,8 +562,8 @@ public:
 		run(in);
 
 /*                // Network Table update:
-		enum dsMode_t { DS_OTHER = 0, DS_AUTO = 1, DS_TELE = 2 };
-		dsMode_t dsMode = 
+		enum DsMode_t { DS_OTHER = 0, DS_AUTO = 1, DS_TELE = 2 };
+		DsMode_t dsMode = 
 			(in.robot_mode.autonomous && in.robot_mode.enabled) ? DS_AUTO :
 			(in.robot_mode.enabled) ? DS_TELE : DS_OTHER;
 			table->PutBoolean ("isEnabled", in.robot_mode.enabled);
