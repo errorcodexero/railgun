@@ -39,7 +39,7 @@ bool operator!=(Front a, Front b){ return !(a==b);}
 
 static const unsigned BALL_SENSOR_DIO=6;
 
-Front::Input Front::Input_reader::operator()(Robot_inputs a)const{
+Front::Input Front::Input_reader::operator()(Robot_inputs const& a)const{
 	return Front::Input{a.digital_io.in[BALL_SENSOR_DIO]==Digital_in::_0};
 }
 

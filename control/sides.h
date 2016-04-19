@@ -18,7 +18,7 @@ struct Sides{
 	typedef Status_detail Status;
 
 	struct Input_reader{
-		Sides::Input operator()(Robot_inputs)const;
+		Sides::Input operator()(Robot_inputs const&)const;
 		Robot_inputs operator()(Robot_inputs,Sides::Input)const;
 	};
 

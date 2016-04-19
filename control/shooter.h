@@ -47,7 +47,7 @@ struct Shooter{
 	};
 	
 	struct Input_reader{
-		Shooter::Input operator()(Robot_inputs)const;
+		Shooter::Input operator()(Robot_inputs const&)const;
 		Robot_inputs operator()(Robot_inputs,Shooter::Input)const;
 	};
 
@@ -60,7 +60,7 @@ struct Shooter{
 	};
 	
 	struct Output_applicator{
-		Shooter::Output operator()(Robot_outputs)const;
+		Shooter::Output operator()(Robot_outputs const&)const;
 		Robot_outputs operator()(Robot_outputs,Shooter::Output)const;
 	};
 

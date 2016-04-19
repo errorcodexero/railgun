@@ -47,7 +47,7 @@ bool operator==(Climb_release::Output_applicator,Climb_release::Output_applicato
 bool operator==(Climb_release a,Climb_release b){ return (a.input_reader==b.input_reader && a.estimator==b.estimator && a.output_applicator==b.output_applicator); }
 bool operator!=(Climb_release a,Climb_release b){ return !(a==b); }
 
-Climb_release::Input Climb_release::Input_reader::operator()(Robot_inputs a)const{
+Climb_release::Input Climb_release::Input_reader::operator()(Robot_inputs const& a)const{
 	return {a.robot_mode.enabled};
 }
 

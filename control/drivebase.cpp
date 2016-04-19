@@ -40,7 +40,7 @@ Robot_inputs Drivebase::Input_reader::operator()(Robot_inputs all,Input in)const
 	return all;
 }
 
-Drivebase::Input Drivebase::Input_reader::operator()(Robot_inputs in)const{
+Drivebase::Input Drivebase::Input_reader::operator()(Robot_inputs const& in)const{
 	auto encoder_info=[&](unsigned a, unsigned b){
 		return make_pair(in.digital_io.in[a],in.digital_io.in[b]);
 	};

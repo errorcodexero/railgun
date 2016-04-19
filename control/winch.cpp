@@ -49,7 +49,7 @@ bool operator!=(Winch::Estimator a, Winch::Estimator b){ return !(a==b); }
 bool operator==(Winch,Winch){ return 1; }
 bool operator!=(Winch a, Winch b){ return !(a==b); }
 
-Winch::Input Winch::Input_reader::operator()(Robot_inputs r) const{
+Winch::Input Winch::Input_reader::operator()(Robot_inputs const& r) const{
 	Winch::Input in;
 	in.deployed=(r.digital_io.in[LIMIT_LOC]==Digital_in::_1);
 	return in;
@@ -67,7 +67,7 @@ Robot_outputs Winch::Output_applicator::operator()(Robot_outputs r, Winch::Outpu
 	return r;
 }
 
-Winch::Goal Winch::Output_applicator::operator()(Robot_outputs r)const{
+Winch::Goal Winch::Output_applicator::operator()(Robot_outputs const& r)const{
 	if(r.pwm[WINCH_PWM]>0)	return Winch::Goal::OUT;
 	if(r.pwm[WINCH_PWM]<0)	return Winch::Goal::IN;
 	return Winch::Goal::STOP;

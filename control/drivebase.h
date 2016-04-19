@@ -20,7 +20,7 @@ struct Drivebase{
 	DECLARE_STRUCT(Input,DRIVEBASE_INPUT)
 
 	struct Input_reader{
-		Input operator()(Robot_inputs)const;
+		Input operator()(Robot_inputs const&)const;
 		Robot_inputs operator()(Robot_inputs,Input)const;
 	};
 	Input_reader input_reader;

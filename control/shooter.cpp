@@ -107,7 +107,7 @@ void Shooter::Goal::operator()(Shooter::Goal::Mode const& m){
 	mode=m;
 }
 
-Shooter::Input Shooter::Input_reader::operator()(Robot_inputs r)const{
+Shooter::Input Shooter::Input_reader::operator()(Robot_inputs const& r)const{
 	return {r.talon_srx[SHOOTER_WHEEL_LOC].velocity,(r.digital_io.in[BEAM_SENSOR_DIO]==Digital_in::_1),r.robot_mode.enabled};
 }
 Robot_inputs Shooter::Input_reader::operator()(Robot_inputs r,Shooter::Input in)const{
@@ -117,7 +117,7 @@ Robot_inputs Shooter::Input_reader::operator()(Robot_inputs r,Shooter::Input in)
 	return r;
 }
 
-Shooter::Output Shooter::Output_applicator::operator()(Robot_outputs r)const{
+Shooter::Output Shooter::Output_applicator::operator()(Robot_outputs const& r)const{
 	Shooter::Output out;
 	out.mode=r.talon_srx[SHOOTER_WHEEL_LOC].mode;
 	out.voltage=r.talon_srx[SHOOTER_WHEEL_LOC].power_level;

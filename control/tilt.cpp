@@ -48,7 +48,7 @@ Robot_inputs Tilt::Input_reader::operator()(Robot_inputs r,Tilt::Input in)const{
 	return r;
 }
 
-Tilt::Input Tilt::Input_reader::operator()(Robot_inputs r)const{
+Tilt::Input Tilt::Input_reader::operator()(Robot_inputs const& r)const{
 	return Tilt::Input{
 		r.digital_io.in[TILT_LIM_LOC]==Digital_in::_0,
 		volts_to_degrees(r.analog[TILT_POT_LOC])

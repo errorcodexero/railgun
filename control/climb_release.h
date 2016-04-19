@@ -20,7 +20,7 @@ struct Climb_release{
 	};
 	
 	struct Input_reader{
-		Climb_release::Input operator()(Robot_inputs)const;
+		Climb_release::Input operator()(Robot_inputs const&)const;
 		Robot_inputs operator()(Robot_inputs,Climb_release::Input)const;
 	};
 
