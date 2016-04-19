@@ -1,6 +1,7 @@
 #include "WPILib.h"
 #include "control/main.h"
 #include "dio_control.h"
+#include "talon_srx_control.h"
 #include <netinet/in.h>
 #include <arpa/inet.h>
 #include <unistd.h>
@@ -8,74 +9,68 @@
 
 using namespace std;
 
-
-
-
 void SendWOL (void)
 {
-    int udpSocket;
-    if ((udpSocket = socket(AF_INET, SOCK_DGRAM, 0)) == ERROR)
-    {
-        perror("Failed to create a UDP socket!");
-        exit(1);
-    }
+	int udpSocket;
+	if ((udpSocket = socket(AF_INET, SOCK_DGRAM, 0)) == ERROR){
+		perror("Failed to create a UDP socket!");
+		exit(1);
+	}
 
-    // you need to set this so you can broadcast:
-    int broadcast = 1;
-    if (setsockopt(udpSocket, SOL_SOCKET, SO_BROADCAST, reinterpret_cast<char*>(&broadcast), sizeof(broadcast)) == ERROR)
-    {
-        perror("setsockopt (SO_BROADCAST)");
-        exit(1);
-    }
+	// you need to set this so you can broadcast:
+	int broadcast = 1;
+	if (setsockopt(udpSocket, SOL_SOCKET, SO_BROADCAST, reinterpret_cast<char*>(&broadcast), sizeof(broadcast)) == ERROR){
+		perror("setsockopt (SO_BROADCAST)");
+		exit(1);
+	}
 
-    struct sockaddr_in udpClient;
-    udpClient.sin_family      = AF_INET;
-    udpClient.sin_addr.s_addr = INADDR_ANY;
-    udpClient.sin_port        = 0;
+	struct sockaddr_in udpClient;
+	udpClient.sin_family      = AF_INET;
+	udpClient.sin_addr.s_addr = INADDR_ANY;
+	udpClient.sin_port        = 0;
 
-    if (bind(udpSocket, (struct sockaddr*) &udpClient, sizeof(udpClient)) == ERROR)
-    {
-        perror("Failed to bind the cRioServer port!");
-        close (udpSocket);
-        exit(1);
-    }
+	if (bind(udpSocket, (struct sockaddr*) &udpClient, sizeof(udpClient)) == ERROR){
+		perror("Failed to bind the cRioServer port!");
+		close (udpSocket);
+		exit(1);
+	}
 
-    // build the magic packet:
-    //
-    //     6 * 255 or (0xff)
-    //    16 * MAC Address of target PC
+	// build the magic packet:
+	//
+	//     6 * 255 or (0xff)
+	//    16 * MAC Address of target PC
 
-    unsigned char tosend[102];
-    unsigned char mac[6];
+	unsigned char tosend[102];
+	unsigned char mac[6];
 
-    // first 6 bytes of 255:
-    for (int i = 0; i < 6; i++) 
-        tosend[i] = 0xFF;
+	// first 6 bytes of 255:
+	for (int i = 0; i < 6; i++) 
+		tosend[i] = 0xFF;
 
-    // Store mac address of the NUC (ec:a8:6b:fe:fc:e6) :
-    mac[0] = 0xec;
-    mac[1] = 0xa8;
-    mac[2] = 0x6b;
-    mac[3] = 0xfe;
-    mac[4] = 0xfc;
-    mac[5] = 0xe6;
+	// Store mac address of the NUC (ec:a8:6b:fe:fc:e6) :
+	mac[0] = 0xec;
+	mac[1] = 0xa8;
+	mac[2] = 0x6b;
+	mac[3] = 0xfe;
+	mac[4] = 0xfc;
+	mac[5] = 0xe6;
 
-    // append it 16 times to packet:
-    for(int i = 1; i <= 16; i++) 
-        memcpy(&tosend[i * 6], &mac, 6 * sizeof(unsigned char));
+	// append it 16 times to packet:
+	for(int i = 1; i <= 16; i++) 
+		memcpy(&tosend[i * 6], &mac, 6 * sizeof(unsigned char));
 
-    // set server end point (the broadcast addres):
-    struct sockaddr_in udpServer;
-    udpServer.sin_family      = AF_INET;
-    udpServer.sin_addr.s_addr = inet_addr("10.14.25.255");
-    udpServer.sin_port        = htons(9);
+	// set server end point (the broadcast addres):
+	struct sockaddr_in udpServer;
+	udpServer.sin_family      = AF_INET;
+	udpServer.sin_addr.s_addr = inet_addr("10.14.25.255");
+	udpServer.sin_port        = htons(9);
 
-    // send the packet:
-    sendto(udpSocket, reinterpret_cast<char*>(&tosend), sizeof(unsigned char) * 102, 0, (struct sockaddr*)&udpServer, sizeof(udpServer));
+	// send the packet:
+	sendto(udpSocket, reinterpret_cast<char*>(&tosend), sizeof(unsigned char) * 102, 0, (struct sockaddr*)&udpServer, sizeof(udpServer));
 
-    cerr << "Sent WOL packet to NUC." << endl;
-    
-    close(udpSocket);
+	cerr << "Sent WOL packet to NUC." << endl;
+
+	close(udpSocket);
 }
 
 Joystick_data read_joystick(DriverStation& ds,int port){
@@ -231,17 +226,15 @@ class To_crio
 	int error_code;
 	USER_CODE main;
 	int skipped;
+	Talon_srx_controls talon_srx_controls;
 	//Jag_control jaguar[Robot_outputs::CAN_JAGUARS];
 	//DriverStationLCD *lcd;
 	//NetworkTable *table;
 	//Gyro *gyro;
 	PowerDistributionPanel *power;
 	Compressor *compressor;
-	CANTalon talon_1;
-	//CANTalon test2;
-	const int TALON_1_ID = 0;
 public:
-	To_crio():error_code(0),skipped(0),talon_1(TALON_1_ID)//,test2(1)//,gyro(NULL)
+	To_crio():error_code(0),skipped(0)//,gyro(NULL)
 	{
 		power = new PowerDistributionPanel();
 		// Wake the NUC by sending a Wake-on-LAN magic UDP packet:
@@ -258,6 +251,7 @@ public:
 				if(!solenoid[i]) error_code|=8;
 			//}
 		}
+		talon_srx_controls.init();
 		
 		for(unsigned i=0;i<Robot_outputs::PWMS;i++){
 			pwm[i]=new VictorSP(i);//untested
@@ -306,8 +300,6 @@ public:
 		}
 		
 		//Slave
-		//test2.SetControlMode(CANSpeedController::kFollower);
-		//test2.Set(TALON_1_ID);
 		
 		cout<<"Initialization Complete."<<endl<<flush;
 	}
@@ -432,10 +424,13 @@ public:
 		
 		//cout << "d_io: " << digital_io << endl << "o.d.io: " << out.digital_io << endl ;
 
-		//test.Set(1);
-		talon_1.Set(out.talon_srx[TALON_1_ID].power_level);
-		//test2.Set(out.talon_srx[1].power_level);
-		//test2.SetSensorDirection(0);
+		{
+			Checked_array<bool,Robot_outputs::TALON_SRX_OUTPUTS> enable_all;
+			for(unsigned int i=0; i<Robot_outputs::TALON_SRX_OUTPUTS; i++){
+				enable_all[i]=true;
+			}
+			talon_srx_controls.set(out.talon_srx,enable_all); 
+		}
 		{
 			/*DriverStation *ds=DriverStation::GetInstance();
 			if(ds){
@@ -459,7 +454,7 @@ public:
 			//cerr<<out.jaguar[i]<<"\n";
 			//cerr<<jaguar[i].jaguar->GetSpeed()<<"\n";
 		//}
-/*			cerr<<"\n"<<jaguar[0].jaguar->GetSpeed()<<"\n";
+		/*	cerr<<"\n"<<jaguar[0].jaguar->GetSpeed()<<"\n";
 			cerr<<jaguar[1].jaguar->GetSpeed()<<"\n";
 			cerr<<jaguar[2].jaguar->GetSpeed()<<"\n";
 			cerr<<jaguar[3].jaguar->GetSpeed()<<"\n";*/
@@ -510,17 +505,18 @@ public:
 			cout<<"in: "<<in<<"\n";
 			cout<<"main: "<<main<<"\n";
 			cout<<"out: "<<out<<"\n";
+			cout<<"talon_srx_controls: "<<talon_srx_controls<<"\n";
 			cout<<"CLEAR_SCREEN\n";
 		}*/
 		int x=set_outputs(out,in.robot_mode.enabled);
 		if(x) cout<<"x was:"<<x<<"\n";
-		static int i=0;
+		/*static int i=0;
 		if(!i){
 			for(unsigned i=0;i<Robot_outputs::DIGITAL_IOS;i++){
 				//cerr<<"dio"<<i<<":"<<digital_io[i]<<"\n";
 			}
 		}
-		i=(i+1)%100;
+		i=(i+1)%100;*/
 		print_out_speed++;
 	}
 	
@@ -528,7 +524,7 @@ public:
 		/*cerr<<"Going to set LCD\n";
 		cerr.flush();
 		
-		//string s="hell owrld\n";
+		ALON//string s="hell owrld\n";
 		static const unsigned SIZE=USER_DS_LCD_DATA_SIZE;
 		char s[SIZE];
 		memset(s,' ',SIZE);
@@ -557,21 +553,7 @@ public:
 			//in.digital_io[i]=digital_io[i].get();
 		}
 		in.digital_io=digital_io.get();
-		auto f=[&](int index,CANTalon& talon_srx) {
-			in.talon_srx[index].fwd_limit_switch=talon_srx.IsFwdLimitSwitchClosed();
-			in.talon_srx[index].rev_limit_switch=talon_srx.IsRevLimitSwitchClosed();
-			/*if(index==0){
-				in.talon_srx[index].encoder_position=-talon_srx.GetEncPosition();
-				in.talon_srx[index].velocity = -talon_srx.GetEncVel();
-			}else{*/
-				in.talon_srx[index].encoder_position=talon_srx.GetEncPosition();
-				in.talon_srx[index].velocity = talon_srx.GetEncVel();
-			//}
-			in.talon_srx[index].a=talon_srx.GetPinStateQuadA();
-			in.talon_srx[index].b=talon_srx.GetPinStateQuadB();
-		};
-		f(TALON_1_ID,talon_1);
-		//f(1,test2);
+		in.talon_srx=talon_srx_controls.get();
 		//cout<<"in:"<<in<<"\n";
 		//}
 		/*if(gyro){
@@ -580,12 +562,12 @@ public:
 		run(in);
 
 /*                // Network Table update:
-                enum dsMode_t { DS_OTHER = 0, DS_AUTO = 1, DS_TELE = 2 };
-                dsMode_t dsMode = 
-                    (in.robot_mode.autonomous && in.robot_mode.enabled) ? DS_AUTO :
-                    (in.robot_mode.enabled) ? DS_TELE : DS_OTHER;
-                table->PutBoolean ("isEnabled", in.robot_mode.enabled);
-                table->PutNumber  ("dsMode",    dsMode);*/
+		enum dsMode_t { DS_OTHER = 0, DS_AUTO = 1, DS_TELE = 2 };
+		dsMode_t dsMode = 
+			(in.robot_mode.autonomous && in.robot_mode.enabled) ? DS_AUTO :
+			(in.robot_mode.enabled) ? DS_TELE : DS_OTHER;
+			table->PutBoolean ("isEnabled", in.robot_mode.enabled);
+			table->PutNumber  ("dsMode",    dsMode);*/
 	}
 };
 
@@ -639,29 +621,29 @@ class Robot_adapter: public SampleRobot{
 };
 
 /*void initialize(FRCCommonControlData &a){
-    a.packetIndex = 0;
-    a.control = 0;
+	a.packetIndex = 0;
+	a.control = 0;
 
-    //joystick axis values to neutral
-    for(unsigned i=0;i<Joystick_data::AXES;i++){
-    	a.stick0Axes[i]=0;
-    	a.stick1Axes[i]=0;
-    	a.stick2Axes[i]=0;
-    	a.stick3Axes[i]=0;
-    }
+	//joystick axis values to neutral
+	for(unsigned i=0;i<Joystick_data::AXES;i++){
+		a.stick0Axes[i]=0;
+		a.stick1Axes[i]=0;
+		a.stick2Axes[i]=0;
+		a.stick3Axes[i]=0;
+	}
 	
-    //buttons initially off
-    a.stick0Buttons = 0;
-    a.stick1Buttons = 0;
-    a.stick2Buttons = 0;
-    a.stick3Buttons = 0;
+	//buttons initially off
+	a.stick0Buttons = 0;
+	a.stick1Buttons = 0;
+	a.stick2Buttons = 0;
+	a.stick3Buttons = 0;
 
-    //analog and digital data from the drivers' station
-    a.analog1 = 0;
-    a.analog2 = 0;
-    a.analog3 = 0;
-    a.analog4 = 0;
-    a.dsDigitalIn = 0;
+	//analog and digital data from the drivers' station
+	a.analog1 = 0;
+	a.analog2 = 0;
+	a.analog3 = 0;
+	a.analog4 = 0;
+	a.dsDigitalIn = 0;
 }
 
 struct Com_data{

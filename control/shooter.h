@@ -5,23 +5,37 @@
 #include <set>
 #include "../util/interface.h"
 #include "../util/util.h"
-#include "../util/driver_station_interface.h"
 #include "../util/countdown_timer.h"
 
 struct Shooter{
-	#define SHOOTER_GOALS X(STOP) X(GROUND_SHOT) X(CLIMB_SHOT) X(X)
-	enum class Goal{
-		#define X(name) name,
-		SHOOTER_GOALS
-		#undef X
+	struct Goal{	
+		#define SHOOTER_MODES X(VOLTAGE) X(SPEED_MANUAL) X(SPEED_AUTO)
+		enum class Mode{
+			#define X(name) name,
+			SHOOTER_MODES
+			#undef X
+		};
+		Mode mode;
+		#define SHOOTER_TYPES X(STOP) X(GROUND_SHOT) X(CLIMB_SHOT) X(X)
+		enum class Type{
+			#define X(name) name,
+			SHOOTER_TYPES
+			#undef X
+		};
+		Type type;		
+		float percentage;//varries goal by a percentage
+		Goal();
+		Goal(Shooter::Goal::Type);
+		Goal(Shooter::Goal::Mode,Shooter::Goal::Type,float);
+		void operator()(Shooter::Goal::Mode const&);
 	};
 	
 	struct Status_detail{
-		int speed;//rpm
+		double speed;//rpm
 		bool beam;//beam sensor	
 
 		Status_detail();
-		Status_detail(int,bool);
+		Status_detail(double,bool);
 	};
 	
 	typedef Status_detail Status;
@@ -37,18 +51,12 @@ struct Shooter{
 		Robot_inputs operator()(Robot_inputs,Shooter::Input)const;
 	};
 
-	#define SHOOTER_MODES X(STOP) X(GROUND_SPEED) X(CLIMB_SPEED) X(FREE_SPIN)
 	struct Output{
-		enum class Mode{
-			#define X(name) name,
-			SHOOTER_MODES
-			#undef X
-		};
-		Mode mode;
-		Talon_srx_output::Mode talon_mode;
+		double speed;//rpm
+		double voltage;
+		Talon_srx_output::Mode mode;
 		Output();
-		Output(Shooter::Output::Mode);
-		Output(Shooter::Output::Mode,Talon_srx_output::Mode);
+		Output(double,double,Talon_srx_output::Mode);
 	};
 	
 	struct Output_applicator{
@@ -71,6 +79,7 @@ struct Shooter{
 	Output_applicator output_applicator;
 };
 
+std::ostream& operator<<(std::ostream&,Shooter::Goal::Mode);
 std::ostream& operator<<(std::ostream&,Shooter::Goal);
 std::ostream& operator<<(std::ostream&,Shooter::Input);
 std::ostream& operator<<(std::ostream&,Shooter::Status_detail);
@@ -84,6 +93,10 @@ bool operator<(Shooter::Input,Shooter::Input);
 bool operator<(Shooter::Status_detail,Shooter::Status_detail);
 bool operator==(Shooter::Status_detail,Shooter::Status_detail);
 bool operator!=(Shooter::Status_detail,Shooter::Status_detail);
+
+bool operator==(Shooter::Goal,Shooter::Goal);
+bool operator!=(Shooter::Goal,Shooter::Goal);
+bool operator<(Shooter::Goal,Shooter::Goal);
 
 bool operator==(Shooter::Output,Shooter::Output);
 bool operator!=(Shooter::Output,Shooter::Output);
@@ -109,5 +122,5 @@ Shooter::Output control(Shooter::Status_detail,Shooter::Goal);
 Shooter::Status status(Shooter::Status_detail);
 bool ready(Shooter::Status,Shooter::Goal);
 
-
 #endif
+

@@ -14,8 +14,6 @@
 
 #define ANGLE_TOLERANCE 5//in degrees
 
-#define PI 3.14159265//It's pi. What more do you want?
-
 #define TILT_PDB_LOC 8 //pdb # 
 #define TILT_POT_LOC 0 //pot analog #
 #define TILT_LIM_LOC 9 //limit switch dio #
@@ -127,7 +125,7 @@ std::ostream& operator<<(std::ostream& o, Tilt::Goal a){
 std::ostream& operator<<(std::ostream& o, Tilt::Output_applicator){ return o<<"Tilt::Output_applicator()";} 
 std::ostream& operator<<(std::ostream& o, Tilt::Input_reader){ return o<<"Tilt::Input_reader()";}
 std::ostream& operator<<(std::ostream& o, Tilt::Estimator a){ return o<<"Tilt::Estimator( last:"<<a.get()<<")";}
- 
+
 std::ostream& operator<<(std::ostream& o, Tilt a){
 	o<<"Tilt(";
 	o<<" "<<a.output_applicator;

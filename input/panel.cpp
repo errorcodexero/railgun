@@ -18,7 +18,6 @@ Panel::Panel():
 	shoot_high(0),
 	collector_up(0),
 	collector_down(0),
-	closed_loop(0),
 	lock_climber(0),
 	tilt_auto(0),
 	front_auto(0),
@@ -27,6 +26,7 @@ Panel::Panel():
 	front(Collector::OFF),
 	sides(Collector::OFF),
 	winch(Winch::STOP),
+	shooter_mode(Shooter_mode::CLOSED_AUTO),
 	auto_mode(Auto_mode::NOTHING),
 	speed_dial(0)
 {}
@@ -48,17 +48,24 @@ ostream& operator<<(ostream& o,Panel::Collector a){
 }
 
 ostream& operator<<(ostream& o,Panel::Winch a){
-        o<<"Panel::Winch(";
-        #define X(name) if(a==Panel::Winch::name)o<<""#name;
-        X(UP) X(STOP) X(DOWN)
-        #undef X
-        return o<<")";
+	o<<"Panel::Winch(";
+	#define X(name) if(a==Panel::Winch::name)o<<""#name;
+	X(UP) X(STOP) X(DOWN)
+	#undef X
+	return o<<")";
 }
 
-ostream& operator<<(ostream& o, Panel::Auto_mode a){
+ostream& operator<<(ostream& o,Panel::Shooter_mode a){
+	o<<"Panel::Shooter_mode(";
+	#define X(name) if (a==Panel::Shooter_mode::name)o<<""#name;
+	X(OPEN) X(CLOSED_MANUAL) X(CLOSED_AUTO)
+	#undef X
+	return o<<")";
+}
+
+ostream& operator<<(ostream& o,Panel::Auto_mode a){
 	o<<"Panel::Auto_mode(";
 	#define X(name) if(a==Panel::Auto_mode::name)o<<""#name;
-	
 	X(NOTHING) X(REACH) X(STATICS) X(STATICF) X(PORTCULLIS) X(CHEVAL)
 	#undef X
 	return o<<")";
@@ -68,9 +75,9 @@ ostream& operator<<(ostream& o,Panel p){
 	o<<"Panel(";
 	o<<"in_use:"<<p.in_use;
 	#define X(name) o<<", "#name":"<<p.name;
-	X(learn) X(cheval) X(drawbridge) X(shoot_prep) X(shoot_low) X(collect) X(shoot_high) X(collector_up) X(collector_down) X(closed_loop) //buttons
+	X(learn) X(cheval) X(drawbridge) X(shoot_prep) X(shoot_low) X(collect) X(shoot_high) X(collector_up) X(collector_down) //buttons
 	X(lock_climber) X(tilt_auto) X(front_auto) X(sides_auto) //2-pos switches
-	X(collector_pos) X(front) X(sides) X(winch) //3-pos switches
+	X(collector_pos) X(front) X(sides) X(winch) X(shooter_mode) //3-pos switches
 	X(auto_mode) //10-pos switches
 	X(speed_dial) //Dials
 	#undef X
@@ -90,8 +97,7 @@ Panel::Auto_mode auto_mode_convert(int potin){
 		case 4:
 			return Panel::Auto_mode::PORTCULLIS;
 		case 5: 
-			return Panel::Auto_mode::CHEVAL;
-		
+			return Panel::Auto_mode::CHEVAL;	
 		default:
 			return Panel::Auto_mode::NOTHING;
 	}
@@ -123,7 +129,6 @@ Panel interpret(Joystick_data d){
 	p.tilt_auto = d.button[1];
 	p.sides_auto = d.button[2];
 	p.front_auto = d.button[3];
-	p.closed_loop = !d.button[4];
 	#define AXIS_RANGE(axis, last, curr, next, var, val) if (axis > curr-(curr-last)/2 && axis < curr+(next-curr)/2) var = val;
 	{
 		float op = d.axis[2];
@@ -157,19 +162,26 @@ Panel interpret(Joystick_data d){
 	}
 	{
 		float sides = d.axis[6];
-                static const float OUT=-1, OFF=0, IN=1;
-                p.sides = Panel::Collector::OUT;
-               	AXIS_RANGE(sides, OUT, OFF, IN, p.sides, Panel::Collector::OFF)
-                else AXIS_RANGE(sides, OFF, IN, 1.5, p.sides, Panel::Collector::IN)
+		static const float OUT=-1, OFF=0, IN=1;
+		p.sides = Panel::Collector::OUT;
+		AXIS_RANGE(sides, OUT, OFF, IN, p.sides, Panel::Collector::OFF)
+		else AXIS_RANGE(sides, OFF, IN, 1.5, p.sides, Panel::Collector::IN)
 	}
-        {
-                float winch = d.axis[3];
-                static const float UP=-1, STOP=0, DOWN=1;
-                p.winch = Panel::Winch::UP;
-                AXIS_RANGE(winch, UP, STOP, DOWN, p.winch, Panel::Winch::STOP)
-                else AXIS_RANGE(winch, STOP, DOWN, 1.5, p.winch, Panel::Winch::DOWN);
-        }
-	p.speed_dial = axis_to_percent(d.axis[1]);
+	{
+		float winch = d.axis[3];
+		static const float UP=-1, STOP=0, DOWN=1;
+		p.winch = Panel::Winch::UP;
+		AXIS_RANGE(winch, UP, STOP, DOWN, p.winch, Panel::Winch::STOP)
+		else AXIS_RANGE(winch, STOP, DOWN, 1.5, p.winch, Panel::Winch::DOWN)
+	}
+	{
+		float shooter_mode = d.axis[7];
+		static const float OPEN=-1, CLOSED_MANUAL=0, CLOSED_AUTO=1;
+		p.shooter_mode=Panel::Shooter_mode::OPEN;
+		AXIS_RANGE(shooter_mode, OPEN, CLOSED_MANUAL, CLOSED_AUTO, p.shooter_mode, Panel::Shooter_mode::CLOSED_MANUAL)
+		else AXIS_RANGE(shooter_mode, CLOSED_MANUAL, CLOSED_AUTO, 1.5, p.shooter_mode, Panel::Shooter_mode::CLOSED_AUTO)
+	}
+	p.speed_dial = d.axis[1];//axis_to_percent(d.axis[1]);
 	#undef AXIS_RANGE
 	return p;
 }

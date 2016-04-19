@@ -31,7 +31,7 @@ struct mapstruct {
 	int length;
 	bool walls[MAPWIDTH][MAPLENGTH];
 };
- 
+
 struct list{
 	point pt;
 	point prev;
@@ -114,7 +114,7 @@ bool bounderies(point p,mapstruct const& map){
 // returns true if p is not a wall
 //////////////////////////////////////////////////////////////////////////////
 bool Walls(point p,mapstruct const& map){
- 	return !map.walls[p.x][p.y];	
+	return !map.walls[p.x][p.y];	
 }
 /////////////////////////////////////////////////////////////////////////////
 // valid																   
@@ -514,7 +514,7 @@ vector<pair<int,movedir>> solvemaze(point start,point end,direction startdir,dir
 		
 	return pear2;	
 }
- 
+
 point randpoint(mapstruct map){
 	point a;
 	
