@@ -91,7 +91,7 @@ def makefile(out):
 
 	objdir='tobj'
 	test_scripts=filter(lambda x: 'joystick_linux' not in x and x.split('/')[0]!=objdir,glob('*/*_test'))
-	dirs=set(map(get_dir,test_scripts))
+	dirs=set(map(get_dir,test_scripts)+['roborio'])
 	map(lambda x: os.system('mkdir -p '+objdir+'/%s'%x),dirs)
 	map(lambda x: os.system('mkdir -p obj/%s'%x),dirs)
 

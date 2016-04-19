@@ -1,8 +1,8 @@
 #ifndef TALON_SRX_CONTROL_H
 #define TALON_SRX_CONTROL_H
 
-#include "util/interface.h"
-#include "util/checked_array.h"
+#include "../util/interface.h"
+#include "../util/checked_array.h"
 
 class CANTalon;
 
