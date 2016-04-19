@@ -23,7 +23,7 @@ struct Shooter{
 			#undef X
 		};
 		Type type;		
-		float percentage;//varries goal by a percentage
+		float percentage;//varies goal by a percentage
 		Goal();
 		Goal(Shooter::Goal::Type);
 		Goal(Shooter::Goal::Mode,Shooter::Goal::Type,float);

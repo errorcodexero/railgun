@@ -253,7 +253,7 @@ Shooter::Status status(Shooter::Status_detail a){
 }
 
 bool approx_speed(double curr, double target) {
-	const double PERCENT_TOLERANCE=.02;
+	const double PERCENT_TOLERANCE=.02;//From testing, this looks pretty good
 	return (std::fabs(curr - target) < std::fabs(target)*PERCENT_TOLERANCE);
 }
 
