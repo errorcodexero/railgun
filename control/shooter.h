@@ -23,10 +23,10 @@ struct Shooter{
 			#undef X
 		};
 		Type type;		
-		float percentage;//varies goal by a percentage
+		double percentage;//varies goal by a percentage
 		Goal();
 		Goal(Shooter::Goal::Type);
-		Goal(Shooter::Goal::Mode,Shooter::Goal::Type,float);
+		Goal(Shooter::Goal::Mode,Shooter::Goal::Type,double);
 		void operator()(Shooter::Goal::Mode const&);
 	};
 	
