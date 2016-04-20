@@ -43,7 +43,7 @@ struct Collector{
 		#undef X
 
 		Output operator()(Robot_outputs const&)const;
-		Robot_outputs operator()(Robot_outputs,Output)const;
+		Robot_outputs operator()(Robot_outputs,Output const&)const;
 	};
 
 	struct Status{

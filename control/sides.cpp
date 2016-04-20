@@ -31,7 +31,7 @@ bool operator==(Sides::Output_applicator, Sides::Output_applicator){return 1;}
 bool operator==(Sides a, Sides b){ return (a.input_reader==b.input_reader && a.estimator==b.estimator && a.output_applicator==b.output_applicator);}
 bool operator!=(Sides a, Sides b){ return !(a==b);}
 
-Sides::Input Sides::Input_reader::operator()(Robot_inputs)const{ return {}; }
+Sides::Input Sides::Input_reader::operator()(Robot_inputs const&)const{ return {}; }
 	
 Robot_inputs Sides::Input_reader::operator()(Robot_inputs a, Sides::Input)const{ return a; }
 

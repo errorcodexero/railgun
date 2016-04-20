@@ -25,13 +25,43 @@ def start_good(s):
 		raise
 	return 1
 
+#any(a) => [a]->[(a,a)]
+def adjacent_pairs(a):
+	r=[]
+	i=0
+	while i+1<len(a):
+		r.append((a[i],a[i+1]))
+		i+=1
+	return r
+
+def type_name_ok(s):
+	return s[0].isupper() or s in ['sockaddr_in','dirent','js_event','addrinfo','sigaction','sockaddr_storage']
+
+def rm_line_comment(s):
+	out=''
+	for (a,b) in adjacent_pairs(s):
+		if a=='/' and b=='/':
+			return out
+		out+=a
+	return out
+
+def decl_ok(s):
+	sp=rm_line_comment(s).split()
+	for (a,b) in adjacent_pairs(sp):
+		if a in ['struct','class'] or (a=='enum' and b!='class'):
+			if not type_name_ok(b):
+				return 0
+	return 1
+
 #str->[str(error)]
 def check_file(contents):
 	lines=contents.splitlines()
 	r=[]
 	for line_num,s in enumerate_from(1,lines):
 		if not start_good(s):
-			r.append((line_num,'starts w/ space'))
+			r.append((line_num,'starts w/ space',s))
+		if not decl_ok(s):
+			r.append((line_num,'type names',s))
 	return r
 
 #returns int
@@ -61,12 +91,12 @@ def makefile(out):
 
 	objdir='tobj'
 	test_scripts=filter(lambda x: 'joystick_linux' not in x and x.split('/')[0]!=objdir,glob('*/*_test'))
-	dirs=set(map(get_dir,test_scripts))
+	dirs=set(map(get_dir,test_scripts)+['roborio'])
 	map(lambda x: os.system('mkdir -p '+objdir+'/%s'%x),dirs)
 	map(lambda x: os.system('mkdir -p obj/%s'%x),dirs)
 
 	print>>out,'OBJDIR='+objdir
-	print>>out,'H_FILES=*.h */*.h'
+	print>>out,'H_FILES=$(find -name \*.h)'
 	print>>out,'CXXFLAGS=-Wall -Wextra -Werror -std=c++11 -g -O2'
 	print>>out,'export SHELL=/bin/bash' #so that later stderr redirection will work
 	print>>out,'.PHONY: clean'
@@ -130,7 +160,7 @@ def cross_makefile(out):
 		return map(lambda x: '.'.join(x.split('.')[:-1])+'.o',cppfiles)
 
 	print>>out,'OBJDIR=obj'
-	print>>out,"H_FILES=*.h */*.h"
+	print>>out,"H_FILES=$(find -name \*.h)"
 	print>>out,"CXX=arm-frc-linux-gnueabi-g++"
 	print>>out,"CXXFLAGS=-Wall -Wextra -Werror -O2 -g -std=c++14 -I"+os.environ['HOME']+"/wpilib/cpp/current/include -fmessage-length=0"
 	print>>out,"LD_FLAGS=-L"+os.environ['HOME']+"/wpilib/cpp/current/lib -Wl,-rpath,/opt/GenICam_v2_3/bin/Linux_armv7-a -lwpi"

@@ -21,7 +21,7 @@ struct Front{
 	typedef Status_detail Status;
 
 	struct Input_reader{
-		Front::Input operator()(Robot_inputs)const;
+		Front::Input operator()(Robot_inputs const&)const;
 		Robot_inputs operator()(Robot_inputs,Front::Input)const;
 	};
 

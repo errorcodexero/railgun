@@ -24,10 +24,6 @@
 class Toplevel{
 	public:
 
-	#define X(A,B,C) A B;
-	TOPLEVEL_ITEMS
-	#undef X
-
 	struct Input{
 		#define X(A,B,C) A::Input B;
 		TOPLEVEL_ITEMS
@@ -35,12 +31,16 @@ class Toplevel{
 	};
 
 	class Input_reader{
-		Toplevel *parent;
+		#define X(A,B,C) A::Input_reader B;
+		TOPLEVEL_ITEMS
+		#undef X
 
 		public:
-		explicit Input_reader(Toplevel*);
-		Input operator()(Robot_inputs)const;
+		explicit Input_reader();
+		Input operator()(Robot_inputs const&)const;
 		Robot_inputs operator()(Robot_inputs,Input)const;
+
+		friend bool operator==(Input_reader const&,Input_reader const&);
 	};
 	Input_reader input_reader;
 
@@ -73,10 +73,11 @@ class Toplevel{
 	};
 
 	class Estimator{
-		Toplevel *parent;
-		
+		#define X(A,B,C) A::Estimator B;
+		TOPLEVEL_ITEMS
+		#undef X
+
 		public:
-		Estimator(Toplevel*);
 		void update(Time,Input,Output);
 		Status_detail get()const;
 		void out(std::ostream&)const;
@@ -86,38 +87,47 @@ class Toplevel{
 	Estimator estimator;
 
 	class Output_applicator{
-		Toplevel *parent;
+		#define X(A,B,C) A::Output_applicator B;
+		TOPLEVEL_ITEMS
+		#undef X
 
 		public:
-		Output_applicator(Toplevel*);
-
 		Robot_outputs operator()(Robot_outputs,Output const&)const;
-		Output operator()(Robot_outputs)const;
+		Output operator()(Robot_outputs const&)const;
 	};
 	Output_applicator output_applicator;
-
-	Toplevel();
 };
 bool operator<(Toplevel::Output const&,Toplevel::Output const&);
 bool operator==(Toplevel::Output const&,Toplevel::Output const&);
 bool operator!=(Toplevel::Output const&,Toplevel::Output const&);
 std::ostream& operator<<(std::ostream&,Toplevel::Output);
+
 std::ostream& operator<<(std::ostream&,Toplevel::Goal);
 std::ostream& operator<<(std::ostream&,Toplevel::Status_detail const&);
+
 bool operator<(Toplevel::Status const&,Toplevel::Status const&);
 bool operator==(Toplevel::Status,Toplevel::Status);
 bool operator!=(Toplevel::Status,Toplevel::Status);
 std::ostream& operator<<(std::ostream& o,Toplevel::Status);
 //Maybe<Toplevel::Status> parse_status(std::string const&);
+//
 bool operator<(Toplevel::Status_detail const&,Toplevel::Status_detail const&);
 bool operator==(Toplevel::Status_detail const&,Toplevel::Status_detail const&);
 std::set<Toplevel::Status_detail> examples(Toplevel::Status_detail*);
+
 std::set<Toplevel::Goal> examples(Toplevel::Goal*);
 std::set<Toplevel::Output> examples(Toplevel::Output*);
 std::set<Toplevel::Status> examples(Toplevel::Status*);
 std::set<Toplevel::Input> examples(Toplevel::Input*);
+
 bool operator<(Toplevel::Input const&,Toplevel::Input const&);
 bool operator==(Toplevel::Input const&,Toplevel::Input const&);
+
+bool operator!=(Toplevel::Input_reader const&,Toplevel::Input_reader const&);
+std::ostream& operator<<(std::ostream&,Toplevel::Input_reader const&);
+
+bool operator!=(Toplevel::Output_applicator const&,Toplevel::Output_applicator const&);
+std::ostream& operator<<(std::ostream&,Toplevel::Output_applicator const&);
 
 bool operator==(Toplevel::Estimator,Toplevel::Estimator);
 bool operator!=(Toplevel::Estimator,Toplevel::Estimator);

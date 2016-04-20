@@ -196,7 +196,7 @@ Collector::Output Collector::Output_applicator::operator()(Robot_outputs const& 
 	};
 }
 
-Robot_outputs Collector::Output_applicator::operator()(Robot_outputs a,Output b)const{
+Robot_outputs Collector::Output_applicator::operator()(Robot_outputs a,Output const& b)const{
 	#define X(A,B) a=B(a,b.B);
 	COLLECTOR_ITEMS(X)
 	#undef X

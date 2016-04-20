@@ -3,7 +3,7 @@
 #include "DigitalOutput.h"
 #include "DigitalInput.h"
 #include "Encoder.h"
-#include "util/util.h"
+#include "../util/util.h"
 
 using namespace std;
 

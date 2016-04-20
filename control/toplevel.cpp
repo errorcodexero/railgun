@@ -6,38 +6,49 @@
 
 using namespace std;
 
-Toplevel::Toplevel():
+/*Toplevel::Toplevel():
 	input_reader(this),
 	estimator(this),
 	output_applicator(this)
-{}
+{}*/
 
 bool operator==(Toplevel const& a,Toplevel const& b){
-	#define X(A,B,C) if(a.B!=b.B) return 0;
-	TOPLEVEL_ITEMS
+	#define X(NAME) if(a.NAME!=b.NAME) return 0;
+	X(input_reader) X(estimator) X(output_applicator)
 	#undef X
 	return 1;
 }
 
 bool operator!=(Toplevel const& a,Toplevel const& b){ return !(a==b); }
 
-Toplevel::Input_reader::Input_reader(Toplevel *p):parent(p){
-	assert(p);
+Toplevel::Input_reader::Input_reader(){
 }
 
 Robot_inputs Toplevel::Input_reader::operator()(Robot_inputs all,Input in)const{
-	#define X(A,B,C) all=parent->B.input_reader(all,in.B);
+	#define X(A,B,C) all=B(all,in.B);
 	TOPLEVEL_ITEMS
 	#undef X
 	return all;
 }
 
-Toplevel::Input Toplevel::Input_reader::operator()(Robot_inputs all)const{
+Toplevel::Input Toplevel::Input_reader::operator()(Robot_inputs const& all)const{
 	return Toplevel::Input{
-		#define X(A,B,C) parent->B.input_reader(all),
+		#define X(A,B,C) B(all),
 		TOPLEVEL_ITEMS
 		#undef X
 	};
+}
+
+ostream& operator<<(ostream& o,Toplevel::Input_reader const&){
+	return o<<"Toplevel::Input_reader";
+}
+
+bool operator==(Toplevel::Input_reader const&,Toplevel::Input_reader const&){
+	return 1;//NOT QUITE RIGHT
+}
+
+bool operator!=(Toplevel::Input_reader const& a,Toplevel::Input_reader const& b){
+	return !(a==b);
 }
 
 Toplevel::Status status(Toplevel::Status_detail const& a){
@@ -55,29 +66,34 @@ Toplevel::Status status(Toplevel::Status_detail const& a){
 
 ostream& operator<<(ostream& o,Toplevel const& a){
 	o<<"Toplevel(";
-	#define X(A,B,C) o<<a.B<<" ";
-	TOPLEVEL_ITEMS
+	#define X(NAME) o<<a.NAME<<" ";
+	X(input_reader) X(estimator) X(output_applicator)
 	#undef X
 	return o<<")";
 }
 
-Toplevel::Output_applicator::Output_applicator(Toplevel *p):parent(p){
-	assert(p);
-}
-
 Robot_outputs Toplevel::Output_applicator::operator()(Robot_outputs r,Toplevel::Output const& a)const{
-	#define X(A,B,C) r=parent->B.output_applicator(r,a.B);
+	#define X(A,B,C) r=B(r,a.B);
 	TOPLEVEL_ITEMS
 	#undef X
 	return r;
 }
 
-Toplevel::Output Toplevel::Output_applicator::operator()(Robot_outputs a)const{
+Toplevel::Output Toplevel::Output_applicator::operator()(Robot_outputs const& a)const{
 	Toplevel::Output r;
-	#define X(A,B,C) r.B=parent->B.output_applicator(a);
+	#define X(A,B,C) r.B=B(a);
 	TOPLEVEL_ITEMS
 	#undef X
 	return r;
+}
+
+bool operator!=(Toplevel::Output_applicator const&,Toplevel::Output_applicator const&){
+	//could actually do something more detailed
+	return 0;
+}
+
+ostream& operator<<(ostream& o,Toplevel::Output_applicator const&){
+	return o<<"Toplevel::Output_applicator";
 }
 
 Toplevel::Output::Output():
@@ -185,19 +201,15 @@ string remove_till_colon(string s){
 	return Maybe<Status>(r);
 }*/
 
-Toplevel::Estimator::Estimator(Toplevel *p):parent(p){
-	assert(p);
-}
-
 void Toplevel::Estimator::update(Time time,Input in,Output out){
-	#define X(A,B,C) parent->B.estimator.update(time,in.B,out.B);
+	#define X(A,B,C) B.update(time,in.B,out.B);
 	TOPLEVEL_ITEMS
 	#undef X
 }
 
 Toplevel::Status_detail Toplevel::Estimator::get()const{
 	return Status_detail{
-		#define X(A,B,C) parent->B.estimator.get(),
+		#define X(A,B,C) B.get(),
 		TOPLEVEL_ITEMS
 		#undef X
 	};
@@ -212,7 +224,7 @@ void Toplevel::Estimator::out(ostream& o)const{
 }
 
 bool operator==(Toplevel::Estimator a,Toplevel::Estimator b){
-	#define X(A,B,C) if(a.parent->B.estimator!=b.parent->B.estimator) return 0;
+	#define X(A,B,C) if(a.B!=b.B) return 0;
 	TOPLEVEL_ITEMS
 	#undef X
 	return 1;
@@ -544,13 +556,19 @@ int main(){
 
 	/*auto a=random_inputs();
 	auto b=random_inputs();*/
-	auto d=inputs(Toplevel{});
+	Toplevel topLevel;
+	auto d=inputs(topLevel);
 	cout<<d<<"\n";
 
 	cout<<"Inputs:\n";
-	Toplevel t;
+
+	//Toplevel t;
+	#define X(A,B,C) A B;
+	TOPLEVEL_ITEMS
+	#undef X
+	
 	map<string,set<Input>> input_map;
-	#define X(A,B,C) cout<<""#A<<inputs(t.B)<<"\n"; input_map[""#A]=inputs(t.B);
+	#define X(A,B,C) cout<<""#A<<inputs(B)<<"\n"; input_map[""#A]=inputs(B);
 	TOPLEVEL_ITEMS
 	#undef X
 
@@ -577,11 +595,11 @@ int main(){
 	}
 
 	cout<<"Outputs:\n";
-	auto f=outputs(Toplevel{});
+	auto f=outputs(topLevel);
 	cout<<f<<"\n";
 
 	map<string,set<Output>> output_map;
-	#define X(A,B,C) cout<<""#A<<outputs(t.B)<<"\n"; output_map[""#A]=outputs(t.B);
+	#define X(A,B,C) cout<<""#A<<outputs(B)<<"\n"; output_map[""#A]=outputs(B);
 	TOPLEVEL_ITEMS
 	#undef X
 

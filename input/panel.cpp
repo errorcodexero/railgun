@@ -184,11 +184,10 @@ Panel interpret(Joystick_data d){
 		else AXIS_RANGE(winch, STOP, DOWN, 1.5, p.winch, Panel::Winch::DOWN)
 	}
 	{
-		float shooter_mode = d.axis[7];
-		static const float OPEN=-1, CLOSED_MANUAL=0, CLOSED_AUTO=1;
-		p.shooter_mode=Panel::Shooter_mode::OPEN;
-		AXIS_RANGE(shooter_mode, OPEN, CLOSED_MANUAL, CLOSED_AUTO, p.shooter_mode, Panel::Shooter_mode::CLOSED_MANUAL)
-		else AXIS_RANGE(shooter_mode, CLOSED_MANUAL, CLOSED_AUTO, 1.5, p.shooter_mode, Panel::Shooter_mode::CLOSED_AUTO)
+		//A three position switch connected to two digital inputs
+		p.shooter_mode = Panel::Shooter_mode::CLOSED_MANUAL;
+		if (d.button[5]) p.shooter_mode = Panel::Shooter_mode::CLOSED_AUTO;
+		if (d.button[6]) p.shooter_mode = Panel::Shooter_mode::OPEN;
 	}
 	p.speed_dial = d.axis[1];//axis_to_percent(d.axis[1]);
 	#undef AXIS_RANGE

@@ -19,13 +19,13 @@ struct Winch{
 	typedef Status_detail Status;
 	
 	struct Input_reader{
-		Input operator()(Robot_inputs)const;
+		Input operator()(Robot_inputs const&)const;
 		Robot_inputs operator()(Robot_inputs,Input)const;
 	};
 
 	struct Output_applicator{
 		Robot_outputs operator()(Robot_outputs,Output)const;
-		Output operator()(Robot_outputs)const;
+		Output operator()(Robot_outputs const&)const;
 	};
 
 	struct Estimator{

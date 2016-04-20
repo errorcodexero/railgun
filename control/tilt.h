@@ -53,7 +53,7 @@ struct Tilt{
 	using Input=Status_detail;
 
 	struct Input_reader{
-		Input operator()(Robot_inputs)const;
+		Input operator()(Robot_inputs const&)const;
 		Robot_inputs operator()(Robot_inputs,Input)const;
 	};
 	
