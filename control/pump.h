@@ -26,6 +26,7 @@ struct Pump{
 	struct Estimator{
 		Pump::Status status;
 
+		Estimator();
 		void update(Time,Pump::Input,Pump::Output);
 		Status_detail get()const;
 	};
