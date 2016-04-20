@@ -556,7 +556,8 @@ int main(){
 
 	/*auto a=random_inputs();
 	auto b=random_inputs();*/
-	auto d=inputs(Toplevel{});
+	Toplevel topLevel;
+	auto d=inputs(topLevel);
 	cout<<d<<"\n";
 
 	cout<<"Inputs:\n";
@@ -594,7 +595,7 @@ int main(){
 	}
 
 	cout<<"Outputs:\n";
-	auto f=outputs(Toplevel{});
+	auto f=outputs(topLevel);
 	cout<<f<<"\n";
 
 	map<string,set<Output>> output_map;
