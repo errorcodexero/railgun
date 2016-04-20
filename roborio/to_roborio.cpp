@@ -579,19 +579,21 @@ class Robot_adapter: public SampleRobot{
 	
 	void Autonomous(void)
 	{
-		while(IsAutonomous()){
+		while(IsAutonomous() && IsEnabled()){
 			//might need a loop here
 			Robot_mode mode;
 			mode.autonomous=1;
 			mode.enabled=IsEnabled();
 			u.run(mode);
+			
+			Wait(0.005);
 		}
 	}
 
 	void OperatorControl(void)
 	{
 		//should see what happens when we get rid of this loop.  
-		while (IsOperatorControl())
+		while (IsOperatorControl() && IsEnabled())
 		{
 			Robot_mode r;
 			r.enabled=IsEnabled();
@@ -604,10 +606,12 @@ class Robot_adapter: public SampleRobot{
 	
 	//Runs during test mode
 	void Test(){
-		while(IsTest()){
+		while(IsTest() && IsEnabled()){
 			Robot_mode r;
 			r.enabled=IsEnabled();
 			u.run(r);
+			
+			Wait(0.005);
 		}
 	}
 	

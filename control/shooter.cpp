@@ -5,8 +5,8 @@
 #define SHOOTER_WHEEL_LOC 0
 #define BEAM_SENSOR_DIO 5
 const double GROUND_RPM=-4000.0;
-const double CLIMB_RPM=-5800.0;//This is the one we're actually using
-const double FREE_SPIN_RPM=-1000.0;
+const double CLIMB_RPM=-6000.0;//This is the one we're actually using
+const double FREE_SPIN_RPM=-1000.0;//7300
 
 Shooter::Status_detail::Status_detail():speed(0),beam(0){}
 Shooter::Status_detail::Status_detail(double s,bool b):speed(s),beam(b){}

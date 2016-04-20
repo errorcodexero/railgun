@@ -7,8 +7,10 @@
 
 using namespace std;
 
-PID_values::PID_values():p(.5),i(0.002),d(0.25),f(0){}//from testing with shooter 2016
-
+PID_values::PID_values():p(.5),i(0.002),d(.25),f(0){}//from testing with shooter 2016
+//.5, .002 , .25 , 0 //Logan's
+//.5 , -.005 , 0, 0 //Marshall's
+//1 , .001 , 1 , 0 //Eric's
 Digital_out::Digital_out():type_(Type::INPUT){}
 
 Digital_out::Type Digital_out::type()const{ return type_; }
