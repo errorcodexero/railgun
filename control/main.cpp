@@ -106,7 +106,7 @@ Tilt_presets read_tilt_presets(){
 //TODO: at some point, might want to make this whatever is right to start autonomous mode.
 Main::Main():
 	mode(Mode::TELEOP),
-	Vision("10.14.24.11","6425",1,'\n'),
+	Vision("10.14.25.11","6425",1,'\n'),
 	autonomous_start(0),
 	joy_collector_pos(Joy_collector_pos::STOP),
 	collector_mode(Collector_mode::NOTHING),
@@ -478,7 +478,7 @@ Toplevel::Goal Main::teleop(
 		return Winch::Goal::STOP;
 	}();
 
-	//if(SLOW_PRINT) cout<<" "<<shoot_step<<"  "<<toplevel_status.shooter<<"   "<<goals.shooter<<"\n";
+	//if(SfLOW_PRINT) cout<<" "<<shoot_step<<"  "<<toplevel_status.shooter<<"   "<<goals.shooter<<"\n";
 
 	return goals;
 }
@@ -1095,7 +1095,7 @@ void test_next_mode(){
 		MODES
 		#undef X
 	};
-	Client Vision("10.14.24.11","6425",1,'\n');
+	Client Vision("10.14.25.11","6425",1,'\n');
 	for(auto mode:MODE_LIST){
 		Toplevel::Status_detail st=example((Toplevel::Status_detail*)nullptr);
 		bool toplready = true;

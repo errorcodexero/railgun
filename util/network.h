@@ -13,6 +13,9 @@ public:
 
 	char* szGetData();
 
+	bool bIsConnected;
+	void Connect()
+
 	//bool bNewIP(const char* _szIP);
 private:
 
