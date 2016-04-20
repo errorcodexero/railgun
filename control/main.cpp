@@ -172,6 +172,7 @@ void Main::shooter_protocol(Shooter::Status_detail const& shooter_status, bool c
 		case Shoot_steps::SPUN_UP:
 			goals.collector.front = Front::Goal::OFF;
 			goals.shooter.type = shoot_goal;
+			if(!ready(shooter_status,goals.shooter)) shoot_step = Shoot_steps::SPEED_UP;
 			if(shoot) shoot_step = Shoot_steps::SHOOT;
 			break;
 		case Shoot_steps::SHOOT:
@@ -382,10 +383,12 @@ Toplevel::Goal Main::teleop(
 		else goals.shooter.mode=Shooter::Goal::Mode::VOLTAGE;
 	}
 	if (panel.in_use) {//Panel manual modes
-		if(panel.shooter_mode==Panel::Shooter_mode::CLOSED_AUTO) goals.shooter.mode=Shooter::Goal::Mode::SPEED_AUTO;
-		else if(panel.shooter_mode==Panel::Shooter_mode::CLOSED_MANUAL) {
+		if(panel.shooter_mode==Panel::Shooter_mode::CLOSED_AUTO) {
+			goals.shooter.mode=Shooter::Goal::Mode::SPEED_AUTO;
+			goals.shooter.percentage = 1.0;
+		} else if(panel.shooter_mode==Panel::Shooter_mode::CLOSED_MANUAL) {
 			goals.shooter.mode=Shooter::Goal::Mode::SPEED_MANUAL;
-			goals.shooter.percentage = panel.speed_dial * 20;
+			goals.shooter.percentage = 1 + ((panel.speed_dial * 20) * .01);
 		} else if(panel.shooter_mode==Panel::Shooter_mode::OPEN) {
 			goals.shooter.mode=Shooter::Goal::Mode::VOLTAGE;
 			goals.shooter.percentage = (panel.speed_dial + 1) / 2;
@@ -462,7 +465,7 @@ Toplevel::Goal Main::teleop(
 		}
 		return Winch::Goal::STOP;
 	}();
-	//if(SLOW_PRINT) cout<<" "<<shoot_step<<"  "<<toplevel_status.shooter<<"   "<<goals.shooter<<"\n";
+	if(SLOW_PRINT) cout<<" "<<shoot_step<<"  "<<toplevel_status.shooter<<"   "<<goals.shooter<<"\n";
 	return goals;
 }
 

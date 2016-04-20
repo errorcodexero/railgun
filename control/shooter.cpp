@@ -15,7 +15,7 @@ Shooter::Estimator::Estimator():last({}),speed_up_timer({}),last_output({0,0,1.0
 
 Shooter::Goal::Goal():mode(Shooter::Goal::Mode::SPEED_AUTO),type(Shooter::Goal::Type::STOP),percentage(1.0){}
 Shooter::Goal::Goal(Shooter::Goal::Type t):mode(Shooter::Goal::Mode::SPEED_AUTO),type(t),percentage(1.0){}
-Shooter::Goal::Goal(Shooter::Goal::Mode m,Shooter::Goal::Type t,float):mode(m),type(t),percentage(1.0){}
+Shooter::Goal::Goal(Shooter::Goal::Mode m,Shooter::Goal::Type t,double p):mode(m),type(t),percentage(p){}
 
 Shooter::Output::Output():speed(0),voltage(0),percentage(1.00),mode(Talon_srx_output::Mode::VOLTAGE){}
 Shooter::Output::Output(double s,double v,double p,Talon_srx_output::Mode m):speed(s),voltage(v),percentage(p),mode(m){}
@@ -150,8 +150,8 @@ void Shooter::Estimator::update(Time time,Shooter::Input in,Shooter::Output outp
 			last.speed=[&]{
 				if(output.voltage==0.0) return 0.0;
 				if(output.voltage==-.5) return GROUND_RPM;
-				if(output.voltage==-1.0) return CLIMB_RPM;
-				if(output.voltage==(1.0 * output.percentage)) return FREE_SPIN_RPM;
+				if(output.voltage==(-1.0*output.percentage)) return CLIMB_RPM;
+				if(output.voltage==1.0) return FREE_SPIN_RPM;
 				assert(0);
 			}();
 		}
@@ -202,10 +202,10 @@ std::set<Shooter::Status_detail> examples(Shooter::Status_detail*){
 
 std::set<Shooter::Output> examples(Shooter::Output*){
 	std::set<Shooter::Output> s;
-	#define X(POWER) s.insert({0,POWER,1.00,Talon_srx_output::Mode::VOLTAGE});
+	#define X(POWER) s.insert({0,POWER,1.0,Talon_srx_output::Mode::VOLTAGE});
 	X(0.0) X(-.5) X(-1.0) X(1.0)
 	#undef X
-	#define X(RPM) s.insert({RPM,0,1.00,Talon_srx_output::Mode::SPEED});
+	#define X(RPM) s.insert({RPM,0,1.0,Talon_srx_output::Mode::SPEED});
 	X(GROUND_RPM) X(0.0) X(CLIMB_RPM) X(FREE_SPIN_RPM)
 	#undef X
 	return s;
@@ -231,7 +231,7 @@ Shooter::Output control(Shooter::Status_detail, Shooter::Goal goal){
 				switch(goal.type){
 					case Shooter::Goal::Type::STOP: return 0.0;
 					case Shooter::Goal::Type::GROUND_SHOT: return GROUND_RPM;
-					case Shooter::Goal::Type::CLIMB_SHOT: return CLIMB_RPM;
+					case Shooter::Goal::Type::CLIMB_SHOT: return CLIMB_RPM * goal.percentage;
 					case Shooter::Goal::Type::X: return FREE_SPIN_RPM;
 					default: assert(0);
 				}
@@ -262,11 +262,13 @@ bool approx_speed(double curr, double target) {
 	return (std::fabs(curr - target) < std::fabs(target)*PERCENT_TOLERANCE);
 }
 
-bool ready(Shooter::Status status,Shooter::Goal goal){	
+bool ready(Shooter::Status status,Shooter::Goal goal){
+	double rpm_percentage = 1.0;
+	if(goal.mode==Shooter::Goal::Mode::SPEED_MANUAL) rpm_percentage = goal.percentage;
 	switch(goal.type){
 		case Shooter::Goal::Type::STOP: return approx_speed(status.speed, 0);
 		case Shooter::Goal::Type::GROUND_SHOT: return approx_speed(status.speed, GROUND_RPM);
-		case Shooter::Goal::Type::CLIMB_SHOT: return approx_speed(status.speed, CLIMB_RPM);
+		case Shooter::Goal::Type::CLIMB_SHOT: return approx_speed(status.speed, CLIMB_RPM*rpm_percentage);
 		case Shooter::Goal::Type::X: return true;
 		default: assert(0);
 	}
@@ -281,4 +283,3 @@ int main(){
 }
 
 #endif
-
