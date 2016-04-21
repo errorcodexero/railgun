@@ -10,10 +10,10 @@ HIGH PRIORITY for Worlds:
 	- High goal shooter code
 		- Make shooter shoot when button is pressed regardless of speeds
 		- Learn shooter speeds
-		- Consider changing the current assumption that the ball's left after 1.5sec to when the ball sensor isn't seeing it
 		- Stop goal cuts power
-		- Get printing talon_srx_controls to work
 		- Make high goal rpm more consistent (and change pid values to be ones we actually want)
+		- Consider changing the current assumption that the ball's left after 1.5sec to when the ball sensor isn't seeing it
+		- Get printing talon_srx_controls to work
 	- Autonomous 
 		- Sensors
 		- Auto_nav_run results in seg fault
