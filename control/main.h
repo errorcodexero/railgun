@@ -78,7 +78,7 @@ struct Main{
 	};
 	Cheval_steps cheval_step;
 		
-	#define SHOOT_STEPS X(CLEAR_BALL) X(SPEED_UP) X(SPUN_UP) X(SHOOT)
+	#define SHOOT_STEPS X(CLEAR_BALL) X(SPEED_UP) X(SHOOT)
 	enum class Shoot_steps{
 		#define X(NAME) NAME,
 		SHOOT_STEPS

@@ -158,7 +158,7 @@ void Main::shooter_protocol(Shooter::Status_detail const& shooter_status, bool c
 	const Tilt::Goal top=Tilt::Goal::go_to_angle(make_tolerances(tilt_presets.top));
 	goals.collector.sides = Sides::Goal::OFF;
 	goals.collector.tilt = top;
-	static const Shooter::Goal::Type shoot_goal = Shooter::Goal::Type::CLIMB_SHOT;
+	static const Shooter::Goal::Type shoot_goal = Shooter::Goal::Type::GROUND_SHOT;
 	switch(shoot_step){
 		case Shoot_steps::CLEAR_BALL:
 			if(false/*!shooter_status.beam*/) goals.collector.front = Front::Goal::CLEAR_BALL;
@@ -167,13 +167,8 @@ void Main::shooter_protocol(Shooter::Status_detail const& shooter_status, bool c
 		case Shoot_steps::SPEED_UP:
 			goals.collector.front = Front::Goal::OFF;
 			goals.shooter.type = shoot_goal;
-			if(ready(shooter_status,goals.shooter)) shoot_step = Shoot_steps::SPUN_UP;
-			break;
-		case Shoot_steps::SPUN_UP:
-			goals.collector.front = Front::Goal::OFF;
-			goals.shooter.type = shoot_goal;
-			if(!ready(shooter_status,goals.shooter)) shoot_step = Shoot_steps::SPEED_UP;
-			if(shoot) shoot_step = Shoot_steps::SHOOT;
+			if(SLOW_PRINT) cout<<"\nshooter_status: "<<shooter_status<<" goals.shooter:"<<goals.shooter<<"\n";
+			if(shoot && ready(shooter_status,goals.shooter)) shoot_step = Shoot_steps::SHOOT;
 			break;
 		case Shoot_steps::SHOOT:
 			goals.collector.front = Front::Goal::IN;
@@ -244,6 +239,19 @@ Toplevel::Goal Main::teleop(
 	bool learning=get_learning();
 	
 	//if(SLOW_PRINT) cout<<tilt_presets<<"\n";
+	
+	if (panel.in_use) {//Collector modes and percentages
+		if(panel.shooter_mode==Panel::Shooter_mode::CLOSED_AUTO) {
+			goals.shooter.mode=Shooter::Goal::Mode::SPEED_AUTO;
+			goals.shooter.percentage = 1.0;
+		} else if(panel.shooter_mode==Panel::Shooter_mode::CLOSED_MANUAL) {
+			goals.shooter.mode=Shooter::Goal::Mode::SPEED_MANUAL;
+			goals.shooter.percentage = 1 + ((panel.speed_dial * 20) * .01);
+		} else if(panel.shooter_mode==Panel::Shooter_mode::OPEN) {
+			goals.shooter.mode=Shooter::Goal::Mode::VOLTAGE;
+			goals.shooter.percentage = (panel.speed_dial + 1) / 2;
+		}
+	}
 	
 	if((!panel.in_use && controller_auto.get()) || (panel.in_use && (panel.tilt_auto || panel.front_auto || panel.sides_auto))) {//Automatic collector modes
 		bool joy_learn=gunner_joystick.button[Gamepad_button::B];
@@ -383,17 +391,6 @@ Toplevel::Goal Main::teleop(
 		else goals.shooter.mode=Shooter::Goal::Mode::VOLTAGE;
 	}
 	if (panel.in_use) {//Panel manual modes
-		if(panel.shooter_mode==Panel::Shooter_mode::CLOSED_AUTO) {
-			goals.shooter.mode=Shooter::Goal::Mode::SPEED_AUTO;
-			goals.shooter.percentage = 1.0;
-		} else if(panel.shooter_mode==Panel::Shooter_mode::CLOSED_MANUAL) {
-			goals.shooter.mode=Shooter::Goal::Mode::SPEED_MANUAL;
-			goals.shooter.percentage = 1 + ((panel.speed_dial * 20) * .01);
-		} else if(panel.shooter_mode==Panel::Shooter_mode::OPEN) {
-			goals.shooter.mode=Shooter::Goal::Mode::VOLTAGE;
-			goals.shooter.percentage = (panel.speed_dial + 1) / 2;
-		}
-		//if (SLOW_PRINT) cout<<panel.shooter_mode<<"       "<<goals.shooter.mode<<endl;
 		learn.update(panel.learn);
 		if(learn.get()){//learn
 			double learn_this=toplevel_status.collector.tilt.angle;
@@ -636,7 +633,7 @@ Robot_outputs Main::operator()(Robot_inputs in,ostream&){
 	
 	Toplevel::Status_detail toplevel_status=toplevel.estimator.get();
 		
-	//if(SLOW_PRINT) cout<<"panel: "<<panel<<"\n";	
+	if(SLOW_PRINT) cout<<"panel: "<<panel<<"\n";	
 		
 	bool autonomous_start_now=autonomous_start(in.robot_mode.autonomous && in.robot_mode.enabled);
 	since_auto_start.update(in.now,autonomous_start_now);
@@ -746,7 +743,7 @@ Robot_outputs Main::operator()(Robot_inputs in,ostream&){
 	r=force(r);
 	auto input=toplevel.input_reader(in);
 
-	r.panel_output[Panel_outputs::SPUN_UP] = Panel_output(static_cast<int>(Panel_output_ports::SPUN_UP), (shoot_step==Shoot_steps::SPUN_UP && collector_mode==Collector_mode::SHOOT_HIGH)); 
+	r.panel_output[Panel_outputs::SPUN_UP] = Panel_output(static_cast<int>(Panel_output_ports::SPUN_UP), (collector_mode==Collector_mode::SHOOT_HIGH && ready(toplevel_status.shooter,goals.shooter))); 
 
 	/*auto talonPower = Talon_srx_output();
 	talonPower.power_level = .5;

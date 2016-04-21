@@ -180,7 +180,7 @@ Panel interpret(Joystick_data d){
 		if (d.button[5]) p.shooter_mode = Panel::Shooter_mode::CLOSED_AUTO;
 		if (d.button[6]) p.shooter_mode = Panel::Shooter_mode::OPEN;
 	}
-	p.speed_dial = d.axis[1];//axis_to_percent(d.axis[1]);
+	p.speed_dial = -d.axis[1];//axis_to_percent(d.axis[1]);
 	#undef AXIS_RANGE
 	return p;
 }
