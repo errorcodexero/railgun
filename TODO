@@ -6,13 +6,10 @@ AUTO MODE LIST:
 
 
 HIGH PRIORITY for Worlds:
-	- Debug netconsole.py not printing anything sometimes
-	- Prevent print out to netconsole when robot is not receiving packets from the driverstation
-	- Re-label OI
 	- Maybe prevent climber release when collector is at top
 	- High goal shooter code
-		- Make shooter shoot in open loop mode at any speed
-		- Make OI dial +/- 20% speed
+		- Make shooter shoot when button is pressed regardless of speeds
+		- Learn shooter speeds
 		- Consider changing the current assumption that the ball's left after 1.5sec to when the ball sensor isn't seeing it
 		- Stop goal cuts power
 		- Get printing talon_srx_controls to work
