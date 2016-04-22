@@ -479,7 +479,7 @@ pair<float,float> driveatwall(const Robot_inputs in){
 	return motorvoltmods;
 }
 
-Main::Mode next_mode(Main::Mode m,bool autonomous,bool autonomous_start,Toplevel::Status_detail& /*status*/,Time since_switch, Panel panel,bool const&toplready,Robot_inputs const& in){
+Main::Mode next_mode(Main::Mode m,bool autonomous,bool autonomous_start,Toplevel::Status_detail& /*status*/,Time since_switch, Panel panel,bool const&toplready){
 	switch(m){
 		case Main::Mode::TELEOP:	
 			if(autonomous_start){
@@ -561,40 +561,6 @@ Main::Mode next_mode(Main::Mode m,bool autonomous,bool autonomous_start,Toplevel
 			if(since_switch > 1.5 || !autonomous) return Main::Mode::TELEOP;
 			return Main::Mode::AUTO_CHEVALSTOW;
 
-		case Main::Mode::AUTO_SCORELOW:
-			if(!autonomous) return Main::Mode::TELEOP;
-			if(since_switch > 4.5) return Main::Mode::AUTO_SCOREBAR;
-			return Main::Mode::AUTO_SCORELOW;
-		case Main::Mode::AUTO_SCOREBAR:
-			if(since_switch > 2 || !autonomous) return Main::Mode::TELEOP;
-			return Main::Mode::AUTO_SCOREBAR;
-		case Main::Mode::AUTO_SCOREDRIVE:
-			{
-				bool first_run=true;
-				int ioencoder;
-				int curencoder;
-
-				first_run=false;
-				curencoder = in.digital_io.encoder[0];
-
-				if(!autonomous) return Main::Mode::TELEOP;
-
-				if(first_run==false){
-					ioencoder=0;
-				} else {
-					ioencoder = curencoder;
-				}
-			
-				if((in.digital_io.encoder[0]) > ((curencoder - ioencoder) == 1000)) return Main::Mode::AUTO_SCOREPREP;
-
-					return Main::Mode::AUTO_SCOREDRIVE;
-			}
-		/*default:
-			if(!autonomous) return Main::Mode::TELEOP;
-			return Main::Mode::AUTO_NULL;*/
-		case Main::Mode::AUTO_SCOREPREP:
-			if(!autonomous) return Main::Mode::TELEOP;
-			return Main::Mode::AUTO_SCOREPREP;
 		default: assert(0);
 	}
 	return m;	
@@ -721,19 +687,12 @@ Robot_outputs Main::operator()(Robot_inputs in,ostream&){
 			goals.drive.left=-.5;
 			goals.collector.tilt=top;
 			break;
-		case Mode::AUTO_SCORELOW:
-			break;
-		case Mode::AUTO_SCOREBAR:
-			break;
-		case Mode::AUTO_SCOREDRIVE:
-			break;
-		case Mode::AUTO_SCOREPREP:	
-			break;
+		
 
 		//shooter_protical call in here takes in robot inputs,toplevel goal,toplevel status detail
 		default: assert(0);
 	}
-	auto next=next_mode(mode,in.robot_mode.autonomous,autonomous_start_now,toplevel_status,since_switch.elapsed(),panel,topready,in);
+	auto next=next_mode(mode,in.robot_mode.autonomous,autonomous_start_now,toplevel_status,since_switch.elapsed(),panel,topready);
 	since_switch.update(in.now,mode!=next);
 	mode=next;
 		
@@ -929,10 +888,9 @@ void test_next_mode(){
 	for(auto mode:MODE_LIST){
 		Toplevel::Status_detail st=example((Toplevel::Status_detail*)nullptr);
 		bool toplready = true;
-		Robot_inputs in;
 		
 		
-		auto next=next_mode(mode,0,0,st,0,Panel{},toplready,in);
+		auto next=next_mode(mode,0,0,st,0,Panel{},toplready);
 		cout<<"Testing mode "<<mode<<" goes to "<<next<<"\n";
 		assert(next==Main::Mode::TELEOP);
 	}
