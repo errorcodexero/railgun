@@ -73,16 +73,17 @@ Client::Client(const char* _szIP, const char* _szPort, int _iSockType, char _szD
 
 	//Set up necessary local variables
 	
-	struct addrinfo aiHints, *aiServInfo;
+	//struct addrinfo aiHints, *aiServInfo;
 	
 	szPORT = _szPort;
 	szIP = _szIP;
 	iSockType = _iSockType;
 	szDelimiter = _szDelimiter;
 	szBuf[0] = '\0';
+	bIsConnected = false;
 	
-	int iRV = 0;
-	char szS[INET6_ADDRSTRLEN];
+	//int iRV = 0;
+	//char szS[INET6_ADDRSTRLEN];
 
 	/*
 	memset(&aiHints, 0, sizeof aiHints);
@@ -128,48 +129,50 @@ Client::Client(const char* _szIP, const char* _szPort, int _iSockType, char _szD
 
 }
 
-Client::bConnect() {
+void Client::Connect() {
 
 	if(iSockfd == -1)
 		bIsConnected = false;
 
 	if(!bIsConnected) {
 
-	int iRV = 0;
-	char szS[INET6_ADDRSTRLEN];
+		int iRV = 0;
+		char szS[INET6_ADDRSTRLEN];
 
-	memset(&aiHints, 0, sizeof aiHints);
-	aiHints.ai_family = AF_UNSPEC;
-	aiHints.ai_socktype = iSockType;
+		struct addrinfo aiHints, *aiServInfo;
 
-	if ((iRV = getaddrinfo(szIP, szPORT, &aiHints, &aiServInfo)) != 0) {
-		fprintf(stderr, "getAddrInfo: %s\n", gai_strerror(iRV));
+		memset(&aiHints, 0, sizeof aiHints);
+		aiHints.ai_family = AF_UNSPEC;
+		aiHints.ai_socktype = iSockType;
+
+		if ((iRV = getaddrinfo(szIP, szPORT, &aiHints, &aiServInfo)) != 0) {
+			fprintf(stderr, "getAddrInfo: %s\n", gai_strerror(iRV));
 				//exit(1);
-			}
-
-	for(aiP = aiServInfo; aiP != NULL; aiP = aiP->ai_next) {
-		if ((iSockfd = socket(aiP->ai_family, aiP->ai_socktype,
-				aiP->ai_protocol)) == -1) {
-			perror("client: socket");
-			continue;
 		}
-		if (iSockType == SOCK_STREAM) {
-			if (connect(iSockfd, aiP->ai_addr, aiP->ai_addrlen) == -1) {
-				close(iSockfd);
-				perror("client: connect");
+
+		for(aiP = aiServInfo; aiP != NULL; aiP = aiP->ai_next) {
+			if ((iSockfd = socket(aiP->ai_family, aiP->ai_socktype,
+					aiP->ai_protocol)) == -1) {
+				perror("client: socket");
 				continue;
 			}
-		} else if (iSockType == SOCK_DGRAM) {
+			if (iSockType == SOCK_STREAM) {
+				if (connect(iSockfd, aiP->ai_addr, aiP->ai_addrlen) == -1) {
+					close(iSockfd);
+					perror("client: connect");
+					continue;
+				}
+			} else if (iSockType == SOCK_DGRAM) {
 			//Doesn't need a special connect statement
-		} else {
+			} else {
 			//exitWithError("Not Valid Socket Type, or Socket Type Not Yet Implemented",6);
+			}
+			break;
 		}
-		break;
-	}
 
-	if (aiP == NULL) {
-		fprintf(stderr, "client: failed to connect\n");
-		exit(2);
+		if (aiP == NULL) {
+			fprintf(stderr, "client: failed to connect\n");
+			//exit(2);
 	}
 
 	inet_ntop(aiP->ai_family, getInAddr((struct sockaddr *)aiP->ai_addr),
@@ -178,7 +181,7 @@ Client::bConnect() {
 	printf("client: connecting to %s\n", szS);
 
 	freeaddrinfo(aiServInfo);
-	bIsConnected == true;
+	bIsConnected = true;
 	}
 
 }

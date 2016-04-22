@@ -116,6 +116,10 @@ Main::Main():
 	myfile2.open(NAVLOG2);
 	myfile2 << "test start" << endl;
 	tilt_presets=read_tilt_presets();
+	Vision.Connect();
+	while (!Vision.bIsConnected) {
+		Vision.Connect();
+	}
 }
 
 
