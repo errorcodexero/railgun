@@ -117,9 +117,9 @@ Main::Main():
 
 
 double set_drive_speed(double axis,double boost,double slow=0){
-	static const float MAX_SPEED=1;//Change this value to change the max speed the robot will achieve with full boost (cannot be larger than 1.0)
-	static const float DEFAULT_SPEED=.4;//Change this value to change the default speed
-	static const float SLOW_BY=.5;//Change this value to change the percentage of the default speed the slow button slows
+	static const float MAX_SPEED=1;//Change this value to change the max power the robot will achieve with full boost (cannot be larger than 1.0)
+	static const float DEFAULT_SPEED=.4;//Change this value to change the default power
+	static const float SLOW_BY=.5;//Change this value to change the percentage of the default power the slow button slows
 	return (pow(axis,3)*((DEFAULT_SPEED+(MAX_SPEED-DEFAULT_SPEED)*boost)-((DEFAULT_SPEED*SLOW_BY)*slow)));
 }
 

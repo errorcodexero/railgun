@@ -84,6 +84,6 @@ bool operator!=(Drivebase::Estimator const&,Drivebase::Estimator const&);
 bool operator!=(Drivebase const&,Drivebase const&);
 std::ostream& operator<<(std::ostream&,Drivebase const&);
 
-float range(const Robot_inputs);
+float range(const Robot_inputs); //To be used for wall following NOT DONE 
 
 #endif
