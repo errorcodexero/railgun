@@ -1,6 +1,8 @@
 #ifndef _NETWORK_H_
 #define _NETWORK_H_
 
+#include <stdio.h>
+
 void *getInAddr(struct sockaddr *sa);
 
 class Client {
@@ -12,9 +14,7 @@ public:
 	bool bSendTo(const char* _szBuf); //UDP
 
 	char* szGetData();
-
-	bool bIsConnected;
-	void Connect()
+	void Connect();
 
 	//bool bNewIP(const char* _szIP);
 private:
