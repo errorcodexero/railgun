@@ -7,25 +7,30 @@
 #include "../util/util.h"
 #include "../util/countdown_timer.h"
 
+struct Shooter_constants{
+	PID_values pid;
+	float ground,climbed;
+
+	Shooter_constants();
+};
+bool operator<(Shooter_constants const&,Shooter_constants const&);
+bool operator==(Shooter_constants const&,Shooter_constants const&);
+std::ostream& operator<<(std::ostream&,Shooter_constants const&);
+
 struct Shooter{
-	struct Goal{	
-		#define SHOOTER_MODES X(VOLTAGE) X(SPEED_MANUAL) X(SPEED_AUTO)
+	struct Goal{
+		PID_values constants;
+
+		#define SHOOTER_MODES X(VOLTAGE) X(SPEED)
 		enum class Mode{
 			#define X(name) name,
 			SHOOTER_MODES
 			#undef X
 		};
 		Mode mode;
-		#define SHOOTER_TYPES X(STOP) X(GROUND_SHOT) X(CLIMB_SHOT) X(X)
-		enum class Type{
-			#define X(name) name,
-			SHOOTER_TYPES
-			#undef X
-		};
-		Type type;		
-		double percentage;//varies goal by a percentage
+		double value;//0-1 for voltage mode, RPM for speed mode
 		Goal();
-		Goal(Shooter::Goal::Mode,Shooter::Goal::Type,double);
+		Goal(PID_values,Shooter::Goal::Mode,double);
 	};
 	
 	struct Status_detail{
@@ -50,6 +55,7 @@ struct Shooter{
 	};
 
 	struct Output{
+		PID_values constants;
 		double speed;//rpm
 		double voltage;
 		Talon_srx_output::Mode mode;

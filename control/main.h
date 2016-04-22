@@ -88,9 +88,11 @@ struct Main{
 
 	Posedge_toggle controller_closed_loop;
 	
+	Posedge_trigger learn_press;
 	Posedge_toggle learn;
 
 	Tilt_presets tilt_presets;
+	Shooter_constants shooter_constants;
 	Log log;
 
 	void shooter_protocol(Shooter::Status_detail const&,bool const&,Time const&,Toplevel::Goal& goals,bool);

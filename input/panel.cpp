@@ -28,6 +28,7 @@ Panel::Panel():
 	winch(Winch::STOP),
 	shooter_mode(Shooter_mode::CLOSED_AUTO),
 	auto_mode(Auto_mode::NOTHING),
+	auto_switch(0),
 	speed_dial(0)
 {}
 
@@ -79,6 +80,7 @@ ostream& operator<<(ostream& o,Panel p){
 	X(lock_climber) X(tilt_auto) X(front_auto) X(sides_auto) //2-pos switches
 	X(collector_pos) X(front) X(sides) X(winch) X(shooter_mode) //3-pos switches
 	X(auto_mode) //10-pos switches
+	X(auto_switch)
 	X(speed_dial) //Dials
 	#undef X
 	return o<<")";
@@ -125,7 +127,8 @@ Panel interpret(Joystick_data d){
 	}
 	{
 		Volt auto_mode=d.axis[0];
-		p.auto_mode=auto_mode_convert(interpret_10_turn_pot(auto_mode));
+		p.auto_switch=interpret_10_turn_pot(auto_mode);
+		p.auto_mode=auto_mode_convert(p.auto_switch);
 	}
 	p.lock_climber = d.button[0];
 	p.tilt_auto = d.button[1];

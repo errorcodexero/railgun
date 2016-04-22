@@ -16,6 +16,51 @@ using namespace std;
 
 ofstream myfile2;
 
+#define SHOOTER_CONSTANT_ITEMS X(pid.p) X(pid.i) X(pid.d) X(pid.f) X(ground) X(climbed)
+
+Shooter_constants::Shooter_constants():
+	ground(5800),climbed(2500)
+{}
+
+ostream& operator<<(ostream& o,Shooter_constants const& a){
+	o<<"Shooter_constants( ";
+	#define X(NAME) o<<""#NAME<<":"<<a.NAME<<" ";
+	SHOOTER_CONSTANT_ITEMS
+	#undef X
+	return o<<")";
+}
+
+bool operator==(Shooter_constants const& a,Shooter_constants const& b){
+	#define X(NAME) if(a.NAME!=b.NAME) return 0;
+	SHOOTER_CONSTANT_ITEMS
+	#undef X
+	return 1;
+}
+
+#ifdef MAIN_TEST
+static const string SHOOTER_CONSTANT_FILE="shooter_constants.txt";
+#else
+static const string SHOOTER_CONSTANT_FILE="/home/lvuser/shooter_constants.txt";
+#endif
+
+Shooter_constants read_shooter_constants(){
+	Shooter_constants r;
+	ifstream f(SHOOTER_CONSTANT_FILE);
+	string s;
+	//note: if file is incomplete/corrupted will just get as much data as it can.
+	#define X(NAME) if(f.good()){ getline(f,s); r.NAME=atof(s.c_str()); }
+	SHOOTER_CONSTANT_ITEMS
+	#undef X
+	return r;
+}
+
+void write_shooter_constants(Shooter_constants c){
+	ofstream f(SHOOTER_CONSTANT_FILE);
+	#define X(NAME) if(f.good()) f<<c.NAME<<"\n";
+	SHOOTER_CONSTANT_ITEMS
+	#undef X
+}
+
 static int print_count=0;
 #define SLOW_PRINT (print_count%10==0)
 
@@ -158,7 +203,7 @@ void Main::shooter_protocol(Shooter::Status_detail const& shooter_status, bool c
 	const Tilt::Goal top=Tilt::Goal::go_to_angle(make_tolerances(tilt_presets.top));
 	goals.collector.sides = Sides::Goal::OFF;
 	goals.collector.tilt = top;
-	static const Shooter::Goal::Type shoot_goal = Shooter::Goal::Type::GROUND_SHOT;
+	//static const Shooter::Goal::Type shoot_goal = Shooter::Goal::Type::GROUND_SHOT;
 	switch(shoot_step){
 		case Shoot_steps::CLEAR_BALL:
 			if(false/*!shooter_status.beam*/) goals.collector.front = Front::Goal::CLEAR_BALL;
@@ -166,13 +211,13 @@ void Main::shooter_protocol(Shooter::Status_detail const& shooter_status, bool c
 			break;
 		case Shoot_steps::SPEED_UP:
 			goals.collector.front = Front::Goal::OFF;
-			goals.shooter.type = shoot_goal;
+			//goals.shooter.type = shoot_goal;
 			if(SLOW_PRINT) cout<<"\nshooter_status: "<<shooter_status<<" goals.shooter:"<<goals.shooter<<"\n";
 			if(shoot && ready(shooter_status,goals.shooter)) shoot_step = Shoot_steps::SHOOT;
 			break;
 		case Shoot_steps::SHOOT:
 			goals.collector.front = Front::Goal::IN;
-			goals.shooter.type = shoot_goal;
+			//goals.shooter.type = shoot_goal;
 			shoot_high_timer.update(now,enabled);
 			if(shoot_high_timer.done()) collector_mode = Collector_mode::STOW; 
 			break;
@@ -242,14 +287,14 @@ Toplevel::Goal Main::teleop(
 	
 	if (panel.in_use) {//Collector modes and percentages
 		if(panel.shooter_mode==Panel::Shooter_mode::CLOSED_AUTO) {
-			goals.shooter.mode=Shooter::Goal::Mode::SPEED_AUTO;
-			goals.shooter.percentage = 1.0;
+			goals.shooter.mode=Shooter::Goal::Mode::SPEED;
+			//goals.shooter.percentage = 1.0;
 		} else if(panel.shooter_mode==Panel::Shooter_mode::CLOSED_MANUAL) {
-			goals.shooter.mode=Shooter::Goal::Mode::SPEED_MANUAL;
-			goals.shooter.percentage = 1 + ((panel.speed_dial * 20) * .01);
+			goals.shooter.mode=Shooter::Goal::Mode::SPEED;
+			//goals.shooter.percentage = 1 + ((panel.speed_dial * 20) * .01);
 		} else if(panel.shooter_mode==Panel::Shooter_mode::OPEN) {
 			goals.shooter.mode=Shooter::Goal::Mode::VOLTAGE;
-			goals.shooter.percentage = (panel.speed_dial + 1) / 2;
+			goals.shooter.value = (panel.speed_dial + 1) / 2;
 		}
 	}
 	
@@ -387,11 +432,12 @@ Toplevel::Goal Main::teleop(
 	}
 	learn_delay.update(in.now,true);//update always because it's just a nice delay, not actually a key part of functionality
 	if(!panel.in_use){
-		if(gunner_joystick.button[Gamepad_button::R_JOY]) goals.shooter.mode=Shooter::Goal::Mode::SPEED_AUTO;
+		if(gunner_joystick.button[Gamepad_button::R_JOY]) goals.shooter.mode=Shooter::Goal::Mode::SPEED;
 		else goals.shooter.mode=Shooter::Goal::Mode::VOLTAGE;
 	}
 	if (panel.in_use) {//Panel manual modes
 		learn.update(panel.learn);
+
 		if(learn.get()){//learn
 			double learn_this=toplevel_status.collector.tilt.angle;
 			bool done=false;
@@ -462,6 +508,33 @@ Toplevel::Goal Main::teleop(
 		}
 		return Winch::Goal::STOP;
 	}();
+
+	if(panel.in_use && learn_press(panel.learn)){
+		#define SHOOTER_ASSIGNMENTS \
+			X(0,pid.p)\
+			X(1,pid.i)\
+			X(2,pid.d)\
+			X(3,pid.f)\
+			X(4,ground)\
+			X(5,climbed)
+		auto show=[&](){
+			cout<<"New shooter constants:"<<shooter_constants<<"\n";
+		};
+		auto adjust=[&](float *f){
+			//assuming that speed dial comes in with a range of -1 to 1
+			(*f)*=panel.speed_dial*2;
+			show();
+		};
+		#define X(A,B) if(panel.auto_switch==A) adjust(&shooter_constants.B);
+		SHOOTER_ASSIGNMENTS
+		#undef X
+		if(panel.auto_switch==6){
+			//reset all the values
+			shooter_constants=Shooter_constants();
+			show();
+		}
+	}
+
 	if(SLOW_PRINT) cout<<" "<<shoot_step<<"  "<<toplevel_status.shooter<<"   "<<goals.shooter<<"\n";
 	return goals;
 }
@@ -844,6 +917,21 @@ void test_preset_rw(){
 	assert(a==b);
 }
 
+Shooter_constants rand(Shooter_constants*){
+	Shooter_constants r;
+	#define X(NAME) r.NAME=rand()%10;
+	SHOOTER_CONSTANT_ITEMS
+	#undef X
+	return r;
+}
+
+void test_shooter_constants_rw(){
+	auto a=rand((Shooter_constants*)nullptr);
+	write_shooter_constants(a);
+	auto b=read_shooter_constants();
+	assert(a==b);
+}
+
 void test_teleop(){
 	Main m;
 	m.mode=Main::Mode::TELEOP;
@@ -964,6 +1052,7 @@ void test_next_mode(){
 }
 
 int main(){
+	test_shooter_constants_rw();
 	test_next_mode();
 	test_modes();
 	test_preset_rw();
