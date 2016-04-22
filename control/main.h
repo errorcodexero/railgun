@@ -11,6 +11,7 @@
 #include "../util/nav.h"
 #include "../util/nav2.h"
 #include "log.h"
+#include "../util/debounce.h"
 
 struct Tilt_presets{
 	double top, level, low, cheval;//angles (in degrees) that it will go to when set to the tilt goals
@@ -67,6 +68,7 @@ struct Main{
 	Collector_mode collector_mode;
 	
 	Countdown_timer learn_delay;
+	Debounce learn_debounce;
 
 	Countdown_timer shoot_high_timer, shoot_low_timer, cheval_lift_timer, cheval_drive_timer, drawbridge_timer;
 
