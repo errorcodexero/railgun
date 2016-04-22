@@ -31,7 +31,7 @@ struct Panel{
 	enum class Shooter_mode{OPEN,CLOSED_MANUAL,CLOSED_AUTO};
 	Shooter_mode shooter_mode;
 	//10 position switches:
-	enum class Auto_mode{NOTHING,REACH,STATICF,STATICS,PORTCULLIS,CHEVAL};
+	enum class Auto_mode{NOTHING,REACH,STATICF,STATICS,PORTCULLIS,CHEVAL,LBLS};
 	Auto_mode auto_mode;
 	//Dials:
 	float speed_dial;

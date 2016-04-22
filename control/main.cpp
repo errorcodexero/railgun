@@ -499,6 +499,8 @@ Main::Mode next_mode(Main::Mode m,bool autonomous,bool autonomous_start,Toplevel
 							return Main::Mode::AUTO_PORTCULLIS;
 						case Panel::Auto_mode::CHEVAL:
 							return Main::Mode::AUTO_CHEVALPOS;
+						case Panel::Auto_mode::LBLS:
+							return Main::Mode::AUTO_LBLS_CROSS_LB;
 						default: assert(0);
 					}
 				}
@@ -560,6 +562,34 @@ Main::Mode next_mode(Main::Mode m,bool autonomous,bool autonomous_start,Toplevel
 		case Main::Mode::AUTO_CHEVALSTOW:
 			if(since_switch > 1.5 || !autonomous) return Main::Mode::TELEOP;
 			return Main::Mode::AUTO_CHEVALSTOW;
+		case Main::Mode::AUTO_LBLS_CROSS_LB:
+			if(!autonomous) return Main::Mode::TELEOP;
+			if(since_switch > 4.5) return Main::Mode::AUTO_LBLS_CROSS_MU;
+			return Main::Mode::AUTO_LBLS_CROSS_LB;
+
+		case Main::Mode::AUTO_LBLS_CROSS_MU:
+			if(!autonomous) return Main::Mode::TELEOP;
+			if(toplready) return Main::Mode::AUTO_LBLS_SCORE_SEEK;
+			return Main::Mode::AUTO_LBLS_CROSS_MU;
+
+		case Main::Mode::AUTO_LBLS_SCORE_SEEK:
+			if(!autonomous) return Main::Mode::TELEOP;
+			if(since_switch > .73) return Main::Mode::AUTO_LBLS_SCORE_LOCATE;
+			return Main::Mode::AUTO_LBLS_SCORE_SEEK;
+
+		case Main::Mode::AUTO_LBLS_SCORE_LOCATE:
+			if(!autonomous) return Main::Mode::TELEOP;
+			if(since_switch > 1) return Main::Mode::AUTO_LBLS_SCORE_CD;
+			return Main::Mode::AUTO_LBLS_SCORE_LOCATE;
+
+		case Main::Mode::AUTO_LBLS_SCORE_CD:
+			if(!autonomous) return Main::Mode::TELEOP;
+			if(since_switch > 2.8) return Main::Mode::AUTO_LBLS_SCORE_EJECT;//when vision is in remove.
+			return Main::Mode::AUTO_LBLS_SCORE_CD;
+		
+		case Main::Mode::AUTO_LBLS_SCORE_EJECT:
+			if(since_switch > 1 || !autonomous) return Main::Mode::TELEOP;
+			return Main::Mode::AUTO_LBLS_SCORE_EJECT;
 
 		default: assert(0);
 	}
@@ -686,6 +716,43 @@ Robot_outputs Main::operator()(Robot_inputs in,ostream&){
 			goals.drive.right=-.5;
 			goals.drive.left=-.5;
 			goals.collector.tilt=top;
+			break;
+		case Main::Mode::AUTO_LBLS_CROSS_LB:
+			goals.collector.front=Front::Goal::OFF;
+			goals.collector.sides=Sides::Goal::OFF;
+
+			goals.collector.tilt=low;
+
+			if(ready(toplevel_status.collector.tilt.angle,goals.collector.tilt=low)){
+				goals.drive.left=-.50;
+				goals.drive.right=-.50;
+			}
+			break;
+
+		case Main::Mode::AUTO_LBLS_CROSS_MU:
+			goals.drive.left=0;
+			goals.drive.right=0;
+			goals.collector.front=Front::Goal::OFF;	
+			goals.collector.sides=Sides::Goal::OFF;
+
+			goals.collector.tilt=top;
+			Main::topready=ready(toplevel_status.collector.tilt.angle,goals.collector.tilt);
+			break;
+		
+		case Main::Mode::AUTO_LBLS_SCORE_SEEK:
+			goals.drive.right=.50;
+			goals.drive.left= -.50;
+			break;
+		case Main::Mode::AUTO_LBLS_SCORE_LOCATE:
+			break;
+		case Main::Mode::AUTO_LBLS_SCORE_CD:
+			goals.drive.right=-.50;
+			goals.drive.left=-.50;
+			break;
+		case Main::Mode::AUTO_LBLS_SCORE_EJECT:
+			goals.drive.left=0;
+			goals.drive.right=0;
+			goals.collector={Front::Goal::OUT,Sides::Goal::OFF,top};
 			break;
 		
 
