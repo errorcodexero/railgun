@@ -5,10 +5,6 @@
 
 using namespace std;
 
-#ifdef _WRS_KERNEL
-int isblank(int){ return 0; }
-#endif
-
 //static const unsigned char PWM_MAX=206,PWM_CENTER=128,PWM_MIN=50;//was 56 to make same as WPIlib
 //probably want to decouple the deadzones from the rest of this.
 Pwm_output pwm_convert(double p){
@@ -86,12 +82,8 @@ double stddev(vector<double> const& v){
 }
 
 double clip(double d){
-	if(d > 1.0){
-		d = 1.0;
-	}
-	if(d < -1.0){
-		d = -1.0;
-	}
+	if(d > 1.0) return 1.0;
+	if(d < -1.0) return -1.0;
 	return d;
 }
 
