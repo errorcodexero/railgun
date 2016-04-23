@@ -550,7 +550,8 @@ void Main::cal(Time now,double current_tilt_angle,Panel const& panel){
 	};
 	auto adjust=[&](float &f){
 		//assuming that speed dial comes in with a range of -1 to 1
-		f*=panel.speed_dial*2;
+		if(fabs(f)<.0001 && fabs(panel.speed_dial)>.75) f=(panel.speed_dial>0 ? .01 : -.01);
+		else f*=panel.speed_dial*2;
 		show();
 	};
 	switch(panel.auto_switch){
