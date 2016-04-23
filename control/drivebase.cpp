@@ -22,7 +22,7 @@ unsigned pdb_location(Drivebase::Motor m){
 }
 
 #define L_ENCODER_PORTS 0,1
-#define R_ENCODER_PORTS 2,3
+#define R_ENCODER_PORTS 2,3//2016 mounted backwards
 
 Robot_inputs Drivebase::Input_reader::operator()(Robot_inputs all,Input in)const{
 	for(unsigned i=0;i<MOTORS;i++){

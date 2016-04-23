@@ -1,10 +1,7 @@
-
-
-
 HIGH PRIORITY for Worlds:
 	- High goal shooter code
 		- Learn shooter speeds
-		- Stop goal cuts power
+		- Make setting goal to 0 cut power instead of driving it to 0
 		- Make high goal rpm more consistent (and change pid values to be ones we actually want)
 		- Consider changing the current assumption that the ball's left after 1.5sec to when the ball sensor isn't seeing it
 		- Get printing talon_srx_controls to work
