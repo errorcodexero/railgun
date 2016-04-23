@@ -32,4 +32,6 @@ g++ -Wall -Werror -std=c++0x --short-enums -DMAIN_TEST -I.. main.cpp \
 	../util/nav2.cpp \
 	log.cpp \
 	collector.cpp \
+	../util/debounce.cpp \
+	../util/posedge_trigger_debounce.cpp \
 	-o main 2>&1 && ./main

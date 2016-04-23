@@ -11,17 +11,28 @@
 #include "../util/nav.h"
 #include "../util/nav2.h"
 #include "log.h"
+#include "../util/posedge_trigger_debounce.h"
 
 struct Tilt_presets{
 	double top, level, low, cheval;//angles (in degrees) that it will go to when set to the tilt goals
 	Tilt_presets();
 };
 
+struct Shooter_constants{
+	PID_values pid;
+	float ground,climbed;
+
+	Shooter_constants();
+};
+bool operator<(Shooter_constants const&,Shooter_constants const&);
+bool operator==(Shooter_constants const&,Shooter_constants const&);
+std::ostream& operator<<(std::ostream&,Shooter_constants const&);
+
 struct Main{
 	#define MODES X(TELEOP)\
 		X(AUTO_NULL) X(AUTO_REACH) X(AUTO_STATIC) \
 		X(AUTO_STOP) X(AUTO_STATICTWO) X(AUTO_TEST) \
-		X(AUTO_PORTCULLIS) X(AUTO_PORTCULLIS_DONE) X(AUTO_CHEVALPOS) X(AUTO_CHEVALDROP) X(AUTO_CHEVALDRIVE) X(AUTO_CHEVALSTOW) X(AUTO_SCORELOW) X(AUTO_SCOREBAR) X(AUTO_SCOREDRIVE) X(AUTO_SCOREPREP)
+		X(AUTO_PORTCULLIS) X(AUTO_PORTCULLIS_DONE) X(AUTO_CHEVALPOS) X(AUTO_CHEVALDROP) X(AUTO_CHEVALDRIVE) X(AUTO_CHEVALSTOW) X(AUTO_LBLS_CROSS_LB) X(AUTO_LBLS_CROSS_MU) X(AUTO_LBLS_SCORE_SEEK) X(AUTO_LBLS_SCORE_LOCATE) X(AUTO_LBLS_SCORE_CD) X(AUTO_LBLS_SCORE_EJECT)
 
 	enum class Mode{
 		#define X(NAME) NAME,
@@ -66,7 +77,8 @@ struct Main{
 	};
 	Collector_mode collector_mode;
 	
-	Countdown_timer learn_delay;
+	Posedge_trigger_debounce set_button;
+	bool tilt_learn_mode;
 
 	Countdown_timer shoot_high_timer, shoot_low_timer, cheval_lift_timer, cheval_drive_timer, drawbridge_timer;
 
@@ -88,12 +100,13 @@ struct Main{
 
 	Posedge_toggle controller_closed_loop;
 	
-	Posedge_toggle learn;
-
 	Tilt_presets tilt_presets;
+	Shooter_constants shooter_constants;
 	Log log;
 
-	void shooter_protocol(Shooter::Status_detail const&,bool const&,Time const&,Toplevel::Goal& goals,bool);
+	Shooter::Goal shoot_action(Panel::Shooter_mode,double)const;
+	void shooter_protocol(Shooter::Status_detail const&,const bool,const Time,Toplevel::Goal& goals,bool,Panel::Shooter_mode,double);
+	void cal(Time,double,Panel const&);
 
 	Toplevel::Goal teleop(Robot_inputs const&,Joystick_data const&,Joystick_data const&,Panel const&,Toplevel::Status_detail&,
 		Tilt::Goal,
@@ -104,7 +117,6 @@ struct Main{
 	);
 
 	Main();
-	bool get_learning()const;
 	Robot_outputs operator()(Robot_inputs,std::ostream& = std::cerr);
 };
 

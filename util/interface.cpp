@@ -11,6 +11,23 @@ PID_values::PID_values():p(.5),i(0.002),d(.25),f(0){}//from testing with shooter
 //.5, .002 , .25 , 0 //Logan's
 //.5 , -.005 , 0, 0 //Marshall's
 //1 , .001 , 1 , 0 //Eric's
+
+#define PID_ITEMS X(p) X(i) X(d) X(f)
+
+bool operator==(PID_values const& a,PID_values const& b){
+	#define X(NAME) if(a.NAME!=b.NAME) return 0;
+	PID_ITEMS
+	#undef X
+	return 1;
+}
+
+bool operator<(PID_values const& a,PID_values const& b){
+	#define X(NAME) if(a.NAME<b.NAME) return 1; if(b.NAME<a.NAME) return 0;
+	PID_ITEMS
+	#undef X
+	return 0;
+}
+
 Digital_out::Digital_out():type_(Type::INPUT){}
 
 Digital_out::Type Digital_out::type()const{ return type_; }
@@ -81,7 +98,7 @@ std::ostream& operator<<(std::ostream& o,Digital_out a){
 	return o;
 }
 
-std::ostream& operator<<(std::ostream& o, PID_values a){
+std::ostream& operator<<(std::ostream& o, PID_values const& a){
 	return o<<"(p:"<<a.p<<" i:"<<a.i<<" d:"<<a.d<<" d:"<<a.f<<")";
 }
 

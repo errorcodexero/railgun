@@ -44,6 +44,9 @@ struct PID_values{
 	float p,i,d,f;
 	PID_values();
 };
+std::ostream& operator<<(std::ostream&,PID_values const&);
+bool operator==(PID_values const&,PID_values const&);
+bool operator<(PID_values const&,PID_values const&);
 
 struct Talon_srx_input{
 	int encoder_position;
