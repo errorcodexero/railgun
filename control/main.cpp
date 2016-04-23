@@ -154,7 +154,7 @@ Main::Main():
 	collector_mode(Collector_mode::NOTHING),
 	tilt_learn_mode(0),
 	cheval_step(Cheval_steps::GO_DOWN),
-	shoot_step(Shoot_steps::CLEAR_BALL)
+	shoot_step(Shoot_steps::SPEED_UP)
 {
 	myfile2.open(NAVLOG2);
 	myfile2 << "test start" << endl;
@@ -233,23 +233,19 @@ void Main::shooter_protocol(
 	const Tilt::Goal top=Tilt::Goal::go_to_angle(make_tolerances(tilt_presets.top));
 	goals.collector.sides = Sides::Goal::OFF;
 	goals.collector.tilt = top;
-	//static const Shooter::Goal::Type shoot_goal = Shooter::Goal::Type::GROUND_SHOT;
 	switch(shoot_step){
-		case Shoot_steps::CLEAR_BALL:
-			if(false/*!shooter_status.beam*/) goals.collector.front = Front::Goal::CLEAR_BALL;
-			else shoot_step = Shoot_steps::SPEED_UP;
-			break;
 		case Shoot_steps::SPEED_UP:
 			goals.collector.front = Front::Goal::OFF;
 			goals.shooter=shoot_action(shooter_mode,speed_dial);
-			if(SLOW_PRINT) cout<<"\nshooter_status: "<<shooter_status<<" goals.shooter:"<<goals.shooter<<"\n";
 			if(shoot && ready(shooter_status,goals.shooter)) shoot_step = Shoot_steps::SHOOT;
 			break;
 		case Shoot_steps::SHOOT:
 			goals.collector.front = Front::Goal::IN;
-			//goals.shooter.type = shoot_goal;
 			shoot_high_timer.update(now,enabled);
-			if(shoot_high_timer.done()) collector_mode = Collector_mode::STOW;
+			if(shoot_high_timer.done()){
+				collector_mode = Collector_mode::STOW;
+				goals.shooter.value=0;
+			}
 			break;
 		default:
 			assert(0);
@@ -311,19 +307,6 @@ Toplevel::Goal Main::teleop(
 	}
 	//if(SLOW_PRINT) cout<<tilt_presets<<"\n";
 	
-	if (panel.in_use) {//Collector modes and percentages
-		if(panel.shooter_mode==Panel::Shooter_mode::CLOSED_AUTO) {
-			goals.shooter.mode=Shooter::Goal::Mode::SPEED;
-			//goals.shooter.percentage = 1.0;
-		} else if(panel.shooter_mode==Panel::Shooter_mode::CLOSED_MANUAL) {
-			goals.shooter.mode=Shooter::Goal::Mode::SPEED;
-			//goals.shooter.percentage = 1 + ((panel.speed_dial * 20) * .01);
-		} else if(panel.shooter_mode==Panel::Shooter_mode::OPEN) {
-			goals.shooter.mode=Shooter::Goal::Mode::VOLTAGE;
-			goals.shooter.value = (panel.speed_dial + 1) / 2;
-		}
-	}
-	
 	if((!panel.in_use && controller_auto.get()) || (panel.in_use && (panel.tilt_auto || panel.front_auto || panel.sides_auto))) {//Automatic collector modes
 		bool joy_learn=gunner_joystick.button[Gamepad_button::B];
 		POV_section gunner_pov = pov_section(gunner_joystick.pov);
@@ -344,7 +327,7 @@ Toplevel::Goal Main::teleop(
 		} else if (panel.in_use && panel.drawbridge && !tilt_learn_mode) collector_mode=Collector_mode::DRAWBRIDGE;
 		else if(gunner_joystick.button[Gamepad_button::Y] || (panel.in_use && panel.shoot_prep)){
 			collector_mode=Collector_mode::SHOOT_HIGH;
-			shoot_step = Shoot_steps::CLEAR_BALL;
+			shoot_step = Shoot_steps::SPEED_UP;
 			const Time SHOOT_TIME=1.5;
 			shoot_high_timer.set(SHOOT_TIME);//time until we can assume the ball had been shot after being injected
 		} else if((main_joystick.button[Gamepad_button::START] && !joy_learn) || (panel.in_use && panel.collect && !tilt_learn_mode)){
@@ -516,7 +499,7 @@ Toplevel::Goal Main::teleop(
 		return Winch::Goal::STOP;
 	}();
 
-	if(SLOW_PRINT) cout<<" "<<shoot_step<<"  "<<toplevel_status.shooter<<"   "<<goals.shooter<<"\n";
+	if(SLOW_PRINT) cout<<shoot_step<<" "<<toplevel_status.shooter<<" "<<goals.shooter<<"\n";
 	return goals;
 }
 
@@ -725,7 +708,7 @@ Robot_outputs Main::operator()(Robot_inputs in,ostream&){
 	Tilt::Goal drawbridge=mean(top,level);
 	
 	if(!in.robot_mode.enabled){
-		shoot_step = Main::Shoot_steps::CLEAR_BALL;
+		shoot_step = Main::Shoot_steps::SPEED_UP;
 		collector_mode = Collector_mode::NOTHING;
 		cheval_step = Cheval_steps::GO_DOWN;
 	}
@@ -741,17 +724,13 @@ Robot_outputs Main::operator()(Robot_inputs in,ostream&){
 	
 	Toplevel::Status_detail toplevel_status=toplevel.estimator.get();
 		
-	if(SLOW_PRINT) cout<<"panel: "<<panel<<"\n";	
+	//if(SLOW_PRINT) cout<<"panel: "<<panel<<"\n";	
 		
 	bool autonomous_start_now=autonomous_start(in.robot_mode.autonomous && in.robot_mode.enabled);
 	since_auto_start.update(in.now,autonomous_start_now);
 		
 	Toplevel::Goal goals;
-	//Drivebase::Status_detail status_detail = drivebase.estimator.get();
-	/*if(SLOW_PRINT){
-		cout << "ENCODER '0': " <<  in.digital_io.encoder[0]<<  endl;
-		cout << "ENCODER '1': " << in.digital_io.encoder[1]<<  endl;	
-	}*/
+	
 	switch(mode){
 		case Mode::TELEOP:
 			goals=teleop(in,main_joystick,gunner_joystick,panel,toplevel_status,level,low,top,cheval,drawbridge);
@@ -764,12 +743,10 @@ Robot_outputs Main::operator()(Robot_inputs in,ostream&){
 			goals.drive.right=-.45;
 			break;
 		case Mode::AUTO_STATIC:
-			//goals.tilt=LEVEL;
 			goals.drive.left=-1;
 			goals.drive.right=-1;
 			break;
 		case Mode::AUTO_STATICTWO:
-			//goals.tilt=LEVEL;
 			goals.drive.left=-.5;
 			goals.drive.right=-.5;
 			break;
@@ -787,7 +764,7 @@ Robot_outputs Main::operator()(Robot_inputs in,ostream&){
 			goals.collector.sides=Sides::Goal::OFF;
 			goals.collector.tilt=low;
 
-			if(ready(toplevel_status.collector.tilt.angle,goals.collector.tilt=low)){
+			if(ready(toplevel_status.collector.tilt.angle,goals.collector.tilt)){
 				goals.drive.left=-.75;
 				goals.drive.right=-.75;
 			}
@@ -835,7 +812,7 @@ Robot_outputs Main::operator()(Robot_inputs in,ostream&){
 
 			goals.collector.tilt=low;
 
-			if(ready(toplevel_status.collector.tilt.angle,goals.collector.tilt=low)){
+			if(ready(toplevel_status.collector.tilt.angle,goals.collector.tilt)){
 				goals.drive.left=-.50;
 				goals.drive.right=-.50;
 			}
@@ -914,11 +891,11 @@ bool operator!=(Main const& a,Main const& b){
 
 ostream& operator<<(ostream& o,Main const& m){
 	o<<"Main(";
-	o<<m.mode;
-	o<<m.force;
-	o<<m.perf;
-	o<<m.toplevel;
-	o<<m.since_switch;
+	o<<" "<<m.mode;
+	o<<" "<<m.force;
+	o<<" "<<m.perf;
+	o<<" "<<m.toplevel;
+	o<<" "<<m.since_switch;
 	return o<<")";
 }
 
