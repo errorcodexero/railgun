@@ -171,22 +171,12 @@ std::set<Shooter::Input> examples(Shooter::Input*){
 }
 std::set<Shooter::Goal> examples(Shooter::Goal*){
 	std::set<Shooter::Goal> s;
-	/*
-	#define X(name) s.insert({Shooter::Goal::Mode::VOLTAGE,Shooter::Goal::Type::name,1.0});
-	SHOOTER_TYPES
-	#undef X
-	#define X(name) s.insert({Shooter::Goal::Mode::SPEED_AUTO,Shooter::Goal::Type::name,1.0});
-	SHOOTER_TYPES
-	#undef X
-	#define X(NAME) s.insert({Shooter::Goal::Mode::SPEED_MANUAL,Shooter::Goal::Type::NAME,1.0});
-	SHOOTER_TYPES
-	#undef X*/
 	#define X(f) s|=Shooter::Goal{PID_values{},Shooter::Goal::Mode::SPEED,f};
-	X(GROUND_RPM) X(0) X(CLIMB_RPM) X(FREE_SPIN_RPM)
+	X(-GROUND_RPM) X(-0) X(-CLIMB_RPM) X(-FREE_SPIN_RPM)
 	#undef X
 
 	s|=Shooter::Goal{PID_values{},Shooter::Goal::Mode::VOLTAGE,0};
-	s|=Shooter::Goal{PID_values{},Shooter::Goal::Mode::VOLTAGE,-1};
+	s|=Shooter::Goal{PID_values{},Shooter::Goal::Mode::VOLTAGE,1};
 	return s;
 }
 std::set<Shooter::Status_detail> examples(Shooter::Status_detail*){
@@ -205,7 +195,7 @@ std::set<Shooter::Status_detail> examples(Shooter::Status_detail*){
 std::set<Shooter::Output> examples(Shooter::Output*){
 	std::set<Shooter::Output> s;
 	#define X(POWER) s.insert({0,POWER,Talon_srx_output::Mode::VOLTAGE});
-	X(0.0) X(-1.0)
+	X(-0.0) X(-1.0)
 	#undef X
 	#define X(RPM) s.insert({RPM,0,Talon_srx_output::Mode::SPEED});
 	X(GROUND_RPM) X(0.0) X(CLIMB_RPM) X(FREE_SPIN_RPM)
@@ -219,12 +209,12 @@ Shooter::Output control(Shooter::Status_detail, Shooter::Goal goal){
 	switch(goal.mode) {
 		case Shooter::Goal::Mode::SPEED:
 			out.mode=Talon_srx_output::Mode::SPEED;
-			out.speed=goal.value;
+			out.speed=-goal.value;
 			out.voltage=0;
 			break;
 		case Shooter::Goal::Mode::VOLTAGE:
 			out.mode=Talon_srx_output::Mode::VOLTAGE;
-			out.voltage=goal.value;
+			out.voltage=-goal.value;
 			break;
 		default: assert(0);
 	}

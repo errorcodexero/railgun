@@ -7,16 +7,6 @@
 #include "../util/util.h"
 #include "../util/countdown_timer.h"
 
-struct Shooter_constants{
-	PID_values pid;
-	float ground,climbed;
-
-	Shooter_constants();
-};
-bool operator<(Shooter_constants const&,Shooter_constants const&);
-bool operator==(Shooter_constants const&,Shooter_constants const&);
-std::ostream& operator<<(std::ostream&,Shooter_constants const&);
-
 struct Shooter{
 	struct Goal{
 		PID_values constants;

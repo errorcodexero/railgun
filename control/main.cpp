@@ -38,9 +38,9 @@ bool operator==(Shooter_constants const& a,Shooter_constants const& b){
 }
 
 #ifdef MAIN_TEST
-static const string SHOOTER_CONSTANT_FILE="shooter_constants.txt";
+static const char *SHOOTER_CONSTANT_FILE="shooter_constants.txt";
 #else
-static const string SHOOTER_CONSTANT_FILE="/home/lvuser/shooter_constants.txt";
+static const char *SHOOTER_CONSTANT_FILE="/home/lvuser/shooter_constants.txt";
 #endif
 
 Shooter_constants read_shooter_constants(){
@@ -152,6 +152,7 @@ Main::Main():
 	autonomous_start(0),
 	joy_collector_pos(Joy_collector_pos::STOP),
 	collector_mode(Collector_mode::NOTHING),
+	tilt_learn_mode(0),
 	cheval_step(Cheval_steps::GO_DOWN),
 	shoot_step(Shoot_steps::CLEAR_BALL)
 {
@@ -175,10 +176,6 @@ array<double,LEN> floats_to_doubles(array<float,LEN> a){
 	return r;
 }
 
-bool Main::get_learning()const{
-	return learn.get() || !learn_delay.done();
-}
-
 double mean(double a,double b){
 	return (a+b)/2;
 }
@@ -199,7 +196,40 @@ Tilt::Goal mean(Tilt::Goal a,Tilt::Goal b){
 	}
 }
 
-void Main::shooter_protocol(Shooter::Status_detail const& shooter_status, bool const& enabled, Time const& now, Toplevel::Goal& goals, bool shoot){
+Shooter::Goal Main::shoot_action(Panel::Shooter_mode shooter_mode,double speed_dial)const{
+	switch(shooter_mode){
+		case Panel::Shooter_mode::CLOSED_AUTO:
+			return Shooter::Goal{
+				shooter_constants.pid,
+				Shooter::Goal::Mode::SPEED,
+				shooter_constants.ground
+			};
+		case Panel::Shooter_mode::CLOSED_MANUAL:
+			return Shooter::Goal{
+				shooter_constants.pid,
+				Shooter::Goal::Mode::SPEED,
+				shooter_constants.ground * ( 1 + ((speed_dial * 20) * .01))
+			};
+		case Panel::Shooter_mode::OPEN:
+			return Shooter::Goal{
+				shooter_constants.pid,
+				Shooter::Goal::Mode::VOLTAGE,
+				(speed_dial+1)/2
+			};
+		default:
+			assert(0);
+	}
+}
+
+void Main::shooter_protocol(
+	Shooter::Status_detail const& shooter_status,
+	const bool enabled,
+	const Time now,
+	Toplevel::Goal& goals,
+	bool shoot,
+	Panel::Shooter_mode shooter_mode,
+	double speed_dial
+){
 	const Tilt::Goal top=Tilt::Goal::go_to_angle(make_tolerances(tilt_presets.top));
 	goals.collector.sides = Sides::Goal::OFF;
 	goals.collector.tilt = top;
@@ -211,7 +241,7 @@ void Main::shooter_protocol(Shooter::Status_detail const& shooter_status, bool c
 			break;
 		case Shoot_steps::SPEED_UP:
 			goals.collector.front = Front::Goal::OFF;
-			//goals.shooter.type = shoot_goal;
+			goals.shooter=shoot_action(shooter_mode,speed_dial);
 			if(SLOW_PRINT) cout<<"\nshooter_status: "<<shooter_status<<" goals.shooter:"<<goals.shooter<<"\n";
 			if(shoot && ready(shooter_status,goals.shooter)) shoot_step = Shoot_steps::SHOOT;
 			break;
@@ -219,7 +249,7 @@ void Main::shooter_protocol(Shooter::Status_detail const& shooter_status, bool c
 			goals.collector.front = Front::Goal::IN;
 			//goals.shooter.type = shoot_goal;
 			shoot_high_timer.update(now,enabled);
-			if(shoot_high_timer.done()) collector_mode = Collector_mode::STOW; 
+			if(shoot_high_timer.done()) collector_mode = Collector_mode::STOW;
 			break;
 		default:
 			assert(0);
@@ -273,16 +303,12 @@ Toplevel::Goal Main::teleop(
 		}());
 	}
 	
-	bool ball=toplevel_status.collector.front.ball;
-	
 	controller_auto.update(gunner_joystick.button[Gamepad_button::START]);
 
 	if(gunner_joystick.button[Gamepad_button::BACK] || main_joystick.button[Gamepad_button::BACK]){//Override sets all collector goals to off
 		goals.collector={Front::Goal::OFF,Sides::Goal::OFF,Tilt::Goal::stop()};
 		collector_mode=Collector_mode::NOTHING;
 	}
-	bool learning=get_learning();
-	
 	//if(SLOW_PRINT) cout<<tilt_presets<<"\n";
 	
 	if (panel.in_use) {//Collector modes and percentages
@@ -305,28 +331,35 @@ Toplevel::Goal Main::teleop(
 			const Time SHOOT_TIME=1;			
 			collector_mode=Collector_mode::SHOOT_LOW;
 			shoot_low_timer.set(SHOOT_TIME);
-		} else if((gunner_pov==POV_section::UP && !joy_learn) || (panel.in_use && panel.collector_pos==Panel::Collector_pos::STOW && !learning)) collector_mode = Collector_mode::STOW;
-		else if((gunner_pov==POV_section::RIGHT && !joy_learn) || (panel.in_use && panel.cheval && !learning)) {
+		}else if(
+			(gunner_pov==POV_section::UP && !joy_learn) 
+			|| (panel.in_use && panel.collector_pos==Panel::Collector_pos::STOW && !tilt_learn_mode)
+		){
+			collector_mode = Collector_mode::STOW;
+		}else if((gunner_pov==POV_section::RIGHT && !joy_learn) || (panel.in_use && panel.cheval && !tilt_learn_mode)) {
 			collector_mode = Collector_mode::CHEVAL;
 			cheval_lift_timer.set(.45);
 			cheval_drive_timer.set(2);
 			cheval_step = Cheval_steps::GO_DOWN;
-		} else if (panel.in_use && panel.drawbridge && !learning) collector_mode=Collector_mode::DRAWBRIDGE;
+		} else if (panel.in_use && panel.drawbridge && !tilt_learn_mode) collector_mode=Collector_mode::DRAWBRIDGE;
 		else if(gunner_joystick.button[Gamepad_button::Y] || (panel.in_use && panel.shoot_prep)){
 			collector_mode=Collector_mode::SHOOT_HIGH;
 			shoot_step = Shoot_steps::CLEAR_BALL;
 			const Time SHOOT_TIME=1.5;
 			shoot_high_timer.set(SHOOT_TIME);//time until we can assume the ball had been shot after being injected
-		} else if((main_joystick.button[Gamepad_button::START] && !joy_learn) || (panel.in_use && panel.collect && !learning)) collector_mode=Collector_mode::COLLECT;
-		else if(panel.in_use && panel.collector_pos==Panel::Collector_pos::LOW && !learning) collector_mode=Collector_mode::LOW;
+		} else if((main_joystick.button[Gamepad_button::START] && !joy_learn) || (panel.in_use && panel.collect && !tilt_learn_mode)){
+			 collector_mode=Collector_mode::COLLECT;
+		}else if(panel.in_use && panel.collector_pos==Panel::Collector_pos::LOW && !tilt_learn_mode) collector_mode=Collector_mode::LOW;
 
 		//if(SLOW_PRINT)cout<<"collector_mode: "<<collector_mode<<"\n";
 
 		switch(collector_mode){
-			case Collector_mode::COLLECT:
+			case Collector_mode::COLLECT:{
 				goals.collector={Front::Goal::IN,Sides::Goal::IN,level};
+				bool ball=toplevel_status.collector.front.ball;
 				if(ball) collector_mode=Collector_mode::STOW;
 				break;
+			}
 			case Collector_mode::STOW:
 				goals.collector={Front::Goal::OFF,Sides::Goal::OFF,top};
 				break;
@@ -334,7 +367,7 @@ Toplevel::Goal Main::teleop(
 				goals.collector={Front::Goal::OFF,Sides::Goal::OUT,level};
 				break;
 			case Collector_mode::SHOOT_HIGH:
-				shooter_protocol(toplevel_status.shooter,in.robot_mode.enabled,in.now,goals,panel.shoot_high);
+				shooter_protocol(toplevel_status.shooter,in.robot_mode.enabled,in.now,goals,panel.shoot_high,panel.shooter_mode,panel.speed_dial);
 				break;
 			case Collector_mode::SHOOT_LOW:
 				goals.collector={Front::Goal::OUT,Sides::Goal::OFF,top};
@@ -430,40 +463,14 @@ Toplevel::Goal Main::teleop(
 			}
 		}();
 	}
-	learn_delay.update(in.now,true);//update always because it's just a nice delay, not actually a key part of functionality
 	if(!panel.in_use){
 		if(gunner_joystick.button[Gamepad_button::R_JOY]) goals.shooter.mode=Shooter::Goal::Mode::SPEED;
 		else goals.shooter.mode=Shooter::Goal::Mode::VOLTAGE;
 	}
-	if (panel.in_use) {//Panel manual modes
-		learn.update(panel.learn);
 
-		if(learn.get()){//learn
-			double learn_this=toplevel_status.collector.tilt.angle;
-			bool done=false;
-			if(panel.collect){
-				tilt_presets.level=learn_this;
-				done=true;
-			}
-			else if(panel.collector_pos==Panel::Collector_pos::STOW || panel.shoot_low){
-				tilt_presets.top=learn_this;
-				done=true;
-			}
-			else if(panel.cheval){
-				tilt_presets.cheval=learn_this;
-				done=true;
-			}
-			else if(panel.collector_pos==Panel::Collector_pos::LOW){
-				tilt_presets.low=learn_this;
-				done=true;
-			}
-			else learn.update(panel.learn);
-			if(done){
-				if(learn.get()) learn.update(true);
-				learn_delay.set(.5);
-				write_tilt_presets(tilt_presets);
-			}
-		}
+	cal(in.now,toplevel_status.collector.tilt.angle,panel);
+
+	if (panel.in_use) {//Panel manual modes
 		if (!panel.front_auto) {
 			#define X(name) if(panel.front==Panel::Collector::name) goals.collector.front = Front::Goal::name;
 			X(IN) X(OUT) X(OFF)
@@ -478,7 +485,7 @@ Toplevel::Goal Main::teleop(
 			goals.collector.tilt=[&]{
 				if (panel.collector_up) return Tilt::Goal::up();
 				if (panel.collector_down) return Tilt::Goal::down();
-				return goals.collector.tilt=Tilt::Goal::stop();
+				return Tilt::Goal::stop();
 			}();
 		}
 	}
@@ -509,35 +516,67 @@ Toplevel::Goal Main::teleop(
 		return Winch::Goal::STOP;
 	}();
 
-	if(panel.in_use && learn_press(panel.learn)){
-		#define SHOOTER_ASSIGNMENTS \
-			X(0,pid.p)\
-			X(1,pid.i)\
-			X(2,pid.d)\
-			X(3,pid.f)\
-			X(4,ground)\
-			X(5,climbed)
-		auto show=[&](){
-			cout<<"New shooter constants:"<<shooter_constants<<"\n";
-		};
-		auto adjust=[&](float *f){
-			//assuming that speed dial comes in with a range of -1 to 1
-			(*f)*=panel.speed_dial*2;
-			show();
-		};
-		#define X(A,B) if(panel.auto_switch==A) adjust(&shooter_constants.B);
-		SHOOTER_ASSIGNMENTS
-		#undef X
-		if(panel.auto_switch==6){
-			//reset all the values
-			shooter_constants=Shooter_constants();
-			show();
-		}
-	}
-
 	if(SLOW_PRINT) cout<<" "<<shoot_step<<"  "<<toplevel_status.shooter<<"   "<<goals.shooter<<"\n";
 	return goals;
 }
+
+void Main::cal(Time now,double current_tilt_angle,Panel const& panel){
+	bool set=set_button(now,panel.in_use && panel.learn);
+
+	if(tilt_learn_mode){
+		auto update=[&](double &d){
+			d=current_tilt_angle;
+			write_tilt_presets(tilt_presets);
+			tilt_learn_mode=0;
+		};
+
+		if(panel.collect){
+			update(tilt_presets.level);
+		}else if(panel.collector_pos==Panel::Collector_pos::STOW || panel.shoot_low){
+			update(tilt_presets.top);
+		}else if(panel.cheval){
+			update(tilt_presets.cheval);
+		}else if(panel.collector_pos==Panel::Collector_pos::LOW){
+			update(tilt_presets.low);
+		}else if(set){
+			tilt_learn_mode=0;
+		}
+		return;
+	}
+	if(!set) return;
+
+	auto show=[&](){
+		cout<<"New shooter constants:"<<shooter_constants<<"\n";
+	};
+	auto adjust=[&](float &f){
+		//assuming that speed dial comes in with a range of -1 to 1
+		f*=panel.speed_dial*2;
+		show();
+	};
+	switch(panel.auto_switch){
+		case 0:
+			tilt_learn_mode=1;
+			return;
+		#define SHOOTER_ASSIGNMENTS \
+			X(1,pid.p)\
+			X(2,pid.i)\
+			X(3,pid.d)\
+			X(4,pid.f)\
+			X(5,ground)\
+			X(6,climbed)
+		#define X(A,B) case A: adjust(shooter_constants.B); return;
+		SHOOTER_ASSIGNMENTS
+		#undef X
+		case 7:
+			//reset all the values to defaults
+			shooter_constants=Shooter_constants();
+			show();
+			return;
+		default:
+			return;
+	}
+}
+
 
 pair<float,float> driveatwall(const Robot_inputs in){
 	const float targetinches=3; //Desired distance from wall
@@ -842,7 +881,10 @@ Robot_outputs Main::operator()(Robot_inputs in,ostream&){
 	r=force(r);
 	auto input=toplevel.input_reader(in);
 
-	r.panel_output[Panel_outputs::SPUN_UP] = Panel_output(static_cast<int>(Panel_output_ports::SPUN_UP), (collector_mode==Collector_mode::SHOOT_HIGH && ready(toplevel_status.shooter,goals.shooter))); 
+	r.panel_output[Panel_outputs::SPUN_UP] = Panel_output(
+		static_cast<int>(Panel_output_ports::SPUN_UP),
+		collector_mode==Collector_mode::SHOOT_HIGH && ready(toplevel_status.shooter,goals.shooter)
+	);
 
 	/*auto talonPower = Talon_srx_output();
 	talonPower.power_level = .5;

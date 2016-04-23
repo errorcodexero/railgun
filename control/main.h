@@ -11,12 +11,22 @@
 #include "../util/nav.h"
 #include "../util/nav2.h"
 #include "log.h"
-#include "../util/debounce.h"
+#include "../util/posedge_trigger_debounce.h"
 
 struct Tilt_presets{
 	double top, level, low, cheval;//angles (in degrees) that it will go to when set to the tilt goals
 	Tilt_presets();
 };
+
+struct Shooter_constants{
+	PID_values pid;
+	float ground,climbed;
+
+	Shooter_constants();
+};
+bool operator<(Shooter_constants const&,Shooter_constants const&);
+bool operator==(Shooter_constants const&,Shooter_constants const&);
+std::ostream& operator<<(std::ostream&,Shooter_constants const&);
 
 struct Main{
 	#define MODES X(TELEOP)\
@@ -67,8 +77,8 @@ struct Main{
 	};
 	Collector_mode collector_mode;
 	
-	Countdown_timer learn_delay;
-	Debounce learn_debounce;
+	Posedge_trigger_debounce set_button;
+	bool tilt_learn_mode;
 
 	Countdown_timer shoot_high_timer, shoot_low_timer, cheval_lift_timer, cheval_drive_timer, drawbridge_timer;
 
@@ -90,14 +100,13 @@ struct Main{
 
 	Posedge_toggle controller_closed_loop;
 	
-	Posedge_trigger learn_press;
-	Posedge_toggle learn;
-
 	Tilt_presets tilt_presets;
 	Shooter_constants shooter_constants;
 	Log log;
 
-	void shooter_protocol(Shooter::Status_detail const&,bool const&,Time const&,Toplevel::Goal& goals,bool);
+	Shooter::Goal shoot_action(Panel::Shooter_mode,double)const;
+	void shooter_protocol(Shooter::Status_detail const&,const bool,const Time,Toplevel::Goal& goals,bool,Panel::Shooter_mode,double);
+	void cal(Time,double,Panel const&);
 
 	Toplevel::Goal teleop(Robot_inputs const&,Joystick_data const&,Joystick_data const&,Panel const&,Toplevel::Status_detail&,
 		Tilt::Goal,
@@ -108,7 +117,6 @@ struct Main{
 	);
 
 	Main();
-	bool get_learning()const;
 	Robot_outputs operator()(Robot_inputs,std::ostream& = std::cerr);
 };
 

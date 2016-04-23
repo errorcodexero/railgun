@@ -33,4 +33,5 @@ g++ -Wall -Werror -std=c++0x -DMONITOR_TEST \
 	log.cpp\
 	collector.cpp\
 	../util/debounce.cpp\
+	../util/posedge_trigger_debounce.cpp\
 	-o monitor 2>&1 && ./monitor
