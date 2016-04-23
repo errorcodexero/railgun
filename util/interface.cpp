@@ -89,8 +89,8 @@ std::ostream& operator<<(std::ostream& o,Digital_out a){
 			o<<"1";
 			break;
 		case Digital_out::Type::ENCODER:
-			o<<"encoder_index: "<<a.encoder_index();
-			o<<"input_a: "<<a.input_a();
+			o<<"encoder_index:"<<a.encoder_index();
+			o<<"input_a:"<<a.input_a();
 			break;
 		default:
 			o<<"?";
@@ -103,7 +103,7 @@ std::ostream& operator<<(std::ostream& o, PID_values const& a){
 }
 
 std::ostream& operator<<(std::ostream& o, Talon_srx_input in){
-	o<<"(encoder_position: "<<in.encoder_position<<" velocity:"<<in.velocity<<" fwd_limit_switch: "<<in.fwd_limit_switch<<" rev_limit_switch: "<<in.rev_limit_switch<<" a: "<<in.a<<" b: "<<in.b;
+	o<<"(encoder_position:"<<in.encoder_position<<" velocity:"<<in.velocity<<" fwd_limit_switch:"<<in.fwd_limit_switch<<" rev_limit_switch:"<<in.rev_limit_switch<<" a:"<<in.a<<" b:"<<in.b;
 	return o<<")";
 }
 
@@ -116,13 +116,13 @@ std::ostream& operator<<(std::ostream& o, Talon_srx_output::Mode a){
 std::ostream& operator<<(std::ostream& o, Talon_srx_output a){
 	o<<"(mode: "<<a.mode;
 	o<<" pid:"<<a.pid;
-	if(a.mode==Talon_srx_output::Mode::VOLTAGE) o<<" power_level: "<<a.power_level;
-	else if(a.mode==Talon_srx_output::Mode::SPEED) o<<" speed: "<<a.speed;
+	if(a.mode==Talon_srx_output::Mode::VOLTAGE) o<<" power_level:"<<a.power_level;
+	else if(a.mode==Talon_srx_output::Mode::SPEED) o<<" speed:"<<a.speed;
 	return o<<")";
 }
 
 std::ostream& operator<<(std::ostream& o, Panel_output in) {
-	o<<"(port: "<<in.port<<" value: "<<in.value;
+	o<<"(port:"<<in.port<<" value:"<<in.value;
 	return o<<")";
 }
 
@@ -449,7 +449,7 @@ ostream& operator<<(ostream& o,Joystick_data a){
 		//o<<setprecision(2)<<a.axis[i]<<" ";
 		o<<setw(5)<<fixed<<setprecision(2)<<a.axis[i]<<" ";
 	}
-	o<<"pov: "<<a.pov<<" ";
+	o<<"pov:"<<a.pov<<" ";
 	o<<"buttons:";
 	for(unsigned i=0;i<JOY_BUTTONS;i++){
 		o<<a.button[i]<<" ";
@@ -483,8 +483,8 @@ ostream& operator<<(ostream& o,Robot_mode m){
 		default: return o<<"ERROR";
 	}*/
 	o<<"Robot_mode(";
-	o<<"auto="<<m.autonomous;
-	o<<" enable="<<m.enabled;
+	o<<"auto:"<<m.autonomous;
+	o<<" enable:"<<m.enabled;
 	return o<<")";
 }
 
@@ -626,8 +626,7 @@ ostream& operator<<(ostream& o,Robot_inputs a){
 	for(unsigned i=0;i<a.JOYSTICKS;i++){
 		o<<"  "<<a.joystick[i]<<"\n";
 	}
-	o<<" dio:";
-	o<<a.digital_io;
+	o<<"dio:"<<a.digital_io;
 	/*for(unsigned i=0;i<Robot_outputs::DIGITAL_IOS;i++){
 		terse(o,a.digital_io[i]);
 	}*/
@@ -643,9 +642,7 @@ ostream& operator<<(ostream& o,Robot_inputs a){
 	for(unsigned i=0;i<Robot_outputs::CAN_JAGUARS;i++){
 		o<<a.jaguar[i];
 	}*/
-	o<<" currents:";
-	o<<a.current;
-	
+	o<<" currents:"<<a.current;	
 	o<<" driver_station_inputs:"<<a.driver_station;
 	o<<" orientation:"<<a.orientation;
 	return o<<")";
