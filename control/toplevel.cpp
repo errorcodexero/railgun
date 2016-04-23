@@ -321,7 +321,7 @@ bool operator<(Toplevel::Goal const& a,Toplevel::Goal const& b){
 set<Toplevel::Status_detail> examples(Toplevel::Status_detail*){
 	return {Toplevel::Status_detail{
 		*examples((Drivebase::Status_detail*)0).begin(),
-		Pump::Status_detail{},
+		Pump::Status_detail{Pump::Status::FULL},
 		example((Collector::Status_detail*)0),
 		*examples((Climb_release::Status_detail*)0).begin(),
 		*examples((Winch::Status_detail*)0).begin(),
