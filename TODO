@@ -1,31 +1,27 @@
-AUTO MODE LIST:
-	- Define networking API
-	- Prove reliable comms from TEGRA <-> ROBORIO
-	- Drive detect at various angles
-	- Drive to goal from various angles	
+
 
 
 HIGH PRIORITY for Worlds:
-	- Maybe prevent climber release when collector is at top
 	- High goal shooter code
 		- Learn shooter speeds
 		- Stop goal cuts power
 		- Make high goal rpm more consistent (and change pid values to be ones we actually want)
 		- Consider changing the current assumption that the ball's left after 1.5sec to when the ball sensor isn't seeing it
 		- Get printing talon_srx_controls to work
+		- Make easy to calibrate at Worlds
 	- Autonomous 
-		- Sensors
-		- Auto_nav_run results in seg fault
+		- Improve cheval mode
 		- Drive Encoders
 		- Testing on carpet field with measurements
 		- Low goal auto mode 
+		- TwoBall thwarter mode
 	- Logging
 
 
 LOW PRIORITY for Worlds:
 	- Log Analysis - Nick
 	- Add auto-shut off for climber with the hall effect sensor	
-		
+	- Prevent climber release when collector is at top
 
 NOT AS HIGH PRIORITY: 
 	- Laptop configuration
