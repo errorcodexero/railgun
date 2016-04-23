@@ -369,7 +369,7 @@ ostream& operator<<(ostream& o,Robot_outputs a){
 		o<<a.jaguar[i];
 	}*/
 	o<<a.driver_station;
-	o<<a.pump_auto;
+	o<<" pump_auto:"<<a.pump_auto;
 	return o<<")";
 }
 
