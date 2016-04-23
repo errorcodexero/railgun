@@ -69,12 +69,12 @@ float round(float f){
 
 ostream& operator<<(ostream& o,Driver_station_input a){
 	//o.precision(2);
-	o<<"Driver_station_input(";
+	o<<"(";
 	o<<"analog:";
 	for(unsigned i=0;i<Driver_station_input::ANALOG_INPUTS;i++){
 		o<<round(a.analog[i])<<" ";
 	}
-	o<<"digital:";
+	o<<" digital:";
 	for(unsigned i=0;i<Driver_station_input::DIGITAL_INPUTS;i++){
 		o<<a.digital[i];
 	}
@@ -95,7 +95,7 @@ bool operator!=(Driver_station_output a,Driver_station_output b){
 }
 
 ostream& operator<<(ostream& o,Driver_station_output a){
-	o<<"Driver_station_output(";
+	o<<"(";
 	o<<"digital:";
 	for(unsigned i=0;i<Driver_station_output::DIGITAL_OUTPUTS;i++){
 		o<<a.digital[i];

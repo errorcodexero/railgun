@@ -114,7 +114,7 @@ std::ostream& operator<<(std::ostream& o, Talon_srx_output::Mode a){
 }
 
 std::ostream& operator<<(std::ostream& o, Talon_srx_output a){
-	o<<"Talon_srx_output(mode: "<<a.mode;
+	o<<"(mode: "<<a.mode;
 	o<<" pid:"<<a.pid;
 	if(a.mode==Talon_srx_output::Mode::VOLTAGE) o<<" power_level: "<<a.power_level;
 	else if(a.mode==Talon_srx_output::Mode::SPEED) o<<" speed: "<<a.speed;
@@ -342,7 +342,7 @@ ostream& operator<<(ostream& o,Robot_outputs a){
 	for(unsigned i=0;i<a.PWMS;i++){
 		o<<(int)a.pwm[i]<<" ";
 	}
-	o<<"solenoid:";
+	o<<" solenoid:";
 	for(unsigned i=0;i<a.SOLENOIDS;i++){
 		o<<a.solenoid[i];
 	}
@@ -368,7 +368,7 @@ ostream& operator<<(ostream& o,Robot_outputs a){
 	for(unsigned i=0;i<a.CAN_JAGUARS;i++){
 		o<<a.jaguar[i];
 	}*/
-	o<<a.driver_station;
+	o<<" driver_station_output:"<<a.driver_station;
 	o<<" pump_auto:"<<a.pump_auto;
 	return o<<")";
 }
@@ -484,7 +484,7 @@ ostream& operator<<(ostream& o,Robot_mode m){
 	}*/
 	o<<"Robot_mode(";
 	o<<"auto="<<m.autonomous;
-	o<<" en="<<m.enabled;
+	o<<" enable="<<m.enabled;
 	return o<<")";
 }
 
@@ -646,7 +646,7 @@ ostream& operator<<(ostream& o,Robot_inputs a){
 	o<<" currents:";
 	o<<a.current;
 	
-	o<<a.driver_station;
+	o<<" driver_station_inputs:"<<a.driver_station;
 	o<<" orientation:"<<a.orientation;
 	return o<<")";
 }
