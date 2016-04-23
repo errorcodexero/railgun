@@ -620,6 +620,8 @@ class Robot_adapter: public SampleRobot{
 			Robot_mode r;
 			r.autonomous=IsAutonomous();
 			u.run(r);
+
+			Wait(0.005);
 		}
 	}
 };
