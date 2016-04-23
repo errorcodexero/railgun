@@ -19,7 +19,7 @@ ofstream myfile2;
 #define SHOOTER_CONSTANT_ITEMS X(pid.p) X(pid.i) X(pid.d) X(pid.f) X(ground) X(climbed)
 
 Shooter_constants::Shooter_constants():
-	ground(5800),climbed(2500)
+	ground(GROUND_RPM),climbed(CLIMB_RPM)
 {}
 
 ostream& operator<<(ostream& o,Shooter_constants const& a){
@@ -214,7 +214,7 @@ Shooter::Goal Main::shoot_action(Panel::Shooter_mode shooter_mode,double speed_d
 			return Shooter::Goal{
 				shooter_constants.pid,
 				Shooter::Goal::Mode::VOLTAGE,
-				(speed_dial+1)/2
+				-(speed_dial+1)/2
 			};
 		default:
 			assert(0);
@@ -241,6 +241,7 @@ void Main::shooter_protocol(
 			break;
 		case Shoot_steps::SHOOT:
 			goals.collector.front = Front::Goal::IN;
+			goals.shooter=shoot_action(shooter_mode,speed_dial);
 			shoot_high_timer.update(now,enabled);
 			if(shoot_high_timer.done()){
 				collector_mode = Collector_mode::STOW;
@@ -325,7 +326,7 @@ Toplevel::Goal Main::teleop(
 			cheval_drive_timer.set(2);
 			cheval_step = Cheval_steps::GO_DOWN;
 		} else if (panel.in_use && panel.drawbridge && !tilt_learn_mode) collector_mode=Collector_mode::DRAWBRIDGE;
-		else if(gunner_joystick.button[Gamepad_button::Y] || (panel.in_use && panel.shoot_prep)){
+		else if(gunner_joystick.button[Gamepad_button::A] || (panel.in_use && panel.shoot_prep)){
 			collector_mode=Collector_mode::SHOOT_HIGH;
 			shoot_step = Shoot_steps::SPEED_UP;
 			const Time SHOOT_TIME=1.5;
@@ -337,7 +338,8 @@ Toplevel::Goal Main::teleop(
 		//if(SLOW_PRINT)cout<<"collector_mode: "<<collector_mode<<"\n";
 
 		switch(collector_mode){
-			case Collector_mode::COLLECT:{
+			case Collector_mode::COLLECT:
+			{
 				goals.collector={Front::Goal::IN,Sides::Goal::IN,level};
 				bool ball=toplevel_status.collector.front.ball;
 				if(ball) collector_mode=Collector_mode::STOW;
@@ -350,8 +352,11 @@ Toplevel::Goal Main::teleop(
 				goals.collector={Front::Goal::OFF,Sides::Goal::OUT,level};
 				break;
 			case Collector_mode::SHOOT_HIGH:
-				shooter_protocol(toplevel_status.shooter,in.robot_mode.enabled,in.now,goals,panel.shoot_high,panel.shooter_mode,panel.speed_dial);
+			{
+				bool shoot_button=panel.shoot_high||gunner_joystick.button[Gamepad_button::Y];
+				shooter_protocol(toplevel_status.shooter,in.robot_mode.enabled,in.now,goals,shoot_button,panel.shooter_mode,panel.speed_dial);
 				break;
+			}
 			case Collector_mode::SHOOT_LOW:
 				goals.collector={Front::Goal::OUT,Sides::Goal::OFF,top};
 				shoot_low_timer.update(in.now, enabled);
@@ -499,7 +504,7 @@ Toplevel::Goal Main::teleop(
 		return Winch::Goal::STOP;
 	}();
 
-	if(SLOW_PRINT) cout<<shoot_step<<" "<<toplevel_status.shooter<<" "<<goals.shooter<<"\n";
+	//if(SLOW_PRINT) cout<<shoot_step<<" "<<toplevel_status.shooter<<" "<<goals.shooter<<"\n";
 	return goals;
 }
 

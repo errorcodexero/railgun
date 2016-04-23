@@ -4,9 +4,6 @@
 
 #define SHOOTER_WHEEL_LOC 0
 #define BEAM_SENSOR_DIO 5
-const double GROUND_RPM=-6000.0;//This is the one we're actually using//7300
-const double CLIMB_RPM=-4000.0;
-const double FREE_SPIN_RPM=-1000.0;
 
 Shooter::Status_detail::Status_detail():speed(0){}
 Shooter::Status_detail::Status_detail(double s):speed(s){}
@@ -148,8 +145,8 @@ void Shooter::Estimator::update(Time,Shooter::Input in,Shooter::Output output){
 
 std::set<Shooter::Input> examples(Shooter::Input*){
 	return {
-		{(int)-GROUND_RPM,true},
-		{(int)-GROUND_RPM,false},
+		{(int)GROUND_RPM,true},
+		{(int)GROUND_RPM,false},
 		{0,true},
 		{0,false},
 	}; 
@@ -157,11 +154,11 @@ std::set<Shooter::Input> examples(Shooter::Input*){
 std::set<Shooter::Goal> examples(Shooter::Goal*){
 	std::set<Shooter::Goal> s;
 	#define X(f) s|=Shooter::Goal{PID_values{},Shooter::Goal::Mode::SPEED,f};
-	X(-GROUND_RPM) X(-0) X(-CLIMB_RPM) X(-FREE_SPIN_RPM)
+	X(GROUND_RPM) X(0) X(CLIMB_RPM) X(FREE_SPIN_RPM)
 	#undef X
 
 	s|=Shooter::Goal{PID_values{},Shooter::Goal::Mode::VOLTAGE,0};
-	s|=Shooter::Goal{PID_values{},Shooter::Goal::Mode::VOLTAGE,1};
+	s|=Shooter::Goal{PID_values{},Shooter::Goal::Mode::VOLTAGE,-1};
 	return s;
 }
 std::set<Shooter::Status_detail> examples(Shooter::Status_detail*){
@@ -185,12 +182,12 @@ Shooter::Output control(Shooter::Status_detail, Shooter::Goal goal){
 	switch(goal.mode) {
 		case Shooter::Goal::Mode::SPEED:
 			out.mode=Talon_srx_output::Mode::SPEED;
-			out.speed=-goal.value;
+			out.speed=goal.value;
 			out.voltage=0;
 			break;
 		case Shooter::Goal::Mode::VOLTAGE:
 			out.mode=Talon_srx_output::Mode::VOLTAGE;
-			out.voltage=-goal.value;
+			out.voltage=goal.value;
 			break;
 		default: assert(0);
 	}

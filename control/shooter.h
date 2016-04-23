@@ -7,6 +7,10 @@
 #include "../util/util.h"
 #include "../util/countdown_timer.h"
 
+const double GROUND_RPM=-6000.0;//This is the one we're actually using//7300
+const double CLIMB_RPM=-4000.0;
+const double FREE_SPIN_RPM=-1000.0;
+
 struct Shooter{
 	struct Goal{
 		PID_values constants;
