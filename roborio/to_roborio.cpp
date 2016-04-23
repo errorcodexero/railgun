@@ -499,13 +499,14 @@ public:
 	
 
 	void run(Robot_inputs in){
-		static int print_out_speed=0;
+		static int print_num=0;
 		Robot_outputs out=main(in);
-		if((print_out_speed%10)==0){
+		const int PRINT_SPEED=10;
+		if((print_num%PRINT_SPEED)==0){
 			cout<<"in: "<<in<<"\n";
 			cout<<"main: "<<main<<"\n";
 			cout<<"out: "<<out<<"\n";
-			cout<<"talon_srx_controls: "<<talon_srx_controls<<"\n";
+			//cout<<"talon_srx_controls: "<<talon_srx_controls<<"\n";
 			cout<<"CLEAR_SCREEN\n";
 		}
 		int x=set_outputs(out,in.robot_mode.enabled);
@@ -517,7 +518,7 @@ public:
 			}
 		}
 		i=(i+1)%100;*/
-		print_out_speed++;
+		print_num++;
 	}
 	
 	void run(Robot_mode mode){
