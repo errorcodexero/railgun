@@ -8,10 +8,10 @@ const double GROUND_RPM=-6000.0;//This is the one we're actually using//7300
 const double CLIMB_RPM=-4000.0;
 const double FREE_SPIN_RPM=-1000.0;
 
-Shooter::Status_detail::Status_detail():speed(0),beam(0){}
-Shooter::Status_detail::Status_detail(double s,bool b):speed(s),beam(b){}
+Shooter::Status_detail::Status_detail():speed(0){}
+Shooter::Status_detail::Status_detail(double s):speed(s){}
 
-Shooter::Estimator::Estimator():last({}),speed_up_timer({}),last_output({0,0,Talon_srx_output::Mode::VOLTAGE}){}
+Shooter::Estimator::Estimator():last({}),last_output({0,0,Talon_srx_output::Mode::VOLTAGE}){}
 
 Shooter::Goal::Goal():mode(Shooter::Goal::Mode::SPEED),value(0){}
 Shooter::Goal::Goal(PID_values pid,Shooter::Goal::Mode m,double p):constants(pid),mode(m),value(p){}
@@ -34,9 +34,9 @@ std::ostream& operator<<(std::ostream& o,Shooter::Goal goal){
 	return o<<")";
 }
 
-std::ostream& operator<<(std::ostream& o,Shooter::Estimator a){ return o<<"Shooter::Estimator( last:"<<a.get()<<" last_output:"<<a.last_output<<" speed_up_timer:"<<a.speed_up_timer<<")"; }
-std::ostream& operator<<(std::ostream& o,Shooter::Input a){ return o<<"Shooter::Input( speed:"<<a.speed<<" beam:"<<a.beam<<" enabled:"<<a.enabled<<")"; }
-std::ostream& operator<<(std::ostream& o,Shooter::Status_detail a){ return o<<"Shooter::Status_detail( speed:"<<a.speed<<" beam:"<<a.beam<<")"; }
+std::ostream& operator<<(std::ostream& o,Shooter::Estimator a){ return o<<"Shooter::Estimator( last:"<<a.get()<<" last_output:"<<a.last_output<<")"; }
+std::ostream& operator<<(std::ostream& o,Shooter::Input a){ return o<<"Shooter::Input( speed:"<<a.speed<<" enabled:"<<a.enabled<<")"; }
+std::ostream& operator<<(std::ostream& o,Shooter::Status_detail a){ return o<<"Shooter::Status_detail( speed:"<<a.speed<<")"; }
 std::ostream& operator<<(std::ostream& o,Shooter a){ return o<<"Shooter("<<a.estimator<<")"; }
 
 std::ostream& operator<<(std::ostream& o,Shooter::Output out){
@@ -46,20 +46,16 @@ std::ostream& operator<<(std::ostream& o,Shooter::Output out){
 	return o<<" mode:"<<out.mode<<")";
 }
 
-bool operator==(Shooter::Input a,Shooter::Input b){ return a.speed==b.speed && a.beam==b.beam; }
+bool operator==(Shooter::Input a,Shooter::Input b){ return a.speed==b.speed; }
 bool operator!=(Shooter::Input a,Shooter::Input b){ return !(a==b); }
 bool operator<(Shooter::Input a,Shooter::Input b){
 	if(a.speed<b.speed) return true;
 	if(b.speed<a.speed) return false;
-	if(a.enabled<b.enabled) return true;
-	if(b.enabled<a.enabled) return false;
-	return a.beam && !b.beam;
+	return a.enabled<b.enabled;
 } 
 
 bool operator<(Shooter::Status_detail a,Shooter::Status_detail b){
-	if(a.speed<b.speed) return true;
-	if(b.speed<a.speed) return false;
-	return a.beam && !b.beam;
+	return a.speed<b.speed;
 }
 
 bool operator==(Shooter::Goal a,Shooter::Goal b){
@@ -91,13 +87,13 @@ bool approx_equals(Shooter::Output a, Shooter::Output b){
 	return a.mode==b.mode && fabs(a.speed-b.speed)<SPEED_TOLERANCE && fabs(a.voltage-b.voltage)<VOLTAGE_TOLERANCE;
 }
 
-bool operator==(Shooter::Status_detail a,Shooter::Status_detail b){ return (a.speed==b.speed && a.beam==b.beam); }
+bool operator==(Shooter::Status_detail a,Shooter::Status_detail b){ return (a.speed==b.speed); }
 bool operator!=(Shooter::Status_detail a,Shooter::Status_detail b){ return !(a==b); }
 
 bool operator<(Shooter::Input_reader,Shooter::Input_reader){ return false; }
 bool operator==(Shooter::Input_reader,Shooter::Input_reader){ return true; }
 
-bool operator==(Shooter::Estimator a,Shooter::Estimator b){ return a.last==b.last && a.last_output==b.last_output && a.speed_up_timer==b.speed_up_timer; }
+bool operator==(Shooter::Estimator a,Shooter::Estimator b){ return a.last==b.last && a.last_output==b.last_output; }
 bool operator!=(Shooter::Estimator a,Shooter::Estimator b){ return !(a==b); }
 
 bool operator==(Shooter::Output_applicator,Shooter::Output_applicator){ return true; }
@@ -106,11 +102,11 @@ bool operator==(Shooter a,Shooter b){ return (a.input_reader==b.input_reader && 
 bool operator!=(Shooter a,Shooter b){ return !(a==b); }
 
 Shooter::Input Shooter::Input_reader::operator()(Robot_inputs const& r)const{
-	return {r.talon_srx[SHOOTER_WHEEL_LOC].velocity,(r.digital_io.in[BEAM_SENSOR_DIO]==Digital_in::_1),r.robot_mode.enabled};
+	return {r.talon_srx[SHOOTER_WHEEL_LOC].velocity,r.robot_mode.enabled};
 }
+
 Robot_inputs Shooter::Input_reader::operator()(Robot_inputs r,Shooter::Input in)const{
 	r.talon_srx[SHOOTER_WHEEL_LOC].velocity = in.speed;
-	r.digital_io.in[BEAM_SENSOR_DIO]=(in.beam? Digital_in::_1 : Digital_in::_0);
 	r.robot_mode.enabled=in.enabled;
 	return r;
 }
@@ -137,36 +133,25 @@ Shooter::Status_detail Shooter::Estimator::get()const{
 void Shooter::Estimator::update(Time,Shooter::Input in,Shooter::Output output){
 	last.speed=in.speed;
 	if(output.mode==Talon_srx_output::Mode::VOLTAGE){
-		/*static const float SPEED_UP_TIME=3;
-		std::cout<<"\ndifferent output: "<<(!approx_equals(output, last_output))<<"\n";
-		if(!approx_equals(output, last_output)) speed_up_timer.set(SPEED_UP_TIME);
-		speed_up_timer.update(time,in.enabled);
-		if(speed_up_timer.done()){*/
-			last.speed=[&]{
-				if(output.voltage==0.0) return 0.0;
-				if(output.voltage==-.5) return GROUND_RPM;
-				if(output.voltage==-1.0) return CLIMB_RPM;
-				if(output.voltage==1.0) return FREE_SPIN_RPM;
-				return CLIMB_RPM;
-			}();
-		//}
+		last.speed=[&]{
+			if(output.voltage==0.0) return 0.0;
+			if(output.voltage==-.5) return GROUND_RPM;
+			if(output.voltage==-1.0) return CLIMB_RPM;
+			if(output.voltage==1.0) return FREE_SPIN_RPM;
+			return CLIMB_RPM;
+		}();
 	} else if(output.mode==Talon_srx_output::Mode::SPEED){
 		
 	}
-	last.beam=in.beam;
 	last_output=output;
 } 
 
 std::set<Shooter::Input> examples(Shooter::Input*){
 	return {
-		{true,true,true},
-		{true,true,false},
-		{true,false,true},
-		{true,false,false},
-		{false,true,true},
-		{false,true,false},
-		{false,false,true},
-		{false,false,false}
+		{(int)-GROUND_RPM,true},
+		{(int)-GROUND_RPM,false},
+		{0,true},
+		{0,false},
 	}; 
 }
 std::set<Shooter::Goal> examples(Shooter::Goal*){
@@ -180,16 +165,7 @@ std::set<Shooter::Goal> examples(Shooter::Goal*){
 	return s;
 }
 std::set<Shooter::Status_detail> examples(Shooter::Status_detail*){
-	std::set<Shooter::Status_detail> s;
-	bool beam=false;
-	for(unsigned int i=0; i<2; i++){
-		s.insert({0,beam});
-		s.insert({GROUND_RPM,beam});
-		s.insert({CLIMB_RPM,beam});
-		s.insert({FREE_SPIN_RPM,beam});
-		beam=true;
-	}
-	return s;
+	return {{0},{GROUND_RPM},{CLIMB_RPM},{FREE_SPIN_RPM}};
 }
 
 std::set<Shooter::Output> examples(Shooter::Output*){
