@@ -14,6 +14,7 @@ void Debounce::update(Time now,bool v){
 	if(v==value) return;
 	value=v;
 	timer.set(.5);
+	timer.update(now,1);
 }
 
 ostream& operator<<(ostream& o,Debounce const& a){
