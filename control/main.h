@@ -37,7 +37,8 @@ struct Main{
 		X(AUTO_CHEVALDRIVE) X(AUTO_CHEVALSTOW) \
 		X(AUTO_LBLS_CROSS_LB) X(AUTO_LBLS_CROSS_MU) \
 		X(AUTO_LBLS_SCORE_SEEK) X(AUTO_LBLS_SCORE_LOCATE) \
-		X(AUTO_LBLS_SCORE_CD) X(AUTO_LBLS_SCORE_EJECT) X (AUTO_CHEVALWAIT)
+		X(AUTO_LBLS_SCORE_CD) X(AUTO_LBLS_SCORE_EJECT) X (AUTO_CHEVALWAIT) \
+		X(AUTO_LBWLS_WALL) X(AUTO_LBWLS_MUP) X(AUTO_LBWLS_ROTATE) X(AUTO_LBWLS_TOWER) X(AUTO_LBWLS_EJECT) X(AUTO_LBWLS_BACK) X(AUTO_LBWLS_C) X(AUTO_LBWLS_BR)
 
 	enum class Mode{
 		#define X(NAME) NAME,
@@ -114,10 +115,10 @@ struct Main{
 	Log log;
 
 	Shooter::Goal shoot_action(Panel::Shooter_mode,double,bool)const;
-	void shooter_protocol(Toplevel::Status_detail&,const bool,const Time,Toplevel::Goal&,bool,Panel::Shooter_mode,double);
+	void shooter_protocol(Toplevel::Status_detail const&,const bool,const Time,Toplevel::Goal&,bool,Panel::Shooter_mode,double);
 	void cal(Time,double,double,Panel const&);
 
-	Toplevel::Goal teleop(Robot_inputs const&,Joystick_data const&,Joystick_data const&,Panel const&,Toplevel::Status_detail&,
+	Toplevel::Goal teleop(Robot_inputs const&,Joystick_data const&,Joystick_data const&,Panel const&,Toplevel::Status_detail const&,
 		Tilt::Goal,
 		Tilt::Goal,
 		Tilt::Goal,

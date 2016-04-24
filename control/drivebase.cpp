@@ -10,12 +10,12 @@ using namespace std;
 unsigned pdb_location(Drivebase::Motor m){
 	#define X(NAME,INDEX) if(m==Drivebase::NAME) return INDEX;
 	//WILL NEED CORRECT VALUES
-	X(LEFT1,0)
-	X(LEFT2,1)
-	X(LEFT3,2)
-	X(RIGHT1,3)
-	X(RIGHT2,4)
-	X(RIGHT3,5)
+	X(LEFT1,1)
+	X(LEFT2,2)
+	X(LEFT3,3)
+	X(RIGHT1,12)
+	X(RIGHT2,13)
+	X(RIGHT3,14)
 	#undef X
 	assert(0);
 	//assert(m>=0 && m<Drivebase::MOTORS);
@@ -79,6 +79,8 @@ set<Drivebase::Status> examples(Drivebase::Status*){
 			Motor_check::Status::OK_,
 			Motor_check::Status::OK_
 		}
+		,
+		false
 	}};
 }
 
@@ -117,13 +119,17 @@ set<Drivebase::Input> examples(Drivebase::Input*){
 		{0,0},p,p
 	}};
 }
+Drivebase::Estimator::Estimator(){
+	stall = false;
+}
 
 Drivebase::Status_detail Drivebase::Estimator::get()const{
 	array<Motor_check::Status,MOTORS> a;
 	for(unsigned i=0;i<a.size();i++){
 		a[i]=motor_check[i].get();
 	}
-	return Status{a};
+	
+	return Status{a,stall};
 }
 
 ostream& operator<<(ostream& o,Drivebase::Output_applicator){
@@ -145,7 +151,16 @@ double get_output(Drivebase::Output out,Drivebase::Motor m){
 	#undef X
 	assert(0);
 }
+double sum(std::array<double, 6ul> a){
+	double sum = 0;
+	for(unsigned int i=0;i<a.size();i++)
+		sum+=a[i];
 
+	return sum;
+}
+double mean(std::array<double, 6ul> a){
+	return sum(a)/a.size();
+}
 void Drivebase::Estimator::update(Time now,Drivebase::Input in,Drivebase::Output out){\
 	//cout << "Encoder in: " << in << endl;
 	for(unsigned i=0;i<MOTORS;i++){
@@ -153,7 +168,9 @@ void Drivebase::Estimator::update(Time now,Drivebase::Input in,Drivebase::Output
 		auto current=in.current[i];
 		auto set_power_level=get_output(out,m);
 		motor_check[i].update(now,current,set_power_level);
+		
 	}
+	stall = mean(in.current) > 5;
 }
 
 Robot_outputs Drivebase::Output_applicator::operator()(Robot_outputs robot,Drivebase::Output b)const{

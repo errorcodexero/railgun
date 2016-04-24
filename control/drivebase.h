@@ -31,16 +31,18 @@ struct Drivebase{
 	DECLARE_STRUCT(Output,DRIVEBASE_OUTPUT)
 
 	#define DRIVEBASE_STATUS(X) \
-		X(SINGLE_ARG(std::array<Motor_check::Status,MOTORS>),motor)
+		X(SINGLE_ARG(std::array<Motor_check::Status,MOTORS>),motor)\
+		X(bool,stall)
 	DECLARE_STRUCT(Status,DRIVEBASE_STATUS)
 
 	typedef Status Status_detail;
 
 	struct Estimator{
 		std::array<Motor_check,MOTORS> motor_check;
-
+		bool stall;
 		void update(Time,Input,Output);
 		Status_detail get()const;
+		Estimator();
 	};
 	Estimator estimator;
 

@@ -33,7 +33,7 @@ struct Panel{
 	//10 position switches:
 
 	//todo: remove this & put in main
-	enum class Auto_mode{NOTHING,REACH,STATICF,STATICS,PORTCULLIS,CHEVAL,LBLS};
+	enum class Auto_mode{NOTHING,REACH,STATICF,STATICS,PORTCULLIS,CHEVAL,LBLS,LBWLS};
 	Auto_mode auto_mode;
 	int auto_switch;//0-9
 
