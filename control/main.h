@@ -37,7 +37,7 @@ struct Main{
 		X(AUTO_CHEVALDRIVE) X(AUTO_CHEVALSTOW) \
 		X(AUTO_LBLS_CROSS_LB) X(AUTO_LBLS_CROSS_MU) \
 		X(AUTO_LBLS_SCORE_SEEK) X(AUTO_LBLS_SCORE_LOCATE) \
-		X(AUTO_LBLS_SCORE_CD) X(AUTO_LBLS_SCORE_EJECT)
+		X(AUTO_LBLS_SCORE_CD) X(AUTO_LBLS_SCORE_EJECT) X (AUTO_CHEVALWAIT)
 
 	enum class Mode{
 		#define X(NAME) NAME,
@@ -52,6 +52,8 @@ struct Main{
 	Toplevel toplevel;
 	bool topready;
 	bool simtest;
+	bool encoderflag;
+	int startencoder;
 	Robot_inputs in_i;
 
 	Countup_timer since_switch,since_auto_start;

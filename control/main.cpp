@@ -156,6 +156,8 @@ Main::Main():
 	cheval_step(Cheval_steps::GO_DOWN),
 	shoot_step(Shoot_steps::SPEED_UP)
 {
+	encoderflag = false;
+	startencoder = 0;
 	myfile2.open(NAVLOG2);
 	myfile2 << "test start" << endl;
 	tilt_presets=read_tilt_presets();
@@ -534,7 +536,7 @@ void Main::cal(Time now,double current_tilt_angle,Panel const& panel){
 	if(!set) return;
 
 	auto show=[&](){
-		cout<<"New shooter constants:"<<shooter_constants<<"\n";
+		//cout<<"New shooter constants:"<<shooter_constants<<"\n";
 	};
 	auto adjust=[&](float &f){
 		//assuming that speed dial comes in with a range of -1 to 1
@@ -579,8 +581,12 @@ pair<float,float> driveatwall(const Robot_inputs in){
 	}
 	return motorvoltmods;
 }
+int encoderconv(Maybe_inline<Encoder_output> encoder){
+	if(encoder) return *encoder;
+	return 10000;
+}
 
-Main::Mode next_mode(Main::Mode m,bool autonomous,bool autonomous_start,Toplevel::Status_detail& /*status*/,Time since_switch, Panel panel,bool const&toplready){
+Main::Mode next_mode(Main::Mode m,bool autonomous,bool autonomous_start,Toplevel::Status_detail& /*status*/,Time since_switch, Panel panel,bool const&toplready,Robot_inputs const& in,int startencoder){
 	switch(m){
 		case Main::Mode::TELEOP:	
 			if(autonomous_start){
@@ -647,8 +653,12 @@ Main::Mode next_mode(Main::Mode m,bool autonomous,bool autonomous_start,Toplevel
 
 		case Main::Mode::AUTO_CHEVALPOS:
 			if(!autonomous) return Main::Mode::TELEOP;
-			if(since_switch > .75) return Main::Mode::AUTO_CHEVALDROP;
+			if(since_switch > 1.3F) return Main::Mode::AUTO_CHEVALWAIT;
 			return Main::Mode::AUTO_CHEVALPOS;
+		case Main::Mode::AUTO_CHEVALWAIT:
+			if(!autonomous) return Main::Mode::TELEOP;
+			if(since_switch > 3) return Main::Mode::AUTO_CHEVALDROP;
+			return Main::Mode::AUTO_CHEVALWAIT;
 
 		case Main::Mode::AUTO_CHEVALDROP:
 			if(!autonomous) return Main::Mode::TELEOP;
@@ -661,23 +671,37 @@ Main::Mode next_mode(Main::Mode m,bool autonomous,bool autonomous_start,Toplevel
 			return Main::Mode::AUTO_CHEVALDRIVE;
 		
 		case Main::Mode::AUTO_CHEVALSTOW:
-			if(since_switch > 1.5 || !autonomous) return Main::Mode::TELEOP;
+			if(since_switch > 2.5 || !autonomous) return Main::Mode::TELEOP;
 			return Main::Mode::AUTO_CHEVALSTOW;
-		case Main::Mode::AUTO_LBLS_CROSS_LB:
-			if(!autonomous) return Main::Mode::TELEOP;
-			if(since_switch > 4.5) return Main::Mode::AUTO_LBLS_CROSS_MU;
-			return Main::Mode::AUTO_LBLS_CROSS_LB;
 
+		case Main::Mode::AUTO_LBLS_CROSS_LB:
+		{
+			if(!autonomous) return Main::Mode::TELEOP;
+			//cout << " test: " << encoderconv(in.digital_io.encoder[0]) << endl;
+			int currencoder = encoderconv(in.digital_io.encoder[0]);
+
+			//cout << "estimated encoders: " << (currencoder - startencoder) << " cur: " << currencoder << " start: " << startencoder << endl;
+			if((currencoder - startencoder) >= 670) return Main::Mode::AUTO_LBLS_CROSS_MU;
+// 100 ticks per 1 revalition| 8in wheal| 167 in for first run| cir:25.12| 100 ticks / 25 in| 4 ticks / 1 in| 668 ticks / 167 in.
+			return Main::Mode::AUTO_LBLS_CROSS_LB;
+			
+		}
 		case Main::Mode::AUTO_LBLS_CROSS_MU:
+		//{
+			int currencoder = encoderconv(in.digital_io.encoder[0]);
+			//cout << "estimated encoders: " << (currencoder - startencoder) << " cur: " << currencoder << " start: " << startencoder << endl;
 			if(!autonomous) return Main::Mode::TELEOP;
 			if(toplready) return Main::Mode::AUTO_LBLS_SCORE_SEEK;
 			return Main::Mode::AUTO_LBLS_CROSS_MU;
-
+		//}
 		case Main::Mode::AUTO_LBLS_SCORE_SEEK:
+		//{
+			//int currencoder = encoderconv(in.digital_io.encoder[0]);
+			//cout << "estimated encoders: " << (currencoder - startencoder) << " cur: " << currencoder << " start: " << startencoder << endl;
 			if(!autonomous) return Main::Mode::TELEOP;
-			if(since_switch > .73) return Main::Mode::AUTO_LBLS_SCORE_LOCATE;
+			if(since_switch > .76) return Main::Mode::AUTO_LBLS_SCORE_LOCATE;
 			return Main::Mode::AUTO_LBLS_SCORE_SEEK;
-
+		//}
 		case Main::Mode::AUTO_LBLS_SCORE_LOCATE:
 			if(!autonomous) return Main::Mode::TELEOP;
 			if(since_switch > 1) return Main::Mode::AUTO_LBLS_SCORE_CD;
@@ -736,7 +760,7 @@ Robot_outputs Main::operator()(Robot_inputs in,ostream&){
 	since_auto_start.update(in.now,autonomous_start_now);
 		
 	Toplevel::Goal goals;
-	
+	//cout << "encoder[0]: " << in.digital_io.encoder[0] << endl;
 	switch(mode){
 		case Mode::TELEOP:
 			goals=teleop(in,main_joystick,gunner_joystick,panel,toplevel_status,level,low,top,cheval,drawbridge);
@@ -787,6 +811,10 @@ Robot_outputs Main::operator()(Robot_inputs in,ostream&){
 			goals.drive.left=-.45;
 			goals.drive.right=-.45;
 			break;
+		case Mode::AUTO_CHEVALWAIT:
+			goals.drive.left=0;
+			goals.drive.right=0;
+			break;
 		
 		case Mode::AUTO_CHEVALDROP:
 			goals.drive.left=0;
@@ -817,14 +845,26 @@ Robot_outputs Main::operator()(Robot_inputs in,ostream&){
 			goals.collector.sides=Sides::Goal::OFF;
 
 			goals.collector.tilt=low;
+			if(!encoderflag){
+					encoderflag=true;
+					
+					startencoder = encoderconv(in.digital_io.encoder[0]);
+					cout << "GETTING START ENCODER: " << startencoder << endl;
+				}
+
 
 			if(ready(toplevel_status.collector.tilt.angle,goals.collector.tilt)){
+					
+				
+			
 				goals.drive.left=-.50;
 				goals.drive.right=-.50;
 			}
 			break;
 
 		case Main::Mode::AUTO_LBLS_CROSS_MU:
+			encoderflag = false;
+			cout << "FLAG FALSE";
 			goals.drive.left=0;
 			goals.drive.right=0;
 			goals.collector.front=Front::Goal::OFF;	
@@ -854,7 +894,7 @@ Robot_outputs Main::operator()(Robot_inputs in,ostream&){
 		//shooter_protical call in here takes in robot inputs,toplevel goal,toplevel status detail
 		default: assert(0);
 	}
-	auto next=next_mode(mode,in.robot_mode.autonomous,autonomous_start_now,toplevel_status,since_switch.elapsed(),panel,topready);
+	auto next=next_mode(mode,in.robot_mode.autonomous,autonomous_start_now,toplevel_status,since_switch.elapsed(),panel,topready,in,startencoder);
 	since_switch.update(in.now,mode!=next);
 	mode=next;
 		
@@ -1068,9 +1108,10 @@ void test_next_mode(){
 	for(auto mode:MODE_LIST){
 		Toplevel::Status_detail st=example((Toplevel::Status_detail*)nullptr);
 		bool toplready = true;
+		Robot_inputs in;
 		
 		
-		auto next=next_mode(mode,0,0,st,0,Panel{},toplready);
+		auto next=next_mode(mode,0,0,st,0,Panel{},toplready,in,0);
 		cout<<"Testing mode "<<mode<<" goes to "<<next<<"\n";
 		assert(next==Main::Mode::TELEOP);
 	}
