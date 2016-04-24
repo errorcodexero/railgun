@@ -99,7 +99,7 @@ std::ostream& operator<<(std::ostream& o,Digital_out a){
 }
 
 std::ostream& operator<<(std::ostream& o, PID_values const& a){
-	return o<<"(p:"<<a.p<<" i:"<<a.i<<" d:"<<a.d<<" d:"<<a.f<<")";
+	return o<<"(p:"<<a.p<<" i:"<<a.i<<" d:"<<a.d<<" f:"<<a.f<<")";
 }
 
 std::ostream& operator<<(std::ostream& o, Talon_srx_input in){
