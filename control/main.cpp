@@ -696,31 +696,27 @@ Main::Mode next_mode(Main::Mode m,bool autonomous,bool autonomous_start,Toplevel
 		case Main::Mode::AUTO_LBLS_CROSS_LB:
 		{
 			if(!autonomous) return Main::Mode::TELEOP;
-			//cout << " test: " << encoderconv(in.digital_io.encoder[0]) << endl;
+		
 			int currencoder = encoderconv(in.digital_io.encoder[0]);
 
-			//cout << "estimated encoders: " << (currencoder - startencoder) << " cur: " << currencoder << " start: " << startencoder << endl;
+			
 			if((currencoder - startencoder) >= 670) return Main::Mode::AUTO_LBLS_CROSS_MU;
 // 100 ticks per 1 revalition| 8in wheal| 167 in for first run| cir:25.12| 100 ticks / 25 in| 4 ticks / 1 in| 668 ticks / 167 in.
 			return Main::Mode::AUTO_LBLS_CROSS_LB;
 			
 		}
 		case Main::Mode::AUTO_LBLS_CROSS_MU:
-		//{
-			int currencoder = encoderconv(in.digital_io.encoder[0]);
-			//cout << "estimated encoders: " << (currencoder - startencoder) << " cur: " << currencoder << " start: " << startencoder << endl;
+		
 			if(!autonomous) return Main::Mode::TELEOP;
 			if(toplready) return Main::Mode::AUTO_LBLS_SCORE_SEEK;
 			return Main::Mode::AUTO_LBLS_CROSS_MU;
-		//}
+		
 		case Main::Mode::AUTO_LBLS_SCORE_SEEK:
-		//{
-			//int currencoder = encoderconv(in.digital_io.encoder[0]);
-			//cout << "estimated encoders: " << (currencoder - startencoder) << " cur: " << currencoder << " start: " << startencoder << endl;
+		
 			if(!autonomous) return Main::Mode::TELEOP;
 			if(since_switch > .76) return Main::Mode::AUTO_LBLS_SCORE_LOCATE;
 			return Main::Mode::AUTO_LBLS_SCORE_SEEK;
-		//}
+		
 		case Main::Mode::AUTO_LBLS_SCORE_LOCATE:
 			if(!autonomous) return Main::Mode::TELEOP;
 			if(since_switch > 1) return Main::Mode::AUTO_LBLS_SCORE_CD;
