@@ -29,7 +29,7 @@ struct Shooter{
 	
 	struct Status_detail{
 		double speed;//rpm
-
+		
 		Status_detail();
 		Status_detail(double);
 	};

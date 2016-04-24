@@ -83,6 +83,8 @@ struct Main{
 		#undef X
 	};
 	Collector_mode collector_mode;
+
+	Posedge_trigger_debounce cheval_trigger;
 	
 	Posedge_trigger_debounce set_button;
 	bool tilt_learn_mode;
@@ -111,9 +113,9 @@ struct Main{
 	Shooter_constants shooter_constants;
 	Log log;
 
-	Shooter::Goal shoot_action(Panel::Shooter_mode,double)const;
-	void shooter_protocol(Shooter::Status_detail const&,const bool,const Time,Toplevel::Goal& goals,bool,Panel::Shooter_mode,double);
-	void cal(Time,double,Panel const&);
+	Shooter::Goal shoot_action(Panel::Shooter_mode,double,bool)const;
+	void shooter_protocol(Toplevel::Status_detail&,const bool,const Time,Toplevel::Goal&,bool,Panel::Shooter_mode,double);
+	void cal(Time,double,double,Panel const&);
 
 	Toplevel::Goal teleop(Robot_inputs const&,Joystick_data const&,Joystick_data const&,Panel const&,Toplevel::Status_detail&,
 		Tilt::Goal,

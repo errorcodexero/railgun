@@ -1,24 +1,23 @@
 HIGH PRIORITY for Worlds:
+	- Print shooter calibration document and put in OI
 	- High goal shooter code
-		- Learn shooter speeds
-		- Make setting goal to 0 cut power instead of driving it to 0
 		- Make high goal rpm more consistent (and change pid values to be ones we actually want)
-		- Consider changing the current assumption that the ball's left after 1.5sec to when the ball sensor isn't seeing it
 		- Get printing talon_srx_controls to work
-		- Make easy to calibrate at Worlds
+		- Fix climbed shooting
 	- Autonomous 
-		- Improve cheval mode
 		- Drive Encoders
 		- Testing on carpet field with measurements
 		- Low goal auto mode 
 		- TwoBall thwarter mode
 	- Logging
+	- Fix ability to tell if partly climbed in winch estimator
 
 
 LOW PRIORITY for Worlds:
 	- Log Analysis - Nick
 	- Add auto-shut off for climber with the hall effect sensor	
 	- Prevent climber release when collector is at top
+
 
 NOT AS HIGH PRIORITY: 
 	- Laptop configuration

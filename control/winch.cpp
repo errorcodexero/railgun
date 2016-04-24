@@ -8,6 +8,14 @@ static const float WINCH_POWER = .8;
 
 Winch::Input::Input():deployed(0){}
 
+Winch::Status_detail::Status_detail():deployed(0),partly_climbed(0){}
+Winch::Status_detail::Status_detail(bool d,bool p):deployed(d),partly_climbed(p){}
+
+Winch::Estimator::Estimator(){
+	const double CLIMB_TIME=.2;//seconds
+	climb_timer.set(CLIMB_TIME);
+}
+
 std::set<Winch::Goal> examples(Winch::Goal*){
 	return {Winch::Goal::IN, Winch::Goal::OUT, Winch::Goal::STOP};
 }
@@ -22,6 +30,24 @@ std::set<Winch::Input> examples(Winch::Input*){
 	return s;
 }
 
+std::set<Winch::Status_detail> examples(Winch::Status_detail*){
+	/*std::set<Winch::Status_detail> s;
+	Winch::Status_detail sd=Winch::Status_detail(true, true);
+	s.insert(sd);*/
+	return {
+		Winch::Status_detail(true,true),
+		Winch::Status_detail(true,false),
+		Winch::Status_detail(false,true),
+		Winch::Status_detail(false,false)
+	};
+	/*return {
+		{true,true},
+		{true,false},
+		{false,true},
+		{false,false}
+	};*/
+}
+
 std::ostream& operator<<(std::ostream& o,Winch::Goal g){
 	#define X(name) if(g==Winch::Goal::name) return o<<"Winch::Goal("#name")";
 	X(IN) X(OUT) X(STOP)
@@ -33,15 +59,27 @@ std::ostream& operator<<(std::ostream& o,Winch::Input a){
 	return o<<"Input( deployed:"<<a.deployed<<")";
 }
 
+std::ostream& operator<<(std::ostream& o,Winch::Status_detail a){
+	return o<<"Status_detail( deployed:"<<a.deployed<<" partly_climbed:"<<a.partly_climbed<<")";
+}
+
 std::ostream& operator<<(std::ostream& o,Winch const&){
 	return o<<"Winch()";
 }
 
-bool operator<(Winch::Input a,Winch::Input b){
-	return !a.deployed && b.deployed;
-}
+bool operator<(Winch::Input a,Winch::Input b){ return !a.deployed && b.deployed; }
 bool operator==(Winch::Input a,Winch::Input b){ return a.deployed==b.deployed; }
 bool operator!=(Winch::Input a, Winch::Input b){ return !(a==b); }
+
+bool operator<(Winch::Status_detail a,Winch::Status_detail b){
+	if(a.deployed && !b.deployed) return true;
+	if(b.deployed && !a.deployed) return false;
+	if(a.partly_climbed && !b.partly_climbed) return true;
+	if(b.partly_climbed && !a.partly_climbed) return false;
+	return false;
+}
+bool operator==(Winch::Status_detail a,Winch::Status_detail b){ return a.deployed==b.deployed && a.partly_climbed==b.partly_climbed; }
+bool operator!=(Winch::Status_detail a,Winch::Status_detail b){ return !(a==b); }
 
 bool operator==(Winch::Estimator,Winch::Estimator){ return 1; }
 bool operator!=(Winch::Estimator a, Winch::Estimator b){ return !(a==b); }
@@ -73,8 +111,10 @@ Winch::Goal Winch::Output_applicator::operator()(Robot_outputs const& r)const{
 	return Winch::Goal::STOP;
 }
 
-void Winch::Estimator::update(Time,Winch::Input,Winch::Goal){
-
+void Winch::Estimator::update(Time time,Winch::Input input,Winch::Goal goal){
+	last.deployed=input.deployed;
+	if(goal==Winch::Goal::IN) climb_timer.update(time,true);
+	last.partly_climbed=climb_timer.done();
 }
 
 Winch::Status Winch::Estimator::get()const{

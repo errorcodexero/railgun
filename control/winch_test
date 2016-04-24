@@ -3,4 +3,5 @@ g++ --std=c++11 -Wall -Werror -DWINCH_TEST \
 	../util/interface.cpp \
 	../util/driver_station_interface.cpp \
 	../util/util.cpp \
+	../util/countdown_timer.cpp \
 	-o winch 2>&1 && ./winch

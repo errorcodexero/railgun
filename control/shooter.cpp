@@ -10,7 +10,7 @@ Shooter::Status_detail::Status_detail(double s):speed(s){}
 
 Shooter::Estimator::Estimator():last({}),last_output({0,0,Talon_srx_output::Mode::VOLTAGE}){}
 
-Shooter::Goal::Goal():mode(Shooter::Goal::Mode::SPEED),value(0){}
+Shooter::Goal::Goal():mode(Shooter::Goal::Mode::VOLTAGE),value(0){}
 Shooter::Goal::Goal(PID_values pid,Shooter::Goal::Mode m,double p):constants(pid),mode(m),value(p){}
 
 Shooter::Output::Output():speed(0),voltage(0),mode(Talon_srx_output::Mode::VOLTAGE){}
@@ -132,8 +132,8 @@ void Shooter::Estimator::update(Time,Shooter::Input in,Shooter::Output output){
 	if(output.mode==Talon_srx_output::Mode::VOLTAGE){
 		last.speed=[&]{
 			if(output.voltage==0.0) return 0.0;
-			if(output.voltage==-.5) return GROUND_RPM;
-			if(output.voltage==-1.0) return CLIMB_RPM;
+			if(output.voltage==-.5) return CLIMB_RPM;
+			if(output.voltage==-1.0) return GROUND_RPM;
 			if(output.voltage==1.0) return FREE_SPIN_RPM;
 			return CLIMB_RPM;
 		}();

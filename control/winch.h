@@ -3,6 +3,7 @@
 
 #include <set>
 #include "../util/interface.h"
+#include "../util/countdown_timer.h"
 
 struct Winch{
 	enum class Goal{IN,OUT,STOP};
@@ -14,7 +15,11 @@ struct Winch{
 		Input();
 	};
 
-	typedef Input Status_detail;
+	struct Status_detail{
+		bool deployed, partly_climbed;
+		Status_detail();
+		Status_detail(bool,bool);
+	};
 	
 	typedef Status_detail Status;
 	
@@ -29,8 +34,12 @@ struct Winch{
 	};
 
 	struct Estimator{
+		Countdown_timer climb_timer;
+		Status_detail last;
+		
 		void update(Time,Input,Output);
 		Status_detail get()const;
+		Estimator();
 	};
 
 	Input_reader input_reader;
@@ -40,15 +49,20 @@ struct Winch{
 
 std::set<Winch::Goal> examples(Winch::Goal*);
 std::set<Winch::Input> examples(Winch::Input*);
+std::set<Winch::Status_detail> examples(Winch::Status_detail*);
 
 std::ostream& operator<<(std::ostream&,Winch::Goal);
 std::ostream& operator<<(std::ostream&,Winch::Input);
-std::ostream& operator<<(std::ostream&,Winch::Status);
+std::ostream& operator<<(std::ostream&,Winch::Status_detail);
 std::ostream& operator<<(std::ostream&,Winch const&);
 
 bool operator<(Winch::Input,Winch::Input);
 bool operator==(Winch::Input,Winch::Input);
 bool operator!=(Winch::Input,Winch::Input);
+
+bool operator<(Winch::Status_detail,Winch::Status_detail);
+bool operator==(Winch::Status_detail,Winch::Status_detail);
+bool operator!=(Winch::Status_detail,Winch::Status_detail);
 
 bool operator==(Winch::Estimator,Winch::Estimator);
 bool operator!=(Winch::Estimator,Winch::Estimator);
