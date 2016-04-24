@@ -677,6 +677,7 @@ Main::Mode next_mode(Main::Mode m,bool autonomous,bool autonomous_start,Toplevel
 			if(!autonomous) return Main::Mode::TELEOP;
 			if(since_switch > 1.3) return Main::Mode::AUTO_CHEVALWAIT;
 			return Main::Mode::AUTO_CHEVALPOS;
+
 		case Main::Mode::AUTO_CHEVALWAIT:
 			if(!autonomous) return Main::Mode::TELEOP;
 			if(since_switch > 3) return Main::Mode::AUTO_CHEVALDROP;
@@ -735,7 +736,7 @@ Main::Mode next_mode(Main::Mode m,bool autonomous,bool autonomous_start,Toplevel
 		{
 			if(!autonomous) return Main::Mode::TELEOP;
 			int currencoder = encoderconv(in.digital_io.encoder[0]);
-			if((currencoder - startencoder) >= 670) return Main::Mode::AUTO_LBWLS_MUP;
+			if((currencoder - startencoder) >= 670|| since_switch > 4.5) return Main::Mode::AUTO_LBWLS_MUP;
 // 100 ticks per 1 revalition| 8in wheal| 167 in for first run| cir:25.12| 100 ticks / 25 in| 4 ticks / 1 in| 668 ticks / 167 in.
 			return Main::Mode::AUTO_LBWLS_WALL;
 			
@@ -743,7 +744,7 @@ Main::Mode next_mode(Main::Mode m,bool autonomous,bool autonomous_start,Toplevel
 
 		case Main::Mode::AUTO_LBWLS_MUP:
 			if(!autonomous) return Main::Mode::TELEOP;
-			cout << "stall: " << status.drive.stall << endl;
+			//cout << "stall: " << status.drive.stall << endl;
 			if(status.drive.stall) return Main::Mode::AUTO_LBWLS_BACK;
 			return Main::Mode::AUTO_LBWLS_MUP;
 
@@ -823,9 +824,9 @@ Robot_outputs Main::operator()(Robot_inputs in,ostream&){
 	Toplevel::Goal goals;
 	//cout << "encoder[0]: " << in.digital_io.encoder[0] << endl;
 	//cout << "Toplevel status: " << toplevel_status.drive << endl;
-	decltype(in.current) robotcurrent;
-	for(auto &a:robotcurrent) a = 0;
-	if(robotcurrent != in.current) cout << "current: " << in.current << endl;
+	//decltype(in.current) robotcurrent;
+	//for(auto &a:robotcurrent) a = 0;
+	//if(robotcurrent != in.current) cout << "current: " << in.current << endl;
 	switch(mode){
 		case Mode::TELEOP:
 			goals=teleop(in,main_joystick,gunner_joystick,panel,toplevel_status,level,low,top,cheval,drawbridge);
