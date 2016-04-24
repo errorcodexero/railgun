@@ -864,7 +864,7 @@ Robot_outputs Main::operator()(Robot_inputs in,ostream&){
 					encoderflag=true;
 					
 					startencoder = encoderconv(in.digital_io.encoder[0]);
-					cout << "GETTING START ENCODER: " << startencoder << endl;
+					//cout << "GETTING START ENCODER: " << startencoder << endl;
 				}
 
 
@@ -879,7 +879,7 @@ Robot_outputs Main::operator()(Robot_inputs in,ostream&){
 
 		case Main::Mode::AUTO_LBLS_CROSS_MU:
 			encoderflag = false;
-			cout << "FLAG FALSE";
+			//cout << "FLAG FALSE";
 			goals.drive.left=0;
 			goals.drive.right=0;
 			goals.collector.front=Front::Goal::OFF;	
