@@ -627,8 +627,12 @@ Main::Mode next_mode(Main::Mode m,bool autonomous,bool autonomous_start,Toplevel
 							return Main::Mode::AUTO_CHEVALPOS;
 						case Panel::Auto_mode::LBLS:
 							return Main::Mode::AUTO_LBLS_CROSS_LB;
-						case Panel::Auto_mode::LBWLS:
+						case Panel::Auto_mode::LBWLS:	
 							return Main::Mode::AUTO_LBWLS_WALL;
+						case Panel::Auto_mode::LBWHS:
+							return Main::Mode::AUTO_LBWHS_WALL;
+						case Panel::Auto_mode::S:
+							return Main::Mode::AUTO_LBWHS_PREP;
 						default: assert(0);
 					}
 				}
@@ -776,6 +780,61 @@ Main::Mode next_mode(Main::Mode m,bool autonomous,bool autonomous_start,Toplevel
 			if(!autonomous) return Main::Mode::TELEOP;
 			if(since_switch > .78) return Main::Mode::AUTO_LBWLS_EJECT;
 			return Main::Mode::AUTO_LBWLS_BR;
+//-----------------------------------------------------------------------------------------------------------------------------------------------
+			case Main::Mode::AUTO_LBWHS_WALL:
+		{
+			if(!autonomous) return Main::Mode::TELEOP;
+			int currencoder = encoderconv(in.digital_io.encoder[0]);
+			if((currencoder - startencoder) >= 606|| since_switch > 4.5) return Main::Mode::AUTO_LBWHS_MUP;
+// 100 ticks per 1 revalition| 8in wheal| 167 in for first run| cir:25.12| 100 ticks / 25 in| 4 ticks / 1 in| 668 ticks / 167 in.
+			return Main::Mode::AUTO_LBWHS_WALL;
+			
+		}
+
+		case Main::Mode::AUTO_LBWHS_MUP:
+			if(!autonomous) return Main::Mode::TELEOP;
+			//cout << "stall: " << status.drive.stall << endl;
+			if(status.drive.stall) return Main::Mode::AUTO_LBWHS_BACK;
+			return Main::Mode::AUTO_LBWHS_MUP;
+
+		case Main::Mode::AUTO_LBWHS_ROTATE:
+			if(!autonomous) return Main::Mode::TELEOP;
+			if(since_switch > 1) return Main::Mode::AUTO_LBWHS_C;
+			return Main::Mode::AUTO_LBWHS_ROTATE;
+
+		case Main::Mode::AUTO_LBWHS_C:
+			if(!autonomous) return Main::Mode::TELEOP;
+			if(since_switch > 1) return Main::Mode::AUTO_LBWHS_TOWER;
+			return Main::Mode::AUTO_LBWHS_C;
+
+		case Main::Mode::AUTO_LBWHS_EJECT:
+			if(since_switch > 1 || !autonomous) return Main::Mode::TELEOP;
+			return Main::Mode::AUTO_LBWHS_EJECT;
+
+		case Main::Mode::AUTO_LBWHS_BACK:
+			if(!autonomous) return Main::Mode::TELEOP;
+			if(since_switch >.5) return Main::Mode::AUTO_LBWHS_ROTATE;
+			return Main::Mode::AUTO_LBWHS_BACK;
+
+		case Main::Mode::AUTO_LBWHS_TOWER:
+			if(!autonomous) return Main::Mode::TELEOP;
+			if(since_switch > 2.7) return Main::Mode::AUTO_LBWHS_BR;
+			return Main::Mode::AUTO_LBWHS_TOWER;
+
+		case Main::Mode::AUTO_LBWHS_BR:
+			if(!autonomous) return Main::Mode::TELEOP;
+			if(since_switch > .7) return Main::Mode::AUTO_LBWHS_PREP;
+			return Main::Mode::AUTO_LBWHS_BR;
+
+		case Main::Mode::AUTO_LBWHS_PREP:
+			if(!autonomous) return Main::Mode::TELEOP;
+			if(since_switch > 3) return Main::Mode::AUTO_LBWHS_EJECT;
+			return Main::Mode::AUTO_LBWHS_PREP;
+
+		case Main::Mode::AUTO_LBWHS_BP:
+		if(!autonomous) return Main::Mode::TELEOP;
+		if(since_switch > 2) return Main::Mode::AUTO_LBWHS_PREP;
+		return Main::Mode::AUTO_LBWHS_BP;
 			
 
 		default: assert(0);
@@ -843,7 +902,6 @@ Robot_outputs Main::operator()(Robot_inputs in,ostream&){
 			goals.drive.right=-1;
 			break;
 		case Mode::AUTO_STATICTWO:
-			
 			goals.drive.left=-.5;
 			goals.drive.right=-.5;
 			break;
@@ -862,8 +920,8 @@ Robot_outputs Main::operator()(Robot_inputs in,ostream&){
 			goals.collector.tilt=low;
 
 			if(ready(toplevel_status.collector.tilt.angle,goals.collector.tilt)){
-				goals.drive.left=-.75;
-				goals.drive.right=-.75;
+				goals.drive.left=-.50;
+				goals.drive.right=-.50;
 			}
 			break;
 		case Mode::AUTO_PORTCULLIS_DONE:
@@ -1006,6 +1064,72 @@ Robot_outputs Main::operator()(Robot_inputs in,ostream&){
 		case Main::Mode::AUTO_LBWLS_BR:
 			goals.drive.left=.5;
 			goals.drive.right=-.5;
+			break;
+//-----------------------------------------------------------------------------------------------------------------------------------------------
+		case Main::Mode::AUTO_LBWHS_WALL:
+			goals.collector.front=Front::Goal::OFF;
+			goals.collector.sides=Sides::Goal::OFF;
+
+			goals.collector.tilt=low;
+
+			if(!encoderflag){
+					encoderflag=true;
+					
+					startencoder = encoderconv(in.digital_io.encoder[0]);
+					//cout << "GETTING START ENCODER: " << startencoder << endl;
+			}
+				goals.drive.left=-.6;
+				goals.drive.right=-.6;
+
+			if(ready(toplevel_status.collector.tilt.angle,goals.collector.tilt)){
+				goals.drive.left=-.8;
+				goals.drive.right=-.8;
+			}
+			break;
+		case Main::Mode::AUTO_LBWHS_MUP:
+			encoderflag = false;
+			//cout << "FLAG FALSE";
+			goals.drive.left=-.5;
+			goals.drive.right=-.5;
+			goals.collector.front=Front::Goal::OFF;	
+			goals.collector.sides=Sides::Goal::OFF;
+
+			goals.collector.tilt=top;
+			Main::topready=ready(toplevel_status.collector.tilt.angle,goals.collector.tilt);
+			break;
+		case Main::Mode::AUTO_LBWHS_ROTATE:
+			goals.drive.right=-.50;
+			goals.drive.left=.50;
+			break;
+		case Main::Mode::AUTO_LBWHS_C:
+			goals.drive.right=-.50;
+			goals.drive.left=-.50;
+			break;
+		case Main::Mode::AUTO_LBWHS_EJECT:
+			goals.collector.front = Front::Goal::IN;
+			goals.shooter=shoot_action(Panel::Shooter_mode::CLOSED_AUTO,0,false);
+			break;
+		case Main::Mode::AUTO_LBWHS_BACK:
+			goals.drive.left=.2;
+			goals.drive.right=.2;
+			break;
+		case Main::Mode::AUTO_LBWHS_TOWER:
+			goals.drive.left=.5;
+			goals.drive.right=.5;
+			break;
+		case Main::Mode::AUTO_LBWHS_BR:
+			goals.drive.left=.5;
+			goals.drive.right=-.5;
+			break;	
+		case Main::Mode::AUTO_LBWHS_PREP:
+			goals.drive.left=.12;
+			goals.drive.right=.12;
+			goals.collector.front = Front::Goal::OFF;
+			goals.shooter=shoot_action(Panel::Shooter_mode::CLOSED_AUTO,0,false);
+			break;
+		case Main::Mode::AUTO_LBWHS_BP:
+			goals.drive.left=.35;
+			goals.drive.right=.35;
 			break;
 		//shooter_protical call in here takes in robot inputs,toplevel goal,toplevel status detail
 		default: assert(0);
