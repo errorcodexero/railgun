@@ -740,8 +740,8 @@ Main::Mode next_mode(Main::Mode m,bool autonomous,bool autonomous_start,Toplevel
 		{
 			if(!autonomous) return Main::Mode::TELEOP;
 			int currencoder = encoderconv(in.digital_io.encoder[0]);
-			if((currencoder - startencoder) >= 670|| since_switch > 4.5) return Main::Mode::AUTO_LBWLS_MUP;
-// 100 ticks per 1 revalition| 8in wheal| 167 in for first run| cir:25.12| 100 ticks / 25 in| 4 ticks / 1 in| 668 ticks / 167 in.
+			if((currencoder - startencoder) >= 670|| since_switch > 4.5) return Main::Mode::AUTO_LBWLS_MUP;// The value that is 670 is the value for encoders and 4.5 is a back up time for if there are not encoders
+// 100 ticks per 1 revalition| 8in wheal| 167 in for first run| cir:25.12| 100 ticks / 25 in| 4 ticks / 1 in| 668 ticks / 167 in. 
 			return Main::Mode::AUTO_LBWLS_WALL;
 			
 		}
@@ -749,36 +749,36 @@ Main::Mode next_mode(Main::Mode m,bool autonomous,bool autonomous_start,Toplevel
 		case Main::Mode::AUTO_LBWLS_MUP:
 			if(!autonomous) return Main::Mode::TELEOP;
 			//cout << "stall: " << status.drive.stall << endl;
-			if(status.drive.stall) return Main::Mode::AUTO_LBWLS_BACK;
+			if(status.drive.stall) return Main::Mode::AUTO_LBWLS_BACK;// stall is in drive base and is base on motor currnt 
 			return Main::Mode::AUTO_LBWLS_MUP;
 
 		case Main::Mode::AUTO_LBWLS_ROTATE:
 			if(!autonomous) return Main::Mode::TELEOP;
-			if(since_switch > 1) return Main::Mode::AUTO_LBWLS_C;
+			if(since_switch > 1) return Main::Mode::AUTO_LBWLS_C; // this mode turns after the first wall
 			return Main::Mode::AUTO_LBWLS_ROTATE;
 
 		case Main::Mode::AUTO_LBWLS_C:
 			if(!autonomous) return Main::Mode::TELEOP;
-			if(since_switch > 2) return Main::Mode::AUTO_LBWLS_TOWER;
+			if(since_switch > 2) return Main::Mode::AUTO_LBWLS_TOWER; // this mode drives to the corner
 			return Main::Mode::AUTO_LBWLS_C;
 
 		case Main::Mode::AUTO_LBWLS_EJECT:
-			if(since_switch > 1 || !autonomous) return Main::Mode::TELEOP;
+			if(since_switch > 1 || !autonomous) return Main::Mode::TELEOP; //shoots low
 			return Main::Mode::AUTO_LBLS_SCORE_EJECT;
 
 		case Main::Mode::AUTO_LBWLS_BACK:
-			if(!autonomous) return Main::Mode::TELEOP;
+			if(!autonomous) return Main::Mode::TELEOP;// drives back from the first wall
 			if(since_switch >.5) return Main::Mode::AUTO_LBWLS_ROTATE;
 			return Main::Mode::AUTO_LBWLS_BACK;
 
 		case Main::Mode::AUTO_LBWLS_TOWER:
-			if(!autonomous) return Main::Mode::TELEOP;
-			if(since_switch > 2) return Main::Mode::AUTO_LBWLS_BR;
+			if(!autonomous) return Main::Mode::TELEOP; 
+			if(since_switch > 2) return Main::Mode::AUTO_LBWLS_BR;//drives to the tower
 			return Main::Mode::AUTO_LBWLS_TOWER;
 
 		case Main::Mode::AUTO_LBWLS_BR:
 			if(!autonomous) return Main::Mode::TELEOP;
-			if(since_switch > .78) return Main::Mode::AUTO_LBWLS_EJECT;
+			if(since_switch > .78) return Main::Mode::AUTO_LBWLS_EJECT; //rotates on the batter to shoot
 			return Main::Mode::AUTO_LBWLS_BR;
 //-----------------------------------------------------------------------------------------------------------------------------------------------
 			case Main::Mode::AUTO_LBWHS_WALL:
