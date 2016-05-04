@@ -1,5 +1,4 @@
-HIGH PRIORITY for Worlds:
-	- Print shooter calibration document and put in OI
+HIGH PRIORITY for Offseason:
 	- High goal shooter code
 		- Make high goal rpm more consistent (and change pid values to be ones we actually want)
 		- Get printing talon_srx_controls to work
@@ -8,18 +7,16 @@ HIGH PRIORITY for Worlds:
 		- Drive Encoders
 		- Testing on carpet field with measurements
 		- Low goal auto mode 
-		- TwoBall thwarter mode
+		- Vision run autonomous
+		- Rewrite structure
 	- Logging
 	- Fix ability to tell if partly climbed in winch estimator
 
 
-LOW PRIORITY for Worlds:
+NOT AS HIGH PRIORITY for Offseason:
 	- Log Analysis - Nick
 	- Add auto-shut off for climber with the hall effect sensor	
 	- Prevent climber release when collector is at top
-
-
-NOT AS HIGH PRIORITY: 
 	- Laptop configuration
 		-ssh config:
 			-Fix the "rm ~/.ssh/known_hosts" problem
