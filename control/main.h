@@ -30,7 +30,7 @@ std::ostream& operator<<(std::ostream&,Shooter_constants const&);
 
 struct Main{
 	#define MODES X(TELEOP)\
-		X(AUTO_NULL) X(AUTO_REACH) X(AUTO_STATIC) \
+		X(DELAY) X(AUTO_NULL) X(AUTO_REACH) X(AUTO_STATIC) \
 		X(AUTO_STOP) X(AUTO_STATICTWO) X(AUTO_TEST) \
 		X(AUTO_PORTCULLIS) X(AUTO_PORTCULLIS_DONE) \
 		X(AUTO_CHEVALPOS) X(AUTO_CHEVALDROP) \

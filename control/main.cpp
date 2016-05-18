@@ -508,8 +508,7 @@ Toplevel::Goal Main::teleop(
 		}
 		return Winch::Goal::STOP;
 	}();
-
-	// if(SLOW_PRINT) cout<<shoot_step<<" "<<toplevel_status.shooter<<" "<<goals.shooter<<"\n";
+//	///if(SLOW_PRINT) cout<<shoot_step<<" "<<toplevel_status.shooter<<" "<<goals.shooter<<"\n";
 	return goals;
 }
 
@@ -605,41 +604,51 @@ int encoderconv(Maybe_inline<Encoder_output> encoder){
 	return 10000;
 }
 
+Main::Mode get_auto(Panel const& panel){
+	if (panel.in_use) {
+		switch(panel.auto_mode){ 
+			case Panel::Auto_mode::NOTHING:
+				return Main::Mode::AUTO_NULL;
+			case Panel::Auto_mode::REACH:
+				return Main::Mode::AUTO_REACH;
+			case Panel::Auto_mode::STATICS:
+				return Main::Mode::AUTO_STATICTWO;
+			case Panel::Auto_mode::STATICF:
+				return Main::Mode::AUTO_STATIC;
+			case Panel::Auto_mode::PORTCULLIS:
+				return Main::Mode::AUTO_PORTCULLIS;
+			case Panel::Auto_mode::CHEVAL:
+				return Main::Mode::AUTO_CHEVALPOS;
+			case Panel::Auto_mode::LBLS:
+				return Main::Mode::AUTO_LBLS_CROSS_LB;
+			case Panel::Auto_mode::LBWLS:	
+				return Main::Mode::AUTO_LBWLS_WALL;
+			case Panel::Auto_mode::LBWHS:
+				return Main::Mode::AUTO_LBWHS_WALL;
+			case Panel::Auto_mode::S:
+				return Main::Mode::AUTO_LBWHS_PREP;
+			default: assert(0);
+		}
+	}
+	return Main::Mode::TELEOP;
+}
+
 Main::Mode next_mode(Main::Mode m,bool autonomous,bool autonomous_start,Toplevel::Status_detail const& status,Time since_switch, Panel panel,bool const&toplready,Robot_inputs const& in,int startencoder){
 	switch(m){
 		case Main::Mode::TELEOP:	
 			if(autonomous_start){
 				myfile2 << "NEXT_MODE:AUTO_REACH***" << endl;
 				//return Main::Mode::AUTO_STATIC;//just for testing purposes
-				if (panel.in_use) {
-					switch(panel.auto_mode){ 
-						case Panel::Auto_mode::NOTHING:
-							return Main::Mode::AUTO_NULL;
-						case Panel::Auto_mode::REACH:
-							return Main::Mode::AUTO_REACH;
-						case Panel::Auto_mode::STATICS:
-							return Main::Mode::AUTO_STATICTWO;
-						case Panel::Auto_mode::STATICF:
-							return Main::Mode::AUTO_STATIC;
-						case Panel::Auto_mode::PORTCULLIS:
-							return Main::Mode::AUTO_PORTCULLIS;
-						case Panel::Auto_mode::CHEVAL:
-							return Main::Mode::AUTO_CHEVALPOS;
-						case Panel::Auto_mode::LBLS:
-							return Main::Mode::AUTO_LBLS_CROSS_LB;
-						case Panel::Auto_mode::LBWLS:	
-							return Main::Mode::AUTO_LBWLS_WALL;
-						case Panel::Auto_mode::LBWHS:
-							return Main::Mode::AUTO_LBWHS_WALL;
-						case Panel::Auto_mode::S:
-							return Main::Mode::AUTO_LBWHS_PREP;
-						default: assert(0);
-					}
+				if(panel.in_use){
+					return Main::Mode::DELAY;
 				}
 				return Main::Mode::TELEOP; //during testing put the mode you want to test without the driverstation.
 			}
 			return m;
-
+		case Main::Mode::DELAY:
+			if(!autonomous) return Main::Mode::TELEOP;
+			if(since_switch > (panel.speed_dial+1)*5 || since_switch>8) return get_auto(panel);
+			return Main::Mode::DELAY;
 		case Main::Mode::AUTO_NULL:
 			return Main::Mode::TELEOP;
 		
@@ -670,7 +679,7 @@ Main::Mode next_mode(Main::Mode m,bool autonomous,bool autonomous_start,Toplevel
 
 		case Main::Mode::AUTO_PORTCULLIS:
 			if(!autonomous) return Main::Mode::TELEOP;
-			if(since_switch > 2.5) return Main::Mode::AUTO_PORTCULLIS_DONE;
+			if(since_switch > 4/*2.5*/) return Main::Mode::AUTO_PORTCULLIS_DONE;
 			return Main::Mode::AUTO_PORTCULLIS;
 	
 		case Main::Mode::AUTO_PORTCULLIS_DONE:
@@ -679,7 +688,7 @@ Main::Mode next_mode(Main::Mode m,bool autonomous,bool autonomous_start,Toplevel
 
 		case Main::Mode::AUTO_CHEVALPOS:
 			if(!autonomous) return Main::Mode::TELEOP;
-			if(since_switch > 1.3) return Main::Mode::AUTO_CHEVALWAIT;
+			if(since_switch > 1.8) return Main::Mode::AUTO_CHEVALWAIT;
 			return Main::Mode::AUTO_CHEVALPOS;
 
 		case Main::Mode::AUTO_CHEVALWAIT:
@@ -778,7 +787,7 @@ Main::Mode next_mode(Main::Mode m,bool autonomous,bool autonomous_start,Toplevel
 
 		case Main::Mode::AUTO_LBWLS_BR:
 			if(!autonomous) return Main::Mode::TELEOP;
-			if(since_switch > .78) return Main::Mode::AUTO_LBWLS_EJECT; //rotates on the batter to shoot
+			if(since_switch > .39/*.78*/) return Main::Mode::AUTO_LBWLS_EJECT; //rotates on the batter to shoot
 			return Main::Mode::AUTO_LBWLS_BR;
 //-----------------------------------------------------------------------------------------------------------------------------------------------
 			case Main::Mode::AUTO_LBWHS_WALL:
@@ -850,8 +859,6 @@ Robot_outputs Main::operator()(Robot_inputs in,ostream&){
 	Joystick_data gunner_joystick=in.joystick[1];
 	Panel panel=interpret(in.joystick[2]);
 
-	if(!in.robot_mode.enabled) collector_mode=Collector_mode::NOTHING;
-
 	Tilt::Goal level=Tilt::Goal::go_to_angle(make_tolerances(tilt_presets.level));
 	Tilt::Goal low=Tilt::Goal::go_to_angle(make_tolerances(tilt_presets.low));
 	Tilt::Goal top=Tilt::Goal::go_to_angle(make_tolerances(tilt_presets.top));
@@ -881,14 +888,14 @@ Robot_outputs Main::operator()(Robot_inputs in,ostream&){
 	since_auto_start.update(in.now,autonomous_start_now);
 		
 	Toplevel::Goal goals;
-	//cout << "encoder[0]: " << in.digital_io.encoder[0] << endl;
-	//cout << "Toplevel status: " << toplevel_status.drive << endl;
 	//decltype(in.current) robotcurrent;
 	//for(auto &a:robotcurrent) a = 0;
 	//if(robotcurrent != in.current) cout << "current: " << in.current << endl;
 	switch(mode){
 		case Mode::TELEOP:
 			goals=teleop(in,main_joystick,gunner_joystick,panel,toplevel_status,level,low,top,cheval,drawbridge);
+			break;
+		case Mode::DELAY:
 			break;
 		case Mode::AUTO_NULL:
 			break;
@@ -933,8 +940,8 @@ Robot_outputs Main::operator()(Robot_inputs in,ostream&){
 		case Mode::AUTO_CHEVALPOS:
 			goals.collector.front=Front::Goal::OFF;
 			goals.collector.sides=Sides::Goal::OFF;
-			goals.drive.left=-.45;
-			goals.drive.right=-.45;
+			goals.drive.left=-.25;
+			goals.drive.right=-.25;
 			break;
 		case Mode::AUTO_CHEVALWAIT:
 			goals.drive.left=0;
@@ -1025,14 +1032,14 @@ Robot_outputs Main::operator()(Robot_inputs in,ostream&){
 				}
 
 			if(ready(toplevel_status.collector.tilt.angle,goals.collector.tilt)){
-				goals.drive.left=-.50;
+				goals.drive.left=-.54;
 				goals.drive.right=-.50;
 			}
 			break;
 		case Main::Mode::AUTO_LBWLS_MUP:
 			encoderflag = false;
 			//cout << "FLAG FALSE";
-			goals.drive.left=-.50;
+			goals.drive.left=-.67;
 			goals.drive.right=-.50;
 			goals.collector.front=Front::Goal::OFF;	
 			goals.collector.sides=Sides::Goal::OFF;
