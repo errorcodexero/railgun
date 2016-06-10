@@ -21,6 +21,7 @@ class Ten_position_pot{
 typedef bool Button;
 
 enum class Three_position_switch{DOWN,MIDDLE,UP};
+enum class Two_position_switch{DOWN,UP};
 
 struct Panel{
 	bool in_use;
@@ -35,10 +36,10 @@ struct Panel{
 	Button collector_up;
 	Button collector_down;
 	//2 position swicthes:
-	bool lock_climber;
-	bool tilt_auto;
-	bool front_auto;
-	bool sides_auto;	
+	Two_position_switch lock_climber;
+	Two_position_switch tilt_auto;
+	Two_position_switch front_auto;
+	Two_position_switch sides_auto;
 	//3 position switches: 
 	Three_position_switch collector_pos;
 	Three_position_switch front;
@@ -49,13 +50,13 @@ struct Panel{
 	enum class Auto_mode{NOTHING,REACH,STATICF,STATICS,PORTCULLIS,CHEVAL,LBLS,LBWLS,LBWHS,S};//todo: remove this & put in main
 	Auto_mode auto_mode;
 	Ten_position_pot auto_switch;//0-9
-
 	//Dials:
 	float speed_dial;
 	Panel();
 };
 
 std::ostream& operator<<(std::ostream&,Ten_position_pot);
+std::ostream& operator<<(std::ostream&,Two_position_switch);
 std::ostream& operator<<(std::ostream&,Three_position_switch);
 std::ostream& operator<<(std::ostream&,Panel::Auto_mode);
 std::ostream& operator<<(std::ostream&,Panel);

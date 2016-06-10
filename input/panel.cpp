@@ -18,10 +18,10 @@ Panel::Panel():
 	shoot_high(0),
 	collector_up(0),
 	collector_down(0),
-	lock_climber(0),
-	tilt_auto(0),
-	front_auto(0),
-	sides_auto(0),
+	lock_climber(Two_position_switch::DOWN),
+	tilt_auto(Two_position_switch::DOWN),
+	front_auto(Two_position_switch::DOWN),
+	sides_auto(Two_position_switch::DOWN),
 	collector_pos(Three_position_switch::MIDDLE),
 	front(Three_position_switch::MIDDLE),
 	sides(Three_position_switch::MIDDLE),
@@ -61,6 +61,13 @@ std::ostream& operator<<(std::ostream& o,Ten_position_pot a){
 std::ostream& operator<<(std::ostream& o,Three_position_switch a){
 	#define X(NAME) if(a==Three_position_switch::NAME)return o<<""#NAME;
 	X(UP) X(MIDDLE) X(DOWN)
+	#undef X
+	assert(0);
+}
+
+std::ostream& operator<<(std::ostream& o,Two_position_switch a){
+	#define X(NAME) if(a==Two_position_switch::NAME)return o<<""#NAME;
+	X(UP) X(DOWN)
 	#undef X
 	assert(0);
 }
@@ -144,10 +151,10 @@ Panel interpret(Joystick_data d){
 		p.auto_switch.interpret(auto_mode);
 		p.auto_mode=auto_mode_convert(p.auto_switch.get());
 	}
-	p.lock_climber = d.button[0];
-	p.tilt_auto = d.button[1];
-	p.sides_auto = d.button[2];
-	p.front_auto = d.button[3];
+	p.lock_climber = (d.button[0])? Two_position_switch::UP : Two_position_switch::DOWN;
+	p.tilt_auto = (d.button[1])? Two_position_switch::UP : Two_position_switch::DOWN;
+	p.sides_auto = (d.button[2])? Two_position_switch::UP : Two_position_switch::DOWN;
+	p.front_auto = (d.button[3])? Two_position_switch::UP : Two_position_switch::DOWN;
 	#define AXIS_RANGE(axis, last, curr, next, var, val) if (axis > curr-(curr-last)/2 && axis < curr+(next-curr)/2) var = val;
 	{
 		float op = d.axis[2];
