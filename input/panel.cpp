@@ -22,11 +22,11 @@ Panel::Panel():
 	tilt_auto(0),
 	front_auto(0),
 	sides_auto(0),
-	collector_pos(Collector_pos::DEFAULT),
-	front(Collector::OFF),
-	sides(Collector::OFF),
-	winch(Winch::STOP),
-	shooter_mode(Shooter_mode::CLOSED_AUTO),
+	collector_pos(Three_position_switch::MIDDLE),
+	front(Three_position_switch::MIDDLE),
+	sides(Three_position_switch::MIDDLE),
+	winch(Three_position_switch::MIDDLE),
+	shooter_mode(Three_position_switch::MIDDLE),
 	auto_mode(Auto_mode::NOTHING),
 	auto_switch(0),
 	speed_dial(0)
@@ -58,36 +58,11 @@ std::ostream& operator<<(std::ostream& o,Ten_position_pot a){
 	return o<<")";
 }
 
-ostream& operator<<(ostream& o,Panel::Collector_pos a){
-	o<<"Panel::Collector_pos(";
-	#define X(name) if(a==Panel::Collector_pos::name)o<<""#name;
-	X(STOW) X(DEFAULT) X(LOW)
+std::ostream& operator<<(std::ostream& o,Three_position_switch a){
+	#define X(NAME) if(a==Three_position_switch::NAME)return o<<""#NAME;
+	X(UP) X(MIDDLE) X(DOWN)
 	#undef X
-	return o<<")";
-}
-
-ostream& operator<<(ostream& o,Panel::Collector a){
-	o<<"Panel::Collector(";
-	#define X(name) if(a==Panel::Collector::name)o<<""#name;
-	X(IN) X(OUT) X(OFF)	
-	#undef X
-	return o<<")";
-}
-
-ostream& operator<<(ostream& o,Panel::Winch a){
-	o<<"Panel::Winch(";
-	#define X(name) if(a==Panel::Winch::name)o<<""#name;
-	X(UP) X(STOP) X(DOWN)
-	#undef X
-	return o<<")";
-}
-
-ostream& operator<<(ostream& o,Panel::Shooter_mode a){
-	o<<"Panel::Shooter_mode(";
-	#define X(name) if (a==Panel::Shooter_mode::name)o<<""#name;
-	X(OPEN) X(CLOSED_MANUAL) X(CLOSED_AUTO)
-	#undef X
-	return o<<")";
+	assert(0);
 }
 
 ostream& operator<<(ostream& o,Panel::Auto_mode a){
@@ -143,6 +118,13 @@ float axis_to_percent(double a){
 	return .5-(a/2);
 }
 
+Three_position_switch interpret(float axis_value){
+	static const float DOWN=0,UP=-.5,MIDDLE=-1;;
+	if(axis_value>UP-(UP-MIDDLE)/2 && axis_value<UP+(DOWN-UP)/2)return Three_position_switch::UP;
+	if(axis_value>DOWN-(DOWN-UP)/2 && axis_value<DOWN+.25)return Three_position_switch::DOWN;
+	return Three_position_switch::MIDDLE;
+}
+
 Panel interpret(Joystick_data d){
 	Panel p;
 	{
@@ -183,39 +165,15 @@ Panel interpret(Joystick_data d){
 		else AXIS_RANGE(op, DRAWBRIDGE, CHEVAL, LEARN, p.cheval, 1)
 		else AXIS_RANGE(op, CHEVAL, LEARN, 1.38, p.learn, 1)
 	}
-	{
-		float collector_pos = d.axis[5];
-		static const float LOW=-1, DEFAULT=0, STOW=1;
-		p.collector_pos = Panel::Collector_pos::LOW;
-		AXIS_RANGE(collector_pos, LOW, DEFAULT, STOW, p.collector_pos, Panel::Collector_pos::DEFAULT)
-		else AXIS_RANGE(collector_pos, DEFAULT, STOW, 1.5, p.collector_pos, Panel::Collector_pos::STOW)
-	}
-	{
-		float front = d.axis[4];
-		static const float OUT=-1, OFF=.48, IN=1;
-		p.front = Panel::Collector::OUT;
-		AXIS_RANGE(front, OUT, OFF, IN, p.front, Panel::Collector::OFF)
-		else AXIS_RANGE(front, OFF, IN, 1.5, p.front, Panel::Collector::IN)
-	}
-	{
-		float sides = d.axis[6];
-		static const float OUT=-1, OFF=0, IN=1;
-		p.sides = Panel::Collector::OUT;
-		AXIS_RANGE(sides, OUT, OFF, IN, p.sides, Panel::Collector::OFF)
-		else AXIS_RANGE(sides, OFF, IN, 1.5, p.sides, Panel::Collector::IN)
-	}
-	{
-		float winch = d.axis[3];
-		static const float UP=-1, STOP=0, DOWN=1;
-		p.winch = Panel::Winch::UP;
-		AXIS_RANGE(winch, UP, STOP, DOWN, p.winch, Panel::Winch::STOP)
-		else AXIS_RANGE(winch, STOP, DOWN, 1.5, p.winch, Panel::Winch::DOWN)
-	}
+	p.collector_pos=interpret(d.axis[5]);
+	p.front=interpret(d.axis[4]);
+	p.sides=interpret(d.axis[6]);
+	p.winch=interpret(d.axis[3]);
 	{
 		//A three position switch connected to two digital inputs
-		p.shooter_mode = Panel::Shooter_mode::CLOSED_MANUAL;
-		if (d.button[5]) p.shooter_mode = Panel::Shooter_mode::CLOSED_AUTO;
-		if (d.button[6]) p.shooter_mode = Panel::Shooter_mode::OPEN;
+		p.shooter_mode = Three_position_switch::MIDDLE;
+		if (d.button[5]) p.shooter_mode = Three_position_switch::UP;
+		if (d.button[6]) p.shooter_mode = Three_position_switch::DOWN;
 	}
 	p.speed_dial = -d.axis[1];//axis_to_percent(d.axis[1]);
 	#undef AXIS_RANGE

@@ -20,6 +20,8 @@ class Ten_position_pot{
 
 typedef bool Button;
 
+enum class Three_position_switch{DOWN,MIDDLE,UP};
+
 struct Panel{
 	bool in_use;
 	//Buttons:
@@ -38,18 +40,13 @@ struct Panel{
 	bool front_auto;
 	bool sides_auto;	
 	//3 position switches: 
-	enum class Collector_pos{STOW,DEFAULT,LOW};
-	Collector_pos collector_pos;
-	enum class Collector{IN,OFF,OUT};
-	Collector front, sides;
-	enum class Winch{UP,STOP,DOWN};
-	Winch winch;
-	enum class Shooter_mode{OPEN,CLOSED_MANUAL,CLOSED_AUTO};
-	Shooter_mode shooter_mode;
+	Three_position_switch collector_pos;
+	Three_position_switch front;
+	Three_position_switch sides;
+	Three_position_switch winch;
+	Three_position_switch shooter_mode;
 	//10 position switches:
-
-	//todo: remove this & put in main
-	enum class Auto_mode{NOTHING,REACH,STATICF,STATICS,PORTCULLIS,CHEVAL,LBLS,LBWLS,LBWHS,S};
+	enum class Auto_mode{NOTHING,REACH,STATICF,STATICS,PORTCULLIS,CHEVAL,LBLS,LBWLS,LBWHS,S};//todo: remove this & put in main
 	Auto_mode auto_mode;
 	Ten_position_pot auto_switch;//0-9
 
@@ -59,10 +56,7 @@ struct Panel{
 };
 
 std::ostream& operator<<(std::ostream&,Ten_position_pot);
-std::ostream& operator<<(std::ostream&,Panel::Collector_pos);
-std::ostream& operator<<(std::ostream&,Panel::Collector);
-std::ostream& operator<<(std::ostream&,Panel::Winch);
-std::ostream& operator<<(std::ostream&,Panel::Shooter_mode);
+std::ostream& operator<<(std::ostream&,Three_position_switch);
 std::ostream& operator<<(std::ostream&,Panel::Auto_mode);
 std::ostream& operator<<(std::ostream&,Panel);
 
