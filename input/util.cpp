@@ -61,31 +61,6 @@ POV_section pov_section(int x){
 	}
 }
 
-unsigned interpret_10_turn_pot(Volt v){
-	/*array<Volt,10> limits={//for software development laptop use
-		
-		
-		
-	};*/
-	
-	array<Volt,10> limits={//for red and gold driverstation use
-		-1.00,
-		-0.75,
-		-0.50,
-		-0.25,
-		0.00,
-		0.20,
-		0.40,
-		0.60,
-		0.80,
-		1.00
-	};
-	for(unsigned i=0;i<10;i++){
-		if(v<(limits[i] + 0.05)) return (i!=9) ? (i+1) : 0;
-	}
-	return 9;
-}
-
 #ifdef INPUT_UTIL_TEST
 void joystick_section_test(){
 	assert(joystick_section(0,0)==Joystick_section::CENTER);

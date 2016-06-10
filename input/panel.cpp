@@ -32,6 +32,32 @@ Panel::Panel():
 	speed_dial(0)
 {}
 
+Ten_position_pot::Ten_position_pot(array<Volt,10> set_limits):value(0),limits(set_limits){}
+Ten_position_pot::Ten_position_pot(Volt v):value(v),limits(TEN_POS_POT_LIMITS){}
+Ten_position_pot::Ten_position_pot():value(0),limits(TEN_POS_POT_LIMITS){}
+
+void Ten_position_pot::interpret(const Volt volt){
+	for(unsigned i=0;i<10;i++){
+		if(volt<(limits[i] + 0.05)) value= (i!=9) ? (i+1) : 0;
+	}
+	value=9;
+}
+
+std::array<Volt,10> Ten_position_pot::get_limits(){
+	return limits;
+}
+
+unsigned int Ten_position_pot::get(){
+	return value;
+}
+
+std::ostream& operator<<(std::ostream& o,Ten_position_pot a){
+	o<<"Ten_position_pot(";
+	o<<"value:"<<a.get();
+	o<<" limits:"<<a.get_limits();
+	return o<<")";
+}
+
 ostream& operator<<(ostream& o,Panel::Collector_pos a){
 	o<<"Panel::Collector_pos(";
 	#define X(name) if(a==Panel::Collector_pos::name)o<<""#name;
@@ -80,7 +106,7 @@ ostream& operator<<(ostream& o,Panel p){
 	X(lock_climber) X(tilt_auto) X(front_auto) X(sides_auto) //2-pos switches
 	X(collector_pos) X(front) X(sides) X(winch) X(shooter_mode) //3-pos switches
 	X(auto_mode) //10-pos switches
-	X(auto_switch)
+	o<<", auto_switch:"<<p.auto_switch.get();
 	X(speed_dial) //Dials
 	#undef X
 	return o<<")";
@@ -133,8 +159,8 @@ Panel interpret(Joystick_data d){
 	}
 	{
 		Volt auto_mode=d.axis[0];
-		p.auto_switch=interpret_10_turn_pot(auto_mode);
-		p.auto_mode=auto_mode_convert(p.auto_switch);
+		p.auto_switch.interpret(auto_mode);
+		p.auto_mode=auto_mode_convert(p.auto_switch.get());
 	}
 	p.lock_climber = d.button[0];
 	p.tilt_auto = d.button[1];
