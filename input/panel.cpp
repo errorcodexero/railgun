@@ -50,15 +50,29 @@ Ten_position_pot::Ten_position_pot(array<Volt,10> set_limits):value(0),limits(se
 Ten_position_pot::Ten_position_pot():value(0),limits(TEN_POS_POT_LIMITS){}
 
 void Switch::interpret(const Volt volt){
-	const float ROUND=.01;
-	float divisor=limits.size();
-	float deviation=(1/divisor)+ROUND;
-	for(unsigned int i=0; i<limits.size(); i++){
-		if(in_limits(volt,limits[i],deviation)){
-			value=i;
+	vector<Volt> temp=limits;
+	temp.insert(temp.begin(),-2.0);
+	temp.insert(temp.end(),2.0);
+	/*for(unsigned int i=1; i<temp.size()-1; i++){
+		float deviation=[&]{
+			float n=0.0;
+			n=(temp[i]-temp[i-1])/2;
+			n+=.01;
+			return n;
+		}();
+		cout<<std::fixed<<std::setprecision(5)<<i<<"  "<<volt<<"   "<<deviation<<"  "<<temp[i]<<"   "<<temp[i-1]<<"  "<<temp[i]-deviation<<"   "<<temp[i]+deviation<<"  "<<temp<<endl;
+		if(in_limits(volt,temp[i],deviation)){
+			value=i-1;
+			return;
+		}
+	}*/
+	for(unsigned int i=1; i<temp.size()-1; i++){
+		if(volt >= mid(temp[i-1],temp[i]) && volt < mid(temp[i],temp[i+1])){
+			value=i-1;
 			return;
 		}
 	}
+	cout<<volt<<endl;
 	assert(0);
 }
 
@@ -260,9 +274,11 @@ int main(){
 		for(float i=-1; i<=1; i+=.01){
 			Switch a({-.66,0,.66});
 			a.interpret(i);
+			Switch b({-1.00,-0.75,-0.50,-0.25,0.00,0.20,0.40,0.60,0.80,1.00});
+			b.interpret(i);
 			cout<<std::fixed<<std::setprecision(2)<<i<<"         ";
 			if(i>=0)cout<<" ";
-			cout<<interpret1(i)<<"            "<<interpret2(i)<<"            "<<interpret3(i)<<"            "<<a.get()<<"\n";
+			cout<<b.get()<<"         "<<interpret1(i)<<"            "<<interpret2(i)<<"            "<<interpret3(i)<<"            "<<a.get()<<"\n";
 		}
 		cout<<"\n\n";
 	}
