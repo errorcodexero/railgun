@@ -131,7 +131,7 @@ float mid(const float a,const float b){
 	return a+(b-a)/2;
 }
 
-Three_position_switch interpret(const float axis_value){
+Three_position_switch interpret1(const float axis_value){
 	static const float BOTTOM=-2,DOWN=-1,MIDDLE=0,UP=1,TOP=2;
 	if(axis_value >= mid(BOTTOM,DOWN) && axis_value < mid(DOWN,MIDDLE)) return Three_position_switch::DOWN;
 	if(axis_value >= mid(DOWN,MIDDLE) && axis_value < mid(MIDDLE,UP)) return Three_position_switch::MIDDLE;
@@ -156,6 +156,10 @@ Three_position_switch interpret3(float axis_value){
 	#undef AXIS_RANGE
 }
 
+Two_position_switch interpret_two_pos(const bool value){
+	return (value)? Two_position_switch::UP : Two_position_switch::DOWN;
+}
+
 Panel interpret(Joystick_data d){
 	Panel p;
 	{
@@ -174,10 +178,10 @@ Panel interpret(Joystick_data d){
 	p.auto_switch.interpret(d.axis[0]);
 	p.auto_mode=auto_mode_convert(p.auto_switch.get());
 	
-	p.lock_climber = (d.button[0])? Two_position_switch::UP : Two_position_switch::DOWN;
-	p.tilt_auto = (d.button[1])? Two_position_switch::UP : Two_position_switch::DOWN;
-	p.sides_auto = (d.button[2])? Two_position_switch::UP : Two_position_switch::DOWN;
-	p.front_auto = (d.button[3])? Two_position_switch::UP : Two_position_switch::DOWN;
+	p.lock_climber = interpret_two_pos(d.button[0]);
+	p.tilt_auto = interpret_two_pos(d.button[1]);
+	p.sides_auto = interpret_two_pos(d.button[2]);
+	p.front_auto = interpret_two_pos(d.button[3]);
 	
 	{
 		#define AXIS_RANGE(axis, last, curr, next, var, val) if (axis > curr-(curr-last)/2 && axis < curr+(next-curr)/2) var = val;
@@ -197,10 +201,10 @@ Panel interpret(Joystick_data d){
 		else AXIS_RANGE(op, CHEVAL, LEARN, 1.38, p.learn, 1)
 		#undef AXIS_RANGE
 	}
-	p.collector_pos=interpret(d.axis[5]);
-	p.front=interpret(d.axis[4]);
-	p.sides=interpret(d.axis[6]);
-	p.winch=interpret(d.axis[3]);
+	p.collector_pos=interpret2(d.axis[5]);
+	p.front=interpret2(d.axis[4]);
+	p.sides=interpret2(d.axis[6]);
+	p.winch=interpret2(d.axis[3]);
 	{
 		//A three position switch connected to two digital inputs
 		p.shooter_mode = Three_position_switch::MIDDLE;
@@ -225,11 +229,11 @@ Joystick_data driver_station_input_rand(){
 
 int main(){
 	{
-		cout<<"Test value   interpret    interpret2    interpret3    \n";
+		cout<<"Test value   interpret1    interpret2    interpret3    \n";
 		for(float i=-1; i<=1; i+=.01){
 			cout<<std::fixed<<std::setprecision(2)<<i<<"         ";
 			if(i>=0)cout<<" ";
-			cout<<interpret(i)<<"           "<<interpret2(i)<<"           "<<interpret3(i)<<"\n";
+			cout<<interpret1(i)<<"            "<<interpret2(i)<<"            "<<interpret3(i)<<"\n";
 		}
 		cout<<"\n\n";
 	}
