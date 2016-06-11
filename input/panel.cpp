@@ -29,13 +29,49 @@ Panel::Panel():
 	winch(Three_position_switch::MIDDLE),
 	shooter_mode(Three_position_switch::MIDDLE),
 	auto_mode(Auto_mode::NOTHING),
-	auto_switch(0),
+	auto_switch(Ten_position_pot{}),
 	speed_dial(0)
 {}
 
+template<typename T>
+bool in_limits(const T a,const T b,const T c){//a is variable to compare, b is the mean, and c is the deviation
+	return a >= b-c && a <= b+c;
+}
+
+float mid(const float a,const float b){
+	return a+(b-a)/2;
+}
+
+Switch::Switch():value(0),limits({}){}
+Switch::Switch(unsigned int size):value(0),limits(vector<Volt>(size)){}
+Switch::Switch(std::vector<Volt> set_limits):value(0),limits(set_limits){}
+
 Ten_position_pot::Ten_position_pot(array<Volt,10> set_limits):value(0),limits(set_limits){}
-Ten_position_pot::Ten_position_pot(Volt v):value(v),limits(TEN_POS_POT_LIMITS){}
 Ten_position_pot::Ten_position_pot():value(0),limits(TEN_POS_POT_LIMITS){}
+
+void Switch::interpret(const Volt volt){
+	const float ROUND=.01;
+	float divisor=limits.size();
+	float deviation=(1/divisor)+ROUND;
+	for(unsigned int i=0; i<limits.size(); i++){
+		if(in_limits(volt,limits[i],deviation)){
+			value=i;
+			return;
+		}
+	}
+	assert(0);
+}
+
+unsigned int Switch::get(){
+	return value;
+}
+
+std::ostream& operator<<(std::ostream& o,Switch a){
+	o<<"Switch(";
+	o<<"value:"<<a.value;
+	o<<" limits:"<<a.limits;
+	return o<<")";
+}
 
 void Ten_position_pot::interpret(const Volt volt){
 	for(unsigned i=0;i<10;i++){
@@ -120,15 +156,6 @@ Panel::Auto_mode auto_mode_convert(int potin){
 
 float axis_to_percent(double a){
 	return .5-(a/2);
-}
-
-template<typename T>
-bool in_limits(const T a,const T b,const T c){//a is variable to compare, b is the mean, and c is the deviation
-	return a >= b-c && a <= b+c;
-}
-
-float mid(const float a,const float b){
-	return a+(b-a)/2;
 }
 
 Three_position_switch interpret1(const float axis_value){
@@ -229,11 +256,13 @@ Joystick_data driver_station_input_rand(){
 
 int main(){
 	{
-		cout<<"Test value   interpret1    interpret2    interpret3    \n";
+		cout<<"Test value   interpret1    interpret2    interpret3      switch(3)\n";
 		for(float i=-1; i<=1; i+=.01){
+			Switch a({-.66,0,.66});
+			a.interpret(i);
 			cout<<std::fixed<<std::setprecision(2)<<i<<"         ";
 			if(i>=0)cout<<" ";
-			cout<<interpret1(i)<<"            "<<interpret2(i)<<"            "<<interpret3(i)<<"\n";
+			cout<<interpret1(i)<<"            "<<interpret2(i)<<"            "<<interpret3(i)<<"            "<<a.get()<<"\n";
 		}
 		cout<<"\n\n";
 	}

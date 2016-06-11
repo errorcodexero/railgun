@@ -14,8 +14,19 @@ class Ten_position_pot{
 	void interpret(const Volt);
 	friend std::ostream& operator<<(std::ostream&,Ten_position_pot);
 	Ten_position_pot();
-	Ten_position_pot(Volt);
 	explicit Ten_position_pot(std::array<Volt,10> set_limits);
+};
+
+class Switch{
+	unsigned int value;
+	std::vector<Volt> limits;
+	public:
+	unsigned int get();
+	void interpret(const Volt);
+	friend std::ostream& operator<<(std::ostream&,Switch);
+	Switch();
+	Switch(unsigned int);
+	explicit Switch(std::vector<Volt> set_limits);
 };
 
 typedef bool Button;
