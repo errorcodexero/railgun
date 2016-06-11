@@ -123,30 +123,37 @@ float axis_to_percent(double a){
 }
 
 template<typename T>
-bool in_limits(T a,T b,T c){//a is variable to compare, b is the mean, and c is the deviation
+bool in_limits(const T a,const T b,const T c){//a is variable to compare, b is the mean, and c is the deviation
 	return a >= b-c && a <= b+c;
 }
 
-float mid(float a,float b){
+float mid(const float a,const float b){
 	return a+(b-a)/2;
 }
 
-Three_position_switch interpret(float axis_value){
-	{
-		static const float BOTTOM=-2,DOWN=-1,MIDDLE=0,UP=1,TOP=2;
-		if(axis_value >= mid(BOTTOM,DOWN) && axis_value < mid(DOWN,MIDDLE)) return Three_position_switch::DOWN;
-		if(axis_value >= mid(DOWN,MIDDLE) && axis_value < mid(MIDDLE,UP)) return Three_position_switch::MIDDLE;
-		if(axis_value >= mid(MIDDLE,UP) && axis_value < mid(UP,TOP)) return Three_position_switch::UP;
-		assert(0);
-	}
-	//OR
-	{
-		static const float DOWN=-.66,MIDDLE=0,UP=.66,DEVIATION=.34;
-		if(in_limits(axis_value,DOWN,DEVIATION)) return Three_position_switch::DOWN;
-		if(in_limits(axis_value,MIDDLE,DEVIATION)) return Three_position_switch::MIDDLE;
-		if(in_limits(axis_value,UP,DEVIATION)) return Three_position_switch::UP;
-		assert(0);
-	}
+Three_position_switch interpret(const float axis_value){
+	static const float BOTTOM=-2,DOWN=-1,MIDDLE=0,UP=1,TOP=2;
+	if(axis_value >= mid(BOTTOM,DOWN) && axis_value < mid(DOWN,MIDDLE)) return Three_position_switch::DOWN;
+	if(axis_value >= mid(DOWN,MIDDLE) && axis_value < mid(MIDDLE,UP)) return Three_position_switch::MIDDLE;
+	if(axis_value >= mid(MIDDLE,UP) && axis_value < mid(UP,TOP)) return Three_position_switch::UP;
+	assert(0);
+}
+
+Three_position_switch interpret2(const float axis_value){
+	static const float DOWN=-.66,MIDDLE=0,UP=.66,DEVIATION=.34;
+	if(in_limits(axis_value,DOWN,DEVIATION)) return Three_position_switch::DOWN;
+	if(in_limits(axis_value,MIDDLE,DEVIATION)) return Three_position_switch::MIDDLE;
+	if(in_limits(axis_value,UP,DEVIATION)) return Three_position_switch::UP;
+	assert(0);
+}
+
+Three_position_switch interpret3(float axis_value){
+	#define AXIS_RANGE(last, curr, next, val) if (axis_value > curr-(curr-last)/2 && axis_value < curr+(next-curr)/2) return val;
+	static const float DOWN=-1, MIDDLE=0, UP=1;
+	AXIS_RANGE(DOWN, MIDDLE, UP, Three_position_switch::MIDDLE)
+	else AXIS_RANGE(MIDDLE, UP, 1.5,Three_position_switch::UP)
+	return Three_position_switch::DOWN;
+	#undef AXIS_RANGE
 }
 
 Panel interpret(Joystick_data d){
@@ -163,17 +170,17 @@ Panel interpret(Joystick_data d){
 		}();
 		if (!p.in_use) return p;
 	}
-	{
-		Volt auto_mode=d.axis[0];
-		p.auto_switch.interpret(auto_mode);
-		p.auto_mode=auto_mode_convert(p.auto_switch.get());
-	}
+	
+	p.auto_switch.interpret(d.axis[0]);
+	p.auto_mode=auto_mode_convert(p.auto_switch.get());
+	
 	p.lock_climber = (d.button[0])? Two_position_switch::UP : Two_position_switch::DOWN;
 	p.tilt_auto = (d.button[1])? Two_position_switch::UP : Two_position_switch::DOWN;
 	p.sides_auto = (d.button[2])? Two_position_switch::UP : Two_position_switch::DOWN;
 	p.front_auto = (d.button[3])? Two_position_switch::UP : Two_position_switch::DOWN;
-	#define AXIS_RANGE(axis, last, curr, next, var, val) if (axis > curr-(curr-last)/2 && axis < curr+(next-curr)/2) var = val;
+	
 	{
+		#define AXIS_RANGE(axis, last, curr, next, var, val) if (axis > curr-(curr-last)/2 && axis < curr+(next-curr)/2) var = val;
 		float op = d.axis[2];
 		static const float DEFAULT=-1, COLLECTOR_UP=-.8, COLLECTOR_DOWN=-.62, SHOOT_HIGH=-.45, COLLECT=-.29, SHOOT_LOW=-.11, SHOOT_PREP=.09, DRAWBRIDGE=.33, CHEVAL=.62, LEARN=1;
 		#define X(button) p.button = 0;
@@ -188,6 +195,7 @@ Panel interpret(Joystick_data d){
 		else AXIS_RANGE(op, SHOOT_PREP, DRAWBRIDGE, CHEVAL, p.drawbridge, 1)
 		else AXIS_RANGE(op, DRAWBRIDGE, CHEVAL, LEARN, p.cheval, 1)
 		else AXIS_RANGE(op, CHEVAL, LEARN, 1.38, p.learn, 1)
+		#undef AXIS_RANGE
 	}
 	p.collector_pos=interpret(d.axis[5]);
 	p.front=interpret(d.axis[4]);
@@ -200,7 +208,6 @@ Panel interpret(Joystick_data d){
 		if (d.button[6]) p.shooter_mode = Three_position_switch::DOWN;
 	}
 	p.speed_dial = -d.axis[1];//axis_to_percent(d.axis[1]);
-	#undef AXIS_RANGE
 	return p;
 }
 
@@ -217,10 +224,14 @@ Joystick_data driver_station_input_rand(){
 }
 
 int main(){
-	Three_position_switch a;
-	for(float i=-1; i<=1; i+=.01){
-		a=interpret(i);
-		cout<<std::setprecision(2)<<i<<"  "<<a<<"\n";
+	{
+		cout<<"Test value   interpret    interpret2    interpret3    \n";
+		for(float i=-1; i<=1; i+=.01){
+			cout<<std::fixed<<std::setprecision(2)<<i<<"         ";
+			if(i>=0)cout<<" ";
+			cout<<interpret(i)<<"           "<<interpret2(i)<<"           "<<interpret3(i)<<"\n";
+		}
+		cout<<"\n\n";
 	}
 	
 	Panel p;
