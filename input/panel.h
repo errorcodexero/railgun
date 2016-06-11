@@ -12,7 +12,7 @@ class Ten_position_pot{
 	public:
 	unsigned int get();
 	void interpret(const Volt);
-	std::array<Volt,10> get_limits();
+	friend std::ostream& operator<<(std::ostream&,Ten_position_pot);
 	Ten_position_pot();
 	Ten_position_pot(Volt);
 	explicit Ten_position_pot(std::array<Volt,10> set_limits);
@@ -55,7 +55,6 @@ struct Panel{
 	Panel();
 };
 
-std::ostream& operator<<(std::ostream&,Ten_position_pot);
 std::ostream& operator<<(std::ostream&,Two_position_switch);
 std::ostream& operator<<(std::ostream&,Three_position_switch);
 std::ostream& operator<<(std::ostream&,Panel::Auto_mode);

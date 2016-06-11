@@ -4,6 +4,7 @@
 #include "util.h"
 #include "../util/util.h"
 #include <cmath>
+#include <iomanip> 
 
 using namespace std;
 
@@ -43,18 +44,14 @@ void Ten_position_pot::interpret(const Volt volt){
 	value=9;
 }
 
-std::array<Volt,10> Ten_position_pot::get_limits(){
-	return limits;
-}
-
 unsigned int Ten_position_pot::get(){
 	return value;
 }
 
 std::ostream& operator<<(std::ostream& o,Ten_position_pot a){
 	o<<"Ten_position_pot(";
-	o<<"value:"<<a.get();
-	o<<" limits:"<<a.get_limits();
+	o<<"value:"<<a.value;
+	o<<" limits:"<<a.limits;
 	return o<<")";
 }
 
@@ -125,11 +122,31 @@ float axis_to_percent(double a){
 	return .5-(a/2);
 }
 
+template<typename T>
+bool in_limits(T a,T b,T c){//a is variable to compare, b is the mean, and c is the deviation
+	return a >= b-c && a <= b+c;
+}
+
+float mid(float a,float b){
+	return a+(b-a)/2;
+}
+
 Three_position_switch interpret(float axis_value){
-	static const float DOWN=0,UP=-.5,MIDDLE=-1;;
-	if(axis_value>UP-(UP-MIDDLE)/2 && axis_value<UP+(DOWN-UP)/2)return Three_position_switch::UP;
-	if(axis_value>DOWN-(DOWN-UP)/2 && axis_value<DOWN+.25)return Three_position_switch::DOWN;
-	return Three_position_switch::MIDDLE;
+	{
+		static const float BOTTOM=-2,DOWN=-1,MIDDLE=0,UP=1,TOP=2;
+		if(axis_value >= mid(BOTTOM,DOWN) && axis_value < mid(DOWN,MIDDLE)) return Three_position_switch::DOWN;
+		if(axis_value >= mid(DOWN,MIDDLE) && axis_value < mid(MIDDLE,UP)) return Three_position_switch::MIDDLE;
+		if(axis_value >= mid(MIDDLE,UP) && axis_value < mid(UP,TOP)) return Three_position_switch::UP;
+		assert(0);
+	}
+	//OR
+	{
+		static const float DOWN=-.66,MIDDLE=0,UP=.66,DEVIATION=.34;
+		if(in_limits(axis_value,DOWN,DEVIATION)) return Three_position_switch::DOWN;
+		if(in_limits(axis_value,MIDDLE,DEVIATION)) return Three_position_switch::MIDDLE;
+		if(in_limits(axis_value,UP,DEVIATION)) return Three_position_switch::UP;
+		assert(0);
+	}
 }
 
 Panel interpret(Joystick_data d){
@@ -200,6 +217,12 @@ Joystick_data driver_station_input_rand(){
 }
 
 int main(){
+	Three_position_switch a;
+	for(float i=-1; i<=1; i+=.01){
+		a=interpret(i);
+		cout<<std::setprecision(2)<<i<<"  "<<a<<"\n";
+	}
+	
 	Panel p;
 	for(unsigned i=0;i<50;i++){
 		interpret(driver_station_input_rand());
