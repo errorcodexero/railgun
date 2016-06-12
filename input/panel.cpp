@@ -34,7 +34,7 @@ Panel::Panel():
 {}
 
 template<typename T>
-bool in_limits(const T a,const T b,const T c){//a is variable to compare, b is the mean, and c is the deviation
+bool in_tolerances(const T a,const T b,const T c){//a is variable to compare, b is the mean, and c is the deviation
 	return a >= b-c && a <= b+c;
 }
 
@@ -42,21 +42,23 @@ float mid(const float a,const float b){
 	return a+(b-a)/2;
 }
 
-Switch::Switch():value(0),limits({}){}
-Switch::Switch(unsigned int size):value(0),limits({}){
+Switch::Switch():value(0),targets({}){}
+Switch::Switch(unsigned int size):value(0),targets({}){
 	assert(size>1);
 	for(unsigned int i=0; i<size; i++){
-		float s=size;
-		limits.push_back(-1+(1/s)+(i)*(2/s));
+		targets.push_back(-1+((1+2*i)/(float)size));
 	}
 }
-Switch::Switch(std::vector<Volt> set_limits):value(0),limits(set_limits){}
+Switch::Switch(std::vector<Volt> set_targets):value(0),targets({}){
+	assert(set_targets.size()>1);
+	targets=set_targets;
+}
 
-Ten_position_pot::Ten_position_pot(array<Volt,10> set_limits):value(0),limits(set_limits){}
-Ten_position_pot::Ten_position_pot():value(0),limits(TEN_POS_POT_LIMITS){}
+Ten_position_pot::Ten_position_pot(array<Volt,10> set_targets):value(0),targets(set_targets){}
+Ten_position_pot::Ten_position_pot():value(0),targets(TEN_POS_POT_LIMITS){}
 
 void Switch::interpret(const Volt volt){
-	vector<Volt> temp=limits;
+	vector<Volt> temp=targets;
 	temp.insert(temp.begin(),-2.0);
 	temp.insert(temp.end(),2.0);
 	/*for(unsigned int i=1; i<temp.size()-1; i++){
@@ -67,7 +69,7 @@ void Switch::interpret(const Volt volt){
 			return n;
 		}();
 		cout<<std::fixed<<std::setprecision(5)<<i<<"  "<<volt<<"   "<<deviation<<"  "<<temp[i]<<"   "<<temp[i-1]<<"  "<<temp[i]-deviation<<"   "<<temp[i]+deviation<<"  "<<temp<<endl;
-		if(in_limits(volt,temp[i],deviation)){
+		if(in_tolerances(volt,temp[i],deviation)){
 			value=i-1;
 			return;
 		}
@@ -88,13 +90,13 @@ unsigned int Switch::get(){
 std::ostream& operator<<(std::ostream& o,Switch a){
 	o<<"Switch(";
 	o<<"value:"<<a.value;
-	o<<" limits:"<<a.limits;
+	o<<" targets:"<<a.targets;
 	return o<<")";
 }
 
 void Ten_position_pot::interpret(const Volt volt){
 	for(unsigned i=0;i<10;i++){
-		if(volt<(limits[i] + 0.05)) value= (i!=9) ? (i+1) : 0;
+		if(volt<(targets[i] + 0.05)) value= (i!=9) ? (i+1) : 0;
 	}
 	value=9;
 }
@@ -106,7 +108,7 @@ unsigned int Ten_position_pot::get(){
 std::ostream& operator<<(std::ostream& o,Ten_position_pot a){
 	o<<"Ten_position_pot(";
 	o<<"value:"<<a.value;
-	o<<" limits:"<<a.limits;
+	o<<" targets:"<<a.targets;
 	return o<<")";
 }
 
@@ -187,9 +189,9 @@ Three_position_switch interpret1(const float axis_value){
 
 Three_position_switch interpret2(const float axis_value){
 	static const float DOWN=-.66,MIDDLE=0,UP=.66,DEVIATION=.34;
-	if(in_limits(axis_value,DOWN,DEVIATION)) return Three_position_switch::DOWN;
-	if(in_limits(axis_value,MIDDLE,DEVIATION)) return Three_position_switch::MIDDLE;
-	if(in_limits(axis_value,UP,DEVIATION)) return Three_position_switch::UP;
+	if(in_tolerances(axis_value,DOWN,DEVIATION)) return Three_position_switch::DOWN;
+	if(in_tolerances(axis_value,MIDDLE,DEVIATION)) return Three_position_switch::MIDDLE;
+	if(in_tolerances(axis_value,UP,DEVIATION)) return Three_position_switch::UP;
 	assert(0);
 }
 

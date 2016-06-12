@@ -8,25 +8,25 @@ const std::array<Volt,10> TEN_POS_POT_LIMITS={-1.00,-0.75,-0.50,-0.25,0.00,0.20,
 
 class Ten_position_pot{
 	unsigned int value;
-	std::array<Volt,10> limits;
+	std::array<Volt,10> targets;
 	public:
 	unsigned int get();
 	void interpret(const Volt);
 	friend std::ostream& operator<<(std::ostream&,Ten_position_pot);
 	Ten_position_pot();
-	explicit Ten_position_pot(std::array<Volt,10> set_limits);
+	explicit Ten_position_pot(std::array<Volt,10> set_targets);
 };
 
 class Switch{
 	unsigned int value;
-	std::vector<Volt> limits;
+	std::vector<Volt> targets;
 	public:
 	unsigned int get();
 	void interpret(const Volt);
 	friend std::ostream& operator<<(std::ostream&,Switch);
 	Switch();
 	Switch(unsigned int);
-	explicit Switch(std::vector<Volt> set_limits);
+	explicit Switch(std::vector<Volt> set_targets);
 };
 
 typedef bool Button;
