@@ -25,7 +25,7 @@ class Switch{
 	void interpret(const Volt);
 	friend std::ostream& operator<<(std::ostream&,Switch);
 	Switch();
-	Switch(unsigned int);
+	explicit Switch(unsigned int);
 	explicit Switch(std::vector<Volt> set_targets);
 };
 
