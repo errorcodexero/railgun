@@ -43,7 +43,13 @@ float mid(const float a,const float b){
 }
 
 Switch::Switch():value(0),limits({}){}
-Switch::Switch(unsigned int size):value(0),limits(vector<Volt>(size)){}
+Switch::Switch(unsigned int size):value(0),limits({}){
+	assert(size>1);
+	for(unsigned int i=0; i<size; i++){
+		float s=size;
+		limits.push_back(-1+(1/s)+(i)*(2/s));
+	}
+}
 Switch::Switch(std::vector<Volt> set_limits):value(0),limits(set_limits){}
 
 Ten_position_pot::Ten_position_pot(array<Volt,10> set_limits):value(0),limits(set_limits){}
@@ -72,7 +78,6 @@ void Switch::interpret(const Volt volt){
 			return;
 		}
 	}
-	cout<<volt<<endl;
 	assert(0);
 }
 
@@ -272,13 +277,11 @@ int main(){
 	{
 		cout<<"Test value   interpret1    interpret2    interpret3      switch(3)\n";
 		for(float i=-1; i<=1; i+=.01){
-			Switch a({-.66,0,.66});
+			Switch a(3);
 			a.interpret(i);
-			Switch b({-1.00,-0.75,-0.50,-0.25,0.00,0.20,0.40,0.60,0.80,1.00});
-			b.interpret(i);
 			cout<<std::fixed<<std::setprecision(2)<<i<<"         ";
 			if(i>=0)cout<<" ";
-			cout<<b.get()<<"         "<<interpret1(i)<<"            "<<interpret2(i)<<"            "<<interpret3(i)<<"            "<<a.get()<<"\n";
+			cout<<interpret1(i)<<"            "<<interpret2(i)<<"            "<<interpret3(i)<<"            "<<a.get()<<"\n";
 		}
 		cout<<"\n\n";
 	}
