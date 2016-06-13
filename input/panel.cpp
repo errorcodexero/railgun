@@ -61,19 +61,6 @@ void Switch::interpret(const Volt volt){
 	vector<Volt> temp=targets;
 	temp.insert(temp.begin(),-2.0);
 	temp.insert(temp.end(),2.0);
-	/*for(unsigned int i=1; i<temp.size()-1; i++){
-		float deviation=[&]{
-			float n=0.0;
-			n=(temp[i]-temp[i-1])/2;
-			n+=.01;
-			return n;
-		}();
-		cout<<std::fixed<<std::setprecision(5)<<i<<"  "<<volt<<"   "<<deviation<<"  "<<temp[i]<<"   "<<temp[i-1]<<"  "<<temp[i]-deviation<<"   "<<temp[i]+deviation<<"  "<<temp<<endl;
-		if(in_tolerances(volt,temp[i],deviation)){
-			value=i-1;
-			return;
-		}
-	}*/
 	for(unsigned int i=1; i<temp.size()-1; i++){
 		if(volt >= mid(temp[i-1],temp[i]) && volt < mid(temp[i],temp[i+1])){
 			value=i-1;
