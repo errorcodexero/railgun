@@ -28,8 +28,8 @@ Panel::Panel():
 	sides(3),
 	winch(3),
 	shooter_mode(3),
+	auto_switch(TEN_POS_POT_TARGETS),
 	auto_mode(Auto_mode::NOTHING),
-	auto_switch(TEN_POS_POT_LIMITS),
 	speed_dial(0.0)
 {}
 
@@ -37,19 +37,19 @@ float mid(const float a,const float b){
 	return a+(b-a)/2;
 }
 
-Switch::Switch():value(0),targets({}){}
-Switch::Switch(unsigned int size):value(0),targets({}){
+Multistate_control::Multistate_control():value(0),targets({}){}
+Multistate_control::Multistate_control(unsigned int size):value(0),targets({}){
 	assert(size>1);
 	for(unsigned int i=0; i<size; i++){
 		targets.insert(-1+((1+2*i)/(float)size));
 	}
 }
-Switch::Switch(set<Volt> set_targets):value(0),targets({}){
+Multistate_control::Multistate_control(set<Volt> set_targets):value(0),targets({}){
 	assert(set_targets.size()>1);
 	targets=set_targets;
 }
 
-void Switch::interpret(const Volt volt){
+void Multistate_control::interpret(const Volt volt){
 	vector<Volt> temp;
 	for(auto i=targets.begin(); i!=targets.end(); i++) temp.push_back(*i);
 	temp.insert(temp.begin(),-2.0);
@@ -63,12 +63,13 @@ void Switch::interpret(const Volt volt){
 	assert(0);
 }
 
-unsigned int Switch::get(){
+unsigned int Multistate_control::get(){
 	return value;
 }
 
-std::ostream& operator<<(std::ostream& o,Switch a){
-	o<<"Switch(";
+std::ostream& operator<<(std::ostream& o,Multistate_control a){
+	//o<<"Multistate_control(";
+	o<<"(";
 	o<<"value:"<<a.value;
 	o<<" targets:"<<a.targets;
 	return o<<")";
@@ -87,9 +88,9 @@ ostream& operator<<(ostream& o,Panel p){
 	o<<"in_use:"<<p.in_use;
 	#define X(name) o<<", "#name":"<<p.name;
 	X(learn) X(cheval) X(drawbridge) X(shoot_prep) X(shoot_low) X(collect) X(shoot_high) X(collector_up) X(collector_down) //buttons
-	X(lock_climber) X(tilt_auto) X(front_auto) X(sides_auto) //2-pos switches
-	X(collector_pos) X(front) X(sides) X(winch) X(shooter_mode) //3-pos switches
-	X(auto_mode) //10-pos switches
+	X(lock_climber) X(tilt_auto) X(front_auto) X(sides_auto) //2-pos multistate_controles
+	X(collector_pos) X(front) X(sides) X(winch) X(shooter_mode) //3-pos multistate_controles
+	X(auto_mode) //10-pos multistate_controles
 	X(auto_switch)
 	X(speed_dial) //Dials
 	#undef X
@@ -173,10 +174,10 @@ Panel interpret(Joystick_data d){
 	p.sides.interpret(d.axis[6]);
 	p.winch.interpret(d.axis[3]);
 	{
-		//A three position switch connected to two digital inputs
-		//p.shooter_mode = Three_position_switch::MIDDLE;//TODO Come back to this
-		//if (d.button[5]) p.shooter_mode = Three_position_switch::UP;
-		//if (d.button[6]) p.shooter_mode = Three_position_switch::DOWN;
+		//A three position multistate_control connected to two digital inputs
+		//p.shooter_mode = Three_position_multistate_control::MIDDLE;//TODO Come back to this
+		//if (d.button[5]) p.shooter_mode = Three_position_multistate_control::UP;
+		//if (d.button[6]) p.shooter_mode = Three_position_multistate_control::DOWN;
 	}
 	p.speed_dial = -d.axis[1];//axis_to_percent(d.axis[1]);
 	return p;
@@ -196,12 +197,12 @@ Joystick_data driver_station_input_rand(){
 
 int main(){
 	{
-		cout<<"Test value   switch(3)\n";
+		cout<<"Test value   multistate_control(3)\n";
 		for(float i=-1; i<=1; i+=.01){
-			Switch a(3);
-			a.interpret(i);
-			cout<<std::fixed<<std::setprecision(2)<<i<<"         ";
 			if(i>=0)cout<<" ";
+			cout<<std::fixed<<std::setprecision(2)<<i<<"         ";
+			Multistate_control a(3);
+			a.interpret(i);
 			cout<<a.get()<<"\n";
 		}
 		cout<<"\n\n";
