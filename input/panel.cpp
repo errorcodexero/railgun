@@ -41,16 +41,17 @@ Switch::Switch():value(0),targets({}){}
 Switch::Switch(unsigned int size):value(0),targets({}){
 	assert(size>1);
 	for(unsigned int i=0; i<size; i++){
-		targets.push_back(-1+((1+2*i)/(float)size));
+		targets.insert(-1+((1+2*i)/(float)size));
 	}
 }
-Switch::Switch(std::vector<Volt> set_targets):value(0),targets({}){
+Switch::Switch(set<Volt> set_targets):value(0),targets({}){
 	assert(set_targets.size()>1);
 	targets=set_targets;
 }
 
 void Switch::interpret(const Volt volt){
-	vector<Volt> temp=targets;
+	vector<Volt> temp;
+	for(auto i=targets.begin(); i!=targets.end(); i++) temp.push_back(*i);
 	temp.insert(temp.begin(),-2.0);
 	temp.insert(temp.end(),2.0);
 	for(unsigned int i=1; i<temp.size()-1; i++){
@@ -89,7 +90,7 @@ ostream& operator<<(ostream& o,Panel p){
 	X(lock_climber) X(tilt_auto) X(front_auto) X(sides_auto) //2-pos switches
 	X(collector_pos) X(front) X(sides) X(winch) X(shooter_mode) //3-pos switches
 	X(auto_mode) //10-pos switches
-	o<<", auto_switch:"<<p.auto_switch.get();
+	X(auto_switch)
 	X(speed_dial) //Dials
 	#undef X
 	return o<<")";

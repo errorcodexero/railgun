@@ -3,19 +3,22 @@
 
 #include "../util/maybe.h"
 #include "../util/interface.h"
+#include <set>
 
-const std::vector<Volt> TEN_POS_POT_LIMITS={-1.00,-0.75,-0.50,-0.25,0.00,0.20,0.40,0.60,0.80,1.00};
+using namespace std;
+
+const set<Volt> TEN_POS_POT_LIMITS={-1.00,-0.75,-0.50,-0.25,0.00,0.20,0.40,0.60,0.80,1.00};
 
 class Switch{
 	unsigned int value;
-	std::vector<Volt> targets;
+	set<Volt> targets;
 	public:
 	unsigned int get();
 	void interpret(const Volt);
 	friend std::ostream& operator<<(std::ostream&,Switch);
 	Switch();
 	explicit Switch(unsigned int);
-	explicit Switch(std::vector<Volt> set_targets);
+	explicit Switch(set<Volt> set_targets);
 };
 
 typedef bool Button;
