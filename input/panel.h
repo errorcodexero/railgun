@@ -4,18 +4,7 @@
 #include "../util/maybe.h"
 #include "../util/interface.h"
 
-const std::array<Volt,10> TEN_POS_POT_LIMITS={-1.00,-0.75,-0.50,-0.25,0.00,0.20,0.40,0.60,0.80,1.00};
-
-class Ten_position_pot{
-	unsigned int value;
-	std::array<Volt,10> targets;
-	public:
-	unsigned int get();
-	void interpret(const Volt);
-	friend std::ostream& operator<<(std::ostream&,Ten_position_pot);
-	Ten_position_pot();
-	explicit Ten_position_pot(std::array<Volt,10> set_targets);
-};
+const std::vector<Volt> TEN_POS_POT_LIMITS={-1.00,-0.75,-0.50,-0.25,0.00,0.20,0.40,0.60,0.80,1.00};
 
 class Switch{
 	unsigned int value;
@@ -31,9 +20,6 @@ class Switch{
 
 typedef bool Button;
 
-enum class Three_position_switch{DOWN,MIDDLE,UP};
-enum class Two_position_switch{DOWN,UP};
-
 struct Panel{
 	bool in_use;
 	//Buttons:
@@ -47,27 +33,26 @@ struct Panel{
 	Button collector_up;
 	Button collector_down;
 	//2 position swicthes:
-	Two_position_switch lock_climber;
-	Two_position_switch tilt_auto;
-	Two_position_switch front_auto;
-	Two_position_switch sides_auto;
+	Switch lock_climber;
+	Switch tilt_auto;
+	Switch front_auto;
+	Switch sides_auto;
 	//3 position switches: 
-	Three_position_switch collector_pos;
-	Three_position_switch front;
-	Three_position_switch sides;
-	Three_position_switch winch;
-	Three_position_switch shooter_mode;
+	Switch collector_pos;
+	Switch front;
+	Switch sides;
+	Switch winch;
+	Switch shooter_mode;
 	//10 position switches:
 	enum class Auto_mode{NOTHING,REACH,STATICF,STATICS,PORTCULLIS,CHEVAL,LBLS,LBWLS,LBWHS,S};//todo: remove this & put in main
 	Auto_mode auto_mode;
-	Ten_position_pot auto_switch;//0-9
+	Switch auto_switch;
 	//Dials:
 	float speed_dial;
 	Panel();
 };
 
-std::ostream& operator<<(std::ostream&,Two_position_switch);
-std::ostream& operator<<(std::ostream&,Three_position_switch);
+std::ostream& operator<<(std::ostream&,Switch);
 std::ostream& operator<<(std::ostream&,Panel::Auto_mode);
 std::ostream& operator<<(std::ostream&,Panel);
 
