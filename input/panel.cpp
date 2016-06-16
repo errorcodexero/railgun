@@ -10,43 +10,48 @@ using namespace std;
 
 Panel::Panel():
 	in_use(false),
-	learn(false),
-	cheval(false),
-	drawbridge(false),
-	shoot_prep(false),
-	shoot_low(false),
-	collect(false),
-	shoot_high(false),
-	collector_up(false),
-	collector_down(false),
-	lock_climber(2),
-	tilt_auto(2),
-	front_auto(2),
-	sides_auto(2),
-	collector_pos(3),
-	front(3),
-	sides(3),
-	winch(3),
-	shooter_mode(3),
-	auto_switch(TEN_POS_POT_TARGETS),
+	buttons(BUTTON_TARGETS,BUTTON_PORT,Multistate_control::Input_type::AXIS),
+	two_position_switches(),
+	three_position_switches(),
+	auto_switch(TEN_POS_POT_TARGETS,AUTO_SWITCH_PORT,Multistate_control::Input_type::AXIS),
 	auto_mode(Auto_mode::NOTHING),
 	speed_dial(0.0)
-{}
+{
+	#define X(POSITION) two_position_switches[Two_position_switches::POSITION]=Multistate_control(2,TWO_POSITION_SWITCH_PORTS[Two_position_switches::POSITION],Multistate_control::Input_type::BUTTON);
+	X(LOCK_CLIMBER) X(TILT_AUTO) X(SIDES_AUTO) X(FRONT_AUTO)
+	#undef X
+	
+	#define X(POSITION) three_position_switches[Three_position_switches::POSITION]=Multistate_control(3,THREE_POSITION_SWITCH_PORTS[Three_position_switches::POSITION],Multistate_control::Input_type::AXIS);
+	X(WINCH) X(FRONT) X(COLLECTOR_POS) X(SIDES)
+	#undef X
+}
 
 float mid(const float a,const float b){
 	return a+(b-a)/2;
 }
 
-Multistate_control::Multistate_control():value(0),targets({}){}
-Multistate_control::Multistate_control(unsigned int size):value(0),targets({}){
+Multistate_control::Multistate_control():value(0),targets({}),port(0),input_type(Input_type::BUTTON){}
+Multistate_control::Multistate_control(unsigned int size,unsigned int p,Input_type in):value(0),targets({}),port(p),input_type(in){
 	assert(size>1);
 	for(unsigned int i=0; i<size; i++){
 		targets.insert(-1+((1+2*i)/(float)size));
 	}
 }
-Multistate_control::Multistate_control(set<Volt> set_targets):value(0),targets({}){
+Multistate_control::Multistate_control(set<Volt> set_targets,unsigned int p,Input_type in):value(0),targets({}),port(p),input_type(in){
 	assert(set_targets.size()>1);
 	targets=set_targets;
+}
+
+void Multistate_control::interpret(const Joystick_data d){
+	switch(input_type){
+		case Multistate_control::Input_type::BUTTON:
+			interpret(d.button[port]);
+			break;
+		case Multistate_control::Input_type::AXIS:
+			interpret(d.axis[port]);
+			break;
+		default: assert(0);
+	}
 }
 
 void Multistate_control::interpret(const Volt volt){
@@ -63,15 +68,24 @@ void Multistate_control::interpret(const Volt volt){
 	assert(0);
 }
 
-unsigned int Multistate_control::get(){
+unsigned int Multistate_control::get()const{
 	return value;
 }
 
-std::ostream& operator<<(std::ostream& o,Multistate_control a){
+ostream& operator<<(ostream& o,const Multistate_control::Input_type a){
+	#define X(NAME) if(a==Multistate_control::Input_type::NAME) return o<<""#NAME;
+	X(AXIS) X(BUTTON)
+	#undef X
+	assert(0);
+}
+
+std::ostream& operator<<(std::ostream& o,const Multistate_control a){
 	//o<<"Multistate_control(";
 	o<<"(";
 	o<<"value:"<<a.value;
 	o<<" targets:"<<a.targets;
+	o<<" port:"<<a.port;
+	o<<" input_type:"<<a.input_type;
 	return o<<")";
 }
 
@@ -83,15 +97,19 @@ ostream& operator<<(ostream& o,Panel::Auto_mode a){
 	return o<<")";
 }
 
-ostream& operator<<(ostream& o,Panel p){
+ostream& operator<<(ostream& o,const Panel p){
 	o<<"Panel(";
 	o<<"in_use:"<<p.in_use;
-	#define X(name) o<<", "#name":"<<p.name;
-	X(learn) X(cheval) X(drawbridge) X(shoot_prep) X(shoot_low) X(collect) X(shoot_high) X(collector_up) X(collector_down) //buttons
-	X(lock_climber) X(tilt_auto) X(front_auto) X(sides_auto) //2-pos multistate_controles
-	X(collector_pos) X(front) X(sides) X(winch) X(shooter_mode) //3-pos multistate_controles
-	X(auto_mode) //10-pos multistate_controles
-	X(auto_switch)
+	o<<", buttons:"<<p.buttons.get();//buttons
+	for(unsigned int i=0; i<Two_position_switches::TWO_POSITION_SWITCH_NUMBER; i++){//2-pos switches
+		o<<", two_position_switches["<<i<<"]:"<<p.two_position_switches[i].get();
+	}
+	for(unsigned int i=0; i<Three_position_switches::THREE_POSITION_SWITCH_NUMBER; i++){//3-pos switches
+		o<<", three_position_switches["<<i<<"]:"<<p.three_position_switches[i].get();
+	}
+	o<<", auto_switch:"<<p.auto_switch.get();//10-pos switches
+	#define X(NAME) o<<", "#NAME":"<<p.NAME;
+	X(auto_mode) 
 	X(speed_dial) //Dials
 	#undef X
 	return o<<")";
@@ -142,44 +160,24 @@ Panel interpret(Joystick_data d){
 		}();
 		if (!p.in_use) return p;
 	}
-	
 	p.auto_switch.interpret(d.axis[0]);
 	p.auto_mode=auto_mode_convert(p.auto_switch.get());
 	
-	p.lock_climber.interpret(d.button[0]);
-	p.tilt_auto.interpret(d.button[1]);
-	p.sides_auto.interpret(d.button[2]);
-	p.front_auto.interpret(d.button[3]);
+	p.buttons.interpret(d.axis[2]);
 	
-	{
-		#define AXIS_RANGE(axis, last, curr, next, var, val) if (axis > curr-(curr-last)/2 && axis < curr+(next-curr)/2) var = val;
-		float op = d.axis[2];
-		static const float DEFAULT=-1, COLLECTOR_UP=-.8, COLLECTOR_DOWN=-.62, SHOOT_HIGH=-.45, COLLECT=-.29, SHOOT_LOW=-.11, SHOOT_PREP=.09, DRAWBRIDGE=.33, CHEVAL=.62, LEARN=1;
-		#define X(button) p.button = 0;
-		X(collector_up) X(collector_down) X(shoot_high) X(collect) X(shoot_low) X(shoot_prep) X(drawbridge) X(cheval) X(learn)
-		#undef X
-		AXIS_RANGE(op, DEFAULT, COLLECTOR_UP, COLLECTOR_DOWN, p.collector_up, 1)
-		else AXIS_RANGE(op, COLLECTOR_UP, COLLECTOR_DOWN, SHOOT_HIGH, p.collector_down, 1)
-		else AXIS_RANGE(op, COLLECTOR_DOWN, SHOOT_HIGH, COLLECT, p.shoot_high, 1)
-		else AXIS_RANGE(op, SHOOT_HIGH, COLLECT, SHOOT_LOW, p.collect, 1)
-		else AXIS_RANGE(op, COLLECT, SHOOT_LOW, SHOOT_PREP, p.shoot_low, 1)
-		else AXIS_RANGE(op, SHOOT_LOW, SHOOT_PREP, DRAWBRIDGE, p.shoot_prep, 1)
-		else AXIS_RANGE(op, SHOOT_PREP, DRAWBRIDGE, CHEVAL, p.drawbridge, 1)
-		else AXIS_RANGE(op, DRAWBRIDGE, CHEVAL, LEARN, p.cheval, 1)
-		else AXIS_RANGE(op, CHEVAL, LEARN, 1.38, p.learn, 1)
-		#undef AXIS_RANGE
+	for(unsigned int i=0; i<Two_position_switches::TWO_POSITION_SWITCH_NUMBER; i++){
+		p.two_position_switches[i].interpret(d);
 	}
-	p.collector_pos.interpret(d.axis[5]);
-	p.front.interpret(d.axis[4]);
-	p.sides.interpret(d.axis[6]);
-	p.winch.interpret(d.axis[3]);
-	{
-		//A three position multistate_control connected to two digital inputs
-		//p.shooter_mode = Three_position_multistate_control::MIDDLE;//TODO Come back to this
-		//if (d.button[5]) p.shooter_mode = Three_position_multistate_control::UP;
-		//if (d.button[6]) p.shooter_mode = Three_position_multistate_control::DOWN;
+	for(unsigned int i=0; i<Three_position_switches::THREE_POSITION_SWITCH_NUMBER; i++){
+		p.three_position_switches[i].interpret(d);
 	}
-	p.speed_dial = -d.axis[1];//axis_to_percent(d.axis[1]);
+	{
+		//A three position switch connected to two digital inputs
+		//p.shooter_mode = Three_position_switch::MIDDLE;//TODO Come back to this
+		//if (d.button[5]) p.shooter_mode = Three_position_switch::UP;
+		//if (d.button[6]) p.shooter_mode = Three_position_switch::DOWN;
+	}
+	p.speed_dial = -d.axis[1];//axis_to_percent(-d.axis[1]);
 	return p;
 }
 
@@ -187,9 +185,11 @@ Panel interpret(Joystick_data d){
 Joystick_data driver_station_input_rand(){
 	Joystick_data r;
 	for(unsigned i=0;i<JOY_AXES;i++){
+		srand(time(NULL));
 		r.axis[i]=(0.0+rand()%101)/100;
 	}
 	for(unsigned i=0;i<JOY_BUTTONS;i++){
+		srand(time(NULL));
 		r.button[i]=rand()%2;
 	}
 	return r;
@@ -201,7 +201,7 @@ int main(){
 		for(float i=-1; i<=1; i+=.01){
 			if(i>=0)cout<<" ";
 			cout<<std::fixed<<std::setprecision(2)<<i<<"         ";
-			Multistate_control a(3);
+			Multistate_control a(3,0,Multistate_control::Input_type::AXIS);
 			a.interpret(i);
 			cout<<a.get()<<"\n";
 		}
@@ -210,7 +210,7 @@ int main(){
 	
 	Panel p;
 	for(unsigned i=0;i<50;i++){
-		interpret(driver_station_input_rand());
+		p=interpret(driver_station_input_rand());
 	}
 	cout<<p<<"\n";
 	return 0;
