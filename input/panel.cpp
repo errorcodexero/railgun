@@ -108,8 +108,11 @@ float mid(const float a,const float b){
 Multistate_control::Multistate_control():value(0),targets({}),port(0),input_type(Input_type::BUTTON){}
 Multistate_control::Multistate_control(unsigned int size,unsigned int p,Input_type in):value(0),targets({}),port(p),input_type(in){
 	assert(size>1);
+	float target=-1;//set target to minimum possible value
+	target+=1/(float)size;//set target to 1/size (half of the size of each range of targets)
 	for(unsigned int i=0; i<size; i++){
-		targets.insert(-1+((1+2*i)/(float)size));
+		targets.insert(target);
+		target+=2/(float)size;//add 2/size (the size of each range) each time until each target has been assigned
 	}
 }
 Multistate_control::Multistate_control(set<Volt> set_targets,unsigned int p,Input_type in):value(0),targets({}),port(p),input_type(in){
@@ -132,10 +135,10 @@ void Multistate_control::interpret(const Joystick_data d){
 void Multistate_control::interpret(const Volt volt){
 	vector<Volt> temp;
 	for(auto i=targets.begin(); i!=targets.end(); i++) temp.push_back(*i);
-	temp.insert(temp.begin(),-2.0);
-	temp.insert(temp.end(),2.0);
+	temp.insert(temp.begin(),-2.0);//add a minimum target (won't ever be set to this) so that there's a lower midpoint to test for
+	temp.insert(temp.end(),2.0);//add a maximum target (won't ever be set to this) so that there's an upper midpoint to test for
 	for(unsigned int i=1; i<temp.size()-1; i++){
-		if(volt >= mid(temp[i-1],temp[i]) && volt < mid(temp[i],temp[i+1])){
+		if(volt >= mid(temp[i-1],temp[i]) && volt < mid(temp[i],temp[i+1])){//if the axis value is more than its midpoint with the previous one and less than than its midpoint between the next one, then return that value
 			value=i-1;
 			return;
 		}
