@@ -7,15 +7,6 @@
 
 using namespace std;
 
-const set<Volt> TEN_POS_POT_TARGETS={-1.00,-0.75,-0.50,-0.25,0.00,0.20,0.40,0.60,0.80,1.00};
-const set<Volt> BUTTON_TARGETS={-1,-.8,-.62,-.45,-.29,-.11,.09,.33,.62,1};
-const unsigned int BUTTON_PORT=2;
-const unsigned int AUTO_SWITCH_PORT=0;
-enum Two_position_switches{LOCK_CLIMBER,TILT_AUTO,SIDES_AUTO,FRONT_AUTO,TWO_POSITION_SWITCH_NUMBER};
-const array<unsigned int,Two_position_switches::TWO_POSITION_SWITCH_NUMBER> TWO_POSITION_SWITCH_PORTS={0,1,2,3};
-enum  Three_position_switches{WINCH,FRONT,COLLECTOR_POS,SIDES,THREE_POSITION_SWITCH_NUMBER};
-const array<unsigned int,Three_position_switches::THREE_POSITION_SWITCH_NUMBER> THREE_POSITION_SWITCH_PORTS={3,4,5,6};
-
 class Multistate_control{
 	public:
 	enum class Input_type{BUTTON,AXIS};
@@ -36,12 +27,36 @@ class Multistate_control{
 	explicit Multistate_control(set<Volt> set_targets,unsigned int,Input_type);//pass in a set of target values
 };
 
+class Two_digital_switch{//used for a three position switch connected to two digital inputs
+	public:
+	struct Ports{
+		unsigned int up;
+		unsigned int down;
+		Ports();
+		Ports(unsigned int,unsigned int);
+	};
+	private:	
+	unsigned int value;
+	Ports ports;
+
+	public:
+	unsigned int get()const;
+	void interpret(const bool,const bool);
+	void interpret(const Joystick_data);
+	friend ostream& operator<<(ostream&,Two_digital_switch);
+	Two_digital_switch();
+	explicit Two_digital_switch(Ports);	
+};
+
 struct Panel{
+	enum Two_position_switches{LOCK_CLIMBER,TILT_AUTO,SIDES_AUTO,FRONT_AUTO,TWO_POSITION_SWITCH_NUMBER};
+	enum Three_position_switches{WINCH,FRONT,COLLECTOR_POS,SIDES,THREE_POSITION_SWITCH_NUMBER};
 	bool in_use;
 	Multistate_control buttons;//Buttons
 	array<Multistate_control,Two_position_switches::TWO_POSITION_SWITCH_NUMBER> two_position_switches;//2 position swicthes
 	array<Multistate_control,Three_position_switches::THREE_POSITION_SWITCH_NUMBER> three_position_switches;//3 position switches
-	Multistate_control auto_switch;//10 position switches
+	Multistate_control auto_switch;//10 position switch
+	Two_digital_switch shooter_mode;//A three position switch connected to two digital inputs
 	enum class Auto_mode{NOTHING,REACH,STATICF,STATICS,PORTCULLIS,CHEVAL,LBLS,LBWLS,LBWHS,S};//TODO: remove this and put it in main
 	Auto_mode auto_mode;
 	float speed_dial;//Dial
