@@ -48,6 +48,20 @@ class Two_digital_switch{//used for a three position switch connected to two dig
 	explicit Two_digital_switch(Ports);	
 };
 
+class Dial{
+	float value;
+	unsigned int port;
+	
+	public:
+	friend ostream& operator<<(ostream&,Dial);
+	float get()const;
+	void interpret(const float);
+	void interpret(const Joystick_data);
+	float to_percent()const;
+	Dial();
+	explicit Dial(unsigned int);
+};
+
 struct Panel{
 	enum Two_position_switches{LOCK_CLIMBER,TILT_AUTO,SIDES_AUTO,FRONT_AUTO,TWO_POSITION_SWITCH_NUMBER};
 	enum Three_position_switches{WINCH,FRONT,COLLECTOR_POS,SIDES,THREE_POSITION_SWITCH_NUMBER};
@@ -59,7 +73,7 @@ struct Panel{
 	Two_digital_switch shooter_mode;//A three position switch connected to two digital inputs
 	enum class Auto_mode{NOTHING,REACH,STATICF,STATICS,PORTCULLIS,CHEVAL,LBLS,LBWLS,LBWHS,S};//TODO: remove this and put it in main
 	Auto_mode auto_mode;
-	float speed_dial;//Dial
+	Dial speed_dial;//Dial
 	Panel();
 };
 

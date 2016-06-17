@@ -26,7 +26,7 @@ Panel::Panel():
 	auto_switch(TEN_POS_POT_TARGETS,AUTO_SWITCH_PORT,Multistate_control::Input_type::AXIS),
 	shooter_mode(SHOOTER_MODE_PORTS),
 	auto_mode(Auto_mode::NOTHING),
-	speed_dial(0.0)
+	speed_dial(DIAL_PORT)
 {
 	#define X(POSITION) two_position_switches[Panel::Two_position_switches::POSITION]=Multistate_control(2,TWO_POSITION_SWITCH_PORTS[Panel::Two_position_switches::POSITION],Multistate_control::Input_type::BUTTON);
 	X(LOCK_CLIMBER) X(TILT_AUTO) X(SIDES_AUTO) X(FRONT_AUTO)
@@ -35,6 +35,32 @@ Panel::Panel():
 	#define X(POSITION) three_position_switches[Panel::Three_position_switches::POSITION]=Multistate_control(3,THREE_POSITION_SWITCH_PORTS[Panel::Three_position_switches::POSITION],Multistate_control::Input_type::AXIS);
 	X(WINCH) X(FRONT) X(COLLECTOR_POS) X(SIDES)
 	#undef X
+}
+
+Dial::Dial():value(0.0),port(0){}
+Dial::Dial(unsigned int p):value(0.0),port(p){}
+
+float Dial::get()const{
+	return value;
+}
+
+float Dial::to_percent()const{
+	return .5-(value/2);
+}
+
+void Dial::interpret(const float a){
+	value=a;
+}
+void Dial::interpret(const Joystick_data d){
+	value=d.axis[port];
+}
+
+ostream& operator<<(ostream& o,const Dial a){
+	//o<<"Dial(";
+	o<<"(";
+	o<<"value:"<<a.value;
+	o<<" port:"<<a.port;
+	return o<<")";
 }
 
 Two_digital_switch::Ports::Ports():up(0),down(0){}
@@ -192,10 +218,6 @@ Panel::Auto_mode auto_mode_convert(int potin){
 	}
 }
 
-float axis_to_percent(double a){
-	return .5-(a/2);
-}
-
 Panel interpret(Joystick_data d){
 	Panel p;
 	{
@@ -224,7 +246,7 @@ Panel interpret(Joystick_data d){
 	
 	p.shooter_mode.interpret(d);
 	
-	p.speed_dial = -d.axis[DIAL_PORT];//axis_to_percent(-d.axis[1]);
+	p.speed_dial.interpret(-d.axis[DIAL_PORT]);
 	return p;
 }
 
