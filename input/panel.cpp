@@ -16,25 +16,59 @@ const unsigned int BUTTON_PORT=2;
 const unsigned int AUTO_SWITCH_PORT=0;
 const array<unsigned int,Panel::Two_position_switches::TWO_POSITION_SWITCH_NUMBER> TWO_POSITION_SWITCH_PORTS={0,1,2,3};
 const array<unsigned int,Panel::Three_position_switches::THREE_POSITION_SWITCH_NUMBER> THREE_POSITION_SWITCH_PORTS={3,4,5,6};
-const Two_digital_switch::Ports SHOOTER_MODE_PORTS={5,6};
+const Combo_multistate_control::Ports SHOOTER_MODE_PORTS={5,6};
 
 Panel::Panel():
 	in_use(false),
-	buttons(BUTTON_TARGETS,BUTTON_PORT,Multistate_control::Input_type::AXIS),
+	buttons(Multistate_control::Input_type::AXIS,BUTTON_PORT,BUTTON_TARGETS),
 	two_position_switches(),
 	three_position_switches(),
-	auto_switch(TEN_POS_POT_TARGETS,AUTO_SWITCH_PORT,Multistate_control::Input_type::AXIS),
+	auto_switch(Multistate_control::Input_type::AXIS,AUTO_SWITCH_PORT,TEN_POS_POT_TARGETS),
 	shooter_mode(SHOOTER_MODE_PORTS),
 	auto_mode(Auto_mode::NOTHING),
 	speed_dial(DIAL_PORT)
 {
-	#define X(POSITION) two_position_switches[Panel::Two_position_switches::POSITION]=Multistate_control(2,TWO_POSITION_SWITCH_PORTS[Panel::Two_position_switches::POSITION],Multistate_control::Input_type::BUTTON);
+	#define X(POSITION) two_position_switches[Panel::Two_position_switches::POSITION]=Multistate_control(Multistate_control::Input_type::BUTTON,TWO_POSITION_SWITCH_PORTS[Panel::Two_position_switches::POSITION],2);
 	X(LOCK_CLIMBER) X(TILT_AUTO) X(SIDES_AUTO) X(FRONT_AUTO)
 	#undef X
 	
-	#define X(POSITION) three_position_switches[Panel::Three_position_switches::POSITION]=Multistate_control(3,THREE_POSITION_SWITCH_PORTS[Panel::Three_position_switches::POSITION],Multistate_control::Input_type::AXIS);
+	#define X(POSITION) three_position_switches[Panel::Three_position_switches::POSITION]=Multistate_control(Multistate_control::Input_type::AXIS,THREE_POSITION_SWITCH_PORTS[Panel::Three_position_switches::POSITION],3);
 	X(WINCH) X(FRONT) X(COLLECTOR_POS) X(SIDES)
 	#undef X
+}
+
+Combo_multistate_control::Ports::Ports():up(0),down(0){}
+Combo_multistate_control::Ports::Ports(unsigned int a,unsigned int b):up(a),down(b){}
+
+Combo_multistate_control::Combo_multistate_control():Multistate_control(Input_type::COMBO,0,0),ports({0,1}){}
+Combo_multistate_control::Combo_multistate_control(Combo_multistate_control::Ports p):Multistate_control(Input_type::COMBO,0,0),ports(p){}
+
+ostream& operator<<(ostream& o,const Combo_multistate_control::Ports a){
+	//o<<"Ports(";
+	o<<"(";
+	o<<"up:"<<a.up;
+	o<<" down:"<<a.down;
+	return o<<")";
+}
+
+void Combo_multistate_control::interpret(const bool UP,const bool DOWN){
+	if(DOWN)value=0;
+	else if(UP) value=2;
+	else value=1;
+}
+
+void Combo_multistate_control::interpret(const Joystick_data d){
+	interpret(d.button[ports.up],d.button[ports.down]);
+}
+
+ostream& operator<<(ostream& o,const Combo_multistate_control a){
+	//o<<"Combo_multistate_control(";
+	o<<"(";
+	o<<"value:"<<a.value;
+	o<<" targets:N/A";
+	o<<" ports:"<<a.ports;
+	o<<" input_type:"<<a.input_type;
+	return o<<")";
 }
 
 Dial::Dial():value(0.0),port(0){}
@@ -63,61 +97,47 @@ ostream& operator<<(ostream& o,const Dial a){
 	return o<<")";
 }
 
-Two_digital_switch::Ports::Ports():up(0),down(0){}
-Two_digital_switch::Ports::Ports(unsigned int a,unsigned int b):up(a),down(b){}
-
-Two_digital_switch::Two_digital_switch():value(0),ports({0,1}){}
-Two_digital_switch::Two_digital_switch(Ports p):value(0),ports(p){
-	assert(p.up!=p.down);
-}
-
-unsigned int Two_digital_switch::get()const{
-	return value;
-}
-
-void Two_digital_switch::interpret(const bool down,const bool up){
-	if(down) value=0;
-	else if(up) value=2;
-	else value=1;
-}
-
-void Two_digital_switch::interpret(const Joystick_data d){
-	interpret(d.button[ports.down],d.button[ports.up]);
-}
-
-ostream& operator<<(ostream& o,const Two_digital_switch::Ports a){
-	//o<<"Ports(";
-	o<<"(";
-	o<<"up:"<<a.up;
-	o<<" down:"<<a.down;
-	return o<<")";
-}
-
-ostream& operator<<(ostream& o,const Two_digital_switch a){
-	//o<<"Two_digital_switch(";
-	o<<"(";
-	o<<"value:"<<a.value;
-	o<<" ports:"<<a.ports;
-	return o<<")";
-}
-
 float mid(const float a,const float b){
 	return a+(b-a)/2;
 }
 
-Multistate_control::Multistate_control():value(0),targets({}),port(0),input_type(Input_type::BUTTON){}
-Multistate_control::Multistate_control(unsigned int size,unsigned int p,Input_type in):value(0),targets({}),port(p),input_type(in){
-	assert(size>1);
-	float target=-1;//set target to minimum possible value
-	target+=1/(float)size;//set target to 1/size (half of the size of each range of targets)
-	for(unsigned int i=0; i<size; i++){
-		targets.insert(target);
-		target+=2/(float)size;//add 2/size (the size of each range) each time until each target has been assigned
+Multistate_control::Multistate_control():value(0),input_type(Input_type::BUTTON),port(0),targets({}){}
+Multistate_control::Multistate_control(Input_type in,unsigned int p,unsigned int size):value(0),input_type(in),port(p),targets({}){
+	switch(input_type){
+		case Multistate_control::Input_type::BUTTON:
+			targets={0,1};
+			break;
+		case Multistate_control::Input_type::AXIS:
+			{
+				assert(size>1);
+				float target=-1;//set initial target to minimum possible value
+				target+=1/(float)size;//set target to 1/size (half of the size of each range of targets)
+				for(unsigned int i=0; i<size; i++){
+					targets.insert(target);
+					target+=2/(float)size;//add 2/size (the size of each range) each time until each target has been assigned
+				}
+				break;
+			}
+		case Multistate_control::Input_type::COMBO:
+			break;
+		default:
+			assert(0);
 	}
 }
-Multistate_control::Multistate_control(set<Volt> set_targets,unsigned int p,Input_type in):value(0),targets({}),port(p),input_type(in){
-	assert(set_targets.size()>1);
-	targets=set_targets;
+Multistate_control::Multistate_control(Input_type in,unsigned int p,set<Volt> set_targets):value(0),input_type(in),port(p),targets({}){	
+	switch(input_type){
+		case Multistate_control::Input_type::BUTTON:
+			targets={0,1};
+			break;
+		case Multistate_control::Input_type::AXIS:
+			assert(set_targets.size()>1);
+			targets=set_targets;
+			break;
+		case Multistate_control::Input_type::COMBO:
+			break;
+		default:
+			assert(0);
+	}
 }
 
 void Multistate_control::interpret(const Joystick_data d){
@@ -127,6 +147,9 @@ void Multistate_control::interpret(const Joystick_data d){
 			break;
 		case Multistate_control::Input_type::AXIS:
 			interpret(d.axis[port]);
+			break;
+		case Multistate_control::Input_type::COMBO:
+			//handled elsewhere
 			break;
 		default: assert(0);
 	}
@@ -152,7 +175,7 @@ unsigned int Multistate_control::get()const{
 
 ostream& operator<<(ostream& o,const Multistate_control::Input_type a){
 	#define X(NAME) if(a==Multistate_control::Input_type::NAME) return o<<""#NAME;
-	X(AXIS) X(BUTTON)
+	X(AXIS) X(BUTTON) X(COMBO)
 	#undef X
 	assert(0);
 }
@@ -257,11 +280,9 @@ Panel interpret(Joystick_data d){
 Joystick_data driver_station_input_rand(){
 	Joystick_data r;
 	for(unsigned i=0;i<JOY_AXES;i++){
-		srand(time(NULL));
 		r.axis[i]=(0.0+rand()%101)/100;
 	}
 	for(unsigned i=0;i<JOY_BUTTONS;i++){
-		srand(time(NULL));
 		r.button[i]=rand()%2;
 	}
 	return r;
@@ -273,7 +294,7 @@ int main(){
 		for(float i=-1; i<=1; i+=.01){
 			if(i>=0)cout<<" ";
 			cout<<std::fixed<<std::setprecision(2)<<i<<"         ";
-			Multistate_control a(3,0,Multistate_control::Input_type::AXIS);
+			Multistate_control a(Multistate_control::Input_type::AXIS,0,3);
 			a.interpret(i);
 			cout<<a.get()<<"\n";
 		}
@@ -281,6 +302,7 @@ int main(){
 	}
 	
 	Panel p;
+	srand(time(NULL));
 	for(unsigned i=0;i<50;i++){
 		p=interpret(driver_station_input_rand());
 	}
