@@ -16,7 +16,8 @@ const unsigned int BUTTON_PORT=2;
 const unsigned int AUTO_SWITCH_PORT=0;
 const array<unsigned int,Panel::Two_position_switches::TWO_POSITION_SWITCH_NUMBER> TWO_POSITION_SWITCH_PORTS={0,1,2,3};
 const array<unsigned int,Panel::Three_position_switches::THREE_POSITION_SWITCH_NUMBER> THREE_POSITION_SWITCH_PORTS={3,4,5,6};
-const Combo_multistate_control::Ports SHOOTER_MODE_PORTS={5,6};
+const unsigned int SHOOTER_MODE_PORT_DOWN=5;
+const unsigned int SHOOTER_MODE_PORT_UP=6;
 
 Panel::Panel():
 	in_use(false),
@@ -24,49 +25,37 @@ Panel::Panel():
 	two_position_switches(),
 	three_position_switches(),
 	auto_switch(Multistate_control::Input_type::AXIS,AUTO_SWITCH_PORT,TEN_POS_POT_TARGETS),
-	shooter_mode(SHOOTER_MODE_PORTS),
-	auto_mode(Auto_mode::NOTHING),
+	shooter_mode(SHOOTER_MODE_PORT_DOWN,SHOOTER_MODE_PORT_UP),
 	speed_dial(DIAL_PORT)
 {
-	#define X(POSITION) two_position_switches[Panel::Two_position_switches::POSITION]=Multistate_control(Multistate_control::Input_type::BUTTON,TWO_POSITION_SWITCH_PORTS[Panel::Two_position_switches::POSITION],2);
+	#define X(POSITION) two_position_switches[Panel::Two_position_switches::POSITION]=Multistate_control(Multistate_control::Input_type::BUTTON,2,TWO_POSITION_SWITCH_PORTS[Panel::Two_position_switches::POSITION]);
 	X(LOCK_CLIMBER) X(TILT_AUTO) X(SIDES_AUTO) X(FRONT_AUTO)
 	#undef X
 	
-	#define X(POSITION) three_position_switches[Panel::Three_position_switches::POSITION]=Multistate_control(Multistate_control::Input_type::AXIS,THREE_POSITION_SWITCH_PORTS[Panel::Three_position_switches::POSITION],3);
+	#define X(POSITION) three_position_switches[Panel::Three_position_switches::POSITION]=Multistate_control(Multistate_control::Input_type::AXIS,3,THREE_POSITION_SWITCH_PORTS[Panel::Three_position_switches::POSITION]);
 	X(WINCH) X(FRONT) X(COLLECTOR_POS) X(SIDES)
 	#undef X
 }
 
-Combo_multistate_control::Ports::Ports():up(0),down(0){}
-Combo_multistate_control::Ports::Ports(unsigned int a,unsigned int b):up(a),down(b){}
+Combo_switch::Combo_switch():Multistate_control(Input_type::COMBO,0,0),up_port(1){}
+Combo_switch::Combo_switch(unsigned int p_down,unsigned int p_up):Multistate_control(Input_type::COMBO,p_down,0),up_port(p_up){}
 
-Combo_multistate_control::Combo_multistate_control():Multistate_control(Input_type::COMBO,0,0),ports({0,1}){}
-Combo_multistate_control::Combo_multistate_control(Combo_multistate_control::Ports p):Multistate_control(Input_type::COMBO,0,0),ports(p){}
-
-ostream& operator<<(ostream& o,const Combo_multistate_control::Ports a){
-	//o<<"Ports(";
-	o<<"(";
-	o<<"up:"<<a.up;
-	o<<" down:"<<a.down;
-	return o<<")";
-}
-
-void Combo_multistate_control::interpret(const bool UP,const bool DOWN){
+void Combo_switch::interpret(const bool DOWN,const bool UP){
 	if(DOWN)value=0;
 	else if(UP) value=2;
 	else value=1;
 }
 
-void Combo_multistate_control::interpret(const Joystick_data d){
-	interpret(d.button[ports.up],d.button[ports.down]);
+void Combo_switch::interpret(const Joystick_data d){
+	interpret(d.button[port],d.button[up_port]);
 }
 
-ostream& operator<<(ostream& o,const Combo_multistate_control a){
-	//o<<"Combo_multistate_control(";
+ostream& operator<<(ostream& o,const Combo_switch a){
+	//o<<"Combo_switch(";
 	o<<"(";
 	o<<"value:"<<a.value;
 	o<<" targets:N/A";
-	o<<" ports:"<<a.ports;
+	o<<" ports:(down:"<<a.port<<" up:"<<a.up_port<<")";
 	o<<" input_type:"<<a.input_type;
 	return o<<")";
 }
@@ -192,14 +181,6 @@ std::ostream& operator<<(std::ostream& o,const Multistate_control a){
 	return o<<")";
 }
 
-ostream& operator<<(ostream& o,Panel::Auto_mode a){
-	o<<"Panel::Auto_mode(";
-	#define X(name) if(a==Panel::Auto_mode::name)o<<""#name;
-	X(NOTHING) X(REACH) X(STATICS) X(STATICF) X(PORTCULLIS) X(CHEVAL) X(LBLS) X(LBWLS) X(LBWHS) X(S)
-	#undef X
-	return o<<")";
-}
-
 ostream& operator<<(ostream& o,const Panel p){
 	o<<"Panel(";
 	o<<"in_use:"<<p.in_use;
@@ -213,37 +194,13 @@ ostream& operator<<(ostream& o,const Panel p){
 	o<<", auto_switch:"<<p.auto_switch.get();//10-pos switches
 	#define X(NAME) o<<", "#NAME":"<<p.NAME;
 	X(shooter_mode)
-	X(auto_mode) 
 	X(speed_dial) //Dials
 	#undef X
 	return o<<")";
 }
 
-Panel::Auto_mode auto_mode_convert(int potin){
-	switch(potin) {
-		case 0:
-			return Panel::Auto_mode::NOTHING;
-		case 1:
-			return Panel::Auto_mode::REACH;
-		case 2:
-			return Panel::Auto_mode::STATICS;
-		case 3:
-			return Panel::Auto_mode::STATICF;
-		case 4:
-			return Panel::Auto_mode::PORTCULLIS;
-		case 5: 
-			return Panel::Auto_mode::CHEVAL;
-		case 6:
-			return Panel::Auto_mode::LBLS;
-		case 7:
-			return Panel::Auto_mode::LBWLS;
-		case 8:
-			return Panel::Auto_mode::LBWHS;	
-		case 9: 
-			return Panel::Auto_mode::S;
-		default:
-			return Panel::Auto_mode::NOTHING;
-	}
+float axis_to_percent(double a){
+	return .5-(a/2);
 }
 
 Panel interpret(Joystick_data d){
@@ -261,7 +218,6 @@ Panel interpret(Joystick_data d){
 		if (!p.in_use) return p;
 	}
 	p.auto_switch.interpret(d);
-	p.auto_mode=auto_mode_convert(p.auto_switch.get());
 	
 	p.buttons.interpret(d);
 	
