@@ -49,23 +49,23 @@ class Two_digital_switch{//used for a three position switch connected to two dig
 };
 
 struct Panel{
+	bool in_use;
+	enum Buttons{DEFAULT,COLLECTOR_UP,COLLECTOR_DOWN,SHOOT_HIGH,COLLECT,SHOOT_LOW,SHOOT_PREP,DRAWBRIDGE,CHEVAL,LEARN};
 	enum Two_position_switches{LOCK_CLIMBER,TILT_AUTO,SIDES_AUTO,FRONT_AUTO,TWO_POSITION_SWITCH_NUMBER};
 	enum Three_position_switches{WINCH,FRONT,COLLECTOR_POS,SIDES,THREE_POSITION_SWITCH_NUMBER};
-	bool in_use;
+	enum class Two_position_switch{DOWN,UP};
+	enum class Three_position_switch{DOWN,MIDDLE,UP};
 	Multistate_control buttons;//Buttons
 	array<Multistate_control,Two_position_switches::TWO_POSITION_SWITCH_NUMBER> two_position_switches;//2 position swicthes
 	array<Multistate_control,Three_position_switches::THREE_POSITION_SWITCH_NUMBER> three_position_switches;//3 position switches
 	Multistate_control auto_switch;//10 position switch
 	Two_digital_switch shooter_mode;//A three position switch connected to two digital inputs
-	enum class Auto_mode{NOTHING,REACH,STATICF,STATICS,PORTCULLIS,CHEVAL,LBLS,LBWLS,LBWHS,S};//TODO: remove this and put it in main
-	Auto_mode auto_mode;
 	float speed_dial;//Dial
 	Panel();
 };
 
 ostream& operator<<(ostream&,const Multistate_control::Input_type);
 ostream& operator<<(ostream&,const Multistate_control);
-ostream& operator<<(ostream&,Panel::Auto_mode);
 ostream& operator<<(ostream&,const Panel);
 
 Panel interpret(Joystick_data);

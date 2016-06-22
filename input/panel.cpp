@@ -25,7 +25,6 @@ Panel::Panel():
 	three_position_switches(),
 	auto_switch(TEN_POS_POT_TARGETS,AUTO_SWITCH_PORT,Multistate_control::Input_type::AXIS),
 	shooter_mode(SHOOTER_MODE_PORTS),
-	auto_mode(Auto_mode::NOTHING),
 	speed_dial(0.0)
 {
 	#define X(POSITION) two_position_switches[Panel::Two_position_switches::POSITION]=Multistate_control(2,TWO_POSITION_SWITCH_PORTS[Panel::Two_position_switches::POSITION],Multistate_control::Input_type::BUTTON);
@@ -138,14 +137,6 @@ std::ostream& operator<<(std::ostream& o,const Multistate_control a){
 	return o<<")";
 }
 
-ostream& operator<<(ostream& o,Panel::Auto_mode a){
-	o<<"Panel::Auto_mode(";
-	#define X(name) if(a==Panel::Auto_mode::name)o<<""#name;
-	X(NOTHING) X(REACH) X(STATICS) X(STATICF) X(PORTCULLIS) X(CHEVAL) X(LBLS) X(LBWLS) X(LBWHS) X(S)
-	#undef X
-	return o<<")";
-}
-
 ostream& operator<<(ostream& o,const Panel p){
 	o<<"Panel(";
 	o<<"in_use:"<<p.in_use;
@@ -159,37 +150,9 @@ ostream& operator<<(ostream& o,const Panel p){
 	o<<", auto_switch:"<<p.auto_switch.get();//10-pos switches
 	#define X(NAME) o<<", "#NAME":"<<p.NAME;
 	X(shooter_mode)
-	X(auto_mode) 
 	X(speed_dial) //Dials
 	#undef X
 	return o<<")";
-}
-
-Panel::Auto_mode auto_mode_convert(int potin){
-	switch(potin) {
-		case 0:
-			return Panel::Auto_mode::NOTHING;
-		case 1:
-			return Panel::Auto_mode::REACH;
-		case 2:
-			return Panel::Auto_mode::STATICS;
-		case 3:
-			return Panel::Auto_mode::STATICF;
-		case 4:
-			return Panel::Auto_mode::PORTCULLIS;
-		case 5: 
-			return Panel::Auto_mode::CHEVAL;
-		case 6:
-			return Panel::Auto_mode::LBLS;
-		case 7:
-			return Panel::Auto_mode::LBWLS;
-		case 8:
-			return Panel::Auto_mode::LBWHS;	
-		case 9: 
-			return Panel::Auto_mode::S;
-		default:
-			return Panel::Auto_mode::NOTHING;
-	}
 }
 
 float axis_to_percent(double a){
@@ -211,7 +174,6 @@ Panel interpret(Joystick_data d){
 		if (!p.in_use) return p;
 	}
 	p.auto_switch.interpret(d);
-	p.auto_mode=auto_mode_convert(p.auto_switch.get());
 	
 	p.buttons.interpret(d);
 	
