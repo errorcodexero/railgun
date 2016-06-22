@@ -56,7 +56,10 @@ void Ten_position_switch::interpret(const Volt v){
 }
 
 Two_state_input::Two_state_input():value(false),port(0){}	
-Two_state_input::Two_state_input(unsigned int p):value(false),port(p){}
+Two_state_input::Two_state_input(unsigned int p):value(false),port(0){
+	assert(p<=JOY_BUTTONS);
+	port=p;
+}
 
 bool Two_state_input::get()const{
 	return value;
@@ -79,7 +82,10 @@ ostream& operator<<(ostream& o,const Two_state_input a){
 }
 
 Combo_switch::Combo_switch():Multistate_input(0,2),up_port(1){}
-Combo_switch::Combo_switch(unsigned int p_down,unsigned int p_up):Multistate_input(p_down,2),up_port(p_up){}
+Combo_switch::Combo_switch(unsigned int p_down,unsigned int p_up):Multistate_input(p_down,2),up_port(0){
+	assert(p_up<=JOY_BUTTONS);
+	up_port=p_up;	
+}
 
 void Combo_switch::interpret(const bool DOWN,const bool UP){
 	if(DOWN)value=0;
@@ -101,7 +107,10 @@ ostream& operator<<(ostream& o,const Combo_switch a){
 }
 
 Dial::Dial():value(0.0),port(0){}
-Dial::Dial(unsigned int p):value(0.0),port(p){}
+Dial::Dial(unsigned int p):value(0.0),port(p){
+	assert(p<=JOY_AXES);
+	port=p;
+}
 
 float Dial::get()const{
 	return value;
@@ -131,7 +140,9 @@ float mid(const float a,const float b){
 }
 
 Multistate_input::Multistate_input():value(0),port(0),targets({}){}
-Multistate_input::Multistate_input(unsigned int p,unsigned int size):value(0),port(p),targets({}){
+Multistate_input::Multistate_input(unsigned int p,unsigned int size):value(0),port(0),targets({}){
+	assert(p<=JOY_AXES);
+	port=p;
 	assert(size>1);
 	float target=-1;//set initial target to minimum possible value
 	target+=1/(float)size;//set target to 1/size (half of the size of each range of targets)
@@ -140,7 +151,9 @@ Multistate_input::Multistate_input(unsigned int p,unsigned int size):value(0),po
 		target+=2/(float)size;//add 2/size (the size of each range) each time until each target has been assigned
 	}
 }
-Multistate_input::Multistate_input(unsigned int p,set<Volt> set_targets):value(0),port(p),targets({}){	
+Multistate_input::Multistate_input(unsigned int p,set<Volt> set_targets):value(0),port(0),targets({}){
+	assert(p<=JOY_AXES);
+	port=p;
 	assert(set_targets.size()>1);
 	targets=set_targets;
 }
@@ -179,16 +192,18 @@ std::ostream& operator<<(std::ostream& o,const Multistate_input a){
 ostream& operator<<(ostream& o,const Panel p){
 	o<<"Panel(";
 	o<<"in_use:"<<p.in_use;
-	o<<", buttons:"<<p.buttons.get();//buttons
+	#define X(NAME) o<<", "#NAME":"<<p.NAME.get();
+	X(buttons)//buttons
+	#define ARRAY(NAME) o<<", "#NAME"["<<i<<"]:"<<p.NAME[i].get();
 	for(unsigned int i=0; i<Panel::Two_position_switches::TWO_POSITION_SWITCH_NUMBER; i++){//2-pos switches
-		o<<", two_position_switches["<<i<<"]:"<<p.two_position_switches[i].get();
+		ARRAY(two_position_switches)
 	}
 	for(unsigned int i=0; i<Panel::Three_position_switches::THREE_POSITION_SWITCH_NUMBER; i++){//3-pos switches
-		o<<", three_position_switches["<<i<<"]:"<<p.three_position_switches[i].get();
+		ARRAY(three_position_switches)
 	}
-	o<<", auto_switch:"<<p.auto_switch.get();//10-pos switches
-	#define X(NAME) o<<", "#NAME":"<<p.NAME;
-	X(shooter_mode)
+	#undef ARRAY
+	X(auto_switch)//10-pos switches
+	X(shooter_mode)//3-pos switch connected to two digital inputs
 	X(speed_dial) //Dials
 	#undef X
 	return o<<")";
