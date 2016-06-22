@@ -75,11 +75,11 @@ class Dial{
 struct Panel{
 	bool in_use;
 	enum Buttons{DEFAULT,COLLECTOR_UP,COLLECTOR_DOWN,SHOOT_HIGH,COLLECT,SHOOT_LOW,SHOOT_PREP,DRAWBRIDGE,CHEVAL,LEARN};
-	enum Two_state_inputes{LOCK_CLIMBER,TILT_AUTO,SIDES_AUTO,FRONT_AUTO,TWO_POSITION_SWITCH_NUMBER};
+	enum Two_position_switches{LOCK_CLIMBER,TILT_AUTO,SIDES_AUTO,FRONT_AUTO,TWO_POSITION_SWITCH_NUMBER};
 	enum Three_position_switches{WINCH,FRONT,COLLECTOR_POS,SIDES,THREE_POSITION_SWITCH_NUMBER};
 	enum Three_position_switch{DOWN,MIDDLE,UP};
 	Multistate_input buttons;//Buttons
-	array<Two_state_input,Two_state_inputes::TWO_POSITION_SWITCH_NUMBER> two_position_switches;//2 position swicthes
+	array<Two_state_input,Two_position_switches::TWO_POSITION_SWITCH_NUMBER> two_position_switches;//2 position swicthes
 	array<Multistate_input,Three_position_switches::THREE_POSITION_SWITCH_NUMBER> three_position_switches;//3 position switches
 	Ten_position_switch auto_switch;//10 position switch
 	Combo_switch shooter_mode;//A three position switch connected to two digital inputs

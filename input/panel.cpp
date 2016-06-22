@@ -14,7 +14,7 @@ const set<Volt> BUTTON_TARGETS={-1,-.8,-.62,-.45,-.29,-.11,.09,.33,.62,1};
 const unsigned int DIAL_PORT=1;
 const unsigned int BUTTON_PORT=2;
 const unsigned int AUTO_SWITCH_PORT=0;
-const array<unsigned int,Panel::Two_state_inputes::TWO_POSITION_SWITCH_NUMBER> TWO_POSITION_SWITCH_PORTS={0,1,2,3};
+const array<unsigned int,Panel::Two_position_switches::TWO_POSITION_SWITCH_NUMBER> TWO_POSITION_SWITCH_PORTS={0,1,2,3};
 const array<unsigned int,Panel::Three_position_switches::THREE_POSITION_SWITCH_NUMBER> THREE_POSITION_SWITCH_PORTS={3,4,5,6};
 const unsigned int SHOOTER_MODE_PORT_DOWN=5;
 const unsigned int SHOOTER_MODE_PORT_UP=6;
@@ -28,7 +28,7 @@ Panel::Panel():
 	shooter_mode(SHOOTER_MODE_PORT_DOWN,SHOOTER_MODE_PORT_UP),
 	speed_dial(DIAL_PORT)
 {
-	#define X(POSITION) two_position_switches[Panel::Two_state_inputes::POSITION]=Two_state_input(TWO_POSITION_SWITCH_PORTS[Panel::Two_state_inputes::POSITION]);
+	#define X(POSITION) two_position_switches[Panel::Two_position_switches::POSITION]=Two_state_input(TWO_POSITION_SWITCH_PORTS[Panel::Two_position_switches::POSITION]);
 	X(LOCK_CLIMBER) X(TILT_AUTO) X(SIDES_AUTO) X(FRONT_AUTO)
 	#undef X
 	
@@ -180,7 +180,7 @@ ostream& operator<<(ostream& o,const Panel p){
 	o<<"Panel(";
 	o<<"in_use:"<<p.in_use;
 	o<<", buttons:"<<p.buttons.get();//buttons
-	for(unsigned int i=0; i<Panel::Two_state_inputes::TWO_POSITION_SWITCH_NUMBER; i++){//2-pos switches
+	for(unsigned int i=0; i<Panel::Two_position_switches::TWO_POSITION_SWITCH_NUMBER; i++){//2-pos switches
 		o<<", two_position_switches["<<i<<"]:"<<p.two_position_switches[i].get();
 	}
 	for(unsigned int i=0; i<Panel::Three_position_switches::THREE_POSITION_SWITCH_NUMBER; i++){//3-pos switches
@@ -216,7 +216,7 @@ Panel interpret(Joystick_data d){
 	
 	p.buttons.interpret(d);
 	
-	for(unsigned int i=0; i<Panel::Two_state_inputes::TWO_POSITION_SWITCH_NUMBER; i++){
+	for(unsigned int i=0; i<Panel::Two_position_switches::TWO_POSITION_SWITCH_NUMBER; i++){
 		p.two_position_switches[i].interpret(d);
 	}
 	for(unsigned int i=0; i<Panel::Three_position_switches::THREE_POSITION_SWITCH_NUMBER; i++){
