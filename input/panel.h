@@ -29,9 +29,13 @@ class Multistate_control{
 	explicit Multistate_control(Input_type,unsigned int,set<Volt> set_targets);//pass in a set of target values
 };
 
-class Button: public Multistate_control{
+class Button{
+	bool value;
+	unsigned int port;
+	
 	public:
 	friend ostream& operator<<(ostream&,Button);
+	bool get()const;
 	void interpret(const bool);
 	void interpret(const Joystick_data);
 	Button();
