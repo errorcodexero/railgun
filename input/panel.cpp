@@ -119,6 +119,7 @@ Multistate_control::Multistate_control(Input_type in,unsigned int p,unsigned int
 				break;
 			}
 		case Multistate_control::Input_type::COMBO:
+			//N/A?
 			break;
 		default:
 			assert(0);
@@ -134,6 +135,7 @@ Multistate_control::Multistate_control(Input_type in,unsigned int p,set<Volt> se
 			targets=set_targets;
 			break;
 		case Multistate_control::Input_type::COMBO:
+			//N/A?
 			break;
 		default:
 			assert(0);
@@ -149,7 +151,7 @@ void Multistate_control::interpret(const Joystick_data d){
 			interpret(d.axis[port]);
 			break;
 		case Multistate_control::Input_type::COMBO:
-			//handled elsewhere
+			//handled elsewhere for now
 			break;
 		default: assert(0);
 	}
