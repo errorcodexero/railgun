@@ -66,7 +66,7 @@ class Toplevel{
 	};
 	
 	struct Status{
-		Status();//todo:remove this
+		Status();//TODO:remove this
 		#define X(A,B,C) A::Status B;
 		TOPLEVEL_ITEMS
 		#undef X

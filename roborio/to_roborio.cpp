@@ -217,7 +217,7 @@ string space_out(string s){
 template<typename USER_CODE>
 class To_crio
 {
-	//todo: see if these still have to all be pointers or if there's some alternative w/ the roboRIO
+	//TODO: see if these still have to all be pointers or if there's some alternative w/ the roboRIO
 	Solenoid *solenoid[Robot_outputs::SOLENOIDS];
 	DIO_controls digital_io;
 	VictorSP *pwm[Robot_outputs::PWMS];

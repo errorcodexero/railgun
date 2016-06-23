@@ -5,7 +5,7 @@
 
 using namespace std;
 
-//todo: check these constants
+//TODO: check these constants
 static const unsigned IO_LEFT=7,IO_RIGHT=8,IO_CENTER=9;
 
 Tote_sensors::Input Tote_sensors::Input_reader::operator()(Robot_inputs const& a)const{
