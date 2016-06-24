@@ -40,8 +40,8 @@ class Two_state_input{//Interprets from buttons not axes and therefore inherintl
 class Ten_position_switch: public Multistate_input{//Special case because the ten position pot on the oi is weird
 	public:
 	friend ostream& operator<<(ostream&,Ten_position_switch);
-	using Multistate_input::interpret;
 	void interpret(const Volt);
+	void interpret(const Joystick_data);
 	Ten_position_switch();
 	explicit Ten_position_switch(unsigned int);
 };

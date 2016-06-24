@@ -50,9 +50,16 @@ void Ten_position_switch::interpret(const Volt v){
 		}
 	}
 	for(unsigned i=0;i<10;i++){
-		if(v<(limits[i] + 0.05)) value= (i!=9) ? (i+1) : 0;
+		if(v<(limits[i] + 0.05)){
+			value= (i!=9) ? (i+1) : 0;
+			return;
+		}
 	}
 	value=9;
+}
+
+void Ten_position_switch::interpret(const Joystick_data d){
+	interpret(d.axis[port]);
 }
 
 Two_state_input::Two_state_input():value(false),port(0){}	
