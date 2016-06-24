@@ -311,8 +311,8 @@ Toplevel::Goal Main::teleop(
 	//goals.shooter.value=0;
 	goals.shooter.constants=shooter_constants.pid;
 	
-	bool enter_cheval=cheval_trigger(in.now,panel.in_use && panel.buttons.get()==Panel::Buttons::CHEVAL)&&!tilt_learn_mode;
-		
+	bool enter_cheval=cheval_trigger(in.now,panel.in_use && panel.buttons.get()==Panel::Buttons::CHEVAL) && !tilt_learn_mode;
+	
 	if((!panel.in_use && controller_auto.get()) || (panel.in_use && (panel.two_position_switches[Panel::Two_position_switches::TILT_AUTO].get() || panel.two_position_switches[Panel::Two_position_switches::FRONT_AUTO].get() || panel.two_position_switches[Panel::Two_position_switches::SIDES_AUTO].get()))) {//Automatic collector modes
 		bool joy_learn=gunner_joystick.button[Gamepad_button::B];
 		POV_section gunner_pov = pov_section(gunner_joystick.pov);
@@ -337,7 +337,7 @@ Toplevel::Goal Main::teleop(
 			const Time SHOOT_TIME=1.5;
 			shoot_high_timer.set(SHOOT_TIME);//time until we can assume the ball had been shot after being injected
 		} else if((main_joystick.button[Gamepad_button::START] && !joy_learn) || (panel.in_use && panel.buttons.get()==Panel::Buttons::COLLECT && !tilt_learn_mode)){
-			 collector_mode=Collector_mode::COLLECT;
+			collector_mode=Collector_mode::COLLECT;
 		}else if(panel.in_use && panel.three_position_switches[Panel::Three_position_switches::COLLECTOR_POS].get()==Panel::Three_position_switch::DOWN && !tilt_learn_mode) collector_mode=Collector_mode::LOW;
 
 		//if(SLOW_PRINT)cout<<"collector_mode: "<<collector_mode<<"\n";
@@ -492,7 +492,7 @@ Toplevel::Goal Main::teleop(
 				default: assert(0);
 			}
 		}
-		if (panel.two_position_switches[Panel::Two_position_switches::TILT_AUTO].get()){
+		if (!panel.two_position_switches[Panel::Two_position_switches::TILT_AUTO].get()){
 			goals.collector.tilt=[&]{
 				if (panel.buttons.get()==Panel::Buttons::COLLECTOR_UP) return Tilt::Goal::up();
 				if (panel.buttons.get()==Panel::Buttons::COLLECTOR_DOWN) return Tilt::Goal::down();
@@ -527,6 +527,7 @@ Toplevel::Goal Main::teleop(
 		return Winch::Goal::STOP;
 	}();
 //	///if(SLOW_PRINT) cout<<shoot_step<<" "<<toplevel_status.shooter<<" "<<goals.shooter<<"\n";
+	cout<<"\ngoals.collector:"<<goals.collector<<"\n";
 	return goals;
 }
 
@@ -900,7 +901,7 @@ Robot_outputs Main::operator()(Robot_inputs in,ostream&){
 	
 	Toplevel::Status_detail toplevel_status=toplevel.estimator.get();
 		
-	//if(SLOW_PRINT) cout<<"panel: "<<panel<<"\n";	
+	if(SLOW_PRINT) cout<<"panel: "<<panel<<"\n";	
 		
 	bool autonomous_start_now=autonomous_start(in.robot_mode.autonomous && in.robot_mode.enabled);
 	since_auto_start.update(in.now,autonomous_start_now);
