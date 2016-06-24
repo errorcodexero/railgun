@@ -10,7 +10,7 @@
 #include "../util/point.h"
 #include <vector>
 #include <assert.h>
-#include <fstream> 
+#include <fstream>  
 
 using namespace std;
 
