@@ -639,6 +639,7 @@ Main::Mode get_auto(Panel const& panel){
 }
 
 Main::Mode next_mode(Main::Mode m,bool autonomous,bool autonomous_start,Toplevel::Status_detail const& status,Time since_switch, Panel panel,bool const&toplready,Robot_inputs const& in,int startencoder){
+	int current_encoder=encoderconv(in.digital_io.encoder[0]);
 	switch(m){
 		case Main::Mode::TELEOP:	
 			if(autonomous_start){
@@ -718,8 +719,7 @@ Main::Mode next_mode(Main::Mode m,bool autonomous,bool autonomous_start,Toplevel
 		case Main::Mode::AUTO_LBLS_CROSS_LB:
 		{
 			if(!autonomous) return Main::Mode::TELEOP;
-			int currencoder = encoderconv(in.digital_io.encoder[0]);
-			if((currencoder - startencoder) >= 670) return Main::Mode::AUTO_LBLS_CROSS_MU;
+			if((current_encoder - startencoder) >= 670) return Main::Mode::AUTO_LBLS_CROSS_MU;
 // 100 ticks per 1 revalition| 8in wheal| 167 in for first run| cir:25.12| 100 ticks / 25 in| 4 ticks / 1 in| 668 ticks / 167 in.
 			return Main::Mode::AUTO_LBLS_CROSS_LB;
 			
@@ -753,8 +753,7 @@ Main::Mode next_mode(Main::Mode m,bool autonomous,bool autonomous_start,Toplevel
 		case Main::Mode::AUTO_LBWLS_WALL:
 		{
 			if(!autonomous) return Main::Mode::TELEOP;
-			int currencoder = encoderconv(in.digital_io.encoder[0]);
-			if((currencoder - startencoder) >= 670|| since_switch > 4.5) return Main::Mode::AUTO_LBWLS_MUP;// The value that is 670 is the value for encoders and 4.5 is a back up time for if there are not encoders
+			if((current_encoder - startencoder) >= 670|| since_switch > 4.5) return Main::Mode::AUTO_LBWLS_MUP;// The value that is 670 is the value for encoders and 4.5 is a back up time for if there are not encoders
 // 100 ticks per 1 revalition| 8in wheal| 167 in for first run| cir:25.12| 100 ticks / 25 in| 4 ticks / 1 in| 668 ticks / 167 in. 
 			return Main::Mode::AUTO_LBWLS_WALL;
 			
@@ -798,8 +797,7 @@ Main::Mode next_mode(Main::Mode m,bool autonomous,bool autonomous_start,Toplevel
 			case Main::Mode::AUTO_LBWHS_WALL:
 		{
 			if(!autonomous) return Main::Mode::TELEOP;
-			int currencoder = encoderconv(in.digital_io.encoder[0]);
-			if((currencoder - startencoder) >= 606|| since_switch > 4.5) return Main::Mode::AUTO_LBWHS_MUP;
+			if((current_encoder - startencoder) >= 606|| since_switch > 4.5) return Main::Mode::AUTO_LBWHS_MUP;
 // 100 ticks per 1 revalition| 8in wheal| 167 in for first run| cir:25.12| 100 ticks / 25 in| 4 ticks / 1 in| 668 ticks / 167 in.
 			return Main::Mode::AUTO_LBWHS_WALL;
 			
@@ -851,19 +849,29 @@ Main::Mode next_mode(Main::Mode m,bool autonomous,bool autonomous_start,Toplevel
 			return Main::Mode::AUTO_LBWHS_BP;
 		
 		case Main::Mode::AUTO_BR_STRAIGHTAWAY:
-			//go forward 15'
-			if(!autonomous) return Main::Mode::TELEOP;
-			if()
-			return Main::Mode::AUTO_BR_STRAIGHTAWAY;
-
+			{
+				if(!autonomous) return Main::Mode::TELEOP;
+				const int TARGET_DISTANCE=15*12;//go forward 15ft
+				if(current_encoder - startencoder >= ticks_to_inches(TARGET_DISTANCE)){
+					//encoderflag=false;
+					return Main::Mode::AUTO_BR_INITIALTURN;
+				}
+				return Main::Mode::AUTO_BR_STRAIGHTAWAY;
+			}
 		case Main::Mode::AUTO_BR_INITIALTURN:
 			if(!autonomous) return Main::Mode::TELEOP;
 			return Main::Mode::AUTO_BR_INITIALTURN;
 
 		case Main::Mode::AUTO_BR_SIDE:
-			if(!autonomous) return Main::Mode::TELEOP;
-			return Main::Mode::AUTO_BR_SIDE;
-		
+			{
+				const int TARGET_DISTANCE=7.5*12;//go forward 7.5ft
+				if(current_encoder - startencoder >= ticks_to_inches(TARGET_DISTANCE)){
+					//encoderflag-false;
+					return Main::Mode::AUTO_BR_SIDETURN;
+				}
+				if(!autonomous) return Main::Mode::TELEOP;
+				return Main::Mode::AUTO_BR_SIDE;
+			}	
 		case Main::Mode::AUTO_BR_SIDETURN:
 			if(!autonomous) return Main::Mode::TELEOP;
 			return Main::Mode::AUTO_BR_SIDETURN;
@@ -1161,6 +1169,10 @@ Robot_outputs Main::operator()(Robot_inputs in,ostream&){
 			goals.drive.right=.35;
 			break;
 		case Main::Mode::AUTO_BR_STRAIGHTAWAY:
+			if(!encoderflag){
+				encoderflag=true;
+				startencoder=encoderconv(in.digital_io.encoder[0]);
+			}
 			goals.drive.left=-.5;
 			goals.drive.right=-.5;
 			break;
@@ -1169,6 +1181,10 @@ Robot_outputs Main::operator()(Robot_inputs in,ostream&){
 			goals.drive.right=.5;
 			break;
 		case Main::Mode::AUTO_BR_SIDE:
+			if(!encoderflag){
+				encoderflag=true;
+				startencoder=encoderconv(in.digital_io.encoder[0]);
+			}
 			goals.drive.left=-.5;
 			goals.drive.right=-.5;
 			break;
