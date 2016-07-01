@@ -841,11 +841,11 @@ Main::Mode next_mode(Main::Mode m,bool autonomous,bool autonomous_start,Toplevel
 			return Main::Mode::AUTO_LBWHS_PREP;
 
 		case Main::Mode::AUTO_LBWHS_BP:
-		if(!autonomous) return Main::Mode::TELEOP;
-		if(since_switch > 2) return Main::Mode::AUTO_LBWHS_PREP;
-		return Main::Mode::AUTO_LBWHS_BP;
+		
+			if(!autonomous) return Main::Mode::TELEOP;
+			if(since_switch > 2) return Main::Mode::AUTO_LBWHS_PREP;
+			return Main::Mode::AUTO_LBWHS_BP;
 			
-
 		default: assert(0);
 	}
 	return m;	
