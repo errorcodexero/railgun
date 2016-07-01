@@ -1160,6 +1160,26 @@ Robot_outputs Main::operator()(Robot_inputs in,ostream&){
 			goals.drive.left=.35;
 			goals.drive.right=.35;
 			break;
+		case Main::Mode::AUTO_BR_STRAIGHTAWAY:
+			goals.drive.left=-.5;
+			goals.drive.right=-.5;
+			break;
+		case Main::Mode::AUTO_BR_INITIALTURN:
+			goals.drive.left=-.5;
+			goals.drive.right=.5;
+			break;
+		case Main::Mode::AUTO_BR_SIDE:
+			goals.drive.left=-.5;
+			goals.drive.right=-.5;
+			break;
+		case Main::Mode::AUTO_BR_SIDETURN:
+			goals.drive.left=.5;
+			goals.drive.right=-.5;
+			break;
+		case Main::Mode::AUTO_BR_ENDTURN:
+			goals.drive.left=-.5;
+			goals.drive.right=.5;
+			break;
 		//shooter_protical call in here takes in robot inputs,toplevel goal,toplevel status detail
 		default: assert(0);
 	}
