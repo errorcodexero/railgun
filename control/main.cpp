@@ -841,10 +841,26 @@ Main::Mode next_mode(Main::Mode m,bool autonomous,bool autonomous_start,Toplevel
 			return Main::Mode::AUTO_LBWHS_PREP;
 
 		case Main::Mode::AUTO_LBWHS_BP:
-		if(!autonomous) return Main::Mode::TELEOP;
-		if(since_switch > 2) return Main::Mode::AUTO_LBWHS_PREP;
-		return Main::Mode::AUTO_LBWHS_BP;
-			
+			if(!autonomous) return Main::Mode::TELEOP;
+			if(since_switch > 2) return Main::Mode::AUTO_LBWHS_PREP;
+			return Main::Mode::AUTO_LBWHS_BP;
+		
+		case Main::Mode::AUTO_BR_STRAIGHTAWAY:
+			if(!autonomous) return Main::Mode::TELEOP;
+			return Main::Mode::AUTO_BR_STRAIGHTAWAY;
+
+		case Main::Mode::AUTO_BR_INITIALTURN:
+			if(!autonomous) return Main::Mode::TELEOP;
+			return Main::Mode::AUTO_BR_INITIALTURN;
+
+		case Main::Mode::AUTO_BR_SIDE:
+			if(!autonomous) return Main::Mode::TELEOP;
+			return Main::Mode::AUTO_BR_SIDE;
+		
+		case Main::Mode::AUTO_BR_SIDETURN:
+			if(!autonomous) return Main::Mode::TELEOP;
+			return Main::Mode::AUTO_BR_SIDETURN;
+		
 
 		default: assert(0);
 	}
