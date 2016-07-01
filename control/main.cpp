@@ -604,6 +604,11 @@ int encoderconv(Maybe_inline<Encoder_output> encoder){
 	return 10000;
 }
 
+int ticks_to_inches(int ticks){
+	const float TICKS_PER_INCH=4.0;
+	return ticks*TICKS_PER_INCH;
+}
+
 Main::Mode get_auto(Panel const& panel){
 	if (panel.in_use) {
 		switch(panel.auto_mode){ 
@@ -846,7 +851,9 @@ Main::Mode next_mode(Main::Mode m,bool autonomous,bool autonomous_start,Toplevel
 			return Main::Mode::AUTO_LBWHS_BP;
 		
 		case Main::Mode::AUTO_BR_STRAIGHTAWAY:
+			//go forward 15'
 			if(!autonomous) return Main::Mode::TELEOP;
+			if()
 			return Main::Mode::AUTO_BR_STRAIGHTAWAY;
 
 		case Main::Mode::AUTO_BR_INITIALTURN:
@@ -861,7 +868,6 @@ Main::Mode next_mode(Main::Mode m,bool autonomous,bool autonomous_start,Toplevel
 			if(!autonomous) return Main::Mode::TELEOP;
 			return Main::Mode::AUTO_BR_SIDETURN;
 		
-
 		default: assert(0);
 	}
 	return m;	
