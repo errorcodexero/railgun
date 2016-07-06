@@ -876,12 +876,12 @@ Main::Mode next_mode(Main::Mode m,bool autonomous,bool autonomous_start,Toplevel
 			}
 		case Main::Mode::AUTO_BR_SIDE:
 			{
+				if(!autonomous) return Main::Mode::TELEOP;
 				const double TARGET_DISTANCE=7.5*12;//in inches
 				if(ticks_to_inches(current_encoder - startencoder) >= TARGET_DISTANCE){
 					//encoderflag-false;
 					return Main::Mode::AUTO_BR_SIDETURN;
 				}
-				if(!autonomous) return Main::Mode::TELEOP;
 				return Main::Mode::AUTO_BR_SIDE;
 			}	
 		case Main::Mode::AUTO_BR_SIDETURN:
