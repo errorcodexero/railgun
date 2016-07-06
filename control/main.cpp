@@ -604,9 +604,15 @@ int encoderconv(Maybe_inline<Encoder_output> encoder){
 	return 10000;
 }
 
-int ticks_to_inches(int ticks){
-	const float TICKS_PER_INCH=4.0;
+double ticks_to_inches(int ticks){
+	const float TICKS_PER_INCH=4.0;//Calculated value
 	return ticks*TICKS_PER_INCH;
+}
+
+double ticks_to_degrees(int ticks, bool clockwise){
+	const float TICKS_PER_DEGREE_CCW=3.0;//Assumed for now
+	const float TICKS_PER_DEGREE_CW=1.0;//Assumed for now
+	return ticks * (clockwise? TICKS_PER_DEGREE_CW : TICKS_PER_DEGREE_CCW);
 }
 
 Main::Mode get_auto(Panel const& panel){
@@ -851,21 +857,27 @@ Main::Mode next_mode(Main::Mode m,bool autonomous,bool autonomous_start,Toplevel
 		case Main::Mode::AUTO_BR_STRAIGHTAWAY:
 			{
 				if(!autonomous) return Main::Mode::TELEOP;
-				const int TARGET_DISTANCE=15*12;//go forward 15ft
-				if(current_encoder - startencoder >= ticks_to_inches(TARGET_DISTANCE)){
+				const double TARGET_DISTANCE=15*12;//in inches
+				if(ticks_to_inches(current_encoder - startencoder) >= TARGET_DISTANCE){
 					//encoderflag=false;
 					return Main::Mode::AUTO_BR_INITIALTURN;
 				}
 				return Main::Mode::AUTO_BR_STRAIGHTAWAY;
 			}
 		case Main::Mode::AUTO_BR_INITIALTURN:
-			if(!autonomous) return Main::Mode::TELEOP;
-			return Main::Mode::AUTO_BR_INITIALTURN;
-
+			{
+				if(!autonomous) return Main::Mode::TELEOP;
+				const double TARGET_TURN=30;//in degrees, clockwise
+				if(ticks_to_degrees(current_encoder-startencoder,true) >= TARGET_TURN){
+					return Main::Mode::AUTO_BR_SIDE;
+				}
+				return Main::Mode::AUTO_BR_INITIALTURN;
+			
+			}
 		case Main::Mode::AUTO_BR_SIDE:
 			{
-				const int TARGET_DISTANCE=7.5*12;//go forward 7.5ft
-				if(current_encoder - startencoder >= ticks_to_inches(TARGET_DISTANCE)){
+				const double TARGET_DISTANCE=7.5*12;//in inches
+				if(ticks_to_inches(current_encoder - startencoder) >= TARGET_DISTANCE){
 					//encoderflag-false;
 					return Main::Mode::AUTO_BR_SIDETURN;
 				}
@@ -873,8 +885,23 @@ Main::Mode next_mode(Main::Mode m,bool autonomous,bool autonomous_start,Toplevel
 				return Main::Mode::AUTO_BR_SIDE;
 			}	
 		case Main::Mode::AUTO_BR_SIDETURN:
-			if(!autonomous) return Main::Mode::TELEOP;
-			return Main::Mode::AUTO_BR_SIDETURN;
+			{
+				if(!autonomous) return Main::Mode::TELEOP;
+				const double TARGET_TURN=300;//in degrees, clockwise
+				if(ticks_to_degrees(current_encoder - startencoder,true) >=TARGET_TURN){
+					return Main::Mode::AUTO_BR_SIDE;
+				}
+				return Main::Mode::AUTO_BR_SIDETURN;
+			}
+		case Main::Mode::AUTO_BR_ENDTURN:
+			{
+				if(!autonomous) return Main::Mode::TELEOP;
+				const double TARGET_TURN=150;//in degrees, clockwise
+				if(ticks_to_degrees(current_encoder-startencoder,true) >= TARGET_TURN){
+					return Main::Mode::AUTO_BR_STRAIGHTAWAY;
+				}
+				return Main::Mode::AUTO_BR_ENDTURN;
+			}
 		
 		default: assert(0);
 	}
