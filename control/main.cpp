@@ -943,7 +943,7 @@ Robot_outputs Main::operator()(Robot_inputs in,ostream&){
 	
 	Toplevel::Status_detail toplevel_status=toplevel.estimator.get();
 		
-	//if(SLOW_PRINT) cout<<"panel: "<<panel<<"\n";	
+	if(SLOW_PRINT) cout<<"panel: "<<panel<<"\n";	
 		
 	bool autonomous_start_now=autonomous_start(in.robot_mode.autonomous && in.robot_mode.enabled);
 	since_auto_start.update(in.now,autonomous_start_now);

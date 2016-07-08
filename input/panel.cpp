@@ -66,10 +66,10 @@ ostream& operator<<(ostream& o,Panel::Shooter_mode a){
 
 ostream& operator<<(ostream& o,Panel::Auto_mode a){
 	o<<"Panel::Auto_mode(";
-	#define X(name) if(a==Panel::Auto_mode::name)o<<""#name;
-	X(NOTHING) X(REACH) X(STATICS) X(STATICF) X(PORTCULLIS) X(CHEVAL) X(LBLS) X(LBWLS) X(LBWHS) X(S)
+	#define X(name) if(a==Panel::Auto_mode::name)return o<<""#name")";
+	X(NOTHING) X(REACH) X(STATICS) X(STATICF) X(PORTCULLIS) X(CHEVAL) X(LBLS) X(LBWLS) X(LBWHS) X(S) X(BR)
 	#undef X
-	return o<<")";
+	assert(0);
 }
 
 ostream& operator<<(ostream& o,Panel p){
