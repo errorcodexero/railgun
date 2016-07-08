@@ -156,9 +156,9 @@ Main::Main():
 	cheval_step(Cheval_steps::GO_DOWN),
 	shoot_step(Shoot_steps::SPEED_UP)
 {
-	encoderflag = false;
+	set_initial_encoders = true;
 	initial_encoders = make_pair(0,0);
-	br_lap=0;
+	br_step=0;
 	myfile2.open(NAVLOG2);
 	myfile2 << "test start" << endl;
 	tilt_presets=read_tilt_presets();
@@ -600,6 +600,7 @@ pair<float,float> driveatwall(const Robot_inputs in){
 	}
 	return motorvoltmods;
 }
+
 int encoderconv(Maybe_inline<Encoder_output> encoder){
 	if(encoder) return *encoder;
 	return 10000;
@@ -647,9 +648,14 @@ Main::Mode get_auto(Panel const& panel){
 	return Main::Mode::TELEOP;
 }
 
-Main::Mode next_mode(Main::Mode m,bool autonomous,bool autonomous_start,Toplevel::Status_detail const& status,Time since_switch, Panel panel,bool const&toplready,Robot_inputs const& in,pair<int,int> initial_encoders){
+Main::Mode next_mode(Main::Mode m,bool autonomous,bool autonomous_start,Toplevel::Status_detail const& status,Time since_switch, Panel panel,bool const&toplready,Robot_inputs const& in,pair<int,int> initial_encoders, unsigned int& br_step,bool& set_initial_encoders){
 	pair<int,int> current_encoders={encoderconv(in.digital_io.encoder[0]),encoderconv(in.digital_io.encoder[1])};//first is left, second is right
 	pair<int,int> encoder_differences=make_pair(current_encoders.first-initial_encoders.first,current_encoders.second-initial_encoders.second);
+	//if(SLOW_PRINT){
+		cout<<"initial_encoders:"<<initial_encoders<<"\n";
+		cout<<"current_encoders:"<<current_encoders<<"\n";
+		cout<<"encoder_differences:"<<encoder_differences<<"\n";
+	//}
 	switch(m){
 		case Main::Mode::TELEOP:	
 			if(autonomous_start){
@@ -863,7 +869,8 @@ Main::Mode next_mode(Main::Mode m,bool autonomous,bool autonomous_start,Toplevel
 				if(!autonomous) return Main::Mode::TELEOP;
 				const double TARGET_DISTANCE=15*12;//in inches
 				if(ticks_to_inches(encoder_differences.first) >= TARGET_DISTANCE){
-					//encoderflag=false;
+					set_initial_encoders=true;
+					br_step++;
 					return Main::Mode::AUTO_BR_INITIALTURN;
 				}
 				return Main::Mode::AUTO_BR_STRAIGHTAWAY;
@@ -873,6 +880,8 @@ Main::Mode next_mode(Main::Mode m,bool autonomous,bool autonomous_start,Toplevel
 				if(!autonomous) return Main::Mode::TELEOP;
 				const double TARGET_TURN=30;//in degrees, clockwise
 				if(ticks_to_degrees(encoder_differences.first,true) >= TARGET_TURN){
+					br_step++;
+					set_initial_encoders=true;
 					return Main::Mode::AUTO_BR_SIDE;
 				}
 				return Main::Mode::AUTO_BR_INITIALTURN;
@@ -883,7 +892,8 @@ Main::Mode next_mode(Main::Mode m,bool autonomous,bool autonomous_start,Toplevel
 				if(!autonomous) return Main::Mode::TELEOP;
 				const double TARGET_DISTANCE=7.5*12;//in inches
 				if(ticks_to_inches(encoder_differences.first) >= TARGET_DISTANCE){
-					//encoderflag-false;
+					set_initial_encoders=true;
+					br_step++;
 					return Main::Mode::AUTO_BR_SIDETURN;
 				}
 				return Main::Mode::AUTO_BR_SIDE;
@@ -893,6 +903,8 @@ Main::Mode next_mode(Main::Mode m,bool autonomous,bool autonomous_start,Toplevel
 				if(!autonomous) return Main::Mode::TELEOP;
 				const double TARGET_TURN=300;//in degrees, clockwise
 				if(ticks_to_degrees(encoder_differences.first,true) >=TARGET_TURN){
+					br_step++;
+					set_initial_encoders=true;
 					return Main::Mode::AUTO_BR_SIDE;
 				}
 				return Main::Mode::AUTO_BR_SIDETURN;
@@ -902,6 +914,8 @@ Main::Mode next_mode(Main::Mode m,bool autonomous,bool autonomous_start,Toplevel
 				if(!autonomous) return Main::Mode::TELEOP;
 				const double TARGET_TURN=150;//in degrees, clockwise
 				if(ticks_to_degrees(encoder_differences.first,true) >= TARGET_TURN){
+					br_step++;
+					set_initial_encoders=true;
 					return Main::Mode::AUTO_BR_STRAIGHTAWAY;
 				}
 				return Main::Mode::AUTO_BR_ENDTURN;
@@ -943,8 +957,10 @@ Robot_outputs Main::operator()(Robot_inputs in,ostream&){
 	
 	Toplevel::Status_detail toplevel_status=toplevel.estimator.get();
 		
-	if(SLOW_PRINT) cout<<"panel: "<<panel<<"\n";	
+	//if(SLOW_PRINT) cout<<"panel:"<<panel<<"\n";
 		
+	if(SLOW_PRINT) cout<<"br_step:"<<br_step<<"\n";
+	
 	bool autonomous_start_now=autonomous_start(in.robot_mode.autonomous && in.robot_mode.enabled);
 	since_auto_start.update(in.now,autonomous_start_now);
 		
@@ -952,6 +968,10 @@ Robot_outputs Main::operator()(Robot_inputs in,ostream&){
 	//decltype(in.current) robotcurrent;
 	//for(auto &a:robotcurrent) a = 0;
 	//if(robotcurrent != in.current) cout << "current: " << in.current << endl;
+	if(set_initial_encoders){
+		set_initial_encoders=false;
+		initial_encoders = make_pair(encoderconv(in.digital_io.encoder[0]),encoderconv(in.digital_io.encoder[1]));	
+	}
 	switch(mode){
 		case Mode::TELEOP:
 			goals=teleop(in,main_joystick,gunner_joystick,panel,toplevel_status,level,low,top,cheval,drawbridge);
@@ -1038,14 +1058,7 @@ Robot_outputs Main::operator()(Robot_inputs in,ostream&){
 			goals.collector.sides=Sides::Goal::OFF;
 
 			goals.collector.tilt=low;
-
-			if(!encoderflag){
-					encoderflag=true;
 					
-					initial_encoders.first = encoderconv(in.digital_io.encoder[0]);
-					//cout << "GETTING START ENCODER: " << startencoder << endl;
-				}
-
 			if(ready(toplevel_status.collector.tilt.angle,goals.collector.tilt)){
 				goals.drive.left=-.50;
 				goals.drive.right=-.50;
@@ -1053,7 +1066,7 @@ Robot_outputs Main::operator()(Robot_inputs in,ostream&){
 			break;
 
 		case Main::Mode::AUTO_LBLS_CROSS_MU:
-			encoderflag = false;
+			//encoderflag = false;
 			//cout << "FLAG FALSE";
 			goals.drive.left=0;
 			goals.drive.right=0;
@@ -1085,20 +1098,13 @@ Robot_outputs Main::operator()(Robot_inputs in,ostream&){
 
 			goals.collector.tilt=low;
 
-			if(!encoderflag){
-					encoderflag=true;
-					
-					initial_encoders.first = encoderconv(in.digital_io.encoder[0]);
-					//cout << "GETTING START ENCODER: " << startencoder << endl;
-				}
-
 			if(ready(toplevel_status.collector.tilt.angle,goals.collector.tilt)){
 				goals.drive.left=-.54;
 				goals.drive.right=-.50;
 			}
 			break;
 		case Main::Mode::AUTO_LBWLS_MUP:
-			encoderflag = false;
+			//encoderflag = false;
 			//cout << "FLAG FALSE";
 			goals.drive.left=-.67;
 			goals.drive.right=-.50;
@@ -1140,14 +1146,8 @@ Robot_outputs Main::operator()(Robot_inputs in,ostream&){
 
 			goals.collector.tilt=low;
 
-			if(!encoderflag){
-					encoderflag=true;
-					
-					initial_encoders.first = encoderconv(in.digital_io.encoder[0]);
-					//cout << "GETTING START ENCODER: " << startencoder << endl;
-			}
-				goals.drive.left=-.6;
-				goals.drive.right=-.6;
+			goals.drive.left=-.6;
+			goals.drive.right=-.6;
 
 			if(ready(toplevel_status.collector.tilt.angle,goals.collector.tilt)){
 				goals.drive.left=-.8;
@@ -1155,7 +1155,7 @@ Robot_outputs Main::operator()(Robot_inputs in,ostream&){
 			}
 			break;
 		case Main::Mode::AUTO_LBWHS_MUP:
-			encoderflag = false;
+			//encoderflag = false;
 			//cout << "FLAG FALSE";
 			goals.drive.left=-.5;
 			goals.drive.right=-.5;
@@ -1200,10 +1200,6 @@ Robot_outputs Main::operator()(Robot_inputs in,ostream&){
 			goals.drive.right=.35;
 			break;
 		case Main::Mode::AUTO_BR_STRAIGHTAWAY:
-			if(!encoderflag){
-				encoderflag=true;
-				initial_encoders.first = encoderconv(in.digital_io.encoder[0]);
-			}
 			goals.drive.left=-.5;
 			goals.drive.right=-.5;
 			break;
@@ -1212,10 +1208,6 @@ Robot_outputs Main::operator()(Robot_inputs in,ostream&){
 			goals.drive.right=.5;
 			break;
 		case Main::Mode::AUTO_BR_SIDE:
-			if(!encoderflag){
-				encoderflag=true;
-				initial_encoders.first = encoderconv(in.digital_io.encoder[0]);
-			}
 			goals.drive.left=-.5;
 			goals.drive.right=-.5;
 			break;
@@ -1230,7 +1222,7 @@ Robot_outputs Main::operator()(Robot_inputs in,ostream&){
 		//shooter_protical call in here takes in robot inputs,toplevel goal,toplevel status detail
 		default: assert(0);
 	}
-	auto next=next_mode(mode,in.robot_mode.autonomous,autonomous_start_now,toplevel_status,since_switch.elapsed(),panel,topready,in,initial_encoders);
+	auto next=next_mode(mode,in.robot_mode.autonomous,autonomous_start_now,toplevel_status,since_switch.elapsed(),panel,topready,in,initial_encoders,br_step,set_initial_encoders);
 	since_switch.update(in.now,mode!=next);
 	mode=next;
 		
@@ -1445,9 +1437,10 @@ void test_next_mode(){
 		Toplevel::Status_detail st=example((Toplevel::Status_detail*)nullptr);
 		bool toplready = true;
 		Robot_inputs in;
-		
-		
-		auto next=next_mode(mode,0,0,st,0,Panel{},toplready,in,make_pair(0,0));
+		unsigned int br_step=0;
+		bool set_initial_encoders=true;	
+	
+		auto next=next_mode(mode,0,0,st,0,Panel{},toplready,in,make_pair(0,0),br_step,set_initial_encoders);
 		cout<<"Testing mode "<<mode<<" goes to "<<next<<"\n";
 		assert(next==Main::Mode::TELEOP);
 	}

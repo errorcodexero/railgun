@@ -30,13 +30,11 @@ struct Panel{
 	Winch winch;
 	enum class Shooter_mode{OPEN,CLOSED_MANUAL,CLOSED_AUTO};
 	Shooter_mode shooter_mode;
-	//10 position switches:
-
 	//todo: remove this & put in main
 	enum class Auto_mode{NOTHING,REACH,STATICF,STATICS,PORTCULLIS,CHEVAL,LBLS,LBWLS,LBWHS,S,BR};
 	Auto_mode auto_mode;
+	//10 position switches:
 	int auto_switch;//0-9
-
 	//Dials:
 	float speed_dial;
 	Panel();

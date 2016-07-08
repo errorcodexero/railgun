@@ -57,8 +57,8 @@ struct Main{
 	Toplevel toplevel;
 	bool topready;
 	bool simtest;
-	bool encoderflag;
-	unsigned int br_lap;
+	bool set_initial_encoders;
+	unsigned int br_step;//starts at lap 0 and increases by one every time it reaches a new node
 	pair<int,int> initial_encoders;//first is left, second is right
 	Robot_inputs in_i;
 
