@@ -107,7 +107,8 @@ Panel::Auto_mode auto_mode_convert(int potin){
 		case 8:
 			return Panel::Auto_mode::LBWHS;	
 		case 9: 
-			return Panel::Auto_mode::S;
+			return Panel::Auto_mode::BR;
+			//return Panel::Auto_mode::S;
 		default:
 			return Panel::Auto_mode::NOTHING;
 	}

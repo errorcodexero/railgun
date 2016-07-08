@@ -58,7 +58,8 @@ struct Main{
 	bool topready;
 	bool simtest;
 	bool encoderflag;
-	int startencoder;
+	unsigned int br_lap;
+	pair<int,int> initial_encoders;//first is left, second is right
 	Robot_inputs in_i;
 
 	Countup_timer since_switch,since_auto_start;
