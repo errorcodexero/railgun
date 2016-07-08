@@ -606,14 +606,14 @@ int encoderconv(Maybe_inline<Encoder_output> encoder){
 }
 
 double ticks_to_inches(int ticks){
-	const float TICKS_PER_INCH=4.0;//Calculated value
-	return ticks*TICKS_PER_INCH;
+	const float INCHES_PER_TICK=0.25;//Calculated value
+	return ticks*INCHES_PER_TICK;
 }
 
 double ticks_to_degrees(int ticks, bool clockwise){
-	const float TICKS_PER_DEGREE_CCW=3.0;//Assumed for now
-	const float TICKS_PER_DEGREE_CW=1.0;//Assumed for now
-	return ticks * (clockwise? TICKS_PER_DEGREE_CW : TICKS_PER_DEGREE_CCW);
+	const float DEGREES_PER_TICK_CCW=3.0;//Assumed for now
+	const float DEGREES_PER_TICK_CW=1.0;//Assumed for now
+	return ticks * (clockwise? DEGREES_PER_TICK_CW : DEGREES_PER_TICK_CCW);
 }
 
 Main::Mode get_auto(Panel const& panel){
