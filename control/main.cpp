@@ -606,14 +606,14 @@ int encoderconv(Maybe_inline<Encoder_output> encoder){
 	return 10000;
 }
 
-double ticks_to_inches(int ticks){
-	const float TICKS_PER_INCH=4.0;//Calculated value
+double ticks_to_inches(const int ticks){
+	const double TICKS_PER_INCH=4.0;//Calculated value
 	return ticks*TICKS_PER_INCH;
 }
 
-double ticks_to_degrees(int ticks, bool clockwise){
-	const float TICKS_PER_DEGREE_CCW=3.0;//Assumed for now
-	const float TICKS_PER_DEGREE_CW=1.0;//Assumed for now
+double ticks_to_degrees(const int ticks, const bool clockwise){
+	const double TICKS_PER_DEGREE_CCW=3.0;//Assumed for now
+	const double TICKS_PER_DEGREE_CW=1.0;//Assumed for now
 	return ticks * (clockwise? TICKS_PER_DEGREE_CW : TICKS_PER_DEGREE_CCW);
 }
 
@@ -651,11 +651,11 @@ Main::Mode get_auto(Panel const& panel){
 Main::Mode next_mode(Main::Mode m,bool autonomous,bool autonomous_start,Toplevel::Status_detail const& status,Time since_switch, Panel panel,bool const&toplready,Robot_inputs const& in,pair<int,int> initial_encoders, unsigned int& br_step,bool& set_initial_encoders){
 	pair<int,int> current_encoders={encoderconv(in.digital_io.encoder[0]),encoderconv(in.digital_io.encoder[1])};//first is left, second is right
 	pair<int,int> encoder_differences=make_pair(current_encoders.first-initial_encoders.first,current_encoders.second-initial_encoders.second);
-	//if(SLOW_PRINT){
+	if(SLOW_PRINT){
 		cout<<"initial_encoders:"<<initial_encoders<<"\n";
 		cout<<"current_encoders:"<<current_encoders<<"\n";
 		cout<<"encoder_differences:"<<encoder_differences<<"\n";
-	//}
+	}
 	switch(m){
 		case Main::Mode::TELEOP:	
 			if(autonomous_start){
@@ -867,11 +867,13 @@ Main::Mode next_mode(Main::Mode m,bool autonomous,bool autonomous_start,Toplevel
 		case Main::Mode::AUTO_BR_STRAIGHTAWAY:
 			{
 				if(!autonomous) return Main::Mode::TELEOP;
-				const double TARGET_DISTANCE=15*12;//in inches
+				const double TARGET_DISTANCE=15.0*12.0;//in inches
+				cout<<"\n"<<ticks_to_inches(encoder_differences.first)<<" "<<TARGET_DISTANCE<<"\n";
 				if(ticks_to_inches(encoder_differences.first) >= TARGET_DISTANCE){
 					set_initial_encoders=true;
 					br_step++;
-					return Main::Mode::AUTO_BR_INITIALTURN;
+					return Main::Mode::TELEOP;//for testing
+					//return Main::Mode::AUTO_BR_INITIALTURN;
 				}
 				return Main::Mode::AUTO_BR_STRAIGHTAWAY;
 			}
@@ -967,9 +969,10 @@ Robot_outputs Main::operator()(Robot_inputs in,ostream&){
 	Toplevel::Goal goals;
 	//decltype(in.current) robotcurrent;
 	//for(auto &a:robotcurrent) a = 0;
-	//if(robotcurrent != in.current) cout << "current: " << in.current << endl;
+	if((in.digital_io.encoder[0] && initial_encoders.first==10000) || (in.digital_io.encoder[1] && initial_encoders.second==10000)) set_initial_encoders=true;
 	if(set_initial_encoders){
 		set_initial_encoders=false;
+		cout<<"\nSET INITIAL ENCODER VALUES\n";
 		initial_encoders = make_pair(encoderconv(in.digital_io.encoder[0]),encoderconv(in.digital_io.encoder[1]));	
 	}
 	switch(mode){
