@@ -606,6 +606,7 @@ int encoderconv(Maybe_inline<Encoder_output> encoder){
 	return 10000;
 }
 
+<<<<<<< HEAD
 double ticks_to_inches(const int ticks){
 	const double TICKS_PER_INCH=4.0;//Calculated value
 	return ticks*TICKS_PER_INCH;
@@ -615,6 +616,17 @@ double ticks_to_degrees(const int ticks, const bool clockwise){
 	const double TICKS_PER_DEGREE_CCW=3.0;//Assumed for now
 	const double TICKS_PER_DEGREE_CW=1.0;//Assumed for now
 	return ticks * (clockwise? TICKS_PER_DEGREE_CW : TICKS_PER_DEGREE_CCW);
+=======
+double ticks_to_inches(int ticks){
+	const float INCHES_PER_TICK=0.25;//Calculated value
+	return ticks*INCHES_PER_TICK;
+}
+
+double ticks_to_degrees(int ticks, bool clockwise){
+	const float DEGREES_PER_TICK_CCW=3.0;//Assumed for now
+	const float DEGREES_PER_TICK_CW=1.0;//Assumed for now
+	return ticks * (clockwise? DEGREES_PER_TICK_CW : DEGREES_PER_TICK_CCW);
+>>>>>>> 6567b70485830bdeaf11f6d63b595dc9292fe16f
 }
 
 Main::Mode get_auto(Panel const& panel){
