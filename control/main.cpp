@@ -606,27 +606,14 @@ int encoderconv(Maybe_inline<Encoder_output> encoder){
 	return 10000;
 }
 
-<<<<<<< HEAD
-double ticks_to_inches(const int ticks){
-	const double TICKS_PER_INCH=4.0;//Calculated value
-	return ticks*TICKS_PER_INCH;
-}
-
-double ticks_to_degrees(const int ticks, const bool clockwise){
-	const double TICKS_PER_DEGREE_CCW=3.0;//Assumed for now
-	const double TICKS_PER_DEGREE_CW=1.0;//Assumed for now
-	return ticks * (clockwise? TICKS_PER_DEGREE_CW : TICKS_PER_DEGREE_CCW);
-=======
 double ticks_to_inches(int ticks){
 	const float INCHES_PER_TICK=0.25;//Calculated value
 	return ticks*INCHES_PER_TICK;
 }
 
-double ticks_to_degrees(int ticks, bool clockwise){
-	const float DEGREES_PER_TICK_CCW=3.0;//Assumed for now
-	const float DEGREES_PER_TICK_CW=1.0;//Assumed for now
-	return ticks * (clockwise? DEGREES_PER_TICK_CW : DEGREES_PER_TICK_CCW);
->>>>>>> 6567b70485830bdeaf11f6d63b595dc9292fe16f
+double ticks_to_degrees(int ticks){
+	const float DEGREES_PER_TICK=0.716197244;//Assumed for now
+	return ticks * DEGREES_PER_TICK;//Degrees clockwise
 }
 
 Main::Mode get_auto(Panel const& panel){
@@ -884,8 +871,7 @@ Main::Mode next_mode(Main::Mode m,bool autonomous,bool autonomous_start,Toplevel
 				if(ticks_to_inches(encoder_differences.first) >= TARGET_DISTANCE){
 					set_initial_encoders=true;
 					br_step++;
-					return Main::Mode::TELEOP;//for testing
-					//return Main::Mode::AUTO_BR_INITIALTURN;
+					return Main::Mode::AUTO_BR_INITIALTURN;
 				}
 				return Main::Mode::AUTO_BR_STRAIGHTAWAY;
 			}
@@ -893,8 +879,7 @@ Main::Mode next_mode(Main::Mode m,bool autonomous,bool autonomous_start,Toplevel
 			{
 				if(!autonomous) return Main::Mode::TELEOP;
 				const double TARGET_TURN=30;//in degrees, clockwise
-				if(ticks_to_degrees(encoder_differences.first,true) >= TARGET_TURN){
-					br_step++;
+				if(ticks_to_degrees(encoder_differences.first) >= TARGET_TURN){
 					set_initial_encoders=true;
 					return Main::Mode::AUTO_BR_SIDE;
 				}
@@ -915,9 +900,8 @@ Main::Mode next_mode(Main::Mode m,bool autonomous,bool autonomous_start,Toplevel
 		case Main::Mode::AUTO_BR_SIDETURN:
 			{
 				if(!autonomous) return Main::Mode::TELEOP;
-				const double TARGET_TURN=300;//in degrees, clockwise
-				if(ticks_to_degrees(encoder_differences.first,true) >=TARGET_TURN){
-					br_step++;
+				const double TARGET_TURN=-300;//in degrees, clockwise
+				if(ticks_to_degrees(encoder_differences.first) <= TARGET_TURN){
 					set_initial_encoders=true;
 					return Main::Mode::AUTO_BR_SIDE;
 				}
@@ -927,8 +911,7 @@ Main::Mode next_mode(Main::Mode m,bool autonomous,bool autonomous_start,Toplevel
 			{
 				if(!autonomous) return Main::Mode::TELEOP;
 				const double TARGET_TURN=150;//in degrees, clockwise
-				if(ticks_to_degrees(encoder_differences.first,true) >= TARGET_TURN){
-					br_step++;
+				if(ticks_to_degrees(encoder_differences.first) >= TARGET_TURN){
 					set_initial_encoders=true;
 					return Main::Mode::AUTO_BR_STRAIGHTAWAY;
 				}
@@ -1220,7 +1203,7 @@ Robot_outputs Main::operator()(Robot_inputs in,ostream&){
 			break;
 		case Main::Mode::AUTO_BR_INITIALTURN:
 			goals.drive.left=-.5;
-			goals.drive.right=.5;
+			goals.drive.right=0;
 			break;
 		case Main::Mode::AUTO_BR_SIDE:
 			goals.drive.left=-.5;
@@ -1228,11 +1211,11 @@ Robot_outputs Main::operator()(Robot_inputs in,ostream&){
 			break;
 		case Main::Mode::AUTO_BR_SIDETURN:
 			goals.drive.left=.5;
-			goals.drive.right=-.5;
+			goals.drive.right=0;
 			break;
 		case Main::Mode::AUTO_BR_ENDTURN:
 			goals.drive.left=-.5;
-			goals.drive.right=.5;
+			goals.drive.right=0;
 			break;
 		//shooter_protical call in here takes in robot inputs,toplevel goal,toplevel status detail
 		default: assert(0);
