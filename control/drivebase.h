@@ -12,11 +12,13 @@ struct Drivebase{
 	enum Motor{LEFT1,LEFT2,LEFT3,RIGHT1,RIGHT2,RIGHT3,MOTORS};
 
 	typedef std::pair<Digital_in,Digital_in> Encoder_info;
+	typedef std::pair<int,int> Encoder_ticks;
 
 	#define DRIVEBASE_INPUT(X) \
 		X(SINGLE_ARG(std::array<double,MOTORS>),current)\
 		X(Encoder_info,left)\
-		X(Encoder_info,right)
+		X(Encoder_info,right) \
+		X(Encoder_ticks,ticks)// first is left, seconds is right
 	DECLARE_STRUCT(Input,DRIVEBASE_INPUT)
 
 	struct Input_reader{
@@ -30,9 +32,12 @@ struct Drivebase{
 		X(double,r)
 	DECLARE_STRUCT(Output,DRIVEBASE_OUTPUT)
 
+	typedef std::pair<double,double> Speeds;
+
 	#define DRIVEBASE_STATUS(X) \
 		X(SINGLE_ARG(std::array<Motor_check::Status,MOTORS>),motor)\
-		X(bool,stall)
+		X(bool,stall) \
+		X(Speeds,speeds)
 	DECLARE_STRUCT(Status,DRIVEBASE_STATUS)
 
 	typedef Status Status_detail;
@@ -40,6 +45,9 @@ struct Drivebase{
 	struct Estimator{
 		std::array<Motor_check,MOTORS> motor_check;
 		bool stall;
+		Countdown_timer timer;
+		std::pair<int,int> last_ticks;
+		std::pair<double,double> speeds;//ticks per second
 		void update(Time,Input,Output);
 		Status_detail get()const;
 		Estimator();
@@ -57,6 +65,8 @@ struct Drivebase{
 		double left,right;
 	};
 };
+
+int encoderconv(Maybe_inline<Encoder_output>);
 
 std::ostream& operator<<(std::ostream&,Drivebase::Input const&);
 bool operator<(Drivebase::Input const&,Drivebase::Input const&);

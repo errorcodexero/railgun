@@ -81,11 +81,11 @@ void tester(Part p,Tester_mode mode=Tester_mode{}){
 		auto intermediate=p.input_reader(all,a);
 		auto x=p.input_reader(intermediate);
 		//if(!approx_eq(a,x))
-		/*if(x!=a){
+		if(x!=a){
 			cout<<"x:"<<x<<"\n";
 			cout<<"a:"<<a<<"\n";
 			cout<<"intermediate:"<<intermediate<<"\n";
-		}*/
+		}
 		if(mode.input_exact){
 			assert(x==a);
 		}else{

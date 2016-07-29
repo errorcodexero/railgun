@@ -510,6 +510,7 @@ Toplevel::Goal Main::teleop(
 		return Winch::Goal::STOP;
 	}();
 //	///if(SLOW_PRINT) cout<<shoot_step<<" "<<toplevel_status.shooter<<" "<<goals.shooter<<"\n";
+	if(SLOW_PRINT) cout<<toplevel_status.drive.speeds<<"\n";
 	return goals;
 }
 
@@ -599,11 +600,6 @@ pair<float,float> driveatwall(const Robot_inputs in){
 		motorvoltmods.second=adjustment*-1;
 	}
 	return motorvoltmods;
-}
-
-int encoderconv(Maybe_inline<Encoder_output> encoder){
-	if(encoder) return *encoder;
-	return 10000;
 }
 
 double ticks_to_inches(int ticks){
@@ -870,11 +866,12 @@ Main::Mode next_mode(Main::Mode m,bool autonomous,bool autonomous_start,Toplevel
 			{
 				if(!autonomous) return Main::Mode::TELEOP;
 				const double TARGET_DISTANCE=15.0*12.0;//in inches
-				cout<<"\n"<<ticks_to_inches(encoder_differences.first)<<" "<<TARGET_DISTANCE<<"\n";
+				cout<<"\n"<<encoder_differences.first<<"   "<<ticks_to_inches(encoder_differences.first)<<"   "<<TARGET_DISTANCE<<"\n";
 				if(ticks_to_inches(encoder_differences.first) >= TARGET_DISTANCE){
-					set_initial_encoders=true;
+					set_initial_encoders=false;
 					br_step++;
-					return Main::Mode::AUTO_BR_INITIALTURN;
+					return Main::Mode::TELEOP;
+					//return Main::Mode::AUTO_BR_INITIALTURN;
 				}
 				return Main::Mode::AUTO_BR_STRAIGHTAWAY;
 			}

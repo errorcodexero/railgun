@@ -241,6 +241,12 @@ void visit(Func f,Shooter::Status_detail const& a){
 	f.terminal(a);
 }
 
+template<typename Func,typename T1,typename T2>
+void visit(Func f,std::pair<T1,T2> p){
+	visit(f,p.first);
+	visit(f,p.second);
+}
+
 struct Header{
 	ostream& o;
 	string name;
