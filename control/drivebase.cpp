@@ -26,6 +26,14 @@ int encoderconv(Maybe_inline<Encoder_output> encoder){
 	return 10000;
 }
 
+double ticks_to_inches(const int ticks){
+	const unsigned int TICKS_PER_REVOLUTION=100;
+	const double WHEEL_DIAMETER=8.0;//inches
+	const double WHEEL_CIRCUMFERENCE=WHEEL_DIAMETER*PI;//inches
+	const double INCHES_PER_TICK=WHEEL_CIRCUMFERENCE/(double)TICKS_PER_REVOLUTION;//0.25 vs 0.251327
+	return ticks*INCHES_PER_TICK;
+}
+
 #define L_ENCODER_PORTS 0,1
 #define R_ENCODER_PORTS 2,3//2016 mounted backwards
 #define L_ENCODER_LOC 0
@@ -179,8 +187,8 @@ void Drivebase::Estimator::update(Time now,Drivebase::Input in,Drivebase::Output
 	timer.update(now,true);
 	static const double POLL_TIME = .05;//seconds
 	if(timer.done()){
-		speeds.first = (last_ticks.first-in.ticks.first)/POLL_TIME;
-		speeds.second = (last_ticks.second-in.ticks.second)/POLL_TIME;
+		speeds.first = ticks_to_inches((last_ticks.first-in.ticks.first)/POLL_TIME);
+		speeds.second = ticks_to_inches((last_ticks.second-in.ticks.second)/POLL_TIME);
 		last_ticks = in.ticks;
 		timer.set(POLL_TIME);
 	}

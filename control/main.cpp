@@ -602,13 +602,13 @@ pair<float,float> driveatwall(const Robot_inputs in){
 	return motorvoltmods;
 }
 
-double ticks_to_inches(int ticks){
+/*double ticks_to_inches(int ticks){//Moved to drivebase.cpp
 	const unsigned int TICKS_PER_REVOLUTION=100;
 	const double WHEEL_DIAMETER=8.0;//inches
 	const double WHEEL_CIRCUMFERENCE=WHEEL_DIAMETER*PI;//inches
 	const double INCHES_PER_TICK=WHEEL_CIRCUMFERENCE/(double)TICKS_PER_REVOLUTION;//0.25 vs 0.251327
 	return ticks*INCHES_PER_TICK;
-}
+}*/
 
 double ticks_to_degrees(int ticks){
 	const double DEGREES_PER_TICK=0.716197244;//Assumed for now

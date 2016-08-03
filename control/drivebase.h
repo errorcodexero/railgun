@@ -47,7 +47,7 @@ struct Drivebase{
 		bool stall;
 		Countdown_timer timer;
 		std::pair<int,int> last_ticks;
-		std::pair<double,double> speeds;//ticks per second
+		std::pair<double,double> speeds;//inches per second
 		void update(Time,Input,Output);
 		Status_detail get()const;
 		Estimator();
@@ -65,6 +65,8 @@ struct Drivebase{
 		double left,right;
 	};
 };
+
+double ticks_to_inches(const int);
 
 int encoderconv(Maybe_inline<Encoder_output>);
 
