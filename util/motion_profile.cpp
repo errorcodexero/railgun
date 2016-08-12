@@ -3,13 +3,11 @@
 
 #ifdef MOTION_PROFILE_TEST
 float speed_distance_calculation(int goal, int current,float k){
-	int error;
-	float motorv;
+	int error = goal-current;
+	float motorv = error*k;
 	float clipped;
-	float max=1;
+	const float max=1;
 
-	error=goal-current;
-	motorv=error*k;
 	
 	if(motorv>max) clipped=max;
 
