@@ -12,6 +12,7 @@
 #include "../util/nav2.h"
 #include "log.h"
 #include "../util/posedge_trigger_debounce.h"
+#include "../util/motion_profile.h"
 
 struct Tilt_presets{
 	double top, level, low, cheval;//angles (in degrees) that it will go to when set to the tilt goals
@@ -51,6 +52,7 @@ struct Main{
 	};
 	Mode mode;
 
+	Motion_profile MP;
 	Nav2 nav2;
 	Force_interface force;
 	Perf_tracker perf;

@@ -6,9 +6,11 @@ struct Motion_profile{
 	double vel_modifier;
 	
 	double target_speed(const double);
-	
+	void Set_Goal(double);
+
 	Motion_profile();
 	Motion_profile(double,double);	
+	
 };
 
 #endif

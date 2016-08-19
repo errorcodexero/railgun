@@ -31,6 +31,7 @@ g++ -Wall -Werror -std=c++0x -DMONITOR_TEST \
 	../util/nav.cpp\
 	../util/nav2.cpp\
 	log.cpp\
+	../util/motion_profile.cpp \
 	collector.cpp\
 	../util/debounce.cpp\
 	../util/posedge_trigger_debounce.cpp\

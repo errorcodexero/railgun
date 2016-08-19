@@ -12,6 +12,7 @@
 #include <assert.h>
 #include <fstream> 
 
+
 using namespace std;
 
 ofstream myfile2;
@@ -149,6 +150,7 @@ Tilt_presets read_tilt_presets(){
 //TODO: at some point, might want to make this whatever is right to start autonomous mode.
 Main::Main():
 	mode(Mode::TELEOP),
+	MP(0.0,.02),
 	autonomous_start(0),
 	joy_collector_pos(Joy_collector_pos::STOP),
 	collector_mode(Collector_mode::NOTHING),
@@ -646,7 +648,7 @@ Main::Mode get_auto(Panel const& panel){
 	return Main::Mode::TELEOP;
 }
 
-Main::Mode next_mode(Main::Mode m,bool autonomous,bool autonomous_start,Toplevel::Status_detail const& status,Time since_switch, Panel panel,bool const&toplready,Robot_inputs const& in,pair<int,int> initial_encoders, unsigned int& br_step,bool& set_initial_encoders){
+Main::Mode next_mode(Main::Mode m,bool autonomous,bool autonomous_start,Toplevel::Status_detail const& status,Time since_switch, Panel panel,bool const&toplready,Robot_inputs const& in,pair<int,int> initial_encoders, unsigned int& br_step,bool& set_initial_encoders, Motion_profile& MP){
 	pair<int,int> current_encoders={encoderconv(in.digital_io.encoder[0]),encoderconv(in.digital_io.encoder[1])};//first is left, second is right
 	pair<int,int> encoder_differences=make_pair(current_encoders.first-initial_encoders.first,current_encoders.second-initial_encoders.second);
 	if(SLOW_PRINT){
@@ -866,6 +868,7 @@ Main::Mode next_mode(Main::Mode m,bool autonomous,bool autonomous_start,Toplevel
 			{
 				if(!autonomous) return Main::Mode::TELEOP;
 				const double TARGET_DISTANCE=15.0*12.0;//in inches
+				MP.Set_Goal(TARGET_DISTANCE/12);
 				cout<<"\n"<<encoder_differences.first<<"   "<<ticks_to_inches(encoder_differences.first)<<"   "<<TARGET_DISTANCE<<"\n";
 				if(ticks_to_inches(encoder_differences.first) >= TARGET_DISTANCE){
 					set_initial_encoders=false;
@@ -1198,7 +1201,7 @@ Robot_outputs Main::operator()(Robot_inputs in,ostream&){
 			goals.drive.right=.35;
 			break;
 		case Main::Mode::AUTO_BR_STRAIGHTAWAY:
-			goals.drive.left=-.5;
+			goals.drive.left=-MP.target_speed(in.digital_io.encoder[0]);
 			goals.drive.right=-.5;
 			break;
 		case Main::Mode::AUTO_BR_INITIALTURN:
@@ -1220,7 +1223,7 @@ Robot_outputs Main::operator()(Robot_inputs in,ostream&){
 		//shooter_protical call in here takes in robot inputs,toplevel goal,toplevel status detail
 		default: assert(0);
 	}
-	auto next=next_mode(mode,in.robot_mode.autonomous,autonomous_start_now,toplevel_status,since_switch.elapsed(),panel,topready,in,initial_encoders,br_step,set_initial_encoders);
+	auto next=next_mode(mode,in.robot_mode.autonomous,autonomous_start_now,toplevel_status,since_switch.elapsed(),panel,topready,in,initial_encoders,br_step,set_initial_encoders,MP);
 	since_switch.update(in.now,mode!=next);
 	mode=next;
 		
@@ -1437,8 +1440,8 @@ void test_next_mode(){
 		Robot_inputs in;
 		unsigned int br_step=0;
 		bool set_initial_encoders=true;	
-	
-		auto next=next_mode(mode,0,0,st,0,Panel{},toplready,in,make_pair(0,0),br_step,set_initial_encoders);
+		Motion_profile MP;
+		auto next=next_mode(mode,0,0,st,0,Panel{},toplready,in,make_pair(0,0),br_step,set_initial_encoders,MP);
 		cout<<"Testing mode "<<mode<<" goes to "<<next<<"\n";
 		assert(next==Main::Mode::TELEOP);
 	}
