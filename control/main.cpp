@@ -150,7 +150,7 @@ Tilt_presets read_tilt_presets(){
 //TODO: at some point, might want to make this whatever is right to start autonomous mode.
 Main::Main():
 	mode(Mode::TELEOP),
-	MP(0.0,.02),
+	MP(0.0,.01),
 	autonomous_start(0),
 	joy_collector_pos(Joy_collector_pos::STOP),
 	collector_mode(Collector_mode::NOTHING),
@@ -538,7 +538,7 @@ void Main::cal(Time now,double current_tilt_angle,double current_shooter_speed,P
 			tilt_learn_mode=0;
 		}
 		return;
-	}
+}
 	if(!set) return;
 
 	auto show=[&](){
@@ -868,7 +868,7 @@ Main::Mode next_mode(Main::Mode m,bool autonomous,bool autonomous_start,Toplevel
 			{
 				if(!autonomous) return Main::Mode::TELEOP;
 				const double TARGET_DISTANCE=15.0*12.0;//in inches
-				MP.Set_Goal(TARGET_DISTANCE/12);
+				MP.set_goal(TARGET_DISTANCE);
 				cout<<"\n"<<encoder_differences.first<<"   "<<ticks_to_inches(encoder_differences.first)<<"   "<<TARGET_DISTANCE<<"\n";
 				if(ticks_to_inches(encoder_differences.first) >= TARGET_DISTANCE){
 					set_initial_encoders=false;
@@ -958,7 +958,8 @@ Robot_outputs Main::operator()(Robot_inputs in,ostream&){
 	Toplevel::Status_detail toplevel_status=toplevel.estimator.get();
 		
 	//if(SLOW_PRINT) cout<<"panel:"<<panel<<"\n";
-		
+	cout << "Goals: " << MP.goal << " Current: " << ticks_to_inches(toplevel_status.drive.ticks.first/*in.digital_io.encoder[0]*/) << endl;
+	
 	if(SLOW_PRINT) cout<<"br_step:"<<br_step<<"\n";
 	
 	bool autonomous_start_now=autonomous_start(in.robot_mode.autonomous && in.robot_mode.enabled);
@@ -967,11 +968,11 @@ Robot_outputs Main::operator()(Robot_inputs in,ostream&){
 	Toplevel::Goal goals;
 	//decltype(in.current) robotcurrent;
 	//for(auto &a:robotcurrent) a = 0;
-	if((in.digital_io.encoder[0] && initial_encoders.first==10000) || (in.digital_io.encoder[1] && initial_encoders.second==10000)) set_initial_encoders=true;
+	if((toplevel_status.drive.ticks.first && initial_encoders.first==10000) || (toplevel_status.drive.ticks.second && initial_encoders.second==10000)) set_initial_encoders=true;
 	if(set_initial_encoders){
 		set_initial_encoders=false;
 		cout<<"\nSET INITIAL ENCODER VALUES\n";
-		initial_encoders = make_pair(encoderconv(in.digital_io.encoder[0]),encoderconv(in.digital_io.encoder[1]));	
+		initial_encoders = toplevel_status.drive.ticks;	
 	}
 	switch(mode){
 		case Mode::TELEOP:
@@ -1201,8 +1202,8 @@ Robot_outputs Main::operator()(Robot_inputs in,ostream&){
 			goals.drive.right=.35;
 			break;
 		case Main::Mode::AUTO_BR_STRAIGHTAWAY:
-			goals.drive.left=-MP.target_speed(in.digital_io.encoder[0]);
-			goals.drive.right=-.5;
+			goals.drive.left=-MP.target_speed(ticks_to_inches(in.digital_io.encoder[0]));
+			goals.drive.right=-MP.target_speed(ticks_to_inches(in.digital_io.encoder[0]));
 			break;
 		case Main::Mode::AUTO_BR_INITIALTURN:
 			goals.drive.left=-.5;

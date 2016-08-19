@@ -37,7 +37,8 @@ struct Drivebase{
 	#define DRIVEBASE_STATUS(X) \
 		X(SINGLE_ARG(std::array<Motor_check::Status,MOTORS>),motor)\
 		X(bool,stall) \
-		X(Speeds,speeds)
+		X(Speeds,speeds) \
+		X(Encoder_ticks,ticks)  //first is left, second is right
 	DECLARE_STRUCT(Status,DRIVEBASE_STATUS)
 
 	typedef Status Status_detail;

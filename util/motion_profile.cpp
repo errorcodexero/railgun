@@ -22,7 +22,7 @@ double Motion_profile::target_speed(const double current){
 	
 	return clamp(motorv,-max,max);
 }
-void Motion_profile::Set_Goal(double g){
+void Motion_profile::set_goal(double g){
 	goal=g;
 }
 

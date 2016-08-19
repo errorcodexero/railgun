@@ -99,6 +99,7 @@ set<Drivebase::Status> examples(Drivebase::Status*){
 		}
 		,
 		false,
+		{0.0,0.0},
 		{0.0,0.0}
 	}};
 }
@@ -151,7 +152,7 @@ Drivebase::Status_detail Drivebase::Estimator::get()const{
 		a[i]=motor_check[i].get();
 	}
 	
-	return Status{a,stall,speeds};
+	return Status{a,stall,speeds,last_ticks};
 }
 
 ostream& operator<<(ostream& o,Drivebase::Output_applicator){
