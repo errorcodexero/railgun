@@ -648,8 +648,8 @@ Main::Mode get_auto(Panel const& panel){
 	return Main::Mode::TELEOP;
 }
 
-Main::Mode next_mode(Main::Mode m,bool autonomous,bool autonomous_start,Toplevel::Status_detail const& status,Time since_switch, Panel panel,bool const&toplready,Robot_inputs const& in,pair<int,int> initial_encoders, unsigned int& br_step,bool& set_initial_encoders, Motion_profile& motion_profile){
-	pair<int,int> current_encoders={encoderconv(in.digital_io.encoder[0]),encoderconv(in.digital_io.encoder[1])};//first is left, second is right
+Main::Mode next_mode(Main::Mode m,bool autonomous,bool autonomous_start,Toplevel::Status_detail const& status,Time since_switch, Panel panel,bool const&toplready,Robot_inputs const& /*in*/,pair<int,int> initial_encoders, unsigned int& br_step,bool& set_initial_encoders, Motion_profile& motion_profile){
+	pair<int,int> current_encoders=status.drive.ticks;//{encoderconv(in.digital_io.encoder[0]),encoderconv(in.digital_io.encoder[1])};//first is left, second is right
 	pair<int,int> encoder_differences=make_pair(current_encoders.first-initial_encoders.first,current_encoders.second-initial_encoders.second);
 	if(SLOW_PRINT){
 		cout<<"initial_encoders:"<<initial_encoders<<"\n";
@@ -1202,8 +1202,8 @@ Robot_outputs Main::operator()(Robot_inputs in,ostream&){
 			goals.drive.right=.35;
 			break;
 		case Main::Mode::AUTO_BR_STRAIGHTAWAY:
-			goals.drive.left=-motion_profile.target_speed(ticks_to_inches(in.digital_io.encoder[0]));
-			goals.drive.right=-motion_profile.target_speed(ticks_to_inches(in.digital_io.encoder[0]));
+			goals.drive.left=-motion_profile.target_speed(ticks_to_inches(toplevel_status.drive.ticks.first));
+			goals.drive.right=-motion_profile.target_speed(ticks_to_inches(toplevel_status.drive.ticks.second));
 			break;
 		case Main::Mode::AUTO_BR_INITIALTURN:
 			goals.drive.left=-.5;
