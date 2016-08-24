@@ -32,24 +32,27 @@ Motion_profile::Motion_profile(double g, double m):goal(g),vel_modifier(m){}
 #ifdef MOTION_PROFILE_TEST
 
 int main(){
-	int c = 10;//current distance
-	float dis=0; //feet
-	const float target = 20; //feet
-	const int speed = 10; //feet per second
+	double dis=0; //inches
+	const double target1 = 100*12;//inches
 
-	Motion_profile mp1(100, .02);	
+	Motion_profile mp1(target1, .01);	
 
-	std::cout << "speed: " << mp1.target_speed(c) << std::endl;
-
-	for(int i=0;i<=100;i+=10) std::cout << "speedlist " << i << ": " << mp1.target_speed(i) << std::endl;
+	for(int i=0;i<=target1;i+=10){//i is distance in inches
+		 std::cout << "speedlist " << i << " inches out of "<<target1<<" inches: " << mp1.target_speed(i) << std::endl;
+	}
 	
-	Motion_profile mp2(target, .02);
+	//////
+		
+	const double target2 = 20*12; //inches
+	const double speed = 10*12; //inches per second
+	const double VEL_MODIFIER=.01;
+	Motion_profile mp2(target2, VEL_MODIFIER);
 
 	const float INCREMENT=.5;//seconds
 		
 	for(float i=0;i<60;i+=INCREMENT){//i is in seconds
-		std::cout << "Time(seconds):" << i << "    Current Distance(feet):" << dis << "    Target Distance(feet):" << target << "    "<<mp2.target_speed(dis)<<std::endl;
-		if(dis>=(target-1)){
+		std::cout << "Time(seconds):" << i << "    Current Distance(inches):" << dis << "    Target Distance(inches):" << target2 << "    "<<mp2.target_speed(dis)<<std::endl;
+		if(dis>=(target2-1)){
 			std::cout << "Robot has reached the target range" << std::endl;
 			break;
 		}

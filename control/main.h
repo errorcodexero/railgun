@@ -53,6 +53,7 @@ struct Main{
 	Mode mode;
 
 	Motion_profile motion_profile;
+	Countdown_timer in_br_range;
 	Nav2 nav2;
 	Force_interface force;
 	Perf_tracker perf;

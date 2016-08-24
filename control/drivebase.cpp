@@ -28,7 +28,7 @@ int encoderconv(Maybe_inline<Encoder_output> encoder){
 
 double ticks_to_inches(const int ticks){
 	const unsigned int TICKS_PER_REVOLUTION=100;
-	const double WHEEL_DIAMETER=8.0;//inches
+	const double WHEEL_DIAMETER=7.4;//inches
 	const double WHEEL_CIRCUMFERENCE=WHEEL_DIAMETER*PI;//inches
 	const double INCHES_PER_TICK=WHEEL_CIRCUMFERENCE/(double)TICKS_PER_REVOLUTION;//0.25 vs 0.251327
 	return ticks*INCHES_PER_TICK;
