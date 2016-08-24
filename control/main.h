@@ -52,7 +52,7 @@ struct Main{
 	};
 	Mode mode;
 
-	Motion_profile MP;
+	Motion_profile motion_profile;
 	Nav2 nav2;
 	Force_interface force;
 	Perf_tracker perf;

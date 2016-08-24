@@ -150,7 +150,7 @@ Tilt_presets read_tilt_presets(){
 //TODO: at some point, might want to make this whatever is right to start autonomous mode.
 Main::Main():
 	mode(Mode::TELEOP),
-	MP(0.0,.01),
+	motion_profile(0.0,.01),
 	autonomous_start(0),
 	joy_collector_pos(Joy_collector_pos::STOP),
 	collector_mode(Collector_mode::NOTHING),
@@ -648,7 +648,7 @@ Main::Mode get_auto(Panel const& panel){
 	return Main::Mode::TELEOP;
 }
 
-Main::Mode next_mode(Main::Mode m,bool autonomous,bool autonomous_start,Toplevel::Status_detail const& status,Time since_switch, Panel panel,bool const&toplready,Robot_inputs const& in,pair<int,int> initial_encoders, unsigned int& br_step,bool& set_initial_encoders, Motion_profile& MP){
+Main::Mode next_mode(Main::Mode m,bool autonomous,bool autonomous_start,Toplevel::Status_detail const& status,Time since_switch, Panel panel,bool const&toplready,Robot_inputs const& in,pair<int,int> initial_encoders, unsigned int& br_step,bool& set_initial_encoders, Motion_profile& motion_profile){
 	pair<int,int> current_encoders={encoderconv(in.digital_io.encoder[0]),encoderconv(in.digital_io.encoder[1])};//first is left, second is right
 	pair<int,int> encoder_differences=make_pair(current_encoders.first-initial_encoders.first,current_encoders.second-initial_encoders.second);
 	if(SLOW_PRINT){
@@ -868,7 +868,7 @@ Main::Mode next_mode(Main::Mode m,bool autonomous,bool autonomous_start,Toplevel
 			{
 				if(!autonomous) return Main::Mode::TELEOP;
 				const double TARGET_DISTANCE=15.0*12.0;//in inches
-				MP.set_goal(TARGET_DISTANCE);
+				motion_profile.set_goal(TARGET_DISTANCE);
 				cout<<"\n"<<encoder_differences.first<<"   "<<ticks_to_inches(encoder_differences.first)<<"   "<<TARGET_DISTANCE<<"\n";
 				if(ticks_to_inches(encoder_differences.first) >= TARGET_DISTANCE){
 					set_initial_encoders=false;
@@ -958,7 +958,7 @@ Robot_outputs Main::operator()(Robot_inputs in,ostream&){
 	Toplevel::Status_detail toplevel_status=toplevel.estimator.get();
 		
 	//if(SLOW_PRINT) cout<<"panel:"<<panel<<"\n";
-	cout << "Goals: " << MP.goal << " Current: " << ticks_to_inches(toplevel_status.drive.ticks.first/*in.digital_io.encoder[0]*/) << endl;
+	cout << "Goals: " << motion_profile.goal << " Current: " << ticks_to_inches(toplevel_status.drive.ticks.first/*in.digital_io.encoder[0]*/) << endl;
 	
 	if(SLOW_PRINT) cout<<"br_step:"<<br_step<<"\n";
 	
@@ -1202,8 +1202,8 @@ Robot_outputs Main::operator()(Robot_inputs in,ostream&){
 			goals.drive.right=.35;
 			break;
 		case Main::Mode::AUTO_BR_STRAIGHTAWAY:
-			goals.drive.left=-MP.target_speed(ticks_to_inches(in.digital_io.encoder[0]));
-			goals.drive.right=-MP.target_speed(ticks_to_inches(in.digital_io.encoder[0]));
+			goals.drive.left=-motion_profile.target_speed(ticks_to_inches(in.digital_io.encoder[0]));
+			goals.drive.right=-motion_profile.target_speed(ticks_to_inches(in.digital_io.encoder[0]));
 			break;
 		case Main::Mode::AUTO_BR_INITIALTURN:
 			goals.drive.left=-.5;
@@ -1224,7 +1224,7 @@ Robot_outputs Main::operator()(Robot_inputs in,ostream&){
 		//shooter_protical call in here takes in robot inputs,toplevel goal,toplevel status detail
 		default: assert(0);
 	}
-	auto next=next_mode(mode,in.robot_mode.autonomous,autonomous_start_now,toplevel_status,since_switch.elapsed(),panel,topready,in,initial_encoders,br_step,set_initial_encoders,MP);
+	auto next=next_mode(mode,in.robot_mode.autonomous,autonomous_start_now,toplevel_status,since_switch.elapsed(),panel,topready,in,initial_encoders,br_step,set_initial_encoders,motion_profile);
 	since_switch.update(in.now,mode!=next);
 	mode=next;
 		
@@ -1441,8 +1441,8 @@ void test_next_mode(){
 		Robot_inputs in;
 		unsigned int br_step=0;
 		bool set_initial_encoders=true;	
-		Motion_profile MP;
-		auto next=next_mode(mode,0,0,st,0,Panel{},toplready,in,make_pair(0,0),br_step,set_initial_encoders,MP);
+		Motion_profile motion_profile;
+		auto next=next_mode(mode,0,0,st,0,Panel{},toplready,in,make_pair(0,0),br_step,set_initial_encoders,motion_profile);
 		cout<<"Testing mode "<<mode<<" goes to "<<next<<"\n";
 		assert(next==Main::Mode::TELEOP);
 	}
