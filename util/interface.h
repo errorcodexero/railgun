@@ -7,13 +7,10 @@
 #include "driver_station_interface.h"
 #include "maybe_inline.h"
 #include "checked_array.h"
+#include "pwm.h"
 
 typedef double Time;//Seconds
-typedef double Pwm_output;
 typedef bool Solenoid_output;
-
-//enum class Digital_out{INPUT,_1,_0};
-//std::ostream& operator<<(std::ostream&,Digital_out);
 
 enum class Relay_output{_00,_01,_10,_11};
 std::ostream& operator<<(std::ostream&,Relay_output);

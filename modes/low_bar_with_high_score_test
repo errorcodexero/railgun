@@ -1,4 +1,5 @@
 g++ -Wall -Werror -std=c++14 -DLOW_BAR_WITH_HIGH_SCORE_TEST \
+	../util/pwm.cpp
         low_bar_with_high_score.cpp \
         ../control/toplevel.cpp \
 	../util/fixVictor.cpp \

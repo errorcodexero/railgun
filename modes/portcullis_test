@@ -24,4 +24,5 @@ g++ -Wall -Werror -std=c++14 -DPORTCULLIS_TEST \
         ../control/winch.cpp\
         ../control/shooter.cpp\
         ../control/collector.cpp\
+		../util/pwm.cpp\
         -o portcullis 2>&1 && ./portcullis 2>&1

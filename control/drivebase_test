@@ -7,4 +7,5 @@ g++ --std=c++11 -Wall -Werror -DDRIVEBASE_TEST \
 	../util/driver_station_interface.cpp \
 	motor_check.cpp\
 	../util/countdown_timer.cpp\
+	../util/pwm.cpp\
 	-o drivebase 2>&1 && ./drivebase

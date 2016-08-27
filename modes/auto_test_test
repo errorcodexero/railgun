@@ -1,4 +1,5 @@
 g++ -Wall -Werror -std=c++14 -DAUTO_TEST_TEST \
+	../util/pwm.cpp\
         auto_test.cpp \
         ../control/toplevel.cpp \
 	../util/fixVictor.cpp \

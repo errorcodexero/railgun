@@ -1,4 +1,5 @@
 g++ -Wall -Werror -std=c++14 -DAUTO_STATICTWO_TEST \
+	../util/pwm.cpp\\
         auto_statictwo.cpp \
         ../control/toplevel.cpp \
 	../util/fixVictor.cpp \

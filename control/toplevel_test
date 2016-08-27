@@ -23,4 +23,5 @@ g++ -Wall -Werror -std=c++0x -DTOPLEVEL_TEST \
 	winch.cpp\
 	shooter.cpp\
 	collector.cpp\
+	../util/pwm.cpp\
 	-o toplevel 2>&1 && ./toplevel 2>&1
