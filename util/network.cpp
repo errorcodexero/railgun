@@ -17,7 +17,7 @@
 #include <stdarg.h>
 
 #include <vector>
-
+#include <cassert>
 
 //#include "string_utils.h"
 
@@ -45,6 +45,7 @@ int sendAll(int _iS, char* _szBuf, int* _iLen) {
 
 	*_iLen = iTotal;
 
+	assert(0);//next line invokes undefined behavior, so if we ever get here then abort!
 	return iN==-1?-1:0;
 }
 /*
