@@ -44,6 +44,12 @@ Pt shift_axes_clockwise(Pt p,Rad theta){
 }
 
 #ifdef POINT_TEST
+
+//thi is here for cygwin compatibility
+#ifndef M_PI
+#define M_PI 3.14159
+#endif
+
 int main(){
 	{
 		Pt a(1,0,0);
