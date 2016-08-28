@@ -24,13 +24,13 @@ auto run(Part &p,Time t,Input in,Output out,Goal goal)->std::pair<Output,decltyp
 #define NYI { assert(0); }
 
 template<typename T>
-void test_ostream(std::string heading,T* t){
-	std::cout<<heading<<":";
+void test_ostream(std::ostream& o,std::string heading,T* t){
+	o<<heading<<":";
 	std::set<std::string> used;
 	auto ex=examples(t);
 
 	if(ex.empty()){
-		std::cout<<"Error: No examples\n";
+		o<<"Error: No examples\n";
 		exit(1);
 	}
 
@@ -38,15 +38,15 @@ void test_ostream(std::string heading,T* t){
 		std::stringstream ss;
 		ss<<a;
 		auto s=ss.str();
-		std::cout<<" "<<s;
+		o<<" "<<s;
 		if(used.find(s)!=used.end()){
 			//duplicate
-			std::cout<<"duplicate\n";
+			o<<"duplicate\n";
 			exit(1);
 		}
 		used|=s;
 	}
-	std::cout<<"\n";
+	o<<"\n";
 }
 
 template<typename T>
@@ -59,7 +59,7 @@ struct Tester_mode{
 };
 
 template<typename Part>
-void tester(Part p,Tester_mode mode=Tester_mode{}){
+void tester(Part p,Tester_mode mode=Tester_mode{},std::ostream& o=std::cout){
 	using namespace std;
 
 	typedef typename Part::Input Input;
@@ -68,13 +68,13 @@ void tester(Part p,Tester_mode mode=Tester_mode{}){
 	typedef typename Part::Output Output;
 	typedef typename Part::Status Status;
 
-	cout<<p<<"\n";
+	o<<p<<"\n";
 
-	test_ostream("inputs",(Input*)0);
-	test_ostream("outputs",(Output*)0);
-	test_ostream("status details",(Status_detail*)0);
-	test_ostream("statuses",(Status*)0);
-	test_ostream("goals",(Goal*)0);
+	test_ostream(o,"inputs",(Input*)0);
+	test_ostream(o,"outputs",(Output*)0);
+	test_ostream(o,"status details",(Status_detail*)0);
+	test_ostream(o,"statuses",(Status*)0);
+	test_ostream(o,"goals",(Goal*)0);
 
 	for(auto a:examples((Input*)0)){
 		Robot_inputs all;
@@ -82,9 +82,9 @@ void tester(Part p,Tester_mode mode=Tester_mode{}){
 		auto x=p.input_reader(intermediate);
 		//if(!approx_eq(a,x))
 		if(x!=a){
-			cout<<"x:"<<x<<"\n";
-			cout<<"a:"<<a<<"\n";
-			cout<<"intermediate:"<<intermediate<<"\n";
+			o<<"x:"<<x<<"\n";
+			o<<"a:"<<a<<"\n";
+			o<<"intermediate:"<<intermediate<<"\n";
 		}
 		if(mode.input_exact){
 			assert(x==a);
