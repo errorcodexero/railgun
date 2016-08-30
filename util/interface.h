@@ -63,7 +63,11 @@ struct Talon_srx_output{
 	double speed;
 	enum class Mode{VOLTAGE,SPEED};
 	Mode mode;
+
 	Talon_srx_output():power_level(0),speed(0),mode(Talon_srx_output::Mode::VOLTAGE){}
+
+	static Talon_srx_output voltage(double);
+	static Talon_srx_output closed_loop(double);
 };
 
 enum Panel_outputs{SPUN_UP, BOULDER, PANEL_OUTPUTS};

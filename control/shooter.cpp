@@ -8,13 +8,10 @@
 Shooter::Status_detail::Status_detail():speed(0){}
 Shooter::Status_detail::Status_detail(double s):speed(s){}
 
-Shooter::Estimator::Estimator():last({}),last_output({0,0,Talon_srx_output::Mode::VOLTAGE}){}
+Shooter::Estimator::Estimator():last({}){}
 
 Shooter::Goal::Goal():mode(Shooter::Goal::Mode::VOLTAGE),value(0){}
 Shooter::Goal::Goal(PID_values pid,Shooter::Goal::Mode m,double p):constants(pid),mode(m),value(p){}
-
-Shooter::Output::Output():speed(0),voltage(0),mode(Talon_srx_output::Mode::VOLTAGE){}
-Shooter::Output::Output(double s,double v,Talon_srx_output::Mode m):speed(s),voltage(v),mode(m){}
 
 std::ostream& operator<<(std::ostream& o,Shooter::Goal::Mode a){
 	#define X(name) if(a==Shooter::Goal::Mode::name) return o<<#name;
@@ -35,13 +32,6 @@ std::ostream& operator<<(std::ostream& o,Shooter::Estimator a){ return o<<"Shoot
 std::ostream& operator<<(std::ostream& o,Shooter::Input a){ return o<<"Shooter::Input( speed:"<<a.speed<<" enabled:"<<a.enabled<<")"; }
 std::ostream& operator<<(std::ostream& o,Shooter::Status_detail a){ return o<<"Shooter::Status_detail( speed:"<<a.speed<<")"; }
 std::ostream& operator<<(std::ostream& o,Shooter a){ return o<<"Shooter("<<a.estimator<<")"; }
-
-std::ostream& operator<<(std::ostream& o,Shooter::Output out){
-	o<<"Shooter::Output( ";
-	if (out.mode==Talon_srx_output::Mode::SPEED) o<<"speed:"<<out.speed;
-	else if(out.mode==Talon_srx_output::Mode::VOLTAGE) o<<"voltage:"<<out.voltage;
-	return o<<" mode:"<<out.mode<<")";
-}
 
 bool operator==(Shooter::Input a,Shooter::Input b){ return a.speed==b.speed; }
 bool operator!=(Shooter::Input a,Shooter::Input b){ return !(a==b); }
@@ -65,23 +55,6 @@ bool operator<(Shooter::Goal a,Shooter::Goal b){
 	X(constants) X(mode) X(value)
 	#undef X
 	return 0;
-}
-
-bool operator==(Shooter::Output a,Shooter::Output b){
-	return a.speed==b.speed && a.voltage==b.voltage && a.mode==b.mode;
-}
-
-bool operator!=(Shooter::Output a,Shooter::Output b){ return !(a==b); }
-bool operator<(Shooter::Output a,Shooter::Output b){
-	if(a.speed<b.speed) return true;
-	if(b.speed<a.speed) return false;
-	if(a.voltage<b.voltage) return true;
-	if(b.voltage<a.voltage) return false;
-	return a.mode<b.mode;
-}
-bool approx_equals(Shooter::Output a, Shooter::Output b){
-	const double SPEED_TOLERANCE=50,VOLTAGE_TOLERANCE=.02;
-	return a.mode==b.mode && fabs(a.speed-b.speed)<SPEED_TOLERANCE && fabs(a.voltage-b.voltage)<VOLTAGE_TOLERANCE;
 }
 
 bool operator==(Shooter::Status_detail a,Shooter::Status_detail b){ return (a.speed==b.speed); }
@@ -109,17 +82,11 @@ Robot_inputs Shooter::Input_reader::operator()(Robot_inputs r,Shooter::Input in)
 }
 
 Shooter::Output Shooter::Output_applicator::operator()(Robot_outputs const& r)const{
-	Shooter::Output out;
-	out.mode=r.talon_srx[SHOOTER_WHEEL_LOC].mode;
-	out.voltage=r.talon_srx[SHOOTER_WHEEL_LOC].power_level;
-	out.speed= r.talon_srx[SHOOTER_WHEEL_LOC].speed;
-	return out;
+	return r.talon_srx[SHOOTER_WHEEL_LOC];
 }
 
 Robot_outputs Shooter::Output_applicator::operator()(Robot_outputs r,Shooter::Output out)const{ 
-	r.talon_srx[SHOOTER_WHEEL_LOC].mode=out.mode;
-	r.talon_srx[SHOOTER_WHEEL_LOC].power_level = out.voltage;
-	r.talon_srx[SHOOTER_WHEEL_LOC].speed = out.speed;
+	r.talon_srx[SHOOTER_WHEEL_LOC]=out;
 	return r;
 }
 
@@ -131,10 +98,10 @@ void Shooter::Estimator::update(Time,Shooter::Input in,Shooter::Output output){
 	last.speed=in.speed;
 	if(output.mode==Talon_srx_output::Mode::VOLTAGE){
 		last.speed=[&]{
-			if(output.voltage==0.0) return 0.0;
-			if(output.voltage==-.5) return CLIMB_RPM;
-			if(output.voltage==-1.0) return GROUND_RPM;
-			if(output.voltage==1.0) return FREE_SPIN_RPM;
+			if(output.power_level==0.0) return 0.0;
+			if(output.power_level==-.5) return CLIMB_RPM;
+			if(output.power_level==-1.0) return GROUND_RPM;
+			if(output.power_level==1.0) return FREE_SPIN_RPM;
 			return CLIMB_RPM;
 		}();
 	} else if(output.mode==Talon_srx_output::Mode::SPEED){
@@ -167,10 +134,10 @@ std::set<Shooter::Status_detail> examples(Shooter::Status_detail*){
 
 std::set<Shooter::Output> examples(Shooter::Output*){
 	std::set<Shooter::Output> s;
-	#define X(POWER) s.insert({0,POWER,Talon_srx_output::Mode::VOLTAGE});
+	#define X(POWER) s.insert(Talon_srx_output::voltage(POWER));
 	X(-0.0) X(-1.0)
 	#undef X
-	#define X(RPM) s.insert({RPM,0,Talon_srx_output::Mode::SPEED});
+	#define X(RPM) s.insert(Talon_srx_output::closed_loop(RPM));
 	X(GROUND_RPM) X(0.0) X(CLIMB_RPM) X(FREE_SPIN_RPM)
 	#undef X
 	return s;
@@ -178,16 +145,16 @@ std::set<Shooter::Output> examples(Shooter::Output*){
 
 Shooter::Output control(Shooter::Status_detail, Shooter::Goal goal){
 	Shooter::Output out;
-	out.constants=goal.constants;
+	out.pid=goal.constants;
 	switch(goal.mode) {
 		case Shooter::Goal::Mode::SPEED:
 			out.mode=Talon_srx_output::Mode::SPEED;
 			out.speed=goal.value;
-			out.voltage=0;
+			out.power_level=0;
 			break;
 		case Shooter::Goal::Mode::VOLTAGE:
 			out.mode=Talon_srx_output::Mode::VOLTAGE;
-			out.voltage=goal.value;
+			out.power_level=goal.value;
 			break;
 		default: assert(0);
 	}

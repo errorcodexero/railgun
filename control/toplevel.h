@@ -9,10 +9,6 @@
 #include "collector.h"
 #include "shooter.h"
 
-/*	X(Tilt,tilt,Tilt::Goal::stop())\
-	X(Sides,sides,Sides::Goal::OFF)\
-	X(Front,front,Front::Goal::OFF) \*/
-
 #define TOPLEVEL_ITEMS\
 	X(Drivebase,drive,)\
 	X(Pump,pump,Pump::Goal::AUTO)\

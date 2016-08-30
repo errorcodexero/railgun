@@ -46,18 +46,11 @@ struct Shooter{
 		Robot_inputs operator()(Robot_inputs,Shooter::Input)const;
 	};
 
-	struct Output{
-		PID_values constants;
-		double speed;//rpm
-		double voltage;
-		Talon_srx_output::Mode mode;
-		Output();
-		Output(double,double,Talon_srx_output::Mode);
-	};
+	typedef Talon_srx_output Output;
 	
 	struct Output_applicator{
 		Shooter::Output operator()(Robot_outputs const&)const;
-		Robot_outputs operator()(Robot_outputs,Shooter::Output)const;
+		Robot_outputs operator()(Robot_outputs,Output)const;
 	};
 
 	struct Estimator{
@@ -79,7 +72,6 @@ std::ostream& operator<<(std::ostream&,Shooter::Goal);
 std::ostream& operator<<(std::ostream&,Shooter::Input);
 std::ostream& operator<<(std::ostream&,Shooter::Status_detail);
 std::ostream& operator<<(std::ostream&,Shooter);
-std::ostream& operator<<(std::ostream&,Shooter::Output);
 
 bool operator==(Shooter::Input,Shooter::Input);
 bool operator!=(Shooter::Input,Shooter::Input);
@@ -92,10 +84,6 @@ bool operator!=(Shooter::Status_detail,Shooter::Status_detail);
 bool operator==(Shooter::Goal,Shooter::Goal);
 bool operator!=(Shooter::Goal,Shooter::Goal);
 bool operator<(Shooter::Goal,Shooter::Goal);
-
-bool operator==(Shooter::Output,Shooter::Output);
-bool operator!=(Shooter::Output,Shooter::Output);
-bool operator<(Shooter::Output,Shooter::Output);
 
 bool operator==(Shooter::Input_reader,Shooter::Input_reader);
 bool operator<(Shooter::Input_reader,Shooter::Input_reader);

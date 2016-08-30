@@ -1,17 +1,17 @@
 g++ -Wall -Werror -std=c++14 -DPORTCULLIS_TEST \
         portcullis.cpp \
-        ../control/toplevel.cpp \
 	../util/fixVictor.cpp \
         ../util/posedge_trigger.cpp \
         ../util/negedge_trigger.cpp \
         ../util/countup_timer.cpp \
+        ../util/interface.cpp \
+        ../control/toplevel.cpp \
         ../control/pump.cpp \
         ../control/sides.cpp \
         ../control/front.cpp \
         ../control/climb_release.cpp \
         ../util/point.cpp \
         ../control/drivebase.cpp \
-        ../util/interface.cpp \
         ../util/jag_interface.cpp \
         ../util/driver_station_interface.cpp \
         ../util/util.cpp \

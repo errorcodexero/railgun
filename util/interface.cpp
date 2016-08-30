@@ -107,6 +107,20 @@ std::ostream& operator<<(std::ostream& o, Talon_srx_input in){
 	return o<<")";
 }
 
+Talon_srx_output Talon_srx_output::voltage(double a){
+	Talon_srx_output r;
+	r.mode=Mode::VOLTAGE;
+	r.power_level=a;
+	return r;
+}
+
+Talon_srx_output Talon_srx_output::closed_loop(double a){
+	Talon_srx_output r;
+	r.mode=Mode::SPEED;
+	r.speed=a;
+	return r;
+}
+
 std::ostream& operator<<(std::ostream& o, Talon_srx_output::Mode a){
 	if(a==Talon_srx_output::Mode::VOLTAGE) o<<"VOLTAGE";
 	else if(a==Talon_srx_output::Mode::SPEED) o<<"SPEED";
