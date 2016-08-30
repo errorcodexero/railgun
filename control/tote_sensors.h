@@ -33,8 +33,4 @@ std::ostream& operator<<(std::ostream&,Tote_sensors::Input const&);
 bool operator!=(Tote_sensors const&,Tote_sensors const&);
 std::ostream& operator<<(std::ostream&,Tote_sensors const&);
 
-Tote_sensors::Output control(Tote_sensors::Status,Tote_sensors::Goal);
-bool ready(Tote_sensors::Status,Tote_sensors::Goal);
-Tote_sensors::Status status(Tote_sensors::Status_detail);
-
 #endif
