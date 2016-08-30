@@ -1,4 +1,5 @@
 g++ -Wall -std=c++11 -DLOG_TEST \
+	nop.cpp \
 	log.cpp \
 	../util/interface.cpp \
 	../util/driver_station_interface.cpp \

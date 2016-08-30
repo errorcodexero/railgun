@@ -22,6 +22,8 @@ set<Nop::Input> examples(Nop::Input*){
 	return {Nop::Input{}};
 }
 
+bool operator==(Nop::Input_reader,Nop::Input_reader){ return 1; }
+
 Nop::Input Nop::Input_reader::operator()(Robot_inputs const&)const{
 	return {};
 }
@@ -29,6 +31,8 @@ Nop::Input Nop::Input_reader::operator()(Robot_inputs const&)const{
 Robot_inputs Nop::Input_reader::operator()(Robot_inputs a,Nop::Input)const{
 	return a;
 }
+
+bool operator==(Nop::Output_applicator,Nop::Output_applicator){ return 1; }
 
 Nop::Output Nop::Output_applicator::operator()(Robot_outputs)const{
 	return {};
@@ -38,7 +42,8 @@ Robot_outputs Nop::Output_applicator::operator()(Robot_outputs a,Nop::Output)con
 	return a;
 }
 
-void Nop::Estimator::update(Time,Nop::Input,Nop::Output){}
+bool operator==(Nop::Estimator,Nop::Estimator){ return 1; }
+bool operator!=(Nop::Estimator,Nop::Estimator){ return 0; }
 Nop::Status_detail Nop::Estimator::get()const{ return {}; }
 
 Nop::Status status(Nop::Status_detail a){ return a; }

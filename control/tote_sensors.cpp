@@ -59,40 +59,6 @@ ostream& operator<<(ostream& o,Tote_sensors::Input const& a){
 	return o<<")";
 }
 
-bool operator<(Tote_sensors::Output,Tote_sensors::Output){ return 0; }
-bool operator==(Tote_sensors::Output,Tote_sensors::Output){ return 1; }
-bool operator!=(Tote_sensors::Output a,Tote_sensors::Output b){ return !(a==b); }
-
-ostream& operator<<(ostream& o,Tote_sensors::Output){
-	return o<<"Tote_sensors::Output()";
-}
-
-set<Tote_sensors::Output> examples(Tote_sensors::Output*){
-	return {Tote_sensors::Output{}};
-}
-
-void Tote_sensors::Estimator::update(Time,Input,Output){}
-
-Tote_sensors::Status_detail Tote_sensors::Estimator::get()const{
-	return Tote_sensors::Status_detail{};
-}
-
-bool operator==(Tote_sensors::Estimator const&,Tote_sensors::Estimator const&){ return 1; }
-
-bool operator!=(Tote_sensors::Estimator const& a,Tote_sensors::Estimator const& b){
-	return !(a==b);
-}
-
-Robot_outputs Tote_sensors::Output_applicator::operator()(Robot_outputs a,Output)const{
-	return a;
-}
-
-Tote_sensors::Output Tote_sensors::Output_applicator::operator()(Robot_outputs)const{
-	return Tote_sensors::Output{};
-}
-
-bool operator==(Tote_sensors::Output_applicator,Tote_sensors::Output_applicator){ return 1; }
-
 bool operator==(Tote_sensors const& a,Tote_sensors const& b){
 	return a.input_reader==b.input_reader && a.estimator==b.estimator && a.output_applicator==b.output_applicator;
 }
@@ -102,10 +68,6 @@ bool operator!=(Tote_sensors const& a,Tote_sensors const& b){ return !(a==b); }
 ostream& operator<<(ostream& o,Tote_sensors const&){
 	return o<<"Tote_sensors";
 }
-
-Tote_sensors::Output control(Tote_sensors::Status,Tote_sensors::Goal){ return Tote_sensors::Output{}; }
-bool ready(Tote_sensors::Status,Tote_sensors::Goal){ return 1; }
-Tote_sensors::Status status(Tote_sensors::Status_detail a){ return a; }
 
 #ifdef TOTE_SENSORS_TEST
 #include "formal.h"

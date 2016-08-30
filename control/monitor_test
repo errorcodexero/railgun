@@ -1,7 +1,7 @@
 g++ -Wall -Werror -std=c++0x -DMONITOR_TEST \
 	monitor.cpp \
 	front.cpp \
-	toplevel.cpp \
+	nop.cpp \
 	../util/fixVictor.cpp \
 	../util/interface.cpp \
 	../util/jag_interface.cpp \
@@ -33,6 +33,7 @@ g++ -Wall -Werror -std=c++0x -DMONITOR_TEST \
 	log.cpp\
 	../util/motion_profile.cpp \
 	collector.cpp\
+	toplevel.cpp \
 	../util/debounce.cpp\
 	../util/posedge_trigger_debounce.cpp\
 	../util/pwm.cpp\

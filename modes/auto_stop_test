@@ -1,4 +1,5 @@
 g++ -Wall -Werror -std=c++14 -DAUTO_STOP_TEST \
+	../control/nop.cpp\
 	../util/pwm.cpp\
         auto_stop.cpp \
         ../control/toplevel.cpp \

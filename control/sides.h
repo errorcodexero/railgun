@@ -4,23 +4,20 @@
 #include <iostream>
 #include <set>
 #include "../util/interface.h"
-#include "front.h"
+#include "nop.h"
 
 using namespace std;
 
 struct Sides{
 	enum class Goal{IN,OFF,OUT};
 	
-	struct Input{};
+	using Input=Nop::Input;
 	
 	typedef Input Status_detail;
 
 	typedef Status_detail Status;
 
-	struct Input_reader{
-		Sides::Input operator()(Robot_inputs const&)const;
-		Robot_inputs operator()(Robot_inputs,Sides::Input)const;
-	};
+	using Input_reader=Nop::Input_reader;
 
 	typedef Goal Output;
 	
@@ -29,10 +26,7 @@ struct Sides{
 		Sides::Output operator()(Robot_outputs)const;	
 	};
 
-	struct Estimator{
-		Status_detail get()const;
-		void update(Time,Input,Output){};	
-	};
+	using Estimator=Nop::Estimator;
 
 	Input_reader input_reader;
 	Estimator estimator;
@@ -41,28 +35,16 @@ struct Sides{
 
 ostream& operator<<(ostream&,Sides::Goal);
 ostream& operator<<(ostream&,Sides);
-ostream& operator<<(ostream&,Sides::Input);
-
-bool operator==(Sides::Input,Sides::Input);
-bool operator!=(Sides::Input,Sides::Input);
-bool operator<(Sides::Input, Sides::Input);
 
 bool operator<(Sides::Status_detail,Sides::Status_detail);
 bool operator==(Sides::Status_detail,Sides::Status_detail);
 bool operator!=(Sides::Status_detail,Sides::Status_detail);
-
-bool operator==(Sides::Input_reader,Sides::Input_reader);
-bool operator<(Sides::Input_reader, Sides::Input_reader);
-
-bool operator==(Sides::Estimator, Sides::Estimator);
-bool operator!=(Sides::Estimator, Sides::Estimator);
 
 bool operator==(Sides::Output_applicator,Sides::Output_applicator);
 
 bool operator==(Sides,Sides);
 bool operator!=(Sides,Sides);
 
-set<Sides::Input> examples(Sides::Input*);
 set<Sides::Goal> examples(Sides::Goal*);
 set<Sides::Status_detail> examples(Sides::Status_detail*);
 

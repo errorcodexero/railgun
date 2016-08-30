@@ -1,7 +1,7 @@
 #ifndef TOTE_SENSORS
 #define TOTE_SENSORS
 
-#include "../util/interface.h"
+#include "nop.h"
 
 struct Tote_sensors{
 	struct Input{
@@ -14,21 +14,14 @@ struct Tote_sensors{
 	};
 	Input_reader input_reader;
 
-	struct Output{};
-	typedef Output Status;
-	typedef Status Status_detail;
-	typedef Output Goal; 
+	using Output=Nop::Output;
+	using Status_detail=Nop::Status_detail;
+	using Status=Nop::Status;
+	using Goal=Nop::Goal;
+	using Estimator=Nop::Estimator;
+	using Output_applicator=Nop::Output_applicator;
 
-	struct Estimator{
-		void update(Time,Input,Output);
-		Status_detail get()const;
-	};
 	Estimator estimator;
-
-	struct Output_applicator{
-		Robot_outputs operator()(Robot_outputs,Output)const;
-		Output operator()(Robot_outputs)const;
-	};
 	Output_applicator output_applicator;
 };
 
@@ -36,13 +29,6 @@ bool operator<(Tote_sensors::Input const&,Tote_sensors::Input const&);
 bool operator==(Tote_sensors::Input const&,Tote_sensors::Input const&);
 bool operator!=(Tote_sensors::Input const&,Tote_sensors::Input const&);
 std::ostream& operator<<(std::ostream&,Tote_sensors::Input const&);
-
-bool operator<(Tote_sensors::Output,Tote_sensors::Output);
-bool operator==(Tote_sensors::Output,Tote_sensors::Output);
-bool operator!=(Tote_sensors::Output,Tote_sensors::Output);
-std::ostream& operator<<(std::ostream&,Tote_sensors::Output);
-
-bool operator!=(Tote_sensors::Estimator const&,Tote_sensors::Estimator const&);
 
 bool operator!=(Tote_sensors const&,Tote_sensors const&);
 std::ostream& operator<<(std::ostream&,Tote_sensors const&);

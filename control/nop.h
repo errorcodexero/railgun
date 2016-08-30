@@ -21,7 +21,9 @@ struct Nop{
 	};
 
 	struct Estimator{
-		void update(Time,Input,Output);
+		template<typename Input,typename Output>
+		void update(Time,Input,Output){}
+
 		Status_detail get()const;
 	};
 
@@ -34,8 +36,15 @@ bool operator<(Nop::Input,Nop::Input);
 bool operator==(Nop::Input,Nop::Input);
 bool operator!=(Nop::Input,Nop::Input);
 std::set<Nop::Input> examples(Nop::Input*);
-std::ostream& operator<<(std::ostream&,Nop const&);
 std::ostream& operator<<(std::ostream&,Nop::Input const&);
+
+bool operator==(Nop::Input_reader,Nop::Input_reader);
+bool operator==(Nop::Output_applicator,Nop::Output_applicator);
+
+bool operator==(Nop::Estimator,Nop::Estimator);
+bool operator!=(Nop::Estimator,Nop::Estimator);
+
+std::ostream& operator<<(std::ostream&,Nop const&);
 
 Nop::Output control(Nop::Status_detail,Nop::Goal);
 Nop::Status status(Nop::Status_detail);

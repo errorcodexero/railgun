@@ -1,7 +1,8 @@
 g++ -Wall -Werror -std=c++14 -DDELAY_TEST \
+	../control/nop.cpp \
 	../util/pwm.cpp \
-        delay.cpp \
-        ../control/toplevel.cpp \
+	delay.cpp \
+	../control/toplevel.cpp \
 	../util/fixVictor.cpp \
         ../util/posedge_trigger.cpp \
         ../util/negedge_trigger.cpp \

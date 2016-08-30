@@ -1,4 +1,5 @@
 g++ -Wall -Werror -std=c++0x -DTOPLEVEL_TEST \
+	nop.cpp \
 	toplevel.cpp \
 	../util/fixVictor.cpp \
 	../util/posedge_trigger.cpp \

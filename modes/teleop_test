@@ -1,4 +1,5 @@
 g++ -Wall -Werror -std=c++14 -DTELEOP_TEST \
+	../control/nop.cpp\
 	../util/pwm.cpp\
         teleop.cpp \
         ../control/toplevel.cpp \
