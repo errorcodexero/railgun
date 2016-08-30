@@ -118,6 +118,7 @@ std::set<Toplevel::Input> examples(Toplevel::Input*);
 
 bool operator<(Toplevel::Input const&,Toplevel::Input const&);
 bool operator==(Toplevel::Input const&,Toplevel::Input const&);
+std::ostream& operator<<(std::ostream&,Toplevel::Input const&);
 
 bool operator!=(Toplevel::Input_reader const&,Toplevel::Input_reader const&);
 std::ostream& operator<<(std::ostream&,Toplevel::Input_reader const&);
