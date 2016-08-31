@@ -1,5 +1,5 @@
-#ifndef LOW_BAR_WITH_LOW_SCORE_H
-#define LOW_BAR_WITH_LOW_SCORE_H
+#ifndef LOW_BAR_WALL_LOW_SCORE_H
+#define LOW_BAR_WALL_LOW_SCORE_H
 
 #include "mode.h"
 
