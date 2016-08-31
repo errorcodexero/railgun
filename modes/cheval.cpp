@@ -1,10 +1,18 @@
 #include "cheval.h"
 
-unique_ptr<Mode> Cheval::next_mode(Next_mode_info){
-	return make_unique<Cheval>();
+unique_ptr<Mode> Auto_cheval_pos::next_mode(Next_mode_info){
+	return make_unique<Auto_cheval_pos>();
 }
 
-Toplevel::Goal Cheval::run(Run_info){
+Toplevel::Goal Auto_cheval_pos::run(Run_info){
+	return {};
+}
+
+unique_ptr<Mode> Auto_cheval_wait::next_mode(Next_mode_info){
+	return make_unique<Auto_cheval_wait>();
+}
+
+Toplevel::Goal Auto_cheval_wait::run(Run_info){
 	return {};
 }
 
