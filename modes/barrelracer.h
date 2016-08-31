@@ -3,7 +3,27 @@
 
 #include "mode.h"
 
-struct Barrelracer: public Mode{
+struct Auto_br_straightaway: public Mode{
+	unique_ptr<Mode> next_mode(Next_mode_info);
+	Toplevel::Goal run(Run_info);
+};
+
+struct Auto_br_initialturn: public Mode{
+	unique_ptr<Mode> next_mode(Next_mode_info);
+	Toplevel::Goal run(Run_info);
+};
+
+struct Auto_br_side: public Mode{
+	unique_ptr<Mode> next_mode(Next_mode_info);
+	Toplevel::Goal run(Run_info);
+};
+
+struct Auto_br_sideturn: public Mode{
+	unique_ptr<Mode> next_mode(Next_mode_info);
+	Toplevel::Goal run(Run_info);
+};
+
+struct Auto_br_endturn: public Mode{
 	unique_ptr<Mode> next_mode(Next_mode_info);
 	Toplevel::Goal run(Run_info);
 };
