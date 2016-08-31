@@ -1,6 +1,8 @@
 #ifdef SIM_TEST
 #include "toplevel.h"
 
+#define nyi { cout<<"nyi "<<__LINE__<<"\n"; exit(44); }
+
 /*Drivebase
 Pump (full, estimator=pass-thru)
 Collector
@@ -23,7 +25,7 @@ struct Shooter_sim{
 	//enabled can't be totally abstracted away since it get directly passed into some of the estimators.
 	//at some point, should just make it so that the estimators don't get it an instead they just get what the effective output is because of the robot being disabled.
 	//Also, at some point when we're going between the modes we'll also need to know when we're in autonomous vs. in teleop, etc.
-	void update(Time timestep,bool enabled,Output out){
+	void update(Time /*timestep*/,bool enabled,Output out){
 		this->enabled=enabled;
 		if(!enabled){
 			out=Shooter::Output();
