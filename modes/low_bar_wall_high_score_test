@@ -1,7 +1,7 @@
-g++ -Wall -Werror -std=c++14 -DLOW_BAR_WITH_LOW_SCORE_TEST \
+g++ -Wall -Werror -std=c++14 -DLOW_BAR_WALL_HIGH_SCORE_TEST \
 	../control/nop.cpp\
-	../util/pwm.cpp\
-        low_bar_with_low_score.cpp \
+	../util/pwm.cpp \
+        low_bar_wall_high_score.cpp \
         ../control/toplevel.cpp \
 	../util/fixVictor.cpp \
         ../util/posedge_trigger.cpp \
@@ -26,4 +26,4 @@ g++ -Wall -Werror -std=c++14 -DLOW_BAR_WITH_LOW_SCORE_TEST \
         ../control/winch.cpp\
         ../control/shooter.cpp\
         ../control/collector.cpp\
-        -o low_bar_with_low_score 2>&1 && ./low_bar_with_low_score 2>&1
+        -o low_bar_wall_high_score 2>&1 && ./low_bar_wall_high_score 2>&1
