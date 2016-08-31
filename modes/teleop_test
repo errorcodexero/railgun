@@ -26,4 +26,4 @@ g++ -Wall -Werror -std=c++14 -DTELEOP_TEST \
         ../control/winch.cpp\
         ../control/shooter.cpp\
         ../control/collector.cpp\
-        -o teleop 2>&1 && ./teleop 2>&1
+	-o teleop 2>&1 && ./teleop 2>&1
