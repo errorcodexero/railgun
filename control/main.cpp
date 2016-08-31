@@ -316,7 +316,7 @@ Toplevel::Goal Main::teleop(
 	//goals.shooter.value=0;
 	goals.shooter.constants=shooter_constants.pid;
 	
-	//bool enter_cheval=cheval_trigger(in.now,panel.in_use&&panel.cheval)&&!tilt_learn_mode;
+	bool enter_cheval=cheval_trigger(in.now,panel.in_use&&panel.cheval)&&!tilt_learn_mode;
 		
 	if((!panel.in_use && controller_auto.get()) || (panel.in_use && (panel.tilt_auto || panel.front_auto || panel.sides_auto))) {//Automatic collector modes
 		bool joy_learn=gunner_joystick.button[Gamepad_button::B];
@@ -330,12 +330,12 @@ Toplevel::Goal Main::teleop(
 			|| (panel.in_use && panel.collector_pos==Panel::Collector_pos::STOW && !tilt_learn_mode)
 		){
 			collector_mode = Collector_mode::STOW;
-		}/*else if((gunner_pov==POV_section::RIGHT && !joy_learn) || enter_cheval) {
+		} else if((gunner_pov==POV_section::RIGHT && !joy_learn) || enter_cheval) {
 			collector_mode = Collector_mode::CHEVAL;
 			cheval_lift_timer.set(.45);
 			cheval_drive_timer.set(2);
 			cheval_step = Cheval_steps::GO_DOWN;
-		}*/ else if (panel.in_use && panel.drawbridge && !tilt_learn_mode) collector_mode=Collector_mode::DRAWBRIDGE;
+		} else if (panel.in_use && panel.drawbridge && !tilt_learn_mode) collector_mode=Collector_mode::DRAWBRIDGE;
 		else if(gunner_joystick.button[Gamepad_button::A] || (panel.in_use && panel.shoot_prep)){
 			collector_mode=Collector_mode::SHOOT_HIGH;
 			shoot_step = Shoot_steps::SPEED_UP;
