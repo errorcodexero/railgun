@@ -12,7 +12,7 @@
 #include "low_bar_wall_high_score.h"
 #include "barrelracer.h"
 
-/*unique_ptr<Mode> get_auto(Panel const& panel){
+unique_ptr<Mode> get_auto(Panel const& panel){
 	if (panel.in_use) {
 		switch(panel.auto_mode){ 
 			case Panel::Auto_mode::NOTHING:
@@ -24,29 +24,28 @@
 			case Panel::Auto_mode::STATICF:
 				return make_unique<Auto_static>();
 			case Panel::Auto_mode::PORTCULLIS:
-				return make_unique<Portcullis>();
+				return make_unique<Auto_portcullis>();
 			case Panel::Auto_mode::CHEVAL:
-				return make_unique<Cheval>();
+				return make_unique<Auto_cheval_pos>();
 			case Panel::Auto_mode::LBLS:
-				return make_unique<LBLS>();
+				return make_unique<Auto_lbls_cross_lb>();
 			case Panel::Auto_mode::LBWLS:	
-				return make_unique<LBWLS>();
+				return make_unique<Auto_lbwls_wall>();
 			case Panel::Auto_mode::LBWHS:
-				return make_unique<LBWHS>();
+				return make_unique<Auto_lbwhs_wall>();
 			case Panel::Auto_mode::S:
-				return make_unique<LBWHS>();
+				return make_unique<Auto_lbwhs_prep>();
 			case Panel::Auto_mode::BR:
-				return make_unique<Barrelracer>();
+				return make_unique<Auto_br_straightaway>();
 			default: assert(0);
 		}
 	}
-	return make_unique<Teleop>();
 	return make_unique<Delay>();
-}*/
+}
 
-unique_ptr<Mode> Delay::next_mode(Next_mode_info /*info*/){
-	//if(!info.autonomous) return make_unique<Teleop>();
-	//if(info.since_switch > (info.panel.speed_dial+1)*5 || info.since_switch > 8) return get_auto(info.panel);
+unique_ptr<Mode> Delay::next_mode(Next_mode_info info){
+	if(!info.autonomous) return make_unique<Teleop>();
+	if(info.since_switch > (info.panel.speed_dial+1)*5 || info.since_switch > 8) return get_auto(info.panel);
 	return make_unique<Delay>();
 }
 
