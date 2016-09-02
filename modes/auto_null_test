@@ -26,4 +26,5 @@ g++ -Wall -Werror -std=c++14 -DAUTO_NULL_TEST \
         ../control/winch.cpp\
         ../control/shooter.cpp\
         ../control/collector.cpp\
+	teleop.cpp\
         -o auto_null 2>&1 && ./auto_null 2>&1

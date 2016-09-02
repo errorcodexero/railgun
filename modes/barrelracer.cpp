@@ -1,10 +1,34 @@
 #include "barrelracer.h"
 
-unique_ptr<Mode> Auto_br_straightaway::next_mode(Next_mode_info){
+#include "teleop.h"
+
+unique_ptr<Mode> Auto_br_straightaway::next_mode(Next_mode_info info){
+	pair<int,int> encoder_differences=make_pair(info.status.drive.ticks.first-info.initial_encoders.first,info.status.drive.ticks.second-info.initial_encoders.second);
+	if(!info.autonomous) return make_unique<Teleop>();
+	const double TARGET_DISTANCE = 5.0*12.0;//inches
+	const double TOLERANCE = 6.0;//inches
+	//motion_profile.set_goal(TARGET_DISTANCE);
+	cout<<"\n"<<encoder_differences.first<<"   "<<ticks_to_inches(encoder_differences.first)<<"   "<<TARGET_DISTANCE<<"\n";
+	if(ticks_to_inches(encoder_differences.first) >= TARGET_DISTANCE-TOLERANCE && ticks_to_inches(encoder_differences.first) <= TARGET_DISTANCE+TOLERANCE){
+		info.in_br_range.update(in.now,in.robot_mode.enabled);
+	}
+	else{
+		info.in_br_range.set(2.0);
+	}
+	if(info.in_br_range.done()){
+		info.set_initial_encoders=false;
+		info.br_step++;
+		return make_unique<Teleop>();
+		//return make_unique<Auto_br_initialturn>();
+	}
 	return make_unique<Auto_br_straightaway>();
 }
 
 Toplevel::Goal Auto_br_straightaway::run(Run_info){
+	Toplevel::Goal goals;
+	double power=0;//-info.motion_profile.target_speed(ticks_to_inches(info.toplevel_status.drive.ticks.first));
+	goals.drive.left=power;
+	goals.drive.right=power;
 	return {};
 }
 

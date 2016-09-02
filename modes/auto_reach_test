@@ -1,7 +1,9 @@
 g++ -Wall -Werror -std=c++14 -DAUTO_REACH_TEST \
 	../control/nop.cpp\
 	../util/pwm.cpp\
-        auto_reach.cpp \
+	auto_reach.cpp \
+	teleop.cpp \
+	auto_stop.cpp \
         ../control/toplevel.cpp \
 	../util/fixVictor.cpp \
         ../util/posedge_trigger.cpp \
