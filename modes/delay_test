@@ -2,6 +2,17 @@ g++ -Wall -Werror -std=c++14 -DDELAY_TEST \
 	../control/nop.cpp \
 	../util/pwm.cpp \
 	delay.cpp \
+	teleop.cpp \
+	auto_null.cpp \
+	auto_reach.cpp \
+	auto_statictwo.cpp \
+	auto_static.cpp \
+	portcullis.cpp \
+	cheval.cpp \
+	low_bar_low_score.cpp \
+	low_bar_wall_low_score.cpp \
+	low_bar_wall_high_score.cpp \
+	barrelracer.cpp \
 	../control/toplevel.cpp \
 	../util/fixVictor.cpp \
         ../util/posedge_trigger.cpp \
