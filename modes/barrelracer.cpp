@@ -17,11 +17,10 @@ unique_ptr<Mode> Auto_br_straightaway::next_mode(Next_mode_info info){
 	}
 	if(in_br_range.done()){
 		//set_initial_encoders=false;
-		br_step++;
 		return make_unique<Teleop>();
 		//return make_unique<Auto_br_initialturn>();
 	}
-	return make_unique<Auto_br_straightaway>();
+	return make_unique<Auto_br_straightaway>(br_step);
 }
 
 Toplevel::Goal Auto_br_straightaway::run(Run_info){
@@ -33,7 +32,7 @@ Toplevel::Goal Auto_br_straightaway::run(Run_info){
 }
 
 unique_ptr<Mode> Auto_br_initialturn::next_mode(Next_mode_info){
-	return make_unique<Auto_br_initialturn>();
+	return make_unique<Auto_br_initialturn>(br_step);
 }
 
 Toplevel::Goal Auto_br_initialturn::run(Run_info){
@@ -41,7 +40,7 @@ Toplevel::Goal Auto_br_initialturn::run(Run_info){
 }
 
 unique_ptr<Mode> Auto_br_side::next_mode(Next_mode_info){
-	return make_unique<Auto_br_side>();
+	return make_unique<Auto_br_side>(br_step);
 }
 
 Toplevel::Goal Auto_br_side::run(Run_info){
@@ -49,7 +48,7 @@ Toplevel::Goal Auto_br_side::run(Run_info){
 }
 
 unique_ptr<Mode> Auto_br_sideturn::next_mode(Next_mode_info){
-	return make_unique<Auto_br_sideturn>();
+	return make_unique<Auto_br_sideturn>(br_step);
 }
 
 Toplevel::Goal Auto_br_sideturn::run(Run_info){
@@ -57,7 +56,7 @@ Toplevel::Goal Auto_br_sideturn::run(Run_info){
 }
 
 unique_ptr<Mode> Auto_br_endturn::next_mode(Next_mode_info){
-	return make_unique<Auto_br_endturn>();
+	return make_unique<Auto_br_endturn>(br_step);
 }
 
 Toplevel::Goal Auto_br_endturn::run(Run_info){
