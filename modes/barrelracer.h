@@ -4,6 +4,8 @@
 #include "mode.h"
 
 struct Auto_br_straightaway: public Mode{
+	Countdown_timer in_br_range;
+	unsigned int br_step;
 	unique_ptr<Mode> next_mode(Next_mode_info);
 	Toplevel::Goal run(Run_info);
 };

@@ -10,14 +10,14 @@ unique_ptr<Mode> Auto_br_straightaway::next_mode(Next_mode_info info){
 	//motion_profile.set_goal(TARGET_DISTANCE);
 	cout<<"\n"<<encoder_differences.first<<"   "<<ticks_to_inches(encoder_differences.first)<<"   "<<TARGET_DISTANCE<<"\n";
 	if(ticks_to_inches(encoder_differences.first) >= TARGET_DISTANCE-TOLERANCE && ticks_to_inches(encoder_differences.first) <= TARGET_DISTANCE+TOLERANCE){
-		info.in_br_range.update(in.now,in.robot_mode.enabled);
+		in_br_range.update(info.in.now,info.in.robot_mode.enabled);
 	}
 	else{
-		info.in_br_range.set(2.0);
+		in_br_range.set(2.0);
 	}
-	if(info.in_br_range.done()){
-		info.set_initial_encoders=false;
-		info.br_step++;
+	if(in_br_range.done()){
+		//set_initial_encoders=false;
+		br_step++;
 		return make_unique<Teleop>();
 		//return make_unique<Auto_br_initialturn>();
 	}
