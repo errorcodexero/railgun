@@ -2,7 +2,7 @@
 
 #include "teleop.h"
 
-unique_ptr<Mode> Auto_stop::next_mode(Next_mode_info info){
+unique_ptr<Mode> Auto_stop::next_mode(Next_mode_info){
 	return make_unique<Teleop>();
 }
 
