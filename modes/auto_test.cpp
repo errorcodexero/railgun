@@ -1,11 +1,15 @@
 #include "auto_test.h"
-
-unique_ptr<Mode> Auto_test::next_mode(Next_mode_info){
+#include "teleop.h"
+unique_ptr<Mode> Auto_test::next_mode(Next_mode_info info){
+	if(info.since_switch > 1 || !info.autonomous) return make_unique<Teleop>();
 	return make_unique<Auto_test>();
 }
 
 Toplevel::Goal Auto_test::run(Run_info){
-	return {};
+	Toplevel::Goal goals;
+	goals.drive.left = .1;
+	goals.drive.right = .1;
+	return goals;
 }
 
 #ifdef AUTO_TEST_TEST
