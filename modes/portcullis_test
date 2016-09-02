@@ -1,6 +1,7 @@
 g++ -Wall -Werror -std=c++14 -DPORTCULLIS_TEST \
 	../control/nop.cpp\
         portcullis.cpp \
+	teleop.cpp \
 	../util/fixVictor.cpp \
         ../util/posedge_trigger.cpp \
         ../util/negedge_trigger.cpp \
@@ -25,5 +26,6 @@ g++ -Wall -Werror -std=c++14 -DPORTCULLIS_TEST \
         ../control/winch.cpp\
         ../control/shooter.cpp\
         ../control/collector.cpp\
-		../util/pwm.cpp\
+	../util/pwm.cpp\
+	../control/tilt_presets.cpp\
         -o portcullis 2>&1 && ./portcullis 2>&1
