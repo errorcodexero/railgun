@@ -1,11 +1,18 @@
 #include "auto_reach.h"
-
-unique_ptr<Mode> Auto_reach::next_mode(Next_mode_info){
+#include "teleop.h"
+#include "auto_stop.h"
+unique_ptr<Mode> Auto_reach::next_mode(Next_mode_info info){
+	if(!info.autonomous) return make_unique<Teleop>();
+	if(info.since_switch > .8) return make_unique<Auto_stop>();
 	return make_unique<Auto_reach>();
 }
 
 Toplevel::Goal Auto_reach::run(Run_info){
-	return {};
+	Toplevel::Goal goals;
+	goals.drive.left=.45;
+	goals.drive.right=.45;
+	
+	return goals;
 }
 
 #ifdef AUTO_REACH_TEST
