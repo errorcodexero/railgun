@@ -1,11 +1,16 @@
 #include "auto_stop.h"
 
-unique_ptr<Mode> Auto_stop::next_mode(Next_mode_info){
-	return make_unique<Auto_stop>();
+#include "teleop.h"
+
+unique_ptr<Mode> Auto_stop::next_mode(Next_mode_info info){
+	return make_unique<Teleop>();
 }
 
 Toplevel::Goal Auto_stop::run(Run_info){
-	return {};
+	Toplevel::Goal goals;
+	goals.drive.left=0;
+	goals.drive.right=0;
+	return goals;
 }
 
 #ifdef AUTO_STOP_TEST
