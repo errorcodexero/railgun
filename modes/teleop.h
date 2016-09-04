@@ -5,11 +5,6 @@
 #include "../util/posedge_trigger_debounce.h"
 #include "../util/posedge_toggle.h"
 
-struct Tilt_presets{
-	double top, level, low, cheval;//angles (in degrees) that it will go to when set to the tilt goals
-	Tilt_presets();
-};
-
 struct Teleop : Mode {
 	/*
 	struct Shooter_constants{

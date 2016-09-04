@@ -13,11 +13,7 @@
 #include "log.h"
 #include "../util/posedge_trigger_debounce.h"
 #include "../util/motion_profile.h"
-
-struct Tilt_presets{
-	double top, level, low, cheval;//angles (in degrees) that it will go to when set to the tilt goals
-	Tilt_presets();
-};
+#include "tilt_presets.h"
 
 struct Shooter_constants{
 	PID_values pid;

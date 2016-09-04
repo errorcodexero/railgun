@@ -1,0 +1,1 @@
+g++ -std=c++14 -Wall -Wextra -DTILT_PRESETS_TEST tilt_presets.cpp -o tilt_presets 2>&1 && ./tilt_presets 2>&1
