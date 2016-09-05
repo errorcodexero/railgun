@@ -1,6 +1,9 @@
 #include "auto_reach.h"
 #include "teleop.h"
 #include "auto_stop.h"
+
+using namespace std;
+
 unique_ptr<Mode> Auto_reach::next_mode(Next_mode_info info){
 	if(!info.autonomous) return make_unique<Teleop>();
 	if(info.since_switch > .8) return make_unique<Auto_stop>();

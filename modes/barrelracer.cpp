@@ -1,6 +1,7 @@
 #include "barrelracer.h"
-
 #include "teleop.h"
+
+using namespace std;
 
 unique_ptr<Mode> Auto_br_straightaway::next_mode(Next_mode_info info){
 	pair<int,int> encoder_differences=make_pair(info.status.drive.ticks.first-info.initial_encoders.first,info.status.drive.ticks.second-info.initial_encoders.second);

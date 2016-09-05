@@ -1,6 +1,8 @@
 #ifdef SIM_TEST
 #include "toplevel.h"
 
+using namespace std;
+
 #define nyi { cout<<"nyi "<<__LINE__<<"\n"; exit(44); }
 
 /*Drivebase

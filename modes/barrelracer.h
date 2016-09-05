@@ -9,7 +9,7 @@ struct Auto_br_straightaway : public Mode{
 
 	Auto_br_straightaway(unsigned int bs):br_step(bs){}
 	
-	unique_ptr<Mode> next_mode(Next_mode_info);
+	std::unique_ptr<Mode> next_mode(Next_mode_info);
 	Toplevel::Goal run(Run_info);
 };
 
@@ -18,7 +18,7 @@ struct Auto_br_initialturn : public Mode{
 
 	Auto_br_initialturn(unsigned int bs):br_step(bs){}
 
-	unique_ptr<Mode> next_mode(Next_mode_info);
+	std::unique_ptr<Mode> next_mode(Next_mode_info);
 	Toplevel::Goal run(Run_info);
 };
 
@@ -27,7 +27,7 @@ struct Auto_br_side : public Mode{
 
 	Auto_br_side(unsigned int bs):br_step(bs){}
 	
-	unique_ptr<Mode> next_mode(Next_mode_info);
+	std::unique_ptr<Mode> next_mode(Next_mode_info);
 	Toplevel::Goal run(Run_info);
 };
 
@@ -36,7 +36,7 @@ struct Auto_br_sideturn : public Mode{
 
 	Auto_br_sideturn(unsigned int bs):br_step(bs){}
 
-	unique_ptr<Mode> next_mode(Next_mode_info);
+	std::unique_ptr<Mode> next_mode(Next_mode_info);
 	Toplevel::Goal run(Run_info);
 };
 
@@ -45,7 +45,7 @@ struct Auto_br_endturn : public Mode{
 
 	Auto_br_endturn(unsigned int bs):br_step(bs){}
 
-	unique_ptr<Mode> next_mode(Next_mode_info);
+	std::unique_ptr<Mode> next_mode(Next_mode_info);
 	Toplevel::Goal run(Run_info);
 };
 

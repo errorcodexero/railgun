@@ -1,4 +1,5 @@
 g++ -Wall -Werror -std=c++14 -DAUTO_NULL_TEST \
+	mode.cpp\
 	../control/nop.cpp\
 	../util/pwm.cpp\
         auto_null.cpp \
@@ -27,4 +28,6 @@ g++ -Wall -Werror -std=c++14 -DAUTO_NULL_TEST \
         ../control/shooter.cpp\
         ../control/collector.cpp\
 	teleop.cpp\
+	../input/util.cpp\
+	../input/panel.cpp\
         -o auto_null 2>&1 && ./auto_null 2>&1

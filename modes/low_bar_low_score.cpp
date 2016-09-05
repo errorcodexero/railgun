@@ -1,5 +1,7 @@
 #include "low_bar_low_score.h"
 
+using namespace std;
+
 unique_ptr<Mode> Auto_lbls_cross_lb::next_mode(Next_mode_info){
 	return make_unique<Auto_lbls_cross_lb>();
 }

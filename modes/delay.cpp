@@ -12,6 +12,8 @@
 #include "low_bar_wall_high_score.h"
 #include "barrelracer.h"
 
+using namespace std;
+
 unique_ptr<Mode> get_auto1(Panel const& panel){
 	if (panel.in_use) {
 		switch(panel.auto_mode){ 

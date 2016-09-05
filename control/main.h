@@ -57,7 +57,7 @@ struct Main{
 	bool simtest;
 	bool set_initial_encoders;
 	unsigned int br_step;//starts at lap 0 and increases by one every time it reaches a new node
-	pair<int,int> initial_encoders;//first is left, second is right
+	std::pair<int,int> initial_encoders;//first is left, second is right
 	Robot_inputs in_i;
 
 	Countup_timer since_switch,since_auto_start;
@@ -69,7 +69,7 @@ struct Main{
 		Posedge_trigger trigger;
 		Countdown_timer timer;
 	};
-	array<Nudge,NUDGES> nudges;
+	std::array<Nudge,NUDGES> nudges;
 	
 	#define JOY_COLLECTOR_POS X(STOP) X(LOW) X(LEVEL)
 	enum class Joy_collector_pos{

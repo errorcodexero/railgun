@@ -66,7 +66,7 @@ struct Teleop : Mode {
 	void shooter_protocol(Toplevel::Status_detail const&,const bool,const Time,Toplevel::Goal&,bool,Panel::Shooter_mode,double);
 	*/
 
-	unique_ptr<Mode> next_mode(Next_mode_info);
+	std::unique_ptr<Mode> next_mode(Next_mode_info);
 	Toplevel::Goal run(Run_info);
 };
 

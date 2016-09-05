@@ -5,8 +5,6 @@
 #include <set>
 #include "../util/interface.h"
 
-using namespace std;
-
 struct Front{
 	enum class Goal{IN,OFF,OUT,CLEAR_BALL};
 	
@@ -48,10 +46,10 @@ struct Front{
 	Output_applicator output_applicator; 
 };
 
-ostream& operator<<(ostream&,Front::Goal);
-ostream& operator<<(ostream&,Front);
-ostream& operator<<(ostream&,Front::Input);
-ostream& operator<<(ostream&,Front::Output);
+std::ostream& operator<<(std::ostream&,Front::Goal);
+std::ostream& operator<<(std::ostream&,Front);
+std::ostream& operator<<(std::ostream&,Front::Input);
+std::ostream& operator<<(std::ostream&,Front::Output);
 
 bool operator==(Front::Input,Front::Input);
 bool operator!=(Front::Input,Front::Input);
@@ -72,9 +70,9 @@ bool operator==(Front::Output_applicator,Front::Output_applicator);
 bool operator==(Front,Front);
 bool operator!=(Front,Front);
 
-set<Front::Input> examples(Front::Input*);
-set<Front::Output> examples(Front::Output*);
-set<Front::Goal> examples(Front::Goal*);
+std::set<Front::Input> examples(Front::Input*);
+std::set<Front::Output> examples(Front::Output*);
+std::set<Front::Goal> examples(Front::Goal*);
 
 Front::Output control(Front::Status_detail, Front::Goal);
 Front::Status status(Front::Status_detail);

@@ -64,6 +64,14 @@ def check_file(contents):
 			r.append((line_num,'type names',s))
 	return r
 
+#str->int
+def check_header(filename):
+	lines=file(filename).read().splitlines()
+	for line in lines:
+		if line.startswith('using namespace'):
+			print 'Error: "using namespace" in header file',filename
+			return 1
+
 #returns int
 def check_style():
 	cppfiles=commands.getoutput("find -name \*.cpp").splitlines()
@@ -74,6 +82,8 @@ def check_style():
 			print filename
 			for e in errors: print '\t',e
 			return 1
+	if any(map(check_header,hfiles)):
+		return 1
 	return 0
 
 #output stream -> void

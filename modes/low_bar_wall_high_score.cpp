@@ -1,5 +1,7 @@
 #include "low_bar_wall_high_score.h"
 
+using namespace std;
+
 unique_ptr<Mode> Auto_lbwhs_wall::next_mode(Next_mode_info){
 	return make_unique<Auto_lbwhs_wall>();
 }

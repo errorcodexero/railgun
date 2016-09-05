@@ -14,7 +14,7 @@
 	X(Panel,panel)\
 	X(bool,toplready)\
 	X(Robot_inputs,in)\
-	X(SINGLE_ARG(pair<int,int>),initial_encoders)
+	X(SINGLE_ARG(std::pair<int,int>),initial_encoders)
 DECLARE_STRUCT(Next_mode_info,NEXT_MODE_INFO_ITEMS)
 
 #define RUN_INFO_ITEMS(X)\
@@ -31,8 +31,10 @@ DECLARE_STRUCT(Next_mode_info,NEXT_MODE_INFO_ITEMS)
 DECLARE_STRUCT(Run_info,RUN_INFO_ITEMS)
 
 struct Mode {
-	virtual unique_ptr<Mode> next_mode(Next_mode_info)=0;
+	virtual std::unique_ptr<Mode> next_mode(Next_mode_info)=0;
 	virtual Toplevel::Goal run(Run_info)=0;
 };
+
+void test_mode(Mode&);
 
 #endif

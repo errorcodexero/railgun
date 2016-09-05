@@ -1,7 +1,8 @@
 #include "auto_statictwo.h"
-
 #include "teleop.h" 
 #include "auto_stop.h"
+
+using namespace std;
 
 unique_ptr<Mode> Auto_statictwo::next_mode(Next_mode_info info){
 	if(!info.autonomous) return make_unique<Teleop>();

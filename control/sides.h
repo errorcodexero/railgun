@@ -6,8 +6,6 @@
 #include "../util/interface.h"
 #include "nop.h"
 
-using namespace std;
-
 struct Sides{
 	enum class Goal{IN,OFF,OUT};
 	
@@ -33,8 +31,8 @@ struct Sides{
 	Output_applicator output_applicator; 
 };
 
-ostream& operator<<(ostream&,Sides::Goal);
-ostream& operator<<(ostream&,Sides);
+std::ostream& operator<<(std::ostream&,Sides::Goal);
+std::ostream& operator<<(std::ostream&,Sides);
 
 bool operator<(Sides::Status_detail,Sides::Status_detail);
 bool operator==(Sides::Status_detail,Sides::Status_detail);
@@ -45,8 +43,8 @@ bool operator==(Sides::Output_applicator,Sides::Output_applicator);
 bool operator==(Sides,Sides);
 bool operator!=(Sides,Sides);
 
-set<Sides::Goal> examples(Sides::Goal*);
-set<Sides::Status_detail> examples(Sides::Status_detail*);
+std::set<Sides::Goal> examples(Sides::Goal*);
+std::set<Sides::Status_detail> examples(Sides::Status_detail*);
 
 Sides::Output control(Sides::Status_detail, Sides::Goal);
 Sides::Status status(Sides::Status_detail);
