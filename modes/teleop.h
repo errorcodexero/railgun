@@ -5,7 +5,7 @@
 #include "../util/posedge_trigger_debounce.h"
 #include "../util/posedge_toggle.h"
 
-struct Teleop : Mode {
+struct Teleop : Mode_impl<Teleop> {
 	/*
 	struct Shooter_constants{
 		PID_values pid;

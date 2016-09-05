@@ -3,52 +3,52 @@
 
 #include "mode.h"
 
-struct Auto_lbwhs_wall: public Mode{
+struct Auto_lbwhs_wall: public Mode_impl<Auto_lbwhs_wall>{
 	std::unique_ptr<Mode> next_mode(Next_mode_info);
 	Toplevel::Goal run(Run_info);
 };
 
-struct Auto_lbwhs_mup: public Mode{
+struct Auto_lbwhs_mup: public Mode_impl<Auto_lbwhs_mup>{
 	std::unique_ptr<Mode> next_mode(Next_mode_info);
 	Toplevel::Goal run(Run_info);
 };
 
-struct Auto_lbwhs_rotate: public Mode{
+struct Auto_lbwhs_rotate: public Mode_impl<Auto_lbwhs_rotate>{
 	std::unique_ptr<Mode> next_mode(Next_mode_info);
 	Toplevel::Goal run(Run_info);
 };
 
-struct Auto_lbwhs_tower: public Mode{
+struct Auto_lbwhs_tower: public Mode_impl<Auto_lbwhs_tower>{
 	std::unique_ptr<Mode> next_mode(Next_mode_info);
 	Toplevel::Goal run(Run_info);
 };
 
-struct Auto_lbwhs_eject: public Mode{
+struct Auto_lbwhs_eject: public Mode_impl<Auto_lbwhs_eject>{
 	std::unique_ptr<Mode> next_mode(Next_mode_info);
 	Toplevel::Goal run(Run_info);
 };
 
-struct Auto_lbwhs_back: public Mode{
+struct Auto_lbwhs_back: public Mode_impl<Auto_lbwhs_back>{
 	std::unique_ptr<Mode> next_mode(Next_mode_info);
 	Toplevel::Goal run(Run_info);
 };
 
-struct Auto_lbwhs_c: public Mode{
+struct Auto_lbwhs_c: public Mode_impl<Auto_lbwhs_c>{
 	std::unique_ptr<Mode> next_mode(Next_mode_info);
 	Toplevel::Goal run(Run_info);
 };
 
-struct Auto_lbwhs_br: public Mode{
+struct Auto_lbwhs_br: public Mode_impl<Auto_lbwhs_br>{
 	std::unique_ptr<Mode> next_mode(Next_mode_info);
 	Toplevel::Goal run(Run_info);
 };
 
-struct Auto_lbwhs_prep: public Mode{
+struct Auto_lbwhs_prep: public Mode_impl<Auto_lbwhs_prep>{
 	std::unique_ptr<Mode> next_mode(Next_mode_info);
 	Toplevel::Goal run(Run_info);
 };
 
-struct Auto_lbwhs_bp: public Mode{
+struct Auto_lbwhs_bp: public Mode_impl<Auto_lbwhs_bp>{
 	std::unique_ptr<Mode> next_mode(Next_mode_info);
 	Toplevel::Goal run(Run_info);
 };

@@ -3,7 +3,7 @@
 
 #include "mode.h"
 
-struct Delay: public Mode{
+struct Delay: public Mode_impl<Delay>{
 	std::unique_ptr<Mode> next_mode(Next_mode_info);
 	Toplevel::Goal run(Run_info);
 };

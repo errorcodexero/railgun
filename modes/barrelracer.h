@@ -3,7 +3,7 @@
 
 #include "mode.h"
 
-struct Auto_br_straightaway : public Mode{
+struct Auto_br_straightaway : public Mode_impl<Auto_br_straightaway>{
 	unsigned int br_step;
 	Countdown_timer in_br_range;
 
@@ -13,7 +13,7 @@ struct Auto_br_straightaway : public Mode{
 	Toplevel::Goal run(Run_info);
 };
 
-struct Auto_br_initialturn : public Mode{
+struct Auto_br_initialturn : public Mode_impl<Auto_br_initialturn>{
 	unsigned int br_step;
 
 	Auto_br_initialturn(unsigned int bs):br_step(bs){}
@@ -22,7 +22,7 @@ struct Auto_br_initialturn : public Mode{
 	Toplevel::Goal run(Run_info);
 };
 
-struct Auto_br_side : public Mode{
+struct Auto_br_side : public Mode_impl<Auto_br_side>{
 	unsigned int br_step;
 
 	Auto_br_side(unsigned int bs):br_step(bs){}
@@ -31,7 +31,7 @@ struct Auto_br_side : public Mode{
 	Toplevel::Goal run(Run_info);
 };
 
-struct Auto_br_sideturn : public Mode{
+struct Auto_br_sideturn : public Mode_impl<Auto_br_sideturn>{
 	unsigned int br_step;
 
 	Auto_br_sideturn(unsigned int bs):br_step(bs){}
@@ -40,7 +40,7 @@ struct Auto_br_sideturn : public Mode{
 	Toplevel::Goal run(Run_info);
 };
 
-struct Auto_br_endturn : public Mode{
+struct Auto_br_endturn : public Mode_impl<Auto_br_endturn>{
 	unsigned int br_step;
 
 	Auto_br_endturn(unsigned int bs):br_step(bs){}

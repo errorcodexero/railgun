@@ -33,8 +33,16 @@ DECLARE_STRUCT(Run_info,RUN_INFO_ITEMS)
 struct Mode {
 	virtual std::unique_ptr<Mode> next_mode(Next_mode_info)=0;
 	virtual Toplevel::Goal run(Run_info)=0;
+	virtual std::unique_ptr<Mode> clone()const=0;
 };
 
 void test_mode(Mode&);
+
+template<typename T>
+struct Mode_impl:Mode{
+	std::unique_ptr<Mode> clone()const{
+		return std::make_unique<T>(static_cast<T const&>(*this));
+	}
+};
 
 #endif

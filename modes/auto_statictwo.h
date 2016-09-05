@@ -3,7 +3,7 @@
 
 #include "mode.h"
 
-struct Auto_statictwo: public Mode{
+struct Auto_statictwo: public Mode_impl<Auto_statictwo>{
 	std::unique_ptr<Mode> next_mode(Next_mode_info);
 	Toplevel::Goal run(Run_info);
 };
