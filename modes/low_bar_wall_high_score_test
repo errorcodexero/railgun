@@ -1,4 +1,7 @@
 g++ -Wall -Werror -std=c++14 -DLOW_BAR_WALL_HIGH_SCORE_TEST \
+	mode.cpp\
+	../input/panel.cpp\
+	../input/util.cpp\
 	../control/nop.cpp\
 	../util/pwm.cpp \
         low_bar_wall_high_score.cpp \

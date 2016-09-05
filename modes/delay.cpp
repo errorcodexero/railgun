@@ -56,8 +56,11 @@ Toplevel::Goal Delay::run(Run_info){
 	return {};
 }
 
+bool Delay::operator==(Delay const&)const{ return 1; }
+
 #ifdef DELAY_TEST
 int main(){
-	
+	Delay a;
+	test_mode(a);
 }
 #endif 

@@ -14,8 +14,13 @@ Toplevel::Goal Auto_stop::run(Run_info){
 	return goals;
 }
 
+bool Auto_stop::operator==(Auto_stop const&)const{
+	return 1;
+}
+
 #ifdef AUTO_STOP_TEST
 int main(){
-	
+	Auto_stop a;
+	test_mode(a);
 }
 #endif 

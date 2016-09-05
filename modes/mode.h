@@ -33,16 +33,30 @@ DECLARE_STRUCT(Run_info,RUN_INFO_ITEMS)
 struct Mode {
 	virtual std::unique_ptr<Mode> next_mode(Next_mode_info)=0;
 	virtual Toplevel::Goal run(Run_info)=0;
+
 	virtual std::unique_ptr<Mode> clone()const=0;
+	virtual bool operator==(Mode const&)const=0;
 };
+
+bool operator!=(Mode const&,Mode const&);
 
 void test_mode(Mode&);
 
 template<typename T>
 struct Mode_impl:Mode{
+	T const& self()const{ return static_cast<T const&>(*this); }
+
 	std::unique_ptr<Mode> clone()const{
-		return std::make_unique<T>(static_cast<T const&>(*this));
+		return std::make_unique<T>(self());
 	}
+
+	bool operator==(Mode const& a)const{
+		const T *b=dynamic_cast<T const*>(&a);
+		if(!b) return 0;
+		return this->operator==(*b);
+	}
+
+	virtual bool operator==(T const&)const=0;
 };
 
 #endif

@@ -1,4 +1,7 @@
 g++ -Wall -Werror -std=c++14 -DPORTCULLIS_TEST \
+	mode.cpp\
+	../input/panel.cpp\
+	../input/util.cpp\
 	../control/nop.cpp\
         portcullis.cpp \
 	teleop.cpp \

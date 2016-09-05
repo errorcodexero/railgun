@@ -17,8 +17,13 @@ Toplevel::Goal Auto_statictwo::run(Run_info){
 	return goals;
 }
 
+bool Auto_statictwo::operator==(Auto_statictwo const&)const{
+	return 1;
+}
+
 #ifdef AUTO_STATICTWO_TEST
 int main(){
-	
+	Auto_statictwo a;
+	test_mode(a);
 }
 #endif 

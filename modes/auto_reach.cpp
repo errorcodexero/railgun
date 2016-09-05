@@ -18,8 +18,11 @@ Toplevel::Goal Auto_reach::run(Run_info){
 	return goals;
 }
 
+bool Auto_reach::operator==(Auto_reach const&)const{ return 1; }
+
 #ifdef AUTO_REACH_TEST
 int main(){
-	
+	Auto_reach a;
+	test_mode(a);
 }
 #endif 

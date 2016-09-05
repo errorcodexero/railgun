@@ -27,6 +27,10 @@ Toplevel::Goal Auto_portcullis::run(Run_info info){
 	return {};
 }
 
+bool Auto_portcullis::operator==(Auto_portcullis const&)const{
+	return 1;
+}
+
 unique_ptr<Mode> Auto_portcullis_done::next_mode(Next_mode_info info){
 	if(info.since_switch > 2.5 || !info.autonomous) return make_unique<Teleop>();
 	return make_unique<Auto_portcullis_done>();
@@ -41,10 +45,19 @@ Toplevel::Goal Auto_portcullis_done::run(Run_info){
 	return {};
 }
 
-
+bool Auto_portcullis_done::operator==(Auto_portcullis_done const&)const{
+	return 1;
+}
 
 #ifdef PORTCULLIS_TEST
 int main(){
-	
+	{
+		Auto_portcullis a;
+		test_mode(a);
+	}
+	{
+		Auto_portcullis_done a;
+		test_mode(a);
+	}
 }
 #endif 

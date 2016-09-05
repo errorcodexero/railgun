@@ -406,9 +406,13 @@ Toplevel::Goal Teleop::run(Run_info /*info*/) {
 	return goals;
 }
 
+bool Teleop::operator==(Teleop const&)const{
+	return 1;
+}
 
 #ifdef TELEOP_TEST
 int main() {
-	
+	Teleop a;
+	test_mode(a);
 }
 #endif

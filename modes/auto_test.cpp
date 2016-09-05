@@ -15,8 +15,13 @@ Toplevel::Goal Auto_test::run(Run_info){
 	return goals;
 }
 
+bool Auto_test::operator==(Auto_test const&)const{
+	return 1;
+}
+
 #ifdef AUTO_TEST_TEST
 int main(){
-	
+	Auto_test a;
+	test_mode(a);
 }
 #endif 

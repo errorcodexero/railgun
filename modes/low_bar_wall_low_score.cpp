@@ -66,9 +66,17 @@ Toplevel::Goal Auto_lbwls_br::run(Run_info){
 	return {};
 }
 
+#define STEPS X(wall) X(mup) X(rotate) X(tower) X(eject) X(back) X(c) X(br)
+
+#define X(NAME) bool Auto_lbwls_##NAME::operator==(Auto_lbwls_##NAME const&)const{ return 1; }
+STEPS
+#undef X
 
 #ifdef LOW_BAR_WALL_LOW_SCORE_TEST
 int main(){
 	
+	#define X(NAME) { Auto_lbwls_##NAME a; test_mode(a); }
+	STEPS
+	#undef X
 }
 #endif 

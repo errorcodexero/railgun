@@ -1,4 +1,7 @@
 g++ -Wall -Werror -std=c++14 -DAUTO_STATICTWO_TEST \
+	mode.cpp\
+	../input/panel.cpp\
+	../input/util.cpp\
 	../control/nop.cpp\
 	../util/pwm.cpp\
 	auto_statictwo.cpp \
