@@ -151,6 +151,8 @@ bool operator!=(Tilt::Status_detail a,Tilt::Status_detail b){ return !(a==b); }
 bool operator<(Tilt::Goal a,Tilt::Goal b){
 	CMP(mode())
 	switch(a.mode()){
+		case Tilt::Goal::Mode::STOP:
+			return 0;
 		default:
 			std::cout<<a.mode();
 			nyi

@@ -38,7 +38,8 @@ unique_ptr<Mode> get_auto1(Panel const& panel){
 			case Panel::Auto_mode::S:
 				return make_unique<Auto_lbwhs_prep>();
 			case Panel::Auto_mode::BR:
-				assert(0);//return make_unique<Auto_br_straightaway>();
+				//FIXME: For now, just choosing some number to put in.
+				return make_unique<Auto_br_straightaway>(0);
 			default: assert(0);
 		}
 	}

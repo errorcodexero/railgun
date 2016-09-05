@@ -1,4 +1,5 @@
 g++ -Wall -Werror -std=c++14 -DAUTO_STOP_TEST \
+	../util/type.cpp\
 	../input/util.cpp\
 	../input/panel.cpp\
 	mode.cpp\

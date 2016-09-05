@@ -2,9 +2,11 @@
 #define MODE_H
 
 #include <memory>
+#include <typeindex>
 #include "../control/toplevel.h"
 #include "../input/panel.h"
 #include "../util/interface.h"
+#include "../util/type.h"
 
 #define NEXT_MODE_INFO_ITEMS(X)\
 	X(bool,autonomous)\
@@ -35,10 +37,13 @@ struct Mode {
 	virtual Toplevel::Goal run(Run_info)=0;
 
 	virtual std::unique_ptr<Mode> clone()const=0;
+	virtual bool operator<(Mode const&)const=0;
 	virtual bool operator==(Mode const&)const=0;
+	virtual void display(std::ostream&)const=0;
 };
 
 bool operator!=(Mode const&,Mode const&);
+std::ostream& operator<<(std::ostream&,Mode const&);
 
 void test_mode(Mode&);
 
@@ -50,6 +55,24 @@ struct Mode_impl:Mode{
 		return std::make_unique<T>(self());
 	}
 
+	bool operator<(Mode const& a)const{
+		auto t1=std::type_index(typeid(*this));
+		auto t2=std::type_index(typeid(a));
+		if(t1<t2){
+			return 1;
+		}
+		if(t1>t2){
+			return 0;
+		}
+		T const& b=dynamic_cast<T const&>(a);
+		return this->operator<(b);
+	}
+
+	virtual bool operator<(T const& t)const{
+		if(*this==t) return 0;
+		assert(0);//FIXME
+	}
+
 	bool operator==(Mode const& a)const{
 		const T *b=dynamic_cast<T const*>(&a);
 		if(!b) return 0;
@@ -57,6 +80,10 @@ struct Mode_impl:Mode{
 	}
 
 	virtual bool operator==(T const&)const=0;
+
+	void display(std::ostream& o)const{
+		o<<type(self());
+	}
 };
 
 #endif

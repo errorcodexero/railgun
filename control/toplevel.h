@@ -98,6 +98,7 @@ bool operator==(Toplevel::Output const&,Toplevel::Output const&);
 bool operator!=(Toplevel::Output const&,Toplevel::Output const&);
 std::ostream& operator<<(std::ostream&,Toplevel::Output);
 
+bool operator<(Toplevel::Goal const&,Toplevel::Goal const&);
 std::ostream& operator<<(std::ostream&,Toplevel::Goal);
 std::ostream& operator<<(std::ostream&,Toplevel::Status_detail const&);
 
