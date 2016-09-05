@@ -362,6 +362,20 @@ set<Toplevel::Output> examples(Toplevel::Output*){
 	return r;
 }
 
+//this should probably get moved to interface.h
+Digital_in random(Digital_in* d){
+	return choose_random(examples(d));
+}
+
+//this should probably get moved to interface.h
+Robot_inputs random_inputs(){
+	Robot_inputs r;
+	for(unsigned i=0;i<Robot_outputs::DIGITAL_IOS;i++){
+		r.digital_io.in[i]=random((Digital_in*)0);
+	}
+	return r;
+}
+
 #ifdef TOPLEVEL_TEST
 #include "formal.h"
 #include "../util/input.h"
@@ -383,18 +397,6 @@ bool approx_equal(T t,Maybe<T> m){
 	if(!m) return 0;
 	return approx_equal(t,*m);
 }
-
-/*Digital_in random(Digital_in* d){
-	return choose(examples(d));
-}
-
-Robot_inputs random_inputs(){
-	Robot_inputs r;
-	for(unsigned i=0;i<Robot_outputs::DIGITAL_IOS;i++){
-		r.digital_io.in[i]=random_dio();
-	}
-	return r;
-}*/
 
 pair<Digital_in,Digital_in> create_pair(Digital_in*){
 	return make_pair(Digital_in::_0,Digital_in::_1);

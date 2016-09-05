@@ -6,23 +6,29 @@
 #include "../input/panel.h"
 #include "../util/interface.h"
 
-struct Next_mode_info {
-	bool autonomous, autonomous_start;
-	Toplevel::Status_detail const status;
-	Time since_switch;
-	Panel panel;
-	bool const toplready;
-	Robot_inputs const in;
-	pair<int,int> initial_encoders;
-};
+#define NEXT_MODE_INFO_ITEMS(X)\
+	X(bool,autonomous)\
+	X(bool,autonomous_start)\
+	X(Toplevel::Status_detail,status)\
+	X(Time,since_switch)\
+	X(Panel,panel)\
+	X(bool,toplready)\
+	X(Robot_inputs,in)\
+	X(SINGLE_ARG(pair<int,int>),initial_encoders)
+DECLARE_STRUCT(Next_mode_info,NEXT_MODE_INFO_ITEMS)
 
-struct Run_info {
-	Robot_inputs const& in;
-	Joystick_data const& main_joystick, gunner_joystick;
-	Panel const& panel;
-	Toplevel::Status_detail const& toplevel_status;
-	Tilt::Goal level, low, top, cheval, drawbridge;
-};
+#define RUN_INFO_ITEMS(X)\
+	X(Robot_inputs,in)\
+	X(Joystick_data,main_joystick)\
+	X(Joystick_data,gunner_joystick)\
+	X(Panel,panel)\
+	X(Toplevel::Status_detail,toplevel_status)\
+	X(Tilt::Goal,level)\
+	X(Tilt::Goal,low)\
+	X(Tilt::Goal,top)\
+	X(Tilt::Goal,cheval)\
+	X(Tilt::Goal,drawbridge)
+DECLARE_STRUCT(Run_info,RUN_INFO_ITEMS)
 
 struct Mode {
 	virtual unique_ptr<Mode> next_mode(Next_mode_info)=0;

@@ -537,6 +537,18 @@ vector<Digital_in> digital_ins(){
 	return r;
 }
 
+//todo: move to util.
+template<typename T>
+set<T> to_set(vector<T> v){
+	set<T> r;
+	for(auto a:v) r|=a;
+	return r;
+}
+
+set<Digital_in> examples(Digital_in*){
+	return to_set(digital_ins());
+}
+
 Maybe<Digital_in> parse_digital_in(string s){
 	//might want to also allow the terse versions
 	return parse_enum(digital_ins(),s);

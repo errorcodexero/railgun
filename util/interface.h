@@ -166,6 +166,7 @@ std::ostream& operator<<(std::ostream&,Robot_mode);
 
 enum class Digital_in{OUTPUT,_0,_1,ENCODER};
 std::ostream& operator<<(std::ostream&,Digital_in);
+std::set<Digital_in> examples(Digital_in*);
 
 typedef int Encoder_output;
 

@@ -121,4 +121,22 @@ bool operator<(std::bitset<LEN> a,std::bitset<LEN> b){
 	return 0;
 }
 
+template<typename T>
+std::vector<T> to_vec(std::set<T> s){
+	std::vector<T> r;
+	for(auto a:s) r|=a;
+	return r;
+}
+
+template<typename T>
+T choose_random(std::vector<T> v){
+	assert(v.size());
+	return v[rand()%v.size()];
+}
+
+template<typename T>
+T choose_random(std::set<T> a){
+	return choose_random(to_vec(a));
+}
+
 #endif

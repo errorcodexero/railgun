@@ -197,7 +197,6 @@ Panel interpret(Joystick_data d){
 	return p;
 }
 
-#ifdef PANEL_TEST
 Joystick_data driver_station_input_rand(){
 	Joystick_data r;
 	for(unsigned i=0;i<JOY_AXES;i++){
@@ -209,6 +208,7 @@ Joystick_data driver_station_input_rand(){
 	return r;
 }
 
+#ifdef PANEL_TEST
 int main(){
 	Panel p;
 	for(unsigned i=0;i<50;i++){
