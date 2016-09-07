@@ -70,20 +70,7 @@ double set_drive_speed(double axis,double boost,double slow=0){
 	return (pow(axis,3)*((DEFAULT_SPEED+(MAX_SPEED-DEFAULT_SPEED)*boost)-((DEFAULT_SPEED*SLOW_BY)*slow)));
 }
 
-void write_tilt_presets(Tilt_presets const& a){
-	ofstream o(PRESET_FILE);
-	if(!o.good()){
-		cerr<<"Error: could not open file to write presets\n";
-		return;
-	}
-	#define X(NAME) o<<a.NAME<<"\n";
-	PRESETS
-	#undef X
-}
-*/
-
-/*
-void cal(Time now,double current_tilt_angle,double current_shooter_speed,Panel const& panel){
+void Teleop::cal(Time now,double current_tilt_angle,double current_shooter_speed,Panel const& panel){
 	bool set=set_button(now,panel.in_use && panel.learn);
 
 	if(tilt_learn_mode){
@@ -155,13 +142,14 @@ void cal(Time now,double current_tilt_angle,double current_shooter_speed,Panel c
 		/*default:
 			return;
 	}
-}
-*/
+}*/
+
 
 Toplevel::Goal Teleop::run(Run_info /*info*/) {
 	Toplevel::Goal goals;
 	
-	/*bool enabled = info.in.robot_mode.enabled;
+	/*
+	bool enabled = info.in.robot_mode.enabled;
 	
 	{//Set drive goals
 		bool spin=fabs(info.main_joystick.axis[Gamepad_axis::RIGHTX])>.01;//drive turning button
