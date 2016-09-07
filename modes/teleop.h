@@ -4,6 +4,7 @@
 #include "mode.h"
 #include "../util/posedge_trigger_debounce.h"
 #include "../util/posedge_toggle.h"
+#include "../control/tilt_presets.h"
 
 struct Teleop : Mode_impl<Teleop> {
 	/*
@@ -40,7 +41,7 @@ struct Teleop : Mode_impl<Teleop> {
 		Posedge_trigger trigger;
 		Countdown_timer timer;
 	};
-	array<Nudge,NUDGES> nudges;
+	std::array<Nudge,NUDGES> nudges;
 	
 	Posedge_toggle controller_auto;
 	Posedge_trigger_debounce cheval_trigger;
@@ -62,8 +63,11 @@ struct Teleop : Mode_impl<Teleop> {
 	};
 	Joy_collector_pos joy_collector_pos;	
 
+	Posedge_trigger_debounce set_button;
+
 	Shooter::Goal shoot_action(Panel::Shooter_mode,double,bool)const;
 	void shooter_protocol(Toplevel::Status_detail const&,const bool,const Time,Toplevel::Goal&,bool,Panel::Shooter_mode,double);
+	void cal(Time,double,double,Panel const&);
 	*/
 
 	std::unique_ptr<Mode> next_mode(Next_mode_info);

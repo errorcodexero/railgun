@@ -6,7 +6,9 @@ g++ -Wall -Werror -std=c++14 -DLOW_BAR_LOW_SCORE_TEST \
 	../control/nop.cpp\
 	../util/pwm.cpp\
         low_bar_low_score.cpp \
+	teleop.cpp \
         ../control/toplevel.cpp \
+	../control/tilt_presets.cpp \
 	../util/fixVictor.cpp \
         ../util/posedge_trigger.cpp \
         ../util/negedge_trigger.cpp \
