@@ -3,7 +3,6 @@
 #include <iostream>
 #include <math.h>
 #include "../util/util.h"
-#include "formal.h"
 
 using namespace std;
 
@@ -255,6 +254,7 @@ Drivebase::Status status(Drivebase::Status a){ return a; }
 bool ready(Drivebase::Status,Drivebase::Goal){ return 1; }
 
 #ifdef DRIVEBASE_TEST
+#include "formal.h"
 int main(){
 	Drivebase d;
 	tester(d);

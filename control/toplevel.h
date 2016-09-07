@@ -9,7 +9,7 @@
 #include "collector.h"
 #include "shooter.h"
 
-#define TOPLEVEL_ITEMS\
+#define TOPLEVEL_ITEMS \
 	X(Drivebase,drive,)\
 	X(Pump,pump,Pump::Goal::AUTO)\
 	X(Collector,collector,)\
