@@ -10,7 +10,6 @@ struct Auto_br_straightaway : public Mode_impl<Auto_br_straightaway>{
 	Motion_profile motion_profile;
 
 	Auto_br_straightaway(unsigned int bs):br_step(bs){}
-	Auto_br_straightaway(unsigned int bs,Motion_profile mp):br_step(bs),motion_profile(mp){}
 
 	std::unique_ptr<Mode> next_mode(Next_mode_info);
 	Toplevel::Goal run(Run_info);
@@ -21,7 +20,7 @@ struct Auto_br_initialturn : public Mode_impl<Auto_br_initialturn>{
 	unsigned int br_step;
 	Motion_profile motion_profile;
 
-	Auto_br_initialturn(unsigned int bs,Motion_profile mp):br_step(bs),motion_profile(mp){}
+	Auto_br_initialturn(unsigned int bs):br_step(bs){}
 
 	std::unique_ptr<Mode> next_mode(Next_mode_info);
 	Toplevel::Goal run(Run_info);
@@ -32,7 +31,7 @@ struct Auto_br_side : public Mode_impl<Auto_br_side>{
 	unsigned int br_step;
 	Motion_profile motion_profile;
 
-	Auto_br_side(unsigned int bs,Motion_profile mp):br_step(bs),motion_profile(mp){}
+	Auto_br_side(unsigned int bs):br_step(bs){}
 	
 	std::unique_ptr<Mode> next_mode(Next_mode_info);
 	Toplevel::Goal run(Run_info);
@@ -43,7 +42,7 @@ struct Auto_br_sideturn : public Mode_impl<Auto_br_sideturn>{
 	unsigned int br_step;
 	Motion_profile motion_profile;
 
-	Auto_br_sideturn(unsigned int bs,Motion_profile mp):br_step(bs),motion_profile(mp){}
+	Auto_br_sideturn(unsigned int bs):br_step(bs){}
 
 	std::unique_ptr<Mode> next_mode(Next_mode_info);
 	Toplevel::Goal run(Run_info);
@@ -54,7 +53,7 @@ struct Auto_br_endturn : public Mode_impl<Auto_br_endturn>{
 	unsigned int br_step;
 	Motion_profile motion_profile;
 
-	Auto_br_endturn(unsigned int bs,Motion_profile mp):br_step(bs),motion_profile(mp){}
+	Auto_br_endturn(unsigned int bs):br_step(bs){}
 
 	std::unique_ptr<Mode> next_mode(Next_mode_info);
 	Toplevel::Goal run(Run_info);
