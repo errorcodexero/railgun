@@ -153,6 +153,8 @@ bool operator<(Tilt::Goal a,Tilt::Goal b){
 	switch(a.mode()){
 		case Tilt::Goal::Mode::STOP:
 			return 0;
+		case Tilt::Goal::Mode::GO_TO_ANGLE:
+			return a.angle() < b.angle();
 		default:
 			std::cout<<a.mode();
 			nyi
