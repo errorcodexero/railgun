@@ -44,7 +44,7 @@ unique_ptr<Mode> Auto_cheval_drop::next_mode(Next_mode_info info){
 	return make_unique<Auto_cheval_drop>();
 }
 
-Toplevel::Goal Auto_cheval_drop::run(Run_info info){
+Toplevel::Goal Auto_cheval_drop::run(Run_info /*info*/){
 	Toplevel::Goal goals;
 	Tilt_presets tilt_presets;
 	goals.collector.tilt = Tilt::Goal::go_to_angle(make_tolerances(tilt_presets.cheval));

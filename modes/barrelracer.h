@@ -9,6 +9,7 @@ struct Auto_br_straightaway : public Mode_impl<Auto_br_straightaway>{
 	Countdown_timer in_br_range;
 	Motion_profile motion_profile;
 
+	Auto_br_straightaway(unsigned int bs):br_step(bs){}
 	Auto_br_straightaway(unsigned int bs,Motion_profile mp):br_step(bs),motion_profile(mp){}
 
 	std::unique_ptr<Mode> next_mode(Next_mode_info);
