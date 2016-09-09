@@ -1,5 +1,6 @@
 g++ -Wall -Werror -std=c++0x -DMONITOR_TEST \
 	tilt_presets.cpp \
+	shooter_constants.cpp \
 	monitor.cpp \
 	front.cpp \
 	nop.cpp \
