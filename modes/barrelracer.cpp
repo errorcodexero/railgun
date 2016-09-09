@@ -21,7 +21,7 @@ unique_ptr<Mode> Auto_br_straightaway::next_mode(Next_mode_info info){
 		return make_unique<Teleop>();
 		//return make_unique<Auto_br_initialturn>();//TODO 
 	}
-	return make_unique<Auto_br_straightaway>(br_step,motion_profile);
+	return make_unique<Auto_br_straightaway>(br_step);
 }
 
 Toplevel::Goal Auto_br_straightaway::run(Run_info info){
@@ -37,7 +37,7 @@ bool Auto_br_straightaway::operator==(Auto_br_straightaway const& a)const{
 }
 
 unique_ptr<Mode> Auto_br_initialturn::next_mode(Next_mode_info){
-	return make_unique<Auto_br_initialturn>(br_step,motion_profile);
+	return make_unique<Auto_br_initialturn>(br_step);
 }
 
 Toplevel::Goal Auto_br_initialturn::run(Run_info){
@@ -49,7 +49,7 @@ bool Auto_br_initialturn::operator==(Auto_br_initialturn const& a)const{
 }
 
 unique_ptr<Mode> Auto_br_side::next_mode(Next_mode_info){
-	return make_unique<Auto_br_side>(br_step,motion_profile);
+	return make_unique<Auto_br_side>(br_step);
 }
 
 Toplevel::Goal Auto_br_side::run(Run_info){
@@ -61,7 +61,7 @@ bool Auto_br_side::operator==(Auto_br_side const& a)const{
 }
 
 unique_ptr<Mode> Auto_br_sideturn::next_mode(Next_mode_info){
-	return make_unique<Auto_br_sideturn>(br_step,motion_profile);
+	return make_unique<Auto_br_sideturn>(br_step);
 }
 
 Toplevel::Goal Auto_br_sideturn::run(Run_info){
@@ -73,7 +73,7 @@ bool Auto_br_sideturn::operator==(Auto_br_sideturn const& a)const{
 }
 
 unique_ptr<Mode> Auto_br_endturn::next_mode(Next_mode_info){
-	return make_unique<Auto_br_endturn>(br_step,motion_profile);
+	return make_unique<Auto_br_endturn>(br_step);
 }
 
 Toplevel::Goal Auto_br_endturn::run(Run_info){
@@ -93,7 +93,7 @@ int main(){
 		X(Auto_br_sideturn) \
 		X(Auto_br_endturn)
 
-	#define X(NAME) { NAME a(0,{}); test_mode(a); }
+	#define X(NAME) { NAME a(0); test_mode(a); }
 	STEPS
 	#undef X
 }

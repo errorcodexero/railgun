@@ -12,7 +12,7 @@ unique_ptr<Mode> Auto_portcullis::next_mode(Next_mode_info info){
 }
 
 Toplevel::Goal Auto_portcullis::run(Run_info info){
-	Tilt_presets tilt_presets;
+	Tilt_presets tilt_presets=read_tilt_presets();
 	Toplevel::Goal goals;
 	Tilt::Goal low=Tilt::Goal::go_to_angle(make_tolerances(tilt_presets.low));
 
@@ -37,7 +37,7 @@ unique_ptr<Mode> Auto_portcullis_done::next_mode(Next_mode_info info){
 }
 
 Toplevel::Goal Auto_portcullis_done::run(Run_info){
-	Tilt_presets tilt_presets;
+	Tilt_presets tilt_presets=read_tilt_presets();
 	Tilt::Goal top=Tilt::Goal::go_to_angle(make_tolerances(tilt_presets.top));
 
 	Toplevel::Goal goals;

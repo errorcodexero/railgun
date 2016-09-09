@@ -10,9 +10,11 @@ struct Auto_lbwhs_wall: public Mode_impl<Auto_lbwhs_wall>{
 };
 
 struct Auto_lbwhs_mup: public Mode_impl<Auto_lbwhs_mup>{
+	bool topready;
 	std::unique_ptr<Mode> next_mode(Next_mode_info);
 	Toplevel::Goal run(Run_info);
 	bool operator==(Auto_lbwhs_mup const&)const;
+	Auto_lbwhs_mup(){ topready = false; }
 };
 
 struct Auto_lbwhs_rotate: public Mode_impl<Auto_lbwhs_rotate>{

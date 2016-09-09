@@ -40,15 +40,15 @@ bool Auto_cheval_wait::operator==(Auto_cheval_wait const&)const{
 
 unique_ptr<Mode> Auto_cheval_drop::next_mode(Next_mode_info info){
 	if(!info.autonomous) return make_unique<Teleop>();
-	if(info.toplready) return make_unique<Auto_cheval_drive>();
+	if(topready) return make_unique<Auto_cheval_drive>();
 	return make_unique<Auto_cheval_drop>();
 }
 
-Toplevel::Goal Auto_cheval_drop::run(Run_info /*info*/){
+Toplevel::Goal Auto_cheval_drop::run(Run_info info){
 	Toplevel::Goal goals;
-	Tilt_presets tilt_presets;
+	Tilt_presets tilt_presets=read_tilt_presets();
 	goals.collector.tilt = Tilt::Goal::go_to_angle(make_tolerances(tilt_presets.cheval));
-	//info.topready=ready(info.toplevel_status.collector.tilt.angle,goals.collector.tilt);//FIXME
+	topready=ready(info.toplevel_status.collector.tilt.angle,goals.collector.tilt);
 	return goals;
 }
 
@@ -63,7 +63,10 @@ unique_ptr<Mode> Auto_cheval_drive::next_mode(Next_mode_info info){
 }
 
 Toplevel::Goal Auto_cheval_drive::run(Run_info){
-	return {};
+	Toplevel::Goal goals;
+	goals.drive.left=-.5;
+	goals.drive.right=.5;
+	return goals;
 }
 
 bool Auto_cheval_drive::operator==(Auto_cheval_drive const&)const{
@@ -76,7 +79,12 @@ unique_ptr<Mode> Auto_cheval_stow::next_mode(Next_mode_info info){
 }
 
 Toplevel::Goal Auto_cheval_stow::run(Run_info){
-	return {};
+	Tilt_presets tilt_presets=read_tilt_presets();
+	Toplevel::Goal goals;
+	goals.drive.left=-.5;
+	goals.drive.right=-.5;
+	goals.collector.tilt=Tilt::Goal::go_to_angle(make_tolerances(tilt_presets.top));
+	return goals;
 }
 
 bool Auto_cheval_stow::operator==(Auto_cheval_stow const&)const{

@@ -14,7 +14,6 @@
 	X(Toplevel::Status_detail,status)\
 	X(Time,since_switch)\
 	X(Panel,panel)\
-	X(bool,toplready)\
 	X(Robot_inputs,in)\
 	X(SINGLE_ARG(std::pair<int,int>),initial_encoders)
 DECLARE_STRUCT(Next_mode_info,NEXT_MODE_INFO_ITEMS)
