@@ -14,16 +14,7 @@
 #include "../util/posedge_trigger_debounce.h"
 #include "../util/motion_profile.h"
 #include "tilt_presets.h"
-
-struct Shooter_constants{
-	PID_values pid;
-	float ground,climbed;
-
-	Shooter_constants();
-};
-bool operator<(Shooter_constants const&,Shooter_constants const&);
-bool operator==(Shooter_constants const&,Shooter_constants const&);
-std::ostream& operator<<(std::ostream&,Shooter_constants const&);
+#include "shooter_constants.h"
 
 struct Main{
 	#define MODES X(TELEOP)\
