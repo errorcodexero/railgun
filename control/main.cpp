@@ -601,7 +601,7 @@ Main::Mode get_auto(Panel const& panel){
 	return Main::Mode::TELEOP;
 }
 
-Main::Mode next_mode(Main::Mode m,bool autonomous,bool autonomous_start,Toplevel::Status_detail const& status,Time since_switch, Panel panel,bool const&toplready,Robot_inputs const& in,pair<int,int> initial_encoders, unsigned int& br_step,bool& set_initial_encoders, Motion_profile& motion_profile,Countdown_timer& in_br_range){
+Main::Mode next_mode(Main::Mode m,bool autonomous,bool autonomous_start,Toplevel::Status_detail const& status,Time since_switch, Panel panel,bool const& topready,Robot_inputs const& in,pair<int,int> initial_encoders, unsigned int& br_step,bool& set_initial_encoders, Motion_profile& motion_profile,Countdown_timer& in_br_range){
 	pair<int,int> current_encoders=status.drive.ticks;//{encoderconv(in.digital_io.encoder[0]),encoderconv(in.digital_io.encoder[1])};//first is left, second is right
 	pair<int,int> encoder_differences=make_pair(current_encoders.first-initial_encoders.first,current_encoders.second-initial_encoders.second);
 	if(SLOW_PRINT){
@@ -673,7 +673,7 @@ Main::Mode next_mode(Main::Mode m,bool autonomous,bool autonomous_start,Toplevel
 
 		case Main::Mode::AUTO_CHEVALDROP:
 			if(!autonomous) return Main::Mode::TELEOP;
-			if(toplready) return Main::Mode::AUTO_CHEVALDRIVE;
+			if(topready) return Main::Mode::AUTO_CHEVALDRIVE;
 			return Main::Mode::AUTO_CHEVALDROP;
 				
 		case Main::Mode::AUTO_CHEVALDRIVE:
@@ -696,7 +696,7 @@ Main::Mode next_mode(Main::Mode m,bool autonomous,bool autonomous_start,Toplevel
 		case Main::Mode::AUTO_LBLS_CROSS_MU:
 		
 			if(!autonomous) return Main::Mode::TELEOP;
-			if(toplready) return Main::Mode::AUTO_LBLS_SCORE_SEEK;
+			if(topready) return Main::Mode::AUTO_LBLS_SCORE_SEEK;
 			return Main::Mode::AUTO_LBLS_CROSS_MU;
 		
 		case Main::Mode::AUTO_LBLS_SCORE_SEEK:
@@ -1382,13 +1382,13 @@ void test_next_mode(){
 	};
 	for(auto mode:MODE_LIST){
 		Toplevel::Status_detail st=example((Toplevel::Status_detail*)nullptr);
-		bool toplready = true;
+		bool topready = true;
 		Robot_inputs in;
 		unsigned int br_step=0;
 		bool set_initial_encoders=true;	
 		Motion_profile motion_profile;
 		Countdown_timer in_br_range;
-		auto next=next_mode(mode,0,0,st,0,Panel{},toplready,in,make_pair(0,0),br_step,set_initial_encoders,motion_profile,in_br_range);
+		auto next=next_mode(mode,0,0,st,0,Panel{},topready,in,make_pair(0,0),br_step,set_initial_encoders,motion_profile,in_br_range);
 		cout<<"Testing mode "<<mode<<" goes to "<<next<<"\n";
 		assert(next==Main::Mode::TELEOP);
 	}

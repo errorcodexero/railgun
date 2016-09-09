@@ -15,7 +15,7 @@ unique_ptr<Mode> Auto_lbls_cross_lb::next_mode(Next_mode_info info){
 }
 
 Toplevel::Goal Auto_lbls_cross_lb::run(Run_info info){
-	Tilt_presets tilt_presets;
+	Tilt_presets tilt_presets=read_tilt_presets();
 	Toplevel::Goal goals;
 	Tilt::Goal low=Tilt::Goal::go_to_angle(make_tolerances(tilt_presets.low));
 
@@ -32,7 +32,7 @@ Toplevel::Goal Auto_lbls_cross_lb::run(Run_info info){
 
 unique_ptr<Mode> Auto_lbls_cross_mu::next_mode(Next_mode_info info){
 	if(!info.autonomous) return make_unique<Teleop>();
-	if(info.toplready) return make_unique<Auto_lbls_score_seek>();
+	if(topready) return make_unique<Auto_lbls_score_seek>();
 	return make_unique<Auto_lbls_cross_mu>();
 }
 
