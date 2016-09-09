@@ -17,6 +17,8 @@
 	X(Robot_inputs,in)\
 	X(SINGLE_ARG(std::pair<int,int>),initial_encoders)
 DECLARE_STRUCT(Next_mode_info,NEXT_MODE_INFO_ITEMS)
+Next_mode_info example(Next_mode_info*);
+std::ostream& operator<<(std::ostream&,Next_mode_info const&);
 
 #define RUN_INFO_ITEMS(X)\
 	X(Robot_inputs,in)\
@@ -30,6 +32,8 @@ DECLARE_STRUCT(Next_mode_info,NEXT_MODE_INFO_ITEMS)
 	X(Tilt::Goal,cheval)\
 	X(Tilt::Goal,drawbridge)
 DECLARE_STRUCT(Run_info,RUN_INFO_ITEMS)
+Run_info example(Run_info*);
+std::ostream& operator<<(std::ostream&,Run_info const&);
 
 struct Mode {
 	virtual std::unique_ptr<Mode> next_mode(Next_mode_info)=0;

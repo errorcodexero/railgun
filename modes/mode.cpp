@@ -45,6 +45,10 @@ Next_mode_info rand(Next_mode_info*){
 	};
 }
 
+Next_mode_info example(Next_mode_info *a){
+	return rand(a);
+}
+
 Joystick_data rand(Joystick_data*){
 	return driver_station_input_rand();
 }
@@ -88,14 +92,6 @@ vector<size_t> range(size_t lim){
 	vector<size_t> r;
 	for(size_t i=0;i<lim;i++) r|=i;
 	return r;
-}
-
-#define PRINT(x) cout<<""#x<<":"<<(x)<<"\n";
-
-template<typename T>
-ostream& operator<<(ostream& o,unique_ptr<T> const& a){
-	if(a.get()) return o<<*a.get();
-	return o<<"NULL";
 }
 
 bool operator<(unique_ptr<Mode> const& a,unique_ptr<Mode> const& b){

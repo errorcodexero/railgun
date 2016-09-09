@@ -7,11 +7,14 @@
 #include<vector>
 #include<sstream>
 #include<set>
+#include<memory>
 #include "interface.h"
 
 #ifndef PI
 #define PI 3.14159265
 #endif
+
+#define PRINT(x) std::cout<<""#x<<":"<<(x)<<"\n";
 
 int write_file(std::string const& filename,std::string const& contents);
 int read_file(std::string const& filename,std::string &out);//I don't like out parameters.
@@ -137,6 +140,12 @@ T choose_random(std::vector<T> v){
 template<typename T>
 T choose_random(std::set<T> a){
 	return choose_random(to_vec(a));
+}
+
+template<typename T>
+std::ostream& operator<<(std::ostream& o,std::unique_ptr<T> const& a){
+	if(a.get()) return o<<*a.get();
+	return o<<"NULL";
 }
 
 #endif
