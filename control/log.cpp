@@ -3,7 +3,7 @@
 
 using namespace std;
 
-#define nyi { cout<<"nyi "<<__LINE__<<"\n"; exit(44); }
+#define nyi { cout<<"nyi "<<__FILE__<<":"<<__LINE__<<"\n"; exit(44); }
 
 bool file_exists(string const& name){
 	ifstream f(name);

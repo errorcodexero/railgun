@@ -19,7 +19,7 @@
 #define TILT_LIM_LOC 9 //limit switch dio #
 #define TILT_ADDRESS 4 //pwm #
 
-#define nyi { std::cout<<"\nnyi "<<__LINE__<<"\n"; exit(44); }
+#define nyi { std::cout<<"nyi "<<__FILE__<<":"<<__LINE__<<"\n"; exit(44); }
 
 float volts_to_degrees(float f){
 	return (f-TOP_VOLTAGE)/VOLTS_PER_DEGREE;
@@ -155,6 +155,9 @@ bool operator<(Tilt::Goal a,Tilt::Goal b){
 			return 0;
 		case Tilt::Goal::Mode::GO_TO_ANGLE:
 			return a.angle() < b.angle();
+		case Tilt::Goal::Mode::DOWN:
+		case Tilt::Goal::Mode::UP:
+			return a.mode()<b.mode();
 		default:
 			std::cout<<a.mode();
 			nyi

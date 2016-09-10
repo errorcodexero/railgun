@@ -5,6 +5,7 @@
 using namespace std;
 
 unique_ptr<Mode> Teleop::next_mode(Next_mode_info) {
+	//always stay in teleop
 	return make_unique<Teleop>();
 }
 
@@ -166,10 +167,9 @@ void Teleop::cal(Time now,double current_tilt_angle,double current_shooter_speed
 	}
 }
 
-Toplevel::Goal Teleop::run(Run_info /*info*/) {
+Toplevel::Goal Teleop::run(Run_info info) {
 	Toplevel::Goal goals;
-	
-	/*
+		
 	bool enabled = info.in.robot_mode.enabled;
 	
 	{//Set drive goals
@@ -411,7 +411,7 @@ Toplevel::Goal Teleop::run(Run_info /*info*/) {
 		return Winch::Goal::STOP;
 	}();
 	//if(SLOW_PRINT) cout<<shoot_step<<" "<<info.toplevel_status.shooter<<" "<<goals.shooter<<"\n";
-	//if(SLOW_PRINT) cout<<info.toplevel_status.drive.speeds<<"\n";*/
+	//if(SLOW_PRINT) cout<<info.toplevel_status.drive.speeds<<"\n";
 	return goals;
 }
 
