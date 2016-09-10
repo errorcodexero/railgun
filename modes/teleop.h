@@ -5,8 +5,11 @@
 #include "../util/posedge_trigger_debounce.h"
 #include "../util/posedge_toggle.h"
 #include "../control/tilt_presets.h"
+#include "../control/shooter_constants.h"
 
 struct Teleop : Mode_impl<Teleop> {
+	Shooter_constants shooter_constants;
+	Tilt_presets tilt_presets;
 	/*
 	struct Shooter_constants{
 		PID_values pid;
@@ -14,9 +17,7 @@ struct Teleop : Mode_impl<Teleop> {
 
 		Shooter_constants();
 	};
-	Shooter_constants shooter_constants;
 
-	Tilt_presets tilt_presets;
 
 	#define SHOOT_STEPS X(SPEED_UP) X(SHOOT)
 	enum class Shoot_steps{
