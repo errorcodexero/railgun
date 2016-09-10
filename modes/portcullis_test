@@ -33,4 +33,7 @@ g++ -Wall -Werror -std=c++14 -DPORTCULLIS_TEST \
 	../util/pwm.cpp\
 	../control/tilt_presets.cpp\
 	../control/shooter_constants.cpp \
+	../util/debounce.cpp \
+	../util/posedge_toggle.cpp \
+	../util/posedge_trigger_debounce.cpp \
 	-o portcullis 2>&1 && ./portcullis 2>&1

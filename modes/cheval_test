@@ -33,4 +33,7 @@ g++ -Wall -Werror -std=c++14 -DCHEVAL_TEST \
 	../control/collector.cpp\
 	../control/tilt_presets.cpp\
 	../control/shooter_constants.cpp \
+	../util/debounce.cpp \
+	../util/posedge_toggle.cpp \
+	../util/posedge_trigger_debounce.cpp \
 	-o cheval 2>&1 && ./cheval 2>&1

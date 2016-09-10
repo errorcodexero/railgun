@@ -33,4 +33,7 @@ g++ -Wall -Werror -std=c++14 -DLOW_BAR_LOW_SCORE_TEST \
 	../control/shooter.cpp\
 	../control/collector.cpp\
 	../control/shooter_constants.cpp \
+	../util/debounce.cpp \
+	../util/posedge_toggle.cpp \
+	../util/posedge_trigger_debounce.cpp \
 	-o low_bar_low_score 2>&1 && ./low_bar_low_score 2>&1

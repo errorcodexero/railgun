@@ -34,4 +34,7 @@ g++ -Wall -Werror -std=c++14 -DAUTO_STATIC_TEST \
 	../control/collector.cpp\
 	../control/shooter_constants.cpp \
 	../control/tilt_presets.cpp \
+	../util/debounce.cpp \
+	../util/posedge_toggle.cpp \
+	../util/posedge_trigger_debounce.cpp \
 	-o auto_static 2>&1 && ./auto_static 2>&1

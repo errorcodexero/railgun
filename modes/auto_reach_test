@@ -33,5 +33,8 @@ g++ -Wall -Werror -std=c++14 -DAUTO_REACH_TEST \
 	../control/shooter.cpp\
 	../control/collector.cpp\
 	../control/shooter_constants.cpp \
+	../util/debounce.cpp \
+	../util/posedge_toggle.cpp \
 	../control/tilt_presets.cpp \
+	../util/posedge_trigger_debounce.cpp \
 -o auto_reach 2>&1 && ./auto_reach 2>&1

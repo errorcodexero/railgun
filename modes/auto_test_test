@@ -33,4 +33,7 @@ g++ -Wall -Werror -std=c++14 -DAUTO_TEST_TEST \
 	../control/collector.cpp\
 	../control/shooter_constants.cpp \
 	../control/tilt_presets.cpp \
+	../util/debounce.cpp \
+	../util/posedge_toggle.cpp \
+	../util/posedge_trigger_debounce.cpp \
 	-o auto_test 2>&1 && ./auto_test 2>&1

@@ -32,4 +32,7 @@ g++ -Wall -Werror -std=c++14 -DTELEOP_TEST \
 	../control/collector.cpp\
 	../control/tilt_presets.cpp \
 	../control/shooter_constants.cpp \
+	../util/debounce.cpp \
+	../util/posedge_toggle.cpp \
+	../util/posedge_trigger_debounce.cpp \
 	-o teleop 2>&1 && ./teleop 2>&1

@@ -10,7 +10,7 @@
 struct Teleop : Mode_impl<Teleop> {
 	Shooter_constants shooter_constants;
 	Tilt_presets tilt_presets;
-	/*
+	
 	#define SHOOT_STEPS X(SPEED_UP) X(SHOOT)
 	enum class Shoot_steps{
 		#define X(NAME) NAME,
@@ -57,15 +57,15 @@ struct Teleop : Mode_impl<Teleop> {
 	Joy_collector_pos joy_collector_pos;	
 
 	Posedge_trigger_debounce set_button;
-
+	
 	Shooter::Goal shoot_action(Panel::Shooter_mode,double,bool)const;
 	void shooter_protocol(Toplevel::Status_detail const&,const bool,const Time,Toplevel::Goal&,bool,Panel::Shooter_mode,double);
 	void cal(Time,double,double,Panel const&);
-	*/
 
 	std::unique_ptr<Mode> next_mode(Next_mode_info);
 	Toplevel::Goal run(Run_info);
 	bool operator==(Teleop const&)const;
+	Teleop();
 };
 
 #endif

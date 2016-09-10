@@ -8,7 +8,29 @@ unique_ptr<Mode> Teleop::next_mode(Next_mode_info) {
 	return make_unique<Teleop>();
 }
 
-/*
+Teleop::Teleop():
+	shoot_step(Shoot_steps::SPEED_UP),
+	collector_mode(Collector_mode::NOTHING),
+	tilt_learn_mode(0),
+	cheval_step(Cheval_steps::GO_DOWN),
+	joy_collector_pos(Joy_collector_pos::STOP)
+{
+	/*//FIXME uninitialized, does it matter?
+	shoot_high_timer;
+	shoot_low_timer;
+	cheval_lift_timer;
+	cheval_drive_timer;
+	nudges;
+	controller_auto;
+	cheval_trigger;
+	set_button;
+	*/
+
+	tilt_presets=read_tilt_presets();
+	shooter_constants=read_shooter_constants();
+}
+
+
 Shooter::Goal Teleop::shoot_action(Panel::Shooter_mode shooter_mode,double speed_dial,bool climbed_shot)const{
 	switch(shooter_mode){
 		case Panel::Shooter_mode::CLOSED_AUTO:
@@ -92,7 +114,7 @@ void Teleop::cal(Time now,double current_tilt_angle,double current_shooter_speed
 			tilt_learn_mode=0;
 		}
 		return;
-}
+	}
 	if(!set) return;
 
 	auto show=[&](){
@@ -130,7 +152,7 @@ void Teleop::cal(Time now,double current_tilt_angle,double current_shooter_speed
 			X(9,climbed)
 		#define X(A,B) case A: shooter_constants.B=current_shooter_speed; write_shooter_constants(shooter_constants); return;
 		SHOOTER_SPEEDS
-		#undef X*/
+		#undef X
 		/*case 8:
 			//Set ground shot speed based on current
 			shooter_constants.ground=current_shooter_speed;
@@ -139,11 +161,10 @@ void Teleop::cal(Time now,double current_tilt_angle,double current_shooter_speed
 		case 9:
 			//Set climbed shot speed based on current
 			return;*/
-		/*default:
+		default:
 			return;
 	}
-}*/
-
+}
 
 Toplevel::Goal Teleop::run(Run_info /*info*/) {
 	Toplevel::Goal goals;
