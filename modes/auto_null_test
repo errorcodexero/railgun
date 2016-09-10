@@ -3,32 +3,34 @@ g++ -Wall -Werror -std=c++14 -DAUTO_NULL_TEST \
 	mode.cpp\
 	../control/nop.cpp\
 	../util/pwm.cpp\
-        auto_null.cpp \
-        ../control/toplevel.cpp \
+	auto_null.cpp \
+	../control/toplevel.cpp \
 	../util/fixVictor.cpp \
-        ../util/posedge_trigger.cpp \
-        ../util/negedge_trigger.cpp \
-        ../util/countup_timer.cpp \
-        ../control/pump.cpp \
-        ../control/sides.cpp \
-        ../control/front.cpp \
-        ../control/climb_release.cpp \
-        ../util/point.cpp \
-        ../control/drivebase.cpp \
-        ../util/interface.cpp \
-        ../util/jag_interface.cpp \
-        ../util/driver_station_interface.cpp \
-        ../util/util.cpp \
-        ../util/countdown_timer.cpp\
-        ../control/motor_check.cpp\
-        ../util/input.cpp\
-        ../util/output.cpp\
-        ../control/tote_sensors.cpp\
-        ../control/tilt.cpp\
-        ../control/winch.cpp\
-        ../control/shooter.cpp\
-        ../control/collector.cpp\
+	../util/posedge_trigger.cpp \
+	../util/negedge_trigger.cpp \
+	../util/countup_timer.cpp \
+	../control/pump.cpp \
+	../control/sides.cpp \
+	../control/front.cpp \
+	../control/climb_release.cpp \
+	../util/point.cpp \
+	../control/drivebase.cpp \
+	../util/interface.cpp \
+	../util/jag_interface.cpp \
+	../util/driver_station_interface.cpp \
+	../util/util.cpp \
+	../util/countdown_timer.cpp\
+	../control/motor_check.cpp\
+	../util/input.cpp\
+	../util/output.cpp\
+	../control/tote_sensors.cpp\
+	../control/tilt.cpp\
+	../control/winch.cpp\
+	../control/shooter.cpp\
+	../control/collector.cpp\
 	teleop.cpp\
 	../input/util.cpp\
 	../input/panel.cpp\
-        -o auto_null 2>&1 && ./auto_null 2>&1
+	../control/shooter_constants.cpp \
+	../control/tilt_presets.cpp \
+	-o auto_null 2>&1 && ./auto_null 2>&1

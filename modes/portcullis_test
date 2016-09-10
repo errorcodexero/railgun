@@ -4,32 +4,33 @@ g++ -Wall -Werror -std=c++14 -DPORTCULLIS_TEST \
 	../input/panel.cpp\
 	../input/util.cpp\
 	../control/nop.cpp\
-        portcullis.cpp \
+	portcullis.cpp \
 	teleop.cpp \
 	../util/fixVictor.cpp \
-        ../util/posedge_trigger.cpp \
-        ../util/negedge_trigger.cpp \
-        ../util/countup_timer.cpp \
-        ../util/interface.cpp \
-        ../control/toplevel.cpp \
-        ../control/pump.cpp \
-        ../control/sides.cpp \
-        ../control/front.cpp \
-        ../control/climb_release.cpp \
-        ../util/point.cpp \
-        ../control/drivebase.cpp \
-        ../util/jag_interface.cpp \
-        ../util/driver_station_interface.cpp \
-        ../util/util.cpp \
-        ../util/countdown_timer.cpp\
-        ../control/motor_check.cpp\
-        ../util/input.cpp\
-        ../util/output.cpp\
-        ../control/tote_sensors.cpp\
-        ../control/tilt.cpp\
-        ../control/winch.cpp\
-        ../control/shooter.cpp\
-        ../control/collector.cpp\
+	../util/posedge_trigger.cpp \
+	../util/negedge_trigger.cpp \
+	../util/countup_timer.cpp \
+	../util/interface.cpp \
+	../control/toplevel.cpp \
+	../control/pump.cpp \
+	../control/sides.cpp \
+	../control/front.cpp \
+	../control/climb_release.cpp \
+	../util/point.cpp \
+	../control/drivebase.cpp \
+	../util/jag_interface.cpp \
+	../util/driver_station_interface.cpp \
+	../util/util.cpp \
+	../util/countdown_timer.cpp\
+	../control/motor_check.cpp\
+	../util/input.cpp\
+	../util/output.cpp\
+	../control/tote_sensors.cpp\
+	../control/tilt.cpp\
+	../control/winch.cpp\
+	../control/shooter.cpp\
+	../control/collector.cpp\
 	../util/pwm.cpp\
 	../control/tilt_presets.cpp\
-        -o portcullis 2>&1 && ./portcullis 2>&1
+	../control/shooter_constants.cpp \
+	-o portcullis 2>&1 && ./portcullis 2>&1

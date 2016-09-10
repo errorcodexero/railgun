@@ -11,14 +11,6 @@ struct Teleop : Mode_impl<Teleop> {
 	Shooter_constants shooter_constants;
 	Tilt_presets tilt_presets;
 	/*
-	struct Shooter_constants{
-		PID_values pid;
-		float ground,climbed;
-
-		Shooter_constants();
-	};
-
-
 	#define SHOOT_STEPS X(SPEED_UP) X(SHOOT)
 	enum class Shoot_steps{
 		#define X(NAME) NAME,

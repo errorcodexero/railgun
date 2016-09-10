@@ -32,4 +32,5 @@ g++ -Wall -Werror -std=c++14 -DCHEVAL_TEST \
 	../control/shooter.cpp\
 	../control/collector.cpp\
 	../control/tilt_presets.cpp\
+	../control/shooter_constants.cpp \
 	-o cheval 2>&1 && ./cheval 2>&1
