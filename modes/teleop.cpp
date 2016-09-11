@@ -4,8 +4,8 @@
 
 using namespace std;
 
-unique_ptr<Mode> Teleop::next_mode(Next_mode_info) {
-	return make_unique<Teleop>();
+Mode Teleop::next_mode(Next_mode_info) {
+	return Mode{Teleop()};
 }
 
 /*

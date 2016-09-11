@@ -19,8 +19,6 @@
 #define TILT_LIM_LOC 9 //limit switch dio #
 #define TILT_ADDRESS 4 //pwm #
 
-#define nyi { std::cout<<"\nnyi "<<__LINE__<<"\n"; exit(44); }
-
 float volts_to_degrees(float f){
 	return (f-TOP_VOLTAGE)/VOLTS_PER_DEGREE;
 }

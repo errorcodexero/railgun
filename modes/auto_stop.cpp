@@ -3,8 +3,8 @@
 
 using namespace std;
 
-unique_ptr<Mode> Auto_stop::next_mode(Next_mode_info){
-	return make_unique<Teleop>();
+Mode Auto_stop::next_mode(Next_mode_info){
+	return Mode{Teleop()};
 }
 
 Toplevel::Goal Auto_stop::run(Run_info){

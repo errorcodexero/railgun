@@ -15,6 +15,7 @@
 #endif
 
 #define PRINT(x) std::cout<<""#x<<":"<<(x)<<"\n";
+#define nyi { std::cout<<"nyi "<<__FILE__<<":"<<__LINE__<<"\n"; exit(44); }
 
 int write_file(std::string const& filename,std::string const& contents);
 int read_file(std::string const& filename,std::string &out);//I don't like out parameters.

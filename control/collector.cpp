@@ -2,8 +2,6 @@
 
 using namespace std;
 
-#define nyi { cout<<"nyi "<<__FILE__<<":"<<__LINE__<<"\n"; exit(44); }
-
 Collector::Goal::Goal():front(Front::Goal::OFF),sides(Sides::Goal::OFF),tilt(Tilt::Goal::stop()){}
 
 Collector::Goal::Goal(Front::Goal f,Sides::Goal s, Tilt::Goal t):front(f),sides(s),tilt(t){}

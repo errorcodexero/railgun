@@ -4,10 +4,10 @@
 
 using namespace std;
 
-unique_ptr<Mode> Auto_static::next_mode(Next_mode_info info){
-	if(!info.autonomous) return make_unique<Teleop>();
-	if(info.since_switch > 2) return make_unique<Auto_stop>();
-	return make_unique<Auto_static>();
+Mode Auto_static::next_mode(Next_mode_info info){
+	if(!info.autonomous) return Mode{Teleop()};
+	if(info.since_switch > 2) return Mode{Auto_stop()};
+	return Mode{Auto_static()};
 }
 
 Toplevel::Goal Auto_static::run(Run_info){

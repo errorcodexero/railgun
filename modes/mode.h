@@ -35,11 +35,31 @@ DECLARE_STRUCT(Run_info,RUN_INFO_ITEMS)
 Run_info example(Run_info*);
 std::ostream& operator<<(std::ostream&,Run_info const&);
 
-struct Mode {
-	virtual std::unique_ptr<Mode> next_mode(Next_mode_info)=0;
+class Mode_interface;
+
+class Mode{
+	std::unique_ptr<Mode_interface> impl;
+
+	public:
+	Mode(Mode const&);
+	explicit Mode(Mode_interface const&);//might want to make this explicit
+
+	Mode next_mode(Next_mode_info);
+	Toplevel::Goal run(Run_info);
+	Mode_interface const& get()const;
+
+	//bool operator<(Mode const&);
+	friend bool operator==(Mode const&,Mode const&);
+	friend std::ostream& operator<<(std::ostream&,Mode const&);
+};
+bool operator<(Mode const&,Mode const&);
+bool operator==(Mode const&,Mode const&);
+
+struct Mode_interface {
+	virtual Mode next_mode(Next_mode_info)=0;
 	virtual Toplevel::Goal run(Run_info)=0;
 
-	virtual std::unique_ptr<Mode> clone()const=0;
+	virtual std::unique_ptr<Mode_interface> clone()const=0;
 	virtual bool operator<(Mode const&)const=0;
 	virtual bool operator==(Mode const&)const=0;
 	virtual void display(std::ostream&)const=0;
@@ -48,13 +68,18 @@ struct Mode {
 bool operator!=(Mode const&,Mode const&);
 std::ostream& operator<<(std::ostream&,Mode const&);
 
-void test_mode(Mode&);
+void test_mode(Mode);
 
 template<typename T>
-struct Mode_impl:Mode{
+void test_mode(T a){
+	return test_mode(Mode{a});
+}
+
+template<typename T>
+struct Mode_impl:Mode_interface{
 	T const& self()const{ return static_cast<T const&>(*this); }
 
-	std::unique_ptr<Mode> clone()const{
+	std::unique_ptr<Mode_interface> clone()const{
 		return std::make_unique<T>(self());
 	}
 
@@ -67,8 +92,8 @@ struct Mode_impl:Mode{
 		if(t1>t2){
 			return 0;
 		}
-		T const& b=dynamic_cast<T const&>(a);
-		return this->operator<(b);
+		nyi/*T const& b=dynamic_cast<T const&>(a);
+		return this->operator<(b);*/
 	}
 
 	virtual bool operator<(T const& t)const{
@@ -77,9 +102,8 @@ struct Mode_impl:Mode{
 	}
 
 	bool operator==(Mode const& a)const{
-		const T *b=dynamic_cast<T const*>(&a);
-		if(!b) return 0;
-		return this->operator==(*b);
+		T const& b=dynamic_cast<T const&>(a.get());
+		return this->operator==(b);
 	}
 
 	virtual bool operator==(T const&)const=0;

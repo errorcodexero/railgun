@@ -4,10 +4,10 @@
 
 using namespace std;
 
-unique_ptr<Mode> Auto_reach::next_mode(Next_mode_info info){
-	if(!info.autonomous) return make_unique<Teleop>();
-	if(info.since_switch > .8) return make_unique<Auto_stop>();
-	return make_unique<Auto_reach>();
+Mode Auto_reach::next_mode(Next_mode_info info){
+	if(!info.autonomous) return Mode{Teleop()};
+	if(info.since_switch > .8) return Mode{Auto_stop()};
+	return Mode{Auto_reach()};
 }
 
 Toplevel::Goal Auto_reach::run(Run_info){

@@ -4,12 +4,12 @@
 
 using namespace std;
 
-unique_ptr<Mode> Auto_lbls_cross_lb::next_mode(Next_mode_info info){	
-	if(!info.autonomous) return make_unique<Teleop>();
+Mode Auto_lbls_cross_lb::next_mode(Next_mode_info info){	
+	if(!info.autonomous) return Mode{Teleop()};
 	pair<int,int> encoder_differences=make_pair(info.status.drive.ticks.first-info.initial_encoders.first,info.status.drive.ticks.second-info.initial_encoders.second);
-	if(encoder_differences.first >= 670) return make_unique<Auto_lbls_cross_mu>();
+	if(encoder_differences.first >= 670) return Mode{Auto_lbls_cross_mu()};
 	// 100 ticks per 1 revolution   |    8in wheel   |     167 in for first run     |     cir:25.12     |    100 ticks / 25 in      |      4 ticks / 1 in     |      668 ticks / 167 in.
-	return make_unique<Auto_lbls_cross_lb>();
+	return Mode{Auto_lbls_cross_lb()};
 }
 
 Toplevel::Goal Auto_lbls_cross_lb::run(Run_info info){
@@ -27,10 +27,10 @@ Toplevel::Goal Auto_lbls_cross_lb::run(Run_info info){
 	return {};
 }
 
-unique_ptr<Mode> Auto_lbls_cross_mu::next_mode(Next_mode_info info){
-	if(!info.autonomous) return make_unique<Teleop>();
-	if(topready) return make_unique<Auto_lbls_score_seek>();
-	return make_unique<Auto_lbls_cross_mu>();
+Mode Auto_lbls_cross_mu::next_mode(Next_mode_info info){
+	if(!info.autonomous) return Mode{Teleop()};
+	if(topready) return Mode{Auto_lbls_score_seek()};
+	return Mode{Auto_lbls_cross_mu()};
 }
 
 Toplevel::Goal Auto_lbls_cross_mu::run(Run_info info){
@@ -42,10 +42,10 @@ Toplevel::Goal Auto_lbls_cross_mu::run(Run_info info){
 }
 
 
-unique_ptr<Mode> Auto_lbls_score_seek::next_mode(Next_mode_info info){
-	if(!info.autonomous) return make_unique<Teleop>();
-	if(info.since_switch > .76) return make_unique<Auto_lbls_score_locate>();
-	return make_unique<Auto_lbls_score_seek>();
+Mode Auto_lbls_score_seek::next_mode(Next_mode_info info){
+	if(!info.autonomous) return Mode{Teleop()};
+	if(info.since_switch > .76) return Mode{Auto_lbls_score_locate()};
+	return Mode{Auto_lbls_score_seek()};
 }
 
 Toplevel::Goal Auto_lbls_score_seek::run(Run_info){
@@ -56,10 +56,10 @@ Toplevel::Goal Auto_lbls_score_seek::run(Run_info){
 }
 
 
-unique_ptr<Mode> Auto_lbls_score_locate::next_mode(Next_mode_info info){
-	if(!info.autonomous) return make_unique<Teleop>();
-	if(info.since_switch > 1) return make_unique<Auto_lbls_score_cd>();
-	return make_unique<Auto_lbls_score_locate>();
+Mode Auto_lbls_score_locate::next_mode(Next_mode_info info){
+	if(!info.autonomous) return Mode{Teleop()};
+	if(info.since_switch > 1) return Mode{Auto_lbls_score_cd()};
+	return Mode{Auto_lbls_score_locate()};
 }
 
 Toplevel::Goal Auto_lbls_score_locate::run(Run_info){
@@ -68,10 +68,10 @@ Toplevel::Goal Auto_lbls_score_locate::run(Run_info){
 }
 
 
-unique_ptr<Mode> Auto_lbls_score_cd::next_mode(Next_mode_info info){
-	if(!info.autonomous) return make_unique<Teleop>();
-	if(info.since_switch > 2.8) return make_unique<Auto_lbls_score_eject>(); 
-	return make_unique<Auto_lbls_score_cd>();
+Mode Auto_lbls_score_cd::next_mode(Next_mode_info info){
+	if(!info.autonomous) return Mode{Teleop()};
+	if(info.since_switch > 2.8) return Mode{Auto_lbls_score_eject()};
+	return Mode{Auto_lbls_score_cd()};
 }
 
 Toplevel::Goal Auto_lbls_score_cd::run(Run_info){
@@ -82,9 +82,9 @@ Toplevel::Goal Auto_lbls_score_cd::run(Run_info){
 }
 
 
-unique_ptr<Mode> Auto_lbls_score_eject::next_mode(Next_mode_info info){
-	if(!info.autonomous || info.since_switch > 1) return make_unique<Teleop>();
-	return make_unique<Auto_lbls_score_eject>();
+Mode Auto_lbls_score_eject::next_mode(Next_mode_info info){
+	if(!info.autonomous || info.since_switch > 1) return Mode{Teleop()};
+	return Mode{Auto_lbls_score_eject()};
 }
 
 Toplevel::Goal Auto_lbls_score_eject::run(Run_info){

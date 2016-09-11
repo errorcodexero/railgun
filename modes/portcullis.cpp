@@ -4,11 +4,10 @@
 
 using namespace std;
 
-unique_ptr<Mode> Auto_portcullis::next_mode(Next_mode_info info){
-	
-	if(!info.autonomous) return make_unique<Teleop>();
-	if(info.since_switch > 4/*2.5*/) return make_unique<Auto_portcullis_done>();
-	return make_unique<Auto_portcullis>();
+Mode Auto_portcullis::next_mode(Next_mode_info info){
+	if(!info.autonomous) return Mode{Teleop()};
+	if(info.since_switch > 4/*2.5*/) return Mode{Auto_portcullis_done()};
+	return Mode{Auto_portcullis()};
 }
 
 Toplevel::Goal Auto_portcullis::run(Run_info info){
@@ -31,9 +30,9 @@ bool Auto_portcullis::operator==(Auto_portcullis const&)const{
 	return 1;
 }
 
-unique_ptr<Mode> Auto_portcullis_done::next_mode(Next_mode_info info){
-	if(info.since_switch > 2.5 || !info.autonomous) return make_unique<Teleop>();
-	return make_unique<Auto_portcullis_done>();
+Mode Auto_portcullis_done::next_mode(Next_mode_info info){
+	if(info.since_switch > 2.5 || !info.autonomous) return Mode{Teleop()};
+	return Mode{Auto_portcullis_done()};
 }
 
 Toplevel::Goal Auto_portcullis_done::run(Run_info){

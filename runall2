@@ -107,7 +107,7 @@ def makefile(out):
 
 	print>>out,'OBJDIR='+objdir
 	print>>out,'H_FILES=$(find -name \*.h)'
-	print>>out,'CXXFLAGS=-Wall -Wextra -Werror -std=c++14 -g -O2'
+	print>>out,'CXXFLAGS=-Wall -Werror -std=c++14 -g -O2'
 	print>>out,'export SHELL=/bin/bash' #so that later stderr redirection will work
 	print>>out,'.PHONY: clean'
 	print>>out,''

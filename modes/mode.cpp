@@ -5,9 +5,48 @@ using namespace std;
 IMPL_STRUCT(Next_mode_info::Next_mode_info,NEXT_MODE_INFO_ITEMS)
 IMPL_STRUCT(Run_info::Run_info,RUN_INFO_ITEMS)
 
-ostream& operator<<(ostream& o,Mode const& a){
+Mode::Mode(Mode const& a){
+	if(a.impl){
+		impl=a.impl->clone();
+	}
+}
+
+Mode::Mode(Mode_interface const& a):impl(a.clone()){
+	assert(impl);
+}
+
+Mode_interface const& Mode::get()const{
+	auto g=impl.get();
+	assert(g);
+	return *g;
+}
+
+Mode Mode::next_mode(Next_mode_info a){
+	assert(impl);
+	return impl->next_mode(a);
+}
+
+Toplevel::Goal Mode::run(Run_info a){
+	assert(impl);
+	return impl->run(a);
+}
+
+bool operator<(Mode const& a,Mode const& b){
+	return a.get()<(b);
+}
+
+bool operator==(Mode const& a,Mode const& b){
+	assert(a.impl);
+	return a.impl->operator==(b);
+}
+
+ostream& operator<<(ostream& o,Mode_interface const& a){
 	a.display(o);
 	return o;
+}
+
+ostream& operator<<(ostream& o,Mode const& a){
+	return o<<*a.impl;
 }
 
 bool rand(bool*){
@@ -104,7 +143,7 @@ bool operator<(unique_ptr<Mode> const& a,unique_ptr<Mode> const& b){
 	return a.get()<b.get();
 }
 
-void test_mode(Mode& mode){
+void test_mode(Mode mode){
 	/*Things that could try doing:
 	-see what the next modes show up as being if run a bunch of different stuff through
 	-see if the internal state changes when different things happend to it & try to explore the state space
@@ -112,10 +151,10 @@ void test_mode(Mode& mode){
 	*/
 	mode.next_mode(rand((Next_mode_info*)0));
 	assert(mode==mode);
-	auto a=mode.clone();
-	assert(a);
+	auto a=mode;//.clone();
+	//assert(a);
 
-	set<unique_ptr<Mode>> nexts;
+	set<Mode> nexts;
 	//should the next_mode function be const?
 	for(auto _:range(100)){
 		(void)_;
@@ -136,7 +175,7 @@ void test_mode(Mode& mode){
 	PRINT(outs);
 
 	mode.run(rand((Run_info*)0));
-	if(*a!=mode){
+	if(a!=mode){
 		assert(0);//acutally should implement something
 	}
 }

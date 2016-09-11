@@ -11,7 +11,7 @@ struct Auto_br_straightaway : public Mode_impl<Auto_br_straightaway>{
 
 	Auto_br_straightaway(unsigned int bs):br_step(bs){}
 
-	std::unique_ptr<Mode> next_mode(Next_mode_info);
+	Mode next_mode(Next_mode_info);
 	Toplevel::Goal run(Run_info);
 	bool operator==(Auto_br_straightaway const&)const;
 };
@@ -22,7 +22,7 @@ struct Auto_br_initialturn : public Mode_impl<Auto_br_initialturn>{
 
 	Auto_br_initialturn(unsigned int bs):br_step(bs){}
 
-	std::unique_ptr<Mode> next_mode(Next_mode_info);
+	Mode next_mode(Next_mode_info);
 	Toplevel::Goal run(Run_info);
 	bool operator==(Auto_br_initialturn const&)const;
 };
@@ -33,7 +33,7 @@ struct Auto_br_side : public Mode_impl<Auto_br_side>{
 
 	Auto_br_side(unsigned int bs):br_step(bs){}
 	
-	std::unique_ptr<Mode> next_mode(Next_mode_info);
+	Mode next_mode(Next_mode_info);
 	Toplevel::Goal run(Run_info);
 	bool operator==(Auto_br_side const&)const;
 };
@@ -44,7 +44,7 @@ struct Auto_br_sideturn : public Mode_impl<Auto_br_sideturn>{
 
 	Auto_br_sideturn(unsigned int bs):br_step(bs){}
 
-	std::unique_ptr<Mode> next_mode(Next_mode_info);
+	Mode next_mode(Next_mode_info);
 	Toplevel::Goal run(Run_info);
 	bool operator==(Auto_br_sideturn const&)const;
 };
@@ -55,7 +55,7 @@ struct Auto_br_endturn : public Mode_impl<Auto_br_endturn>{
 
 	Auto_br_endturn(unsigned int bs):br_step(bs){}
 
-	std::unique_ptr<Mode> next_mode(Next_mode_info);
+	Mode next_mode(Next_mode_info);
 	Toplevel::Goal run(Run_info);
 	bool operator==(Auto_br_endturn const&)const;
 };
