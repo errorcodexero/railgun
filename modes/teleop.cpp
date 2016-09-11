@@ -4,11 +4,41 @@
 
 using namespace std;
 
+double set_drive_speed(double axis,double boost,double slow){
+	static const float MAX_SPEED=1;//Change this value to change the max power the robot will achieve with full boost (cannot be larger than 1.0)
+	static const float DEFAULT_SPEED=.4;//Change this value to change the default power
+	static const float SLOW_BY=.5;//Change this value to change the percentage of the default power the slow button slows
+	return (pow(axis,3)*((DEFAULT_SPEED+(MAX_SPEED-DEFAULT_SPEED)*boost)-((DEFAULT_SPEED*SLOW_BY)*slow)));
+}
+
 Mode Teleop::next_mode(Next_mode_info) {
+	//always stay in teleop
 	return Mode{Teleop()};
 }
 
-/*
+Teleop::Teleop():
+	shoot_step(Shoot_steps::SPEED_UP),
+	collector_mode(Collector_mode::NOTHING),
+	tilt_learn_mode(0),
+	cheval_step(Cheval_steps::GO_DOWN),
+	joy_collector_pos(Joy_collector_pos::STOP)
+{
+	/*//FIXME uninitialized, does it matter?
+	shoot_high_timer;
+	shoot_low_timer;
+	cheval_lift_timer;
+	cheval_drive_timer;
+	nudges;
+	controller_auto;
+	cheval_trigger;
+	set_button;
+	*/
+
+	tilt_presets=read_tilt_presets();
+	shooter_constants=read_shooter_constants();
+}
+
+
 Shooter::Goal Teleop::shoot_action(Panel::Shooter_mode shooter_mode,double speed_dial,bool climbed_shot)const{
 	switch(shooter_mode){
 		case Panel::Shooter_mode::CLOSED_AUTO:
@@ -63,12 +93,12 @@ void Teleop::shooter_protocol(
 	}
 }
 
-double set_drive_speed(double axis,double boost,double slow=0){
+/*double set_drive_speed(double axis,double boost,double slow=0){
 	static const float MAX_SPEED=1;//Change this value to change the max power the robot will achieve with full boost (cannot be larger than 1.0)
 	static const float DEFAULT_SPEED=.4;//Change this value to change the default power
 	static const float SLOW_BY=.5;//Change this value to change the percentage of the default power the slow button slows
 	return (pow(axis,3)*((DEFAULT_SPEED+(MAX_SPEED-DEFAULT_SPEED)*boost)-((DEFAULT_SPEED*SLOW_BY)*slow)));
-}
+}*/
 
 void Teleop::cal(Time now,double current_tilt_angle,double current_shooter_speed,Panel const& panel){
 	bool set=set_button(now,panel.in_use && panel.learn);
@@ -92,7 +122,7 @@ void Teleop::cal(Time now,double current_tilt_angle,double current_shooter_speed
 			tilt_learn_mode=0;
 		}
 		return;
-}
+	}
 	if(!set) return;
 
 	auto show=[&](){
@@ -130,7 +160,7 @@ void Teleop::cal(Time now,double current_tilt_angle,double current_shooter_speed
 			X(9,climbed)
 		#define X(A,B) case A: shooter_constants.B=current_shooter_speed; write_shooter_constants(shooter_constants); return;
 		SHOOTER_SPEEDS
-		#undef X*/
+		#undef X
 		/*case 8:
 			//Set ground shot speed based on current
 			shooter_constants.ground=current_shooter_speed;
@@ -139,16 +169,14 @@ void Teleop::cal(Time now,double current_tilt_angle,double current_shooter_speed
 		case 9:
 			//Set climbed shot speed based on current
 			return;*/
-		/*default:
+		default:
 			return;
 	}
-}*/
+}
 
-
-Toplevel::Goal Teleop::run(Run_info /*info*/) {
+Toplevel::Goal Teleop::run(Run_info info) {
 	Toplevel::Goal goals;
-	
-	/*
+		
 	bool enabled = info.in.robot_mode.enabled;
 	
 	{//Set drive goals
@@ -390,7 +418,7 @@ Toplevel::Goal Teleop::run(Run_info /*info*/) {
 		return Winch::Goal::STOP;
 	}();
 	//if(SLOW_PRINT) cout<<shoot_step<<" "<<info.toplevel_status.shooter<<" "<<goals.shooter<<"\n";
-	//if(SLOW_PRINT) cout<<info.toplevel_status.drive.speeds<<"\n";*/
+	//if(SLOW_PRINT) cout<<info.toplevel_status.drive.speeds<<"\n";
 	return goals;
 }
 

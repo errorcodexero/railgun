@@ -1,5 +1,5 @@
 #ifndef POSEDGE_TRIGGER_DEBOUNCE_H
-#define POSEDGE TRIGGER_DEBOUNCE_H
+#define POSEDGE_TRIGGER_DEBOUNCE_H
 
 #include "debounce.h"
 #include "posedge_trigger.h"
