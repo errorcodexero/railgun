@@ -14,8 +14,7 @@
 	X(Toplevel::Status_detail,status)\
 	X(Time,since_switch)\
 	X(Panel,panel)\
-	X(Robot_inputs,in)\
-	X(SINGLE_ARG(std::pair<int,int>),initial_encoders)
+	X(Robot_inputs,in)
 DECLARE_STRUCT(Next_mode_info,NEXT_MODE_INFO_ITEMS)
 Next_mode_info example(Next_mode_info*);
 std::ostream& operator<<(std::ostream&,Next_mode_info const&);

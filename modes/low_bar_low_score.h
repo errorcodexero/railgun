@@ -4,6 +4,11 @@
 #include "mode.h"
 
 struct Auto_lbls_cross_lb: public Mode_impl<Auto_lbls_cross_lb>{
+	std::pair<int,int> initial_encoders;
+
+	Auto_lbls_cross_lb():initial_encoders(std::make_pair(0,0)){}
+	Auto_lbls_cross_lb(std::pair<int,int> ie):initial_encoders(ie){}
+
 	Mode next_mode(Next_mode_info);
 	Toplevel::Goal run(Run_info);
 	bool operator==(Auto_lbls_cross_lb const&)const;

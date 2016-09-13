@@ -6,10 +6,10 @@ using namespace std;
 
 Mode Auto_lbls_cross_lb::next_mode(Next_mode_info info){	
 	if(!info.autonomous) return Mode{Teleop()};
-	pair<int,int> encoder_differences=make_pair(info.status.drive.ticks.first-info.initial_encoders.first,info.status.drive.ticks.second-info.initial_encoders.second);
+	pair<int,int> encoder_differences=make_pair(info.status.drive.ticks.first-initial_encoders.first,info.status.drive.ticks.second-initial_encoders.second);
 	if(encoder_differences.first >= 670) return Mode{Auto_lbls_cross_mu()};
 	// 100 ticks per 1 revolution   |    8in wheel   |     167 in for first run     |     cir:25.12     |    100 ticks / 25 in      |      4 ticks / 1 in     |      668 ticks / 167 in.
-	return Mode{Auto_lbls_cross_lb()};
+	return Mode{Auto_lbls_cross_lb(initial_encoders)};
 }
 
 Toplevel::Goal Auto_lbls_cross_lb::run(Run_info info){
