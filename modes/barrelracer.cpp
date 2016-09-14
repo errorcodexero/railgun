@@ -32,20 +32,12 @@ Toplevel::Goal Auto_br_straightaway::run(Run_info info){
 	return {};
 }
 
-bool Auto_br_straightaway::operator==(Auto_br_straightaway const& a)const{
-	return br_step==a.br_step;
-}
-
 Mode Auto_br_initialturn::next_mode(Next_mode_info){
 	return Mode{Auto_br_initialturn(br_step, initial_encoders)};
 }
 
 Toplevel::Goal Auto_br_initialturn::run(Run_info){
 	return {};
-}
-
-bool Auto_br_initialturn::operator==(Auto_br_initialturn const& a)const{
-	return br_step==a.br_step;
 }
 
 Mode Auto_br_side::next_mode(Next_mode_info){
@@ -56,20 +48,12 @@ Toplevel::Goal Auto_br_side::run(Run_info){
 	return {};
 }
 
-bool Auto_br_side::operator==(Auto_br_side const& a)const{
-	return br_step==a.br_step;
-}
-
 Mode Auto_br_sideturn::next_mode(Next_mode_info){
 	return Mode{Auto_br_sideturn(br_step, initial_encoders)};
 }
 
 Toplevel::Goal Auto_br_sideturn::run(Run_info){
 	return {};
-}
-
-bool Auto_br_sideturn::operator==(Auto_br_sideturn const& a)const{
-	return br_step==a.br_step;
 }
 
 Mode Auto_br_endturn::next_mode(Next_mode_info){
@@ -80,21 +64,21 @@ Toplevel::Goal Auto_br_endturn::run(Run_info){
 	return {};
 }
 
-bool Auto_br_endturn::operator==(Auto_br_endturn const& a)const{
-	return br_step==a.br_step;
-}
+#define STEPS \
+	X(straightaway) \
+	X(initialturn) \
+	X(side)	\
+	X(sideturn) \
+	X(endturn)
+
+#define X(NAME) bool Auto_br_##NAME::operator==(Auto_br_##NAME const& a)const{ return br_step==a.br_step; }
+STEPS
+#undef X
 
 #ifdef BARRELRACER_TEST
 int main(){
-	#define STEPS \
-		X(Auto_br_straightaway) \
-		X(Auto_br_initialturn) \
-		X(Auto_br_side)	\
-		X(Auto_br_sideturn) \
-		X(Auto_br_endturn)
-
-	#define X(NAME) { NAME a(0,std::make_pair(0,0)); test_mode(a); }
+	#define X(NAME) { Auto_br_##NAME a(0,std::make_pair(0,0)); test_mode(a); }
 	STEPS
 	#undef X
 }
-#endif 
+#endif
