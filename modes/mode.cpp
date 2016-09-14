@@ -1,9 +1,17 @@
 #include "mode.h"
+#include "teleop.h"
 
 using namespace std;
 
 IMPL_STRUCT(Next_mode_info::Next_mode_info,NEXT_MODE_INFO_ITEMS)
 IMPL_STRUCT(Run_info::Run_info,RUN_INFO_ITEMS)
+
+Mode& Mode::operator=(Mode const& a){//Hey Eric, please make this right if it's wrong
+	if(a.impl){
+		impl=a.impl->clone();
+	}
+	return *this;
+}
 
 Mode::Mode(Mode const& a){
 	if(a.impl){
@@ -163,8 +171,13 @@ void test_mode(Mode mode){
 	}
 	PRINT(nexts.size());
 	PRINT(nexts);
-	//previously, had been checking that there's a way to get back to teleop from every mode.  Should add that in again.
-
+	
+	
+	PRINT(mode);
+	assert(
+		mode.next_mode(Next_mode_info{false,false,rand((Toplevel::Status_detail*)0),0.0,rand((Panel*)0),rand((Robot_inputs*)0)}) == Mode{Teleop{}}
+	);//test to make sure that each mode goes to Teleop if it's not in auto mode. Maybe expand this test later.
+	
 	set<Toplevel::Goal> outs;
 	for(auto _:range(100)){
 		(void)_;

@@ -14,9 +14,9 @@
 
 using namespace std;
 
-Mode get_auto1(Panel const& panel){
-	if (panel.in_use) {
-		switch(panel.auto_mode){ 
+Mode get_auto1(Next_mode_info info){
+	if (info.panel.in_use) {
+		switch(info.panel.auto_mode){ 
 			case Panel::Auto_mode::NOTHING:
 				return Mode{Auto_null()};
 			case Panel::Auto_mode::REACH:
@@ -30,7 +30,7 @@ Mode get_auto1(Panel const& panel){
 			case Panel::Auto_mode::CHEVAL:
 				return Mode{Auto_cheval_pos()};
 			case Panel::Auto_mode::LBLS:
-				return Mode{Auto_lbls_cross_lb()};
+				return Mode{Auto_lbls_cross_lb(info.status.drive.ticks)};
 			case Panel::Auto_mode::LBWLS:	
 				return Mode{Auto_lbwls_wall()};
 			case Panel::Auto_mode::LBWHS:
@@ -39,7 +39,7 @@ Mode get_auto1(Panel const& panel){
 				return Mode{Auto_lbwhs_prep()};
 			case Panel::Auto_mode::BR:
 				//FIXME: For now, just choosing some number to put in.
-				return Mode{Auto_br_straightaway(0)};
+				return Mode{Auto_br_straightaway(0, info.status.drive.ticks)};
 			default: assert(0);
 		}
 	}
@@ -48,7 +48,7 @@ Mode get_auto1(Panel const& panel){
 
 Mode Delay::next_mode(Next_mode_info info){
 	if(!info.autonomous) return Mode{Teleop()};
-	if(info.since_switch > (info.panel.speed_dial+1)*5 || info.since_switch > 8) return get_auto1(info.panel);
+	if(info.since_switch > (info.panel.speed_dial+1)*5 || info.since_switch > 8) return get_auto1(info);
 	return Mode{Delay()};
 }
 
