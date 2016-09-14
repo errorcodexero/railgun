@@ -36,7 +36,8 @@ bool Auto_br_straightaway::operator==(Auto_br_straightaway const& a)const{
 	return br_step==a.br_step;
 }
 
-Mode Auto_br_initialturn::next_mode(Next_mode_info){
+Mode Auto_br_initialturn::next_mode(Next_mode_info info){
+	if(!info.autonomous) return Mode{Teleop()};
 	return Mode{Auto_br_initialturn(br_step, initial_encoders)};
 }
 
@@ -48,7 +49,8 @@ bool Auto_br_initialturn::operator==(Auto_br_initialturn const& a)const{
 	return br_step==a.br_step;
 }
 
-Mode Auto_br_side::next_mode(Next_mode_info){
+Mode Auto_br_side::next_mode(Next_mode_info info){
+	if(!info.autonomous) return Mode{Teleop()};
 	return Mode{Auto_br_side(br_step, initial_encoders)};
 }
 
@@ -60,7 +62,8 @@ bool Auto_br_side::operator==(Auto_br_side const& a)const{
 	return br_step==a.br_step;
 }
 
-Mode Auto_br_sideturn::next_mode(Next_mode_info){
+Mode Auto_br_sideturn::next_mode(Next_mode_info info){
+	if(!info.autonomous) return Mode{Teleop()};
 	return Mode{Auto_br_sideturn(br_step, initial_encoders)};
 }
 
@@ -72,7 +75,8 @@ bool Auto_br_sideturn::operator==(Auto_br_sideturn const& a)const{
 	return br_step==a.br_step;
 }
 
-Mode Auto_br_endturn::next_mode(Next_mode_info){
+Mode Auto_br_endturn::next_mode(Next_mode_info info){
+	if(!info.autonomous) return Mode{Teleop()};
 	return Mode{Auto_br_endturn(br_step,initial_encoders)};
 }
 

@@ -1,4 +1,5 @@
 #include "mode.h"
+#include "teleop.h"
 
 using namespace std;
 
@@ -163,6 +164,14 @@ void test_mode(Mode mode){
 	}
 	PRINT(nexts.size());
 	PRINT(nexts);
+	
+	
+	PRINT(mode);
+	assert(
+		mode.next_mode(Next_mode_info{false,false,rand((Toplevel::Status_detail*)0),0.0,rand((Panel*)0),rand((Robot_inputs*)0)}) == Mode{Teleop{}}
+	);//test to make sure that each mode goes to Teleop if it's not in auto mode
+	
+	
 	//previously, had been checking that there's a way to get back to teleop from every mode.  Should add that in again.
 
 	set<Toplevel::Goal> outs;
