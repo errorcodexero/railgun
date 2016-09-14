@@ -11,7 +11,7 @@
 #include <vector>
 #include <assert.h>
 #include <fstream>
-#include "../modes/teleop.h"
+#include "../executive/teleop.h"
 
 using namespace std;
 
@@ -57,7 +57,7 @@ static const string NAVLOG2="/home/lvuser/navlogs/navlog2.txt";
 //TODO: at some point, might want to make this whatever is right to start autonomous mode.
 Main::Main():
 	mode(Mode::TELEOP),
-	mode_(::Mode{Teleop()}),
+	mode_(Executive{Teleop()}),
 	motion_profile(0.0,.01),
 	in_br_range(),
 	autonomous_start(0),
@@ -1139,7 +1139,7 @@ Robot_outputs Main::operator()(Robot_inputs in,ostream&){
 	//next_mode(mode,in.robot_mode.autonomous,autonomous_start_now,toplevel_status,since_switch.elapsed(),panel,topready,in,initial_encoders,br_step,set_initial_encoders,motion_profile,in_br_range);
 	
 	since_switch.update(in.now,mode_/*mode*/!=next);
-	mode_=::Mode(next);
+	mode_=next;
 		
 	Toplevel::Output r_out=control(toplevel_status,goals); 
 	auto r=toplevel.output_applicator(Robot_outputs{},r_out);

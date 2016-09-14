@@ -1,0 +1,30 @@
+g++ --std=c++14 -Wall -Wextra -Werror -DEXECUTIVE_TEST \
+	executive.cpp \
+	teleop.cpp \
+	../util/posedge_trigger.cpp\
+	../control/tilt_presets.cpp\
+	../control/shooter_constants.cpp\
+	../util/posedge_toggle.cpp\
+	../util/debounce.cpp\
+	../util/posedge_trigger_debounce.cpp\
+	../util/type.cpp\
+	../control/toplevel.cpp\
+	../control/drivebase.cpp\
+	../control/pump.cpp\
+	../control/shooter.cpp\
+	../control/collector.cpp\
+	../control/climb_release.cpp\
+	../control/winch.cpp\
+	../util/interface.cpp\
+	../util/countdown_timer.cpp\
+	../control/motor_check.cpp\
+	../control/tilt.cpp\
+	../control/front.cpp\
+	../util/pwm.cpp\
+	../control/sides.cpp\
+	../control/nop.cpp\
+	../util/driver_station_interface.cpp\
+	../util/util.cpp\
+	../input/panel.cpp\
+	../input/util.cpp\
+	-o mode 2>&1 && ./mode 2>&1

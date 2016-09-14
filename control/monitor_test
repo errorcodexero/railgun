@@ -1,7 +1,7 @@
 g++ -Wall -Werror -std=c++0x -DMONITOR_TEST \
 	../util/type.cpp\
-	../modes/mode.cpp\
-	../modes/teleop.cpp \
+	../executive/executive.cpp\
+	../executive/teleop.cpp \
 	tilt_presets.cpp \
 	shooter_constants.cpp \
 	monitor.cpp \

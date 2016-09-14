@@ -1,6 +1,6 @@
 g++ -Wall -Werror -std=c++0x --short-enums -DMAIN_TEST -I.. main.cpp \
-	../modes/mode.cpp\
-	../modes/teleop.cpp\
+	../executive/executive.cpp\
+	../executive/teleop.cpp\
 	../util/type.cpp\
 	tilt_presets.cpp \
 	shooter_constants.cpp \
