@@ -41,13 +41,14 @@ class Mode{
 
 	public:
 	Mode(Mode const&);
-	explicit Mode(Mode_interface const&);//might want to make this explicit
+	explicit Mode(Mode_interface const&);
 
 	Mode next_mode(Next_mode_info);
 	Toplevel::Goal run(Run_info);
 	Mode_interface const& get()const;
 
 	//bool operator<(Mode const&);
+	Mode& operator=(Mode const&);
 	friend bool operator==(Mode const&,Mode const&);
 	friend std::ostream& operator<<(std::ostream&,Mode const&);
 };

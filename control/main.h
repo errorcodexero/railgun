@@ -15,6 +15,7 @@
 #include "../util/motion_profile.h"
 #include "tilt_presets.h"
 #include "shooter_constants.h"
+#include "../modes/mode.h"
 
 struct Main{
 	#define MODES X(TELEOP)\
@@ -37,6 +38,7 @@ struct Main{
 		#undef X
 	};
 	Mode mode;
+	::Mode mode_;
 
 	Motion_profile motion_profile;
 	Countdown_timer in_br_range;

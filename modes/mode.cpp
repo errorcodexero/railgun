@@ -6,6 +6,13 @@ using namespace std;
 IMPL_STRUCT(Next_mode_info::Next_mode_info,NEXT_MODE_INFO_ITEMS)
 IMPL_STRUCT(Run_info::Run_info,RUN_INFO_ITEMS)
 
+Mode& Mode::operator=(Mode const& a){//Hey Eric, please make this right if it's wrong
+	if(a.impl){
+		impl=a.impl->clone();
+	}
+	return *this;
+}
+
 Mode::Mode(Mode const& a){
 	if(a.impl){
 		impl=a.impl->clone();
