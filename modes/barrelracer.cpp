@@ -32,7 +32,8 @@ Toplevel::Goal Auto_br_straightaway::run(Run_info info){
 	return {};
 }
 
-Mode Auto_br_initialturn::next_mode(Next_mode_info){
+Mode Auto_br_initialturn::next_mode(Next_mode_info info){
+	if(!info.autonomous) return Mode{Teleop()};
 	return Mode{Auto_br_initialturn(br_step, initial_encoders)};
 }
 
@@ -40,7 +41,8 @@ Toplevel::Goal Auto_br_initialturn::run(Run_info){
 	return {};
 }
 
-Mode Auto_br_side::next_mode(Next_mode_info){
+Mode Auto_br_side::next_mode(Next_mode_info info){
+	if(!info.autonomous) return Mode{Teleop()};
 	return Mode{Auto_br_side(br_step, initial_encoders)};
 }
 
@@ -48,7 +50,8 @@ Toplevel::Goal Auto_br_side::run(Run_info){
 	return {};
 }
 
-Mode Auto_br_sideturn::next_mode(Next_mode_info){
+Mode Auto_br_sideturn::next_mode(Next_mode_info info){
+	if(!info.autonomous) return Mode{Teleop()};
 	return Mode{Auto_br_sideturn(br_step, initial_encoders)};
 }
 
@@ -56,7 +59,8 @@ Toplevel::Goal Auto_br_sideturn::run(Run_info){
 	return {};
 }
 
-Mode Auto_br_endturn::next_mode(Next_mode_info){
+Mode Auto_br_endturn::next_mode(Next_mode_info info){
+	if(!info.autonomous) return Mode{Teleop()};
 	return Mode{Auto_br_endturn(br_step,initial_encoders)};
 }
 

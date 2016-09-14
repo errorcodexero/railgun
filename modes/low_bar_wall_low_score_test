@@ -1,6 +1,7 @@
 g++ -Wall -Werror -std=c++14 -DLOW_BAR_WALL_LOW_SCORE_TEST \
 	../util/type.cpp\
 	mode.cpp\
+	teleop.cpp \
 	../input/panel.cpp\
 	../input/util.cpp\
 	../control/nop.cpp\
