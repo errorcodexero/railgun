@@ -841,7 +841,7 @@ cc_binary(
 	name="step",
 	srcs=["modes/step.cpp"],
 	copts=["-DSTEP_TEST"],
-	deps=[":mode"]
+	deps=[":mode",":teleop"]
 )
 
 cc_library(
