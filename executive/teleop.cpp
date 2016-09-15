@@ -11,6 +11,13 @@ double set_drive_speed(double axis,double boost,double slow){
 	return (pow(axis,3)*((DEFAULT_SPEED+(MAX_SPEED-DEFAULT_SPEED)*boost)-((DEFAULT_SPEED*SLOW_BY)*slow)));
 }
 
+bool operator==(Teleop::Nudge const& a,Teleop::Nudge const& b){
+	#define X(A,B) if(a.B!=b.B) return 0;
+	NUDGE_ITEMS(X)
+	#undef X
+	return 1;
+}
+
 Executive Teleop::next_mode(Next_mode_info) {
 	//always stay in teleop
 	return Executive{Teleop()};
@@ -422,7 +429,27 @@ Toplevel::Goal Teleop::run(Run_info info) {
 	return goals;
 }
 
-bool Teleop::operator==(Teleop const&)const{
+#define TELEOP_ITEMS(X)\
+	X(shooter_constants)\
+	X(tilt_presets)\
+	X(shoot_step)\
+	X(shoot_high_timer)\
+	X(shoot_low_timer)\
+	X(cheval_lift_timer)\
+	X(cheval_drive_timer)\
+	X(collector_mode)\
+	X(nudges)\
+	X(controller_auto)\
+	X(cheval_trigger)\
+	X(tilt_learn_mode)\
+	X(cheval_step)\
+	X(joy_collector_pos)\
+	X(set_button)
+
+bool Teleop::operator==(Teleop const& a)const{
+	#define X(NAME) if(NAME!=a.NAME) return 0;
+	TELEOP_ITEMS(X)
+	#undef X
 	return 1;
 }
 

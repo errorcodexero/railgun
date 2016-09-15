@@ -25,6 +25,10 @@ bool operator==(Shooter_constants const& a,Shooter_constants const& b){
 	return 1;
 }
 
+bool operator!=(Shooter_constants const& a,Shooter_constants const& b){
+	return !(a==b);
+}
+
 #ifdef SHOOTER_CONSTANTS_TEST
 static const char *SHOOTER_CONSTANT_FILE="shooter_constants.txt";
 #else

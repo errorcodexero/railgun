@@ -23,6 +23,10 @@ bool operator==(Tilt_presets const& a,Tilt_presets const& b){
 	return 1;
 }
 
+bool operator!=(Tilt_presets const& a,Tilt_presets const& b){
+	return !(a==b);
+}
+
 ostream& operator<<(ostream& o,Tilt_presets const& a){
 	return o<<"Presets( top:"<<a.top<<"  level:"<<a.level<<"  low:"<<a.low<<"  cheval:"<<a.cheval<<")";
 }

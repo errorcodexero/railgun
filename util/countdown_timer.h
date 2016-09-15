@@ -22,6 +22,7 @@ class Countdown_timer{
 };
 
 bool operator==(Countdown_timer const&,Countdown_timer const&);
+bool operator!=(Countdown_timer const&,Countdown_timer const&);
 std::ostream& operator<<(std::ostream&,Countdown_timer);
 
 #endif

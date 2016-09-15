@@ -40,7 +40,7 @@ Toplevel::Goal Executive::run(Run_info a){
 }
 
 bool operator<(Executive const& a,Executive const& b){
-	return a.get()<(b);
+	return a.get()<b.get();
 }
 
 bool operator==(Executive const& a,Executive const& b){
@@ -152,6 +152,8 @@ bool operator<(unique_ptr<Executive> const& a,unique_ptr<Executive> const& b){
 }
 
 void test_mode(Executive mode){
+	assert(mode==mode);
+	assert(!(mode<mode));
 	/*Things that could try doing:
 	-see what the next modes show up as being if run a bunch of different stuff through
 	-see if the internal state changes when different things happend to it & try to explore the state space
@@ -159,8 +161,7 @@ void test_mode(Executive mode){
 	*/
 	mode.next_mode(rand((Next_mode_info*)0));
 	assert(mode==mode);
-	auto a=mode;//.clone();
-	//assert(a);
+	auto a=mode;
 
 	set<Executive> nexts;
 	//should the next_mode function be const?
@@ -187,9 +188,10 @@ void test_mode(Executive mode){
 	//could do something more sophisticated to show what the changes are, per subsystem
 	PRINT(outs);
 
+	set<Executive> after_run;
 	mode.run(rand((Run_info*)0));
 	if(a!=mode){
-		assert(0);//acutally should implement something
+		//assert(0);//acutally should implement something
 	}
 }
 

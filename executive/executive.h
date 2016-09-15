@@ -60,7 +60,7 @@ struct Executive_interface {
 	virtual Toplevel::Goal run(Run_info)=0;
 
 	virtual std::unique_ptr<Executive_interface> clone()const=0;
-	virtual bool operator<(Executive const&)const=0;
+	virtual bool operator<(Executive_interface const&)const=0;
 	virtual bool operator==(Executive const&)const=0;
 	virtual void display(std::ostream&)const=0;
 };
@@ -83,7 +83,7 @@ struct Mode_impl:Executive_interface{
 		return std::make_unique<T>(self());
 	}
 
-	bool operator<(Executive const& a)const{
+	bool operator<(Executive_interface const& a)const{
 		auto t1=std::type_index(typeid(*this));
 		auto t2=std::type_index(typeid(a));
 		if(t1<t2){
@@ -92,8 +92,8 @@ struct Mode_impl:Executive_interface{
 		if(t1>t2){
 			return 0;
 		}
-		nyi/*T const& b=dynamic_cast<T const&>(a);
-		return this->operator<(b);*/
+		T const& b=dynamic_cast<T const&>(a);
+		return this->operator<(b);
 	}
 
 	virtual bool operator<(T const& t)const{

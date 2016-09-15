@@ -30,6 +30,7 @@ struct Teleop : Mode_impl<Teleop> {
 	Collector_mode collector_mode;
 	
 	enum Nudges{FORWARD,BACKWARD,CLOCKWISE,COUNTERCLOCKWISE,NUDGES};
+	#define NUDGE_ITEMS(X) X(Posedge_trigger,trigger) X(Countdown_timer,timer)
 	struct Nudge{
 		Posedge_trigger trigger;
 		Countdown_timer timer;
@@ -68,6 +69,7 @@ struct Teleop : Mode_impl<Teleop> {
 	Teleop();
 };
 
+bool operator==(Teleop::Nudge const&,Teleop::Nudge const&);
 double set_drive_speed(double,double,double);
 
 #endif

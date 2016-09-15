@@ -11,6 +11,7 @@ struct Shooter_constants{
 
 bool operator<(Shooter_constants const&,Shooter_constants const&);
 bool operator==(Shooter_constants const&,Shooter_constants const&);
+bool operator!=(Shooter_constants const&,Shooter_constants const&);
 std::ostream& operator<<(std::ostream&,Shooter_constants const&);
 
 Shooter_constants read_shooter_constants();
