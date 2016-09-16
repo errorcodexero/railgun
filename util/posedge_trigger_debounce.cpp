@@ -7,6 +7,13 @@ bool Posedge_trigger_debounce::operator()(Time now,bool in){
 	return trigger(debounce.get());
 }
 
+bool operator<(Posedge_trigger_debounce const& a,Posedge_trigger_debounce const& b){
+	#define X(A,B) if(a.B<b.B) return 1; if(b.B<a.B) return 0;
+	POSEDGE_TRIGGER_DEBOUNCE_ITEMS(X)
+	#undef X
+	return 0;
+}
+
 bool operator==(Posedge_trigger_debounce const& a,Posedge_trigger_debounce const& b){
 	#define X(A,B) if(a.B!=b.B) return 0;
 	POSEDGE_TRIGGER_DEBOUNCE_ITEMS(X)

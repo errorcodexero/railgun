@@ -4,11 +4,52 @@
 
 using namespace std;
 
+ostream& operator<<(ostream& o,Teleop::Shoot_steps a){
+	#define X(NAME) if(a==Teleop::Shoot_steps::NAME) return o<<""#NAME;
+	SHOOT_STEPS
+	#undef X
+	assert(0);
+}
+
+ostream& operator<<(ostream& o,Teleop::Collector_mode a){
+	#define X(NAME) if(a==Teleop::Collector_mode::NAME) return o<<""#NAME;
+	COLLECTOR_MODES
+	#undef X
+	assert(0);
+}
+
+ostream& operator<<(ostream& o,Teleop::Nudge const& ){
+	o<<"Nudge(";
+	o<<"...";
+	return o<<")";
+}
+
+ostream& operator<<(ostream& o,Teleop::Cheval_steps a){
+	#define X(NAME) if(a==Teleop::Cheval_steps::NAME) return o<<""#NAME;
+	CHEVAL_STEPS
+	#undef X
+	assert(0);
+}
+
+ostream& operator<<(ostream& o,Teleop::Joy_collector_pos a){
+	#define X(NAME) if(a==Teleop::Joy_collector_pos::NAME) return o<<""#NAME;
+	JOY_COLLECTOR_POS
+	#undef X
+	assert(0);
+}
+
 double set_drive_speed(double axis,double boost,double slow){
 	static const float MAX_SPEED=1;//Change this value to change the max power the robot will achieve with full boost (cannot be larger than 1.0)
 	static const float DEFAULT_SPEED=.4;//Change this value to change the default power
 	static const float SLOW_BY=.5;//Change this value to change the percentage of the default power the slow button slows
 	return (pow(axis,3)*((DEFAULT_SPEED+(MAX_SPEED-DEFAULT_SPEED)*boost)-((DEFAULT_SPEED*SLOW_BY)*slow)));
+}
+
+bool operator<(Teleop::Nudge const& a,Teleop::Nudge const& b){
+	#define X(A,B) if(a.B<b.B) return 1; if(b.B<a.B) return 0;
+	NUDGE_ITEMS(X)
+	#undef X
+	return 0;
 }
 
 bool operator==(Teleop::Nudge const& a,Teleop::Nudge const& b){
@@ -446,11 +487,26 @@ Toplevel::Goal Teleop::run(Run_info info) {
 	X(joy_collector_pos)\
 	X(set_button)
 
+bool Teleop::operator<(Teleop const& a)const{
+	#define X(NAME) if(NAME<a.NAME) return 1; if(a.NAME<NAME) return 0;
+	TELEOP_ITEMS(X)
+	#undef X
+	return 0;
+}
+
 bool Teleop::operator==(Teleop const& a)const{
 	#define X(NAME) if(NAME!=a.NAME) return 0;
 	TELEOP_ITEMS(X)
 	#undef X
 	return 1;
+}
+
+void Teleop::display(ostream& o)const{
+	o<<"Teleop( ";
+	#define X(NAME) o<<""#NAME<<":"<<(NAME)<<" ";
+	//TELEOP_ITEMS(X)
+	#undef X
+	o<<")";
 }
 
 #ifdef TELEOP_TEST

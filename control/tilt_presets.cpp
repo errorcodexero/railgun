@@ -16,6 +16,13 @@ Tilt_presets::Tilt_presets(){
 
 #define PRESETS X(top) X(level) X(low) X(cheval)
 
+bool operator<(Tilt_presets const& a,Tilt_presets const& b){
+	#define X(NAME) if(a.NAME<b.NAME) return 1; if(b.NAME<a.NAME) return 0;
+	PRESETS
+	#undef X
+	return 0;
+}
+
 bool operator==(Tilt_presets const& a,Tilt_presets const& b){
 	#define X(NAME) if(a.NAME!=b.NAME) return 0;
 	PRESETS

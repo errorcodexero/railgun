@@ -18,6 +18,13 @@ ostream& operator<<(ostream& o,Shooter_constants const& a){
 	return o<<")";
 }
 
+bool operator<(Shooter_constants const& a,Shooter_constants const& b){
+	#define X(NAME) if(a.NAME<b.NAME) return 1; if(b.NAME<a.NAME) return 0;
+	SHOOTER_CONSTANT_ITEMS
+	#undef X
+	return 0;
+}
+
 bool operator==(Shooter_constants const& a,Shooter_constants const& b){
 	#define X(NAME) if(a.NAME!=b.NAME) return 0;
 	SHOOTER_CONSTANT_ITEMS

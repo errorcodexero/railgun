@@ -28,6 +28,13 @@ bool Countdown_timer::done()const{
 	return left<=0;
 }
 
+bool operator<(Countdown_timer const& a,Countdown_timer const& b){
+	#define X(NAME) if(a.NAME<b.NAME) return 1; if(b.NAME<a.NAME) return 0;
+	X(left) X(last_time) X(last_enable)
+	#undef X
+	return 0;
+}
+
 bool operator==(Countdown_timer const& a,Countdown_timer const& b){
 	return a.left==b.left && a.last_time==b.last_time && a.last_enable==b.last_enable;
 }

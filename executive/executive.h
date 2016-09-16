@@ -63,6 +63,7 @@ struct Executive_interface {
 	virtual bool operator<(Executive_interface const&)const=0;
 	virtual bool operator==(Executive const&)const=0;
 	virtual void display(std::ostream&)const=0;
+	virtual void diff(std::ostream&,Executive_interface const&)const=0;
 };
 
 bool operator!=(Executive const&,Executive const&);
@@ -102,14 +103,33 @@ struct Mode_impl:Executive_interface{
 	}
 
 	bool operator==(Executive const& a)const{
-		T const& b=dynamic_cast<T const&>(a.get());
-		return this->operator==(b);
+		try{
+			T const& b=dynamic_cast<T const&>(a.get());
+			return this->operator==(b);
+		}catch(std::bad_cast const&){
+			return 0;
+		}
 	}
 
 	virtual bool operator==(T const&)const=0;
 
 	void display(std::ostream& o)const{
 		o<<type(self());
+	}
+
+	void diff(std::ostream& o,Executive_interface const& a)const{
+		try{
+			T const& b=dynamic_cast<T const&>(a);
+			return diff(o,b);
+		}catch(std::bad_cast const&){
+			display(o);
+			o<<" -> ";
+			a.display(o);
+		}
+	}
+
+	virtual void diff(std::ostream&,T const&)const{
+		nyi
 	}
 };
 

@@ -65,10 +65,19 @@ struct Teleop : Mode_impl<Teleop> {
 
 	Executive next_mode(Next_mode_info);
 	Toplevel::Goal run(Run_info);
+	bool operator<(Teleop const&)const;
 	bool operator==(Teleop const&)const;
+	void display(std::ostream&)const;
 	Teleop();
 };
 
+std::ostream& operator<<(std::ostream&,Teleop::Shoot_steps);
+std::ostream& operator<<(std::ostream&,Teleop::Collector_mode);
+std::ostream& operator<<(std::ostream&,Teleop::Cheval_steps);
+std::ostream& operator<<(std::ostream&,Teleop::Joy_collector_pos);
+std::ostream& operator<<(std::ostream&,Teleop::Nudge const&);
+
+bool operator<(Teleop::Nudge const&,Teleop::Nudge const&);
 bool operator==(Teleop::Nudge const&,Teleop::Nudge const&);
 double set_drive_speed(double,double,double);
 
