@@ -208,6 +208,10 @@ Joystick_data driver_station_input_rand(){
 	return r;
 }
 
+Panel rand(Panel*){
+	return interpret(driver_station_input_rand());
+}
+
 #ifdef PANEL_TEST
 int main(){
 	Panel p;

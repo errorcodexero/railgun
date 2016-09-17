@@ -510,8 +510,9 @@ void Teleop::display(ostream& o)const{
 }
 
 #ifdef TELEOP_TEST
+#include "test.h"
 int main() {
 	Teleop a;
-	test_mode(a);
+	test_executive(a);
 }
 #endif

@@ -80,8 +80,9 @@ STEPS
 #undef X
 
 #ifdef BARRELRACER_TEST
+#include "test.h"
 int main(){
-	#define X(NAME) { Auto_br_##NAME a(0,std::make_pair(0,0)); test_mode(a); }
+	#define X(NAME) { Auto_br_##NAME a(0,std::make_pair(0,0)); test_executive(a); }
 	STEPS
 	#undef X
 }

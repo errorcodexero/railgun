@@ -1,4 +1,5 @@
 g++ -Wall -Werror -std=c++14 -DPORTCULLIS_TEST \
+	test.cpp\
 	../util/type.cpp\
 	executive.cpp\
 	../input/panel.cpp\

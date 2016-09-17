@@ -502,6 +502,10 @@ ostream& operator<<(ostream& o,Robot_mode m){
 	return o<<")";
 }
 
+Digital_in random(Digital_in* d){
+	return choose_random(examples(d));
+}
+
 ostream& operator<<(ostream& o,Digital_in d){
 	switch(d){
 		#define X(name) case Digital_in::name: return o<<""#name;
@@ -534,14 +538,6 @@ vector<Digital_in> digital_ins(){
 	r|=Digital_in::OUTPUT;
 	r|=Digital_in::_0;
 	r|=Digital_in::_1;
-	return r;
-}
-
-//todo: move to util.
-template<typename T>
-set<T> to_set(vector<T> v){
-	set<T> r;
-	for(auto a:v) r|=a;
 	return r;
 }
 
@@ -590,6 +586,18 @@ Robot_inputs::Robot_inputs():
 		analog[i]=0;
 	}
 	for(auto& a:current) a=0;
+}
+
+Robot_inputs random_inputs(){
+	Robot_inputs r;
+	for(unsigned i=0;i<Robot_outputs::DIGITAL_IOS;i++){
+		r.digital_io.in[i]=random((Digital_in*)0);
+	}
+	return r;
+}
+
+Robot_inputs rand(Robot_inputs*){
+	return random_inputs();
 }
 
 bool operator==(Robot_inputs a,Robot_inputs b){

@@ -22,8 +22,9 @@ bool Auto_statictwo::operator==(Auto_statictwo const&)const{
 }
 
 #ifdef AUTO_STATICTWO_TEST
+#include "test.h"
 int main(){
 	Auto_statictwo a;
-	test_mode(a);
+	test_executive(a);
 }
 #endif 

@@ -20,8 +20,9 @@ bool Auto_test::operator==(Auto_test const&)const{
 }
 
 #ifdef AUTO_TEST_TEST
+#include "test.h"
 int main(){
 	Auto_test a;
-	test_mode(a);
+	test_executive(a);
 }
 #endif 

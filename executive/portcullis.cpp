@@ -49,14 +49,15 @@ bool Auto_portcullis_done::operator==(Auto_portcullis_done const&)const{
 }
 
 #ifdef PORTCULLIS_TEST
+#include "test.h"
 int main(){
 	{
 		Auto_portcullis a;
-		test_mode(a);
+		test_executive(a);
 	}
 	{
 		Auto_portcullis_done a;
-		test_mode(a);
+		test_executive(a);
 	}
 }
 #endif 

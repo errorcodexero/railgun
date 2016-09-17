@@ -108,9 +108,10 @@ STEPS
 #undef X
 
 #ifdef LOW_BAR_LOW_SCORE_TEST
+#include "test.h"
 int main(){
 
-	#define X(NAME) { Auto_lbls_##NAME a; test_mode(a); }
+	#define X(NAME) { Auto_lbls_##NAME a; test_executive(a); }
 	STEPS
 	#undef X
 }

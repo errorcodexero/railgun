@@ -112,6 +112,7 @@ bool operator<(Toplevel::Status_detail const&,Toplevel::Status_detail const&);
 bool operator==(Toplevel::Status_detail const&,Toplevel::Status_detail const&);
 bool operator!=(Toplevel::Status_detail const&,Toplevel::Status_detail const&);
 std::set<Toplevel::Status_detail> examples(Toplevel::Status_detail*);
+Toplevel::Status_detail rand(Toplevel::Status_detail*);
 
 std::set<Toplevel::Goal> examples(Toplevel::Goal*);
 std::set<Toplevel::Output> examples(Toplevel::Output*);
@@ -141,7 +142,5 @@ Toplevel::Status status(Toplevel::Status_detail const&);
 bool operator==(Toplevel const&,Toplevel const&);
 bool operator!=(Toplevel const&,Toplevel const&);
 std::ostream& operator<<(std::ostream&,Toplevel const&);
-
-Robot_inputs random_inputs();
 
 #endif

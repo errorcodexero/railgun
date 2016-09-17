@@ -215,5 +215,7 @@ bool operator<(Robot_inputs,Robot_inputs);
 bool operator==(Robot_inputs,Robot_inputs);
 bool operator!=(Robot_inputs,Robot_inputs);
 std::ostream& operator<<(std::ostream& o,Robot_inputs);
+Robot_inputs rand(Robot_inputs*);
+Robot_inputs random_inputs();
 
 #endif

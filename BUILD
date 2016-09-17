@@ -625,223 +625,231 @@ cc_library(
 
 cc_library(
 	name="portcullis",
-	srcs=["modes/portcullis.cpp"],
-	hdrs=["modes/portcullis.h"],
-	deps=[":mode",":teleop",":tilt_presets"]
+	srcs=["executive/portcullis.cpp"],
+	hdrs=["executive/portcullis.h"],
+	deps=[":executive",":teleop",":tilt_presets"]
 )
 
 cc_binary(
 	name="portcullis_test",
-	srcs=["modes/portcullis.cpp","modes/portcullis.h"],
+	srcs=["executive/portcullis.cpp","executive/portcullis.h"],
 	copts=["-DPORTCULLIS_TEST"],
-	deps=[":mode",":teleop",":tilt_presets"]
+	deps=[":executive",":teleop",":tilt_presets",":test"]
 )
 
 cc_library(
 	name="auto_reach",
-	srcs=["modes/auto_reach.cpp"],
-	hdrs=["modes/auto_reach.h"],
-	deps=[":mode",":teleop",":auto_stop"]
+	srcs=["executive/auto_reach.cpp"],
+	hdrs=["executive/auto_reach.h"],
+	deps=[":executive",":teleop",":auto_stop"]
 )
 
 cc_binary(
 	name="auto_reach_test",
-	srcs=["modes/auto_reach.cpp","modes/auto_reach.h"],
+	srcs=["executive/auto_reach.cpp","executive/auto_reach.h"],
 	copts=["-DAUTO_REACH_TEST"],
-	deps=[":mode",":teleop",":auto_reach"]
+	deps=[":executive",":teleop",":auto_reach",":test"]
 )
 
 cc_library(
 	name="cheval",
-	srcs=["modes/cheval.cpp"],
-	hdrs=["modes/cheval.h"],
-	deps=[":mode",":teleop"]
+	srcs=["executive/cheval.cpp"],
+	hdrs=["executive/cheval.h"],
+	deps=[":executive",":teleop"]
 )
 
 cc_binary(
 	name="cheval_test",
-	srcs=["modes/cheval.cpp","modes/cheval.h"],
+	srcs=["executive/cheval.cpp","executive/cheval.h"],
 	copts=["-DCHEVAL_TEST"],
-	deps=[":mode",":teleop"]
+	deps=[":executive",":teleop",":test"]
 )
 
 cc_library(
 	name="low_bar_wall_high_score",
-	srcs=["modes/low_bar_wall_high_score.cpp"],
-	hdrs=["modes/low_bar_wall_high_score.h"],
-	deps=[":mode"]
+	srcs=["executive/low_bar_wall_high_score.cpp"],
+	hdrs=["executive/low_bar_wall_high_score.h"],
+	deps=[":executive",":teleop"]
 )
 
 cc_binary(
 	name="low_bar_wall_high_score_test",
-	srcs=["modes/low_bar_wall_high_score.cpp","modes/low_bar_wall_high_score.h"],
+	srcs=["executive/low_bar_wall_high_score.cpp","executive/low_bar_wall_high_score.h"],
 	copts=["-DLOW_BAR_WALL_HIGH_SCORE_TEST"],
-	deps=[":mode"]
+	deps=[":executive",":teleop",":test"]
 )
 
 cc_library(
 	name="teleop",
-	srcs=["modes/teleop.cpp"],
-	hdrs=["modes/teleop.h"],
-	deps=[":mode",":posedge_trigger_debounce",":posedge_toggle",":tilt_presets",":shooter_constants"]
+	srcs=["executive/teleop.cpp"],
+	hdrs=["executive/teleop.h"],
+	deps=[":executive",":posedge_trigger_debounce",":posedge_toggle",":tilt_presets",":shooter_constants"]
 )
 
 cc_binary(
 	name="teleop_test",
-	srcs=["modes/teleop.cpp","modes/teleop.h"],
+	srcs=["executive/teleop.cpp","executive/teleop.h"],
 	copts=["-DTELEOP_TEST"],
-	deps=[":mode",":posedge_trigger_debounce",":posedge_toggle",":tilt_presets",":shooter_constants"]
+	deps=[":executive",":posedge_trigger_debounce",":posedge_toggle",":tilt_presets",":shooter_constants",":test"]
 )
 
 cc_library(
 	name="low_bar_wall_low_score",
-	srcs=["modes/low_bar_wall_low_score.cpp"],
-	hdrs=["modes/low_bar_wall_low_score.h"],
-	deps=[":mode"]
+	srcs=["executive/low_bar_wall_low_score.cpp"],
+	hdrs=["executive/low_bar_wall_low_score.h"],
+	deps=[":executive",":teleop"]
 )
 
 cc_binary(
 	name="low_bar_wall_low_score_test",
-	srcs=["modes/low_bar_wall_low_score.cpp","modes/low_bar_wall_low_score.h"],
+	srcs=["executive/low_bar_wall_low_score.cpp","executive/low_bar_wall_low_score.h"],
 	copts=["-DLOW_BAR_WALL_LOW_SCORE_TEST"],
-	deps=[":mode"]
+	deps=[":executive",":teleop",":test"]
 )
 
 cc_library(
 	name="barrelracer",
-	srcs=["modes/barrelracer.cpp"],
-	hdrs=["modes/barrelracer.h"],
-	deps=[":mode",":teleop",":motion_profile"]
+	srcs=["executive/barrelracer.cpp"],
+	hdrs=["executive/barrelracer.h"],
+	deps=[":executive",":teleop",":motion_profile"]
 )
 
 cc_binary(
 	name="barrelracer_test",
-	srcs=["modes/barrelracer.cpp","modes/barrelracer.h"],
+	srcs=["executive/barrelracer.cpp","executive/barrelracer.h"],
 	copts=["-DBARRELRACER_TEST"],
-	deps=[":mode",":teleop",":motion_profile"]
+	deps=[":executive",":teleop",":motion_profile",":test"]
 )
 
 #cc_library(
 #	name="auto",
-#	srcs=["modes/auto.cpp"],
-#	hdrs=["modes/auto.h"],
+#	srcs=["executive/auto.cpp"],
+#	hdrs=["executive/auto.h"],
 #	deps=[]
 #)
 
 #cc_binary(
 #	name="auto_test",
-#	srcs=["modes/auto.cpp","modes/auto.h"],
+#	srcs=["executive/auto.cpp","executive/auto.h"],
 #	copts=["-DAUTO_TEST"],
 #	deps=[]
 #)
 
 cc_library(
 	name="delay",
-	srcs=["modes/delay.cpp"],
-	hdrs=["modes/delay.h"],
-	deps=[":mode",":teleop",":auto_null",":auto_reach",":auto_statictwo",":auto_static",":portcullis",":cheval",":low_bar_low_score",":low_bar_wall_low_score",":low_bar_wall_high_score",":barrelracer"]
+	srcs=["executive/delay.cpp"],
+	hdrs=["executive/delay.h"],
+	deps=[":executive",":teleop",":auto_null",":auto_reach",":auto_statictwo",":auto_static",":portcullis",":cheval",":low_bar_low_score",":low_bar_wall_low_score",":low_bar_wall_high_score",":barrelracer"]
 )
 
 cc_binary(
 	name="delay_test",
-	srcs=["modes/delay.cpp","modes/delay.h"],
+	srcs=["executive/delay.cpp","executive/delay.h"],
 	copts=["-DDELAY_TEST"],
 	deps=[
-		":mode",":teleop",":auto_null",":auto_reach",":auto_statictwo",
+		":executive",":teleop",":auto_null",":auto_reach",":auto_statictwo",
 		":auto_static",":portcullis",":cheval",":low_bar_low_score",
-		":low_bar_wall_low_score",":low_bar_wall_high_score",":barrelracer"
+		":low_bar_wall_low_score",":low_bar_wall_high_score",":barrelracer",
+		":test"
 	]
 )
 
 cc_library(
 	name="low_bar_low_score",
-	srcs=["modes/low_bar_low_score.cpp"],
-	hdrs=["modes/low_bar_low_score.h"],
-	deps=[":mode",":teleop"]
+	srcs=["executive/low_bar_low_score.cpp"],
+	hdrs=["executive/low_bar_low_score.h"],
+	deps=[":teleop"]
 )
 
 cc_binary(
 	name="low_bar_low_score_test",
-	srcs=["modes/low_bar_low_score.cpp","modes/low_bar_low_score.h"],
+	srcs=["executive/low_bar_low_score.cpp","executive/low_bar_low_score.h"],
 	copts=["-DLOW_BAR_LOW_SCORE_TEST"],
-	deps=[":mode",":teleop"]
+	deps=[":teleop",":test"]
 )
 
 cc_library(
-	name="mode",
-	srcs=["modes/mode.cpp"],
-	hdrs=["modes/mode.h"],
+	name="executive",
+	srcs=["executive/executive.cpp"],
+	hdrs=["executive/executive.h"],
 	deps=[":toplevel",":panel",":type"]
 )
 
 cc_binary(
-	name="mode_test",
-	srcs=["modes/mode.cpp","modes/mode.h"],
-	copts=["-DMODE_TEST"],
-	deps=[":toplevel",":panel",":type"]
+	name="executive_test",
+	srcs=["executive/executive.cpp","executive/executive.h"],
+	copts=["-DEXECUTIVE_TEST"],
+	deps=[":toplevel",":panel",":type",":teleop"]
 )
 
 cc_library(
 	name="auto_statictwo",
-	srcs=["modes/auto_statictwo.cpp"],
-	hdrs=["modes/auto_statictwo.h"],
-	deps=[":mode",":auto_stop",":teleop"]
+	srcs=["executive/auto_statictwo.cpp"],
+	hdrs=["executive/auto_statictwo.h"],
+	deps=[":auto_stop",":teleop"]
 )
 
 cc_binary(
 	name="auto_statictwo_test",
-	srcs=["modes/auto_statictwo.cpp","modes/auto_statictwo.h"],
+	srcs=["executive/auto_statictwo.cpp","executive/auto_statictwo.h"],
 	copts=["-DAUTO_STATICTWO_TEST"],
-	deps=[":mode",":teleop",":auto_stop"]
+	deps=[":teleop",":auto_stop",":test"]
 )
 
 cc_library(
 	name="auto_stop",
-	srcs=["modes/auto_stop.cpp"],
-	hdrs=["modes/auto_stop.h"],
-	deps=[":mode",":teleop"]
+	srcs=["executive/auto_stop.cpp"],
+	hdrs=["executive/auto_stop.h"],
+	deps=[":teleop"]
 )
 
 cc_binary(
 	name="auto_stop_test",
-	srcs=["modes/auto_stop.cpp","modes/auto_stop.h"],
+	srcs=["executive/auto_stop.cpp","executive/auto_stop.h"],
 	copts=["-DAUTO_STOP_TEST"],
-	deps=[":mode",":teleop"]
+	deps=[":teleop",":test"]
 )
 
 cc_library(
 	name="auto_static",
-	srcs=["modes/auto_static.cpp"],
-	hdrs=["modes/auto_static.h"],
-	deps=[":mode",":auto_stop"]
+	srcs=["executive/auto_static.cpp"],
+	hdrs=["executive/auto_static.h"],
+	deps=[":auto_stop"]
 )
 
 cc_binary(
 	name="auto_static_test",
-	srcs=["modes/auto_static.cpp","modes/auto_static.h"],
+	srcs=["executive/auto_static.cpp","executive/auto_static.h"],
 	copts=["-DAUTO_STATIC_TEST"],
-	deps=[":mode",":auto_stop"]
+	deps=[":auto_stop",":test"]
 )
 
 cc_library(
 	name="auto_null",
-	srcs=["modes/auto_null.cpp"],
-	hdrs=["modes/auto_null.h"],
-	deps=[":mode",":teleop",":shooter_constants"]
+	srcs=["executive/auto_null.cpp"],
+	hdrs=["executive/auto_null.h"],
+	deps=[":teleop",":shooter_constants"]
+)
+
+cc_library(
+	name="test",
+	srcs=["executive/test.cpp"],
+	hdrs=["executive/test.h"],
+	deps=[":executive",":teleop"]
 )
 
 cc_binary(
 	name="auto_null_test",
-	srcs=["modes/auto_null.cpp","modes/auto_null.h"],
+	srcs=["executive/auto_null.cpp","executive/auto_null.h"],
 	copts=["-DAUTO_NULL_TEST"],
-	deps=[":mode",":teleop"]
+	deps=[":teleop",":test"]
 )
 
 cc_binary(
 	name="step",
-	srcs=["modes/step.cpp"],
+	srcs=["executive/step.cpp"],
 	copts=["-DSTEP_TEST"],
-	deps=[":mode",":teleop"]
+	deps=[":teleop"]
 )
 
 cc_library(

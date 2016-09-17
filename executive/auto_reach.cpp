@@ -21,8 +21,9 @@ Toplevel::Goal Auto_reach::run(Run_info){
 bool Auto_reach::operator==(Auto_reach const&)const{ return 1; }
 
 #ifdef AUTO_REACH_TEST
+#include "test.h"
 int main(){
 	Auto_reach a;
-	test_mode(a);
+	test_executive(a);
 }
 #endif 

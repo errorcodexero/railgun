@@ -16,8 +16,9 @@ bool Auto_null::operator==(Auto_null const&)const{
 }
 
 #ifdef AUTO_NULL_TEST
+#include "test.h"
 int main(){
 	Auto_null a;
-	test_mode(a);
+	test_executive(a);
 }
 #endif 

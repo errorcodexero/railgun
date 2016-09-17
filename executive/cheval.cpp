@@ -93,14 +93,15 @@ bool Auto_cheval_stow::operator==(Auto_cheval_stow const&)const{
 
 
 #ifdef CHEVAL_TEST
+#include "test.h"
 int main(){
 	{
 		Auto_cheval_pos a;
-		test_mode(a);
+		test_executive(a);
 	}
 	{
 		Auto_cheval_wait a;
-		test_mode(a);
+		test_executive(a);
 	}
 }
 #endif 

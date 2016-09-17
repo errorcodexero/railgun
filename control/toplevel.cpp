@@ -259,6 +259,12 @@ bool operator<(Toplevel::Status_detail const& a,Toplevel::Status_detail const& b
 	return 0;
 }
 
+Toplevel::Status_detail rand(Toplevel::Status_detail *a){
+	auto e=examples(a);
+	assert(e.size());
+	return choose_random(e);
+}
+
 ostream& operator<<(ostream& o,Toplevel::Status_detail const& a){
 	o<<"Toplevel::Status_detail(";
 	#define X(A,B,C) o<<a.B<<" ";
@@ -359,20 +365,6 @@ set<Toplevel::Output> examples(Toplevel::Output*){
 	set<Toplevel::Output> r;
 	r.insert(a);
 	a.pump=Pump::Output::OFF;
-	return r;
-}
-
-//this should probably get moved to interface.h
-Digital_in random(Digital_in* d){
-	return choose_random(examples(d));
-}
-
-//this should probably get moved to interface.h
-Robot_inputs random_inputs(){
-	Robot_inputs r;
-	for(unsigned i=0;i<Robot_outputs::DIGITAL_IOS;i++){
-		r.digital_io.in[i]=random((Digital_in*)0);
-	}
 	return r;
 }
 

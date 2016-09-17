@@ -5,6 +5,12 @@
 
 using namespace std;
 
+vector<size_t> range(size_t lim){
+	vector<size_t> r;
+	for(size_t i=0;i<lim;i++) r|=i;
+	return r;
+}
+
 int write_file(string const& filename,string const& contents){
 	ofstream file(filename.c_str());
 	if(!file.is_open()) return 1;

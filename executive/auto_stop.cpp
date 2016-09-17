@@ -19,8 +19,9 @@ bool Auto_stop::operator==(Auto_stop const&)const{
 }
 
 #ifdef AUTO_STOP_TEST
+#include "test.h"
 int main(){
 	Auto_stop a;
-	test_mode(a);
+	test_executive(a);
 }
 #endif 

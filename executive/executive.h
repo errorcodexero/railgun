@@ -16,7 +16,9 @@
 	X(Panel,panel)\
 	X(Robot_inputs,in)
 DECLARE_STRUCT(Next_mode_info,NEXT_MODE_INFO_ITEMS)
+Next_mode_info rand(Next_mode_info*);
 Next_mode_info example(Next_mode_info*);
+std::vector<Next_mode_info> examples(Next_mode_info*);
 std::ostream& operator<<(std::ostream&,Next_mode_info const&);
 
 #define RUN_INFO_ITEMS(X)\
@@ -31,7 +33,9 @@ std::ostream& operator<<(std::ostream&,Next_mode_info const&);
 	X(Tilt::Goal,cheval)\
 	X(Tilt::Goal,drawbridge)
 DECLARE_STRUCT(Run_info,RUN_INFO_ITEMS)
+Run_info rand(Run_info*);
 Run_info example(Run_info*);
+std::vector<Run_info> examples(Run_info*);
 std::ostream& operator<<(std::ostream&,Run_info const&);
 
 class Executive_interface;
@@ -68,13 +72,6 @@ struct Executive_interface {
 
 bool operator!=(Executive const&,Executive const&);
 std::ostream& operator<<(std::ostream&,Executive const&);
-
-void test_mode(Executive);
-
-template<typename T>
-void test_mode(T a){
-	return test_mode(Executive{a});
-}
 
 template<typename T>
 struct Mode_impl:Executive_interface{

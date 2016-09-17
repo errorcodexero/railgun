@@ -149,4 +149,60 @@ std::ostream& operator<<(std::ostream& o,std::unique_ptr<T> const& a){
 	return o<<"NULL";
 }
 
+std::vector<size_t> range(size_t lim);
+
+template<typename T>
+std::set<T> to_set(std::vector<T> v){
+	std::set<T> r;
+	for(auto a:v) r|=a;
+	return r;
+}
+
+template<typename T>
+std::vector<T> take(size_t lim,std::vector<T> v){
+	std::vector<T> r;
+	for(size_t i=0;i<lim && i<v.size();i++){
+		r|=v[i];
+	}
+	return r;
+}
+
+void print_lines(auto a){
+	for(auto elem:a){
+		std::cout<<elem<<"\n";
+	}
+}
+
+auto cross(auto a,auto b){
+	using A=decltype(*begin(a));
+	using B=decltype(*begin(b));
+	std::vector<std::pair<A,B>> r;
+	for(auto a1:a) for(auto b1:b){
+		r|=std::make_pair(a1,b1);
+	}
+	return r;
+}
+
+template<typename Func,typename Collection>
+Collection filter(Func f,Collection c){
+	Collection r;
+	for(auto a:c){
+		if(f(a)) r|=a;
+	}
+	return r;
+}
+
+template<typename T>
+std::vector<T> operator-(std::vector<T> a,std::set<T> b){
+	return filter([b](auto elem){ return b.count(elem)==0; },a);
+}
+
+template<typename Func,typename Collection>
+auto mapf(Func f,Collection c){
+	using T=decltype(f(*begin(c)));
+	std::vector<T> out;
+	for(auto a:c) out|=f(a);
+	return out;
+}
+
 #endif
