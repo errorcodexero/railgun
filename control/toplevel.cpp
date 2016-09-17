@@ -259,6 +259,10 @@ bool operator<(Toplevel::Status_detail const& a,Toplevel::Status_detail const& b
 	return 0;
 }
 
+bool operator!=(Toplevel::Status_detail const& a,Toplevel::Status_detail const& b){
+	return !(a==b);
+}
+
 Toplevel::Status_detail rand(Toplevel::Status_detail *a){
 	auto e=examples(a);
 	assert(e.size());

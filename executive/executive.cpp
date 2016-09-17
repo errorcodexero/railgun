@@ -104,7 +104,7 @@ vector<Run_info> examples(Run_info *a){
 	return mapf([=](int){ return rand(a); },range(100));
 }
 
-/*bool operator==(Next_mode_info const& a,Next_mode_info const& b){
+bool operator==(Next_mode_info const& a,Next_mode_info const& b){
 	#define X(A,B) if(a.B!=b.B) return 0;
 	NEXT_MODE_INFO_ITEMS(X)
 	#undef X
@@ -116,7 +116,7 @@ bool operator==(Run_info const& a,Run_info const& b){
 	RUN_INFO_ITEMS(X)
 	#undef X
 	return 1;
-}*/
+}
 
 /*bool operator==(Executive const& a,Executive const& b){
 	return a.equals(b);
@@ -138,10 +138,15 @@ bool operator<(unique_ptr<Executive> const& a,unique_ptr<Executive> const& b){
 
 #ifdef EXECUTIVE_TEST
 int main(){
-	Next_mode_info *a(0);
-	Run_info *b=0;
-
-	rand(a);
-	rand(b);
+	{
+		Next_mode_info *a(0);
+		auto x=rand(a);
+		assert(x==x);
+	}
+	{
+		Run_info *b=0;
+		auto x=rand(b);
+		assert(x==x);
+	}
 }
 #endif

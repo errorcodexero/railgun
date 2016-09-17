@@ -84,6 +84,7 @@ bool operator<(Collector::Status,Collector::Status);
 bool operator==(Collector::Status,Collector::Status);
 bool operator!=(Collector::Status,Collector::Status);
 bool operator<(Collector::Status_detail,Collector::Status_detail);
+bool operator==(Collector::Status_detail,Collector::Status_detail);
 bool operator!=(Collector::Status_detail,Collector::Status_detail);
 bool operator!=(Collector::Estimator,Collector::Estimator);
 

@@ -72,18 +72,47 @@ ostream& operator<<(ostream& o,Panel::Auto_mode a){
 	assert(0);
 }
 
+#define BUTTONS \
+	X(learn) X(cheval) X(drawbridge) X(shoot_prep) X(shoot_low) X(collect) X(shoot_high) X(collector_up) X(collector_down) 
+
+#define TWO_POS_SWITCHES \
+	X(lock_climber) X(tilt_auto) X(front_auto) X(sides_auto)
+
+#define THREE_POS_SWITCHES \
+	X(collector_pos) X(front) X(sides) X(winch) X(shooter_mode)
+
+#define TEN_POS_SWITCHES \
+	X(auto_mode)\
+	X(auto_switch)
+
+#define DIALS X(speed_dial)
+
+#define PANEL_ITEMS \
+	BUTTONS \
+	TWO_POS_SWITCHES \
+	THREE_POS_SWITCHES \
+	TEN_POS_SWITCHES \
+	DIALS
+
 ostream& operator<<(ostream& o,Panel p){
 	o<<"Panel(";
 	o<<"in_use:"<<p.in_use;
 	#define X(name) o<<", "#name":"<<p.name;
-	X(learn) X(cheval) X(drawbridge) X(shoot_prep) X(shoot_low) X(collect) X(shoot_high) X(collector_up) X(collector_down) //buttons
-	X(lock_climber) X(tilt_auto) X(front_auto) X(sides_auto) //2-pos switches
-	X(collector_pos) X(front) X(sides) X(winch) X(shooter_mode) //3-pos switches
-	X(auto_mode) //10-pos switches
-	X(auto_switch)
-	X(speed_dial) //Dials
+	PANEL_ITEMS
 	#undef X
 	return o<<")";
+}
+
+bool operator==(Panel const& a,Panel const& b){
+	return 1
+	#define X(NAME) && a.NAME==b.NAME
+	PANEL_ITEMS
+	#undef X
+	;
+}
+
+bool operator!=(Panel const& a,Panel const& b){
+	return !(a==b);
 }
 
 Panel::Auto_mode auto_mode_convert(int potin){

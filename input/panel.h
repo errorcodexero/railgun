@@ -40,6 +40,7 @@ struct Panel{
 	Panel();
 };
 
+bool operator!=(Panel const&,Panel const&);
 std::ostream& operator<<(std::ostream&,Panel::Collector_pos);
 std::ostream& operator<<(std::ostream&,Panel::Collector);
 std::ostream& operator<<(std::ostream&,Panel::Winch);
