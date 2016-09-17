@@ -3,13 +3,13 @@
 
 #include "executive.h"
 
-struct Auto_lbwhs_wall: public Mode_impl<Auto_lbwhs_wall>{
+struct Auto_lbwhs_wall: public Executive_impl<Auto_lbwhs_wall>{
 	Executive next_mode(Next_mode_info);
 	Toplevel::Goal run(Run_info);
 	bool operator==(Auto_lbwhs_wall const&)const;
 };
 
-struct Auto_lbwhs_mup: public Mode_impl<Auto_lbwhs_mup>{
+struct Auto_lbwhs_mup: public Executive_impl<Auto_lbwhs_mup>{
 	bool topready;
 	Executive next_mode(Next_mode_info);
 	Toplevel::Goal run(Run_info);
@@ -17,49 +17,49 @@ struct Auto_lbwhs_mup: public Mode_impl<Auto_lbwhs_mup>{
 	Auto_lbwhs_mup(){ topready = false; }
 };
 
-struct Auto_lbwhs_rotate: public Mode_impl<Auto_lbwhs_rotate>{
+struct Auto_lbwhs_rotate: public Executive_impl<Auto_lbwhs_rotate>{
 	Executive next_mode(Next_mode_info);
 	Toplevel::Goal run(Run_info);
 	bool operator==(Auto_lbwhs_rotate const&)const;
 };
 
-struct Auto_lbwhs_tower: public Mode_impl<Auto_lbwhs_tower>{
+struct Auto_lbwhs_tower: public Executive_impl<Auto_lbwhs_tower>{
 	Executive next_mode(Next_mode_info);
 	Toplevel::Goal run(Run_info);
 	bool operator==(Auto_lbwhs_tower const&)const;
 };
 
-struct Auto_lbwhs_eject: public Mode_impl<Auto_lbwhs_eject>{
+struct Auto_lbwhs_eject: public Executive_impl<Auto_lbwhs_eject>{
 	Executive next_mode(Next_mode_info);
 	Toplevel::Goal run(Run_info);
 	bool operator==(Auto_lbwhs_eject const&)const;
 };
 
-struct Auto_lbwhs_back: public Mode_impl<Auto_lbwhs_back>{
+struct Auto_lbwhs_back: public Executive_impl<Auto_lbwhs_back>{
 	Executive next_mode(Next_mode_info);
 	Toplevel::Goal run(Run_info);
 	bool operator==(Auto_lbwhs_back const&)const;
 };
 
-struct Auto_lbwhs_c: public Mode_impl<Auto_lbwhs_c>{
+struct Auto_lbwhs_c: public Executive_impl<Auto_lbwhs_c>{
 	Executive next_mode(Next_mode_info);
 	Toplevel::Goal run(Run_info);
 	bool operator==(Auto_lbwhs_c const&)const;
 };
 
-struct Auto_lbwhs_br: public Mode_impl<Auto_lbwhs_br>{
+struct Auto_lbwhs_br: public Executive_impl<Auto_lbwhs_br>{
 	Executive next_mode(Next_mode_info);
 	Toplevel::Goal run(Run_info);
 	bool operator==(Auto_lbwhs_br const&)const;
 };
 
-struct Auto_lbwhs_prep: public Mode_impl<Auto_lbwhs_prep>{
+struct Auto_lbwhs_prep: public Executive_impl<Auto_lbwhs_prep>{
 	Executive next_mode(Next_mode_info);
 	Toplevel::Goal run(Run_info);
 	bool operator==(Auto_lbwhs_prep const&)const;
 };
 
-struct Auto_lbwhs_bp: public Mode_impl<Auto_lbwhs_bp>{
+struct Auto_lbwhs_bp: public Executive_impl<Auto_lbwhs_bp>{
 	Executive next_mode(Next_mode_info);
 	Toplevel::Goal run(Run_info);
 	bool operator==(Auto_lbwhs_bp const&)const;

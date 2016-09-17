@@ -74,7 +74,7 @@ bool operator!=(Executive const&,Executive const&);
 std::ostream& operator<<(std::ostream&,Executive const&);
 
 template<typename T>
-struct Mode_impl:Executive_interface{
+struct Executive_impl:Executive_interface{
 	T const& self()const{ return static_cast<T const&>(*this); }
 
 	std::unique_ptr<Executive_interface> clone()const{

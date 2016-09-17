@@ -3,7 +3,7 @@
 
 #include "executive.h"
 
-struct Delay: public Mode_impl<Delay>{
+struct Delay: public Executive_impl<Delay>{
 	Executive next_mode(Next_mode_info);
 	Toplevel::Goal run(Run_info);
 	bool operator==(Delay const&)const;

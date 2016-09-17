@@ -3,13 +3,13 @@
 
 #include "executive.h"
 
-struct Auto_lbwls_wall: public Mode_impl<Auto_lbwls_wall>{
+struct Auto_lbwls_wall: public Executive_impl<Auto_lbwls_wall>{
 	Executive next_mode(Next_mode_info);
 	Toplevel::Goal run(Run_info);
 	bool operator==(Auto_lbwls_wall const&)const;
 };
 
-struct Auto_lbwls_mup: Mode_impl<Auto_lbwls_mup>{
+struct Auto_lbwls_mup: Executive_impl<Auto_lbwls_mup>{
 	bool topready=0;
 
 	Executive next_mode(Next_mode_info);
@@ -17,37 +17,37 @@ struct Auto_lbwls_mup: Mode_impl<Auto_lbwls_mup>{
 	bool operator==(Auto_lbwls_mup const&)const;
 };
 
-struct Auto_lbwls_rotate: Mode_impl<Auto_lbwls_rotate>{
+struct Auto_lbwls_rotate: Executive_impl<Auto_lbwls_rotate>{
 	Executive next_mode(Next_mode_info);
 	Toplevel::Goal run(Run_info);
 	bool operator==(Auto_lbwls_rotate const&)const;
 };
 
-struct Auto_lbwls_tower: Mode_impl<Auto_lbwls_tower>{
+struct Auto_lbwls_tower: Executive_impl<Auto_lbwls_tower>{
 	Executive next_mode(Next_mode_info);
 	Toplevel::Goal run(Run_info);
 	bool operator==(Auto_lbwls_tower const&)const;
 };
 
-struct Auto_lbwls_eject: Mode_impl<Auto_lbwls_eject>{
+struct Auto_lbwls_eject: Executive_impl<Auto_lbwls_eject>{
 	Executive next_mode(Next_mode_info);
 	Toplevel::Goal run(Run_info);
 	bool operator==(Auto_lbwls_eject const&)const;
 };
 
-struct Auto_lbwls_back: Mode_impl<Auto_lbwls_back>{
+struct Auto_lbwls_back: Executive_impl<Auto_lbwls_back>{
 	Executive next_mode(Next_mode_info);
 	Toplevel::Goal run(Run_info);
 	bool operator==(Auto_lbwls_back const&)const;
 };
 
-struct Auto_lbwls_c: Mode_impl<Auto_lbwls_c>{
+struct Auto_lbwls_c: Executive_impl<Auto_lbwls_c>{
 	Executive next_mode(Next_mode_info);
 	Toplevel::Goal run(Run_info);
 	bool operator==(Auto_lbwls_c const&)const;
 };
 
-struct Auto_lbwls_br: Mode_impl<Auto_lbwls_br>{
+struct Auto_lbwls_br: Executive_impl<Auto_lbwls_br>{
 	Executive next_mode(Next_mode_info);
 	Toplevel::Goal run(Run_info);
 	bool operator==(Auto_lbwls_br const&)const;

@@ -7,7 +7,7 @@
 #include "../control/tilt_presets.h"
 #include "../control/shooter_constants.h"
 
-struct Teleop : Mode_impl<Teleop> {
+struct Teleop : Executive_impl<Teleop> {
 	Shooter_constants shooter_constants;
 	Tilt_presets tilt_presets;
 	
