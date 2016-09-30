@@ -846,8 +846,8 @@ cc_binary(
 )
 
 cc_binary(
-	name="step",
-	srcs=["executive/step.cpp"],
+	name="step_test",
+	srcs=["executive/step.cpp","executive/step.h"],
 	copts=["-DSTEP_TEST"],
 	deps=[":teleop"]
 )
