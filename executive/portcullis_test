@@ -7,6 +7,17 @@ g++ -Wall -Werror -std=c++14 -DPORTCULLIS_TEST \
 	../control/nop.cpp\
 	portcullis.cpp \
 	teleop.cpp \
+	delay.cpp \
+	auto_null.cpp \
+	auto_reach.cpp \
+	auto_statictwo.cpp \
+	auto_static.cpp \
+	auto_stop.cpp \
+	cheval.cpp \
+	low_bar_low_score.cpp \
+	low_bar_wall_low_score.cpp \
+	low_bar_wall_high_score.cpp \
+	barrelracer.cpp \
 	../util/fixVictor.cpp \
 	../util/posedge_trigger.cpp \
 	../util/negedge_trigger.cpp \
@@ -37,4 +48,5 @@ g++ -Wall -Werror -std=c++14 -DPORTCULLIS_TEST \
 	../util/debounce.cpp \
 	../util/posedge_toggle.cpp \
 	../util/posedge_trigger_debounce.cpp \
+	../util/motion_profile.cpp \
 	-o portcullis 2>&1 && ./portcullis 2>&1

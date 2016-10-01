@@ -2,6 +2,18 @@ g++ -Wall -Werror -std=c++0x -DMONITOR_TEST \
 	../util/type.cpp\
 	../executive/executive.cpp\
 	../executive/teleop.cpp \
+	../executive/delay.cpp \
+	../executive/auto_null.cpp \
+	../executive/auto_reach.cpp \
+	../executive/auto_statictwo.cpp \
+	../executive/auto_static.cpp \
+	../executive/auto_stop.cpp \
+	../executive/portcullis.cpp \
+	../executive/cheval.cpp \
+	../executive/low_bar_low_score.cpp \
+	../executive/low_bar_wall_low_score.cpp \
+	../executive/low_bar_wall_high_score.cpp \
+	../executive/barrelracer.cpp \
 	tilt_presets.cpp \
 	shooter_constants.cpp \
 	monitor.cpp \

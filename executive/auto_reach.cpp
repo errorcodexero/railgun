@@ -12,8 +12,8 @@ Executive Auto_reach::next_mode(Next_mode_info info){
 
 Toplevel::Goal Auto_reach::run(Run_info){
 	Toplevel::Goal goals;
-	goals.drive.left=.45;
-	goals.drive.right=.45;
+	goals.drive.left=-.45;
+	goals.drive.right=-.45;
 	
 	return goals;
 }

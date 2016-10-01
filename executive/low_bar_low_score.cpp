@@ -26,7 +26,7 @@ Toplevel::Goal Auto_lbls_cross_lb::run(Run_info info){
 		goals.drive.left = -.5;
 		goals.drive.right = -.5;
 	}
-	return {};
+	return goals;
 }
 
 Mode Auto_lbls_cross_mu::next_mode(Next_mode_info info){

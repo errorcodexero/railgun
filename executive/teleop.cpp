@@ -1,5 +1,6 @@
 #include "teleop.h"
 #include <math.h>
+#include "delay.h"
 #include "../input/util.h"
 
 using namespace std;
@@ -59,8 +60,12 @@ bool operator==(Teleop::Nudge const& a,Teleop::Nudge const& b){
 	return 1;
 }
 
-Executive Teleop::next_mode(Next_mode_info) {
-	//always stay in teleop
+Executive Teleop::next_mode(Next_mode_info info) {
+	if (info.autonomous_start) {
+		if (info.panel.in_use) {
+			return Executive{Delay()};
+		}
+	}
 	return Executive{Teleop()};
 }
 

@@ -4,6 +4,18 @@ g++ -Wall -Werror -std=c++14 -DTIMED_TEST \
 	test.cpp\
 	teleop.cpp \
 	executive.cpp\
+	delay.cpp \
+	auto_null.cpp \
+	auto_reach.cpp \
+	auto_statictwo.cpp \
+	auto_static.cpp \
+	auto_stop.cpp \
+	portcullis.cpp \
+	cheval.cpp \
+	low_bar_low_score.cpp \
+	low_bar_wall_low_score.cpp \
+	low_bar_wall_high_score.cpp \
+	barrelracer.cpp \
 	../util/type.cpp\
 	../input/panel.cpp\
 	../input/util.cpp\
@@ -38,4 +50,5 @@ g++ -Wall -Werror -std=c++14 -DTIMED_TEST \
 	../util/debounce.cpp \
 	../util/posedge_toggle.cpp \
 	../util/posedge_trigger_debounce.cpp \
+	../util/motion_profile.cpp \
 	-o timed 2>&1 && ./timed 2>&1

@@ -9,6 +9,16 @@ g++ -Wall -Werror -std=c++14 -DAUTO_STATICTWO_TEST \
 	auto_statictwo.cpp \
 	teleop.cpp \
 	auto_stop.cpp \
+	delay.cpp \
+	auto_null.cpp \
+	auto_reach.cpp \
+	auto_static.cpp \
+	portcullis.cpp \
+	cheval.cpp \
+	low_bar_low_score.cpp \
+	low_bar_wall_low_score.cpp \
+	low_bar_wall_high_score.cpp \
+	barrelracer.cpp \
 	../control/toplevel.cpp \
 	../util/fixVictor.cpp \
 	../util/posedge_trigger.cpp \
@@ -38,4 +48,5 @@ g++ -Wall -Werror -std=c++14 -DAUTO_STATICTWO_TEST \
 	../util/debounce.cpp \
 	../util/posedge_toggle.cpp \
 	../util/posedge_trigger_debounce.cpp \
+	../util/motion_profile.cpp \
 	-o auto_statictwo 2>&1 && ./auto_statictwo 2>&1
