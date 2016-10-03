@@ -2,6 +2,8 @@
 
 #This is supposed to give a faster way to run all the tests.  It's not super elegant, oh well.
 
+import os,sys
+from optparse import OptionParser
 from glob import glob
 import os,sys
 import commands
@@ -195,9 +197,12 @@ def cross_makefile(out):
 	print>>out,"\trm -f FRCUserProgram"
 	print>>out,"\tfind -name \*.o | xargs rm -f"
 
+def bazel_available():
+	#return bool
+	status,output=commands.getstatusoutput("which bazel")
+	return status==0
+
 if __name__=='__main__':
-	import os,sys
-	from optparse import OptionParser
 	p=OptionParser()
 	p.add_option('--test',action='store_true',help="Run unit tests")
 	p.add_option('--build',action='store_true',help="Build the executable to load onto the robot")
@@ -207,6 +212,9 @@ if __name__=='__main__':
 	assert len(args)==0
 
 	def test():
+		if bazel_available():
+			return os.system("bazel test --run_under='valgrind --error-exitcode=1' --cxxopt=-std=c++14 --cxxopt=-Wall --cxxopt=-Werror :all")
+
 		func=makefile
 		func(open('t.mk','w'))
 		#r=os.system('make -f t.mk && make -f t.mk clean')

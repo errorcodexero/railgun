@@ -3,7 +3,6 @@ cc_test(
 	srcs = ["util/point.cpp","util/point.h","util/interface.h","util/jag_interface.h","util/maybe.h","util/driver_station_interface.h","util/maybe_inline.h","util/checked_array.h","util/util.h","util/pwm.h"],
 	copts = ["-DPOINT_TEST"],
 	timeout="short"
-
 )
 
 cc_test(
@@ -741,7 +740,7 @@ cc_test(
 	srcs=["executive/teleop.cpp","executive/teleop.h"],
 	copts=["-DTELEOP_TEST"],
 	deps=[":executive",":posedge_trigger_debounce",":posedge_toggle",":tilt_presets",":shooter_constants",":test"],
-	timeout="short"
+	size="medium"
 )
 
 cc_library(
