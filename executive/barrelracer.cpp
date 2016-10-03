@@ -29,7 +29,7 @@ Toplevel::Goal Auto_br_straightaway::run(Run_info info){
 	double power=-motion_profile.target_speed(ticks_to_inches(info.toplevel_status.drive.ticks.first));
 	goals.drive.left=power;
 	goals.drive.right=power;
-	return {};
+	return goals;
 }
 
 Executive Auto_br_initialturn::next_mode(Next_mode_info info){

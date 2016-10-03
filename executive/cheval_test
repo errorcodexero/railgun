@@ -3,6 +3,17 @@ g++ -Wall -Werror -std=c++14 -DCHEVAL_TEST \
 	../util/type.cpp\
 	executive.cpp\
 	teleop.cpp \
+	delay.cpp \
+	auto_null.cpp \
+	auto_reach.cpp \
+	auto_statictwo.cpp \
+	auto_static.cpp \
+	auto_stop.cpp \
+	portcullis.cpp \
+	low_bar_low_score.cpp \
+	low_bar_wall_low_score.cpp \
+	low_bar_wall_high_score.cpp \
+	barrelracer.cpp \
 	../input/panel.cpp\
 	../input/util.cpp\
 	../control/nop.cpp\
@@ -37,4 +48,5 @@ g++ -Wall -Werror -std=c++14 -DCHEVAL_TEST \
 	../util/debounce.cpp \
 	../util/posedge_toggle.cpp \
 	../util/posedge_trigger_debounce.cpp \
+	../util/motion_profile.cpp \
 	-o cheval 2>&1 && ./cheval 2>&1

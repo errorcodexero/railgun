@@ -19,11 +19,10 @@ Toplevel::Goal Auto_portcullis::run(Run_info info){
 	goals.collector.sides=Sides::Goal::OFF;
 	goals.collector.tilt=low;
 	if(ready(info.toplevel_status.collector.tilt.angle,goals.collector.tilt)){	
-	goals.drive.left =.5;
-	goals.drive.right =.5;
-	
+		goals.drive.left=-.5;
+		goals.drive.right=-.5;	
 	}		
-	return {};
+	return goals;
 }
 
 bool Auto_portcullis::operator==(Auto_portcullis const&)const{

@@ -1,3 +1,4 @@
+#if 0
 #include "timed.h"
 #include "chain.h"
 #include "teleop.h"
@@ -29,11 +30,11 @@ Step timed(Time /*time*/,Toplevel::Goal /*goal*/){
 Executive timed(Time time,Toplevel::Goal goal,Executive next){
 	return Executive{Chain{timed(time,goal),next}};
 }
-
+#endif
 #ifdef TIMED_TEST
 #include "test.h"
 int main(){
 	//TODO: Give it something other than "Teleop" as next.
-	test_executive(timed(0,example((Toplevel::Goal*)0),Executive{Teleop{}}));
+	//test_executive(timed(0,example((Toplevel::Goal*)0),Executive{Teleop{}}));
 }
 #endif

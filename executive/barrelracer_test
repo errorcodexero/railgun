@@ -8,7 +8,17 @@ g++ -Wall -Werror -std=c++14 -DBARRELRACER_TEST \
 	../util/pwm.cpp\
 	barrelracer.cpp \
 	teleop.cpp \
-	../util/motion_profile.cpp \
+	delay.cpp \
+	auto_null.cpp \
+	auto_reach.cpp \
+	auto_statictwo.cpp \
+	auto_static.cpp \
+	auto_stop.cpp \
+	portcullis.cpp \
+	cheval.cpp \
+	low_bar_low_score.cpp \
+	low_bar_wall_low_score.cpp \
+	low_bar_wall_high_score.cpp \
 	../control/toplevel.cpp \
 	../util/fixVictor.cpp \
 	../util/posedge_trigger.cpp \
@@ -38,4 +48,5 @@ g++ -Wall -Werror -std=c++14 -DBARRELRACER_TEST \
 	../util/debounce.cpp \
 	../util/posedge_toggle.cpp \
 	../util/posedge_trigger_debounce.cpp \
+	../util/motion_profile.cpp \
 	-o barrelracer 2>&1 && ./barrelracer 2>&1
