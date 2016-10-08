@@ -89,6 +89,16 @@ def check_style():
 	return 0
 
 #output stream -> void
+
+def make_directories(make_tobj):
+	def get_dir(test_script): return test_script.split('/')[0]
+	
+	objdir='tobj'
+        test_scripts=filter(lambda x: 'joystick_linux' not in x and x.split('/')[0]!=objdir,glob('*/*_test'))
+        dirs=set(map(get_dir,test_scripts)+['roborio'])
+        if(make_tobj): map(lambda x: os.system('mkdir -p '+objdir+'/%s'%x),dirs)
+        map(lambda x: os.system('mkdir -p obj/%s'%x),dirs)
+	
 def makefile(out):
 	def get_base(test_script):
 		return test_script[:-5].split('/')[1]
@@ -96,16 +106,17 @@ def makefile(out):
 	def get_target_name(test_script):
 		return test_script.replace('/','_')
 
-	def get_dir(test_script): return test_script.split('/')[0]
+	#def get_dir(test_script): return test_script.split('/')[0]
 
 	def get_cppfile(test_script):
 		return get_dir(test_script)+'/'+get_base(test_script)+'.cpp'
 
-	objdir='tobj'
-	test_scripts=filter(lambda x: 'joystick_linux' not in x and x.split('/')[0]!=objdir,glob('*/*_test'))
-	dirs=set(map(get_dir,test_scripts)+['roborio'])
-	map(lambda x: os.system('mkdir -p '+objdir+'/%s'%x),dirs)
-	map(lambda x: os.system('mkdir -p obj/%s'%x),dirs)
+	#objdir='tobj'
+	#test_scripts=filter(lambda x: 'joystick_linux' not in x and x.split('/')[0]!=objdir,glob('*/*_test'))
+	#dirs=set(map(get_dir,test_scripts)+['roborio'])
+	#map(lambda x: os.system('mkdir -p '+objdir+'/%s'%x),dirs)
+	#map(lambda x: os.system('mkdir -p obj/%s'%x),dirs)
+	make_directories(True)
 
 	print>>out,'OBJDIR='+objdir
 	print>>out,'H_FILES=$(find -name \*.h)'
@@ -165,6 +176,14 @@ def makefile(out):
 
 def cross_makefile(out):
 	import commands
+
+	#def get_dir(test_script): return test_script.split('/')[0]
+	#objdir='tobj'
+        #test_scripts=filter(lambda x: 'joystick_linux' not in x and x.split('/')[0]!=objdir,glob('*/*_test'))
+        #dirs=set(map(get_dir,test_scripts)+['roborio'])
+       	#map(lambda x: os.system('mkdir -p obj/%s'%x),dirs)
+	make_directories(False)
+
 	def object_files():
 		cppfiles=commands.getoutput("find -name \*.cpp").splitlines()
 		cppfiles=filter(lambda x: 'Robot' not in x,cppfiles)
