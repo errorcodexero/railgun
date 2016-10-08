@@ -90,14 +90,14 @@ def check_style():
 
 #output stream -> void
 
-def make_directories(make_tobj):
-	def get_dir(test_script): return test_script.split('/')[0]
-	
-	objdir='tobj'
+def get_dir(test_script): return test_script.split('/')[0]
+
+def make_directories(make_tobj,objdir):	
         test_scripts=filter(lambda x: 'joystick_linux' not in x and x.split('/')[0]!=objdir,glob('*/*_test'))
         dirs=set(map(get_dir,test_scripts)+['roborio'])
         if(make_tobj): map(lambda x: os.system('mkdir -p '+objdir+'/%s'%x),dirs)
         map(lambda x: os.system('mkdir -p obj/%s'%x),dirs)
+	return test_scripts
 	
 def makefile(out):
 	def get_base(test_script):
@@ -111,12 +111,12 @@ def makefile(out):
 	def get_cppfile(test_script):
 		return get_dir(test_script)+'/'+get_base(test_script)+'.cpp'
 
-	#objdir='tobj'
+	objdir='tobj'
 	#test_scripts=filter(lambda x: 'joystick_linux' not in x and x.split('/')[0]!=objdir,glob('*/*_test'))
 	#dirs=set(map(get_dir,test_scripts)+['roborio'])
 	#map(lambda x: os.system('mkdir -p '+objdir+'/%s'%x),dirs)
 	#map(lambda x: os.system('mkdir -p obj/%s'%x),dirs)
-	make_directories(True)
+	test_scripts=make_directories(True,objdir)
 
 	print>>out,'OBJDIR='+objdir
 	print>>out,'H_FILES=$(find -name \*.h)'
@@ -178,11 +178,11 @@ def cross_makefile(out):
 	import commands
 
 	#def get_dir(test_script): return test_script.split('/')[0]
-	#objdir='tobj'
+	objdir='tobj'
         #test_scripts=filter(lambda x: 'joystick_linux' not in x and x.split('/')[0]!=objdir,glob('*/*_test'))
         #dirs=set(map(get_dir,test_scripts)+['roborio'])
        	#map(lambda x: os.system('mkdir -p obj/%s'%x),dirs)
-	make_directories(False)
+	make_directories(False,objdir)
 
 	def object_files():
 		cppfiles=commands.getoutput("find -name \*.cpp").splitlines()
