@@ -139,10 +139,10 @@ void test_executive(Executive mode){
 	print_lines(nexts);
 
 	PRINT(mode);
-	assert(
-		mode.next_mode(Next_mode_info{false,false,rand((Toplevel::Status_detail*)0),0.0,rand((Panel*)0),rand((Robot_inputs*)0)}) == Executive{Teleop{}}
-	);//test to make sure that each mode goes to Teleop if it's not in auto mode. Maybe expand this test later.
-	
+	{	
+		Executive test_if_teleop= mode.next_mode(Next_mode_info{false,false,rand((Toplevel::Status_detail*)0),0.0,rand((Panel*)0),rand((Robot_inputs*)0)});
+		assert( test_if_teleop == Executive{Teleop{}});//test to make sure that each mode goes to Teleop if it's not in auto mode. Maybe expand this test later.
+	}
 	set<Toplevel::Goal> outs;
 	auto after=traverse(
 		mode,
