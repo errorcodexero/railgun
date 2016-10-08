@@ -177,11 +177,7 @@ def makefile(out):
 def cross_makefile(out):
 	import commands
 
-	#def get_dir(test_script): return test_script.split('/')[0]
 	objdir='tobj'
-        #test_scripts=filter(lambda x: 'joystick_linux' not in x and x.split('/')[0]!=objdir,glob('*/*_test'))
-        #dirs=set(map(get_dir,test_scripts)+['roborio'])
-       	#map(lambda x: os.system('mkdir -p obj/%s'%x),dirs)
 	make_directories(False,objdir)
 
 	def object_files():
