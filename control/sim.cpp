@@ -1,6 +1,6 @@
 #ifdef SIM_TEST
 #include "toplevel.h"
-#include "util/type.h"
+#include "../util/type.h"
 
 using namespace std;
 
