@@ -14,7 +14,7 @@ Front::Input::Input(bool b):ball(b){}
 
 ostream& operator<<(ostream& o, Front::Goal a){
 	#define X(name) if(a==Front::Goal::name)return o<<"Front::Goal("#name")";
-	X(IN) X(OUT) X(OFF)
+	FRONT_GOAL(X)
 	#undef X
 	assert(0);
 }

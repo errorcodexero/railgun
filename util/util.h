@@ -199,10 +199,12 @@ std::vector<T> operator-(std::vector<T> a,std::set<T> b){
 
 template<typename Func,typename Collection>
 auto mapf(Func f,Collection c){
-	using T=decltype(f(*begin(c)));
+	using T=typename std::remove_reference<decltype(f(*begin(c)))>::type;
 	std::vector<T> out;
 	for(auto a:c) out|=f(a);
 	return out;
 }
+
+#define MAP(F,C) mapf([&](auto a){ return F(a); },C)
 
 #endif

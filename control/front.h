@@ -6,8 +6,14 @@
 #include "../util/interface.h"
 
 struct Front{
-	enum class Goal{IN,OFF,OUT,CLEAR_BALL};
-	
+	#define FRONT_GOAL(X) X(IN) X(OFF) X(OUT) X(CLEAR_BALL)
+	enum class Goal{
+		#define X(A) A,
+		FRONT_GOAL(X)
+		#undef X
+	};
+
+	#define FRONT_INPUT_ITEMS(X) X(bool,ball)
 	struct Input{
 		bool ball;
 

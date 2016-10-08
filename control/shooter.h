@@ -6,6 +6,7 @@
 #include "../util/interface.h"
 #include "../util/util.h"
 #include "../util/countdown_timer.h"
+#include "../util/quick.h"
 
 const double GROUND_RPM=-6000.0;//This is the one we're actually using//7300
 const double CLIMB_RPM=-4000.0;
@@ -36,11 +37,16 @@ struct Shooter{
 	
 	typedef Status_detail Status;
 
+	//speed is in RPM
+	#define SHOOTER_INPUT_ITEMS(X)\
+		X(int,speed)\
+		X(bool,enabled)
 	struct Input{
-		int speed;//rpm
-		bool enabled;
+		#define X(A,B) A B;
+		SHOOTER_INPUT_ITEMS(X)
+		#undef X
 	};
-	
+
 	struct Input_reader{
 		Shooter::Input operator()(Robot_inputs const&)const;
 		Robot_inputs operator()(Robot_inputs,Shooter::Input)const;

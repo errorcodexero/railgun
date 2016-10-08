@@ -529,7 +529,7 @@ cc_test(
 	name="sim_test",
 	srcs=["control/sim.cpp"],
 	copts=["-DSIM_TEST"],
-	deps=[":toplevel"],
+	deps=[":toplevel",":type"],
 	timeout="short"
 )
 
@@ -626,13 +626,13 @@ cc_test(
 cc_library(
 	name="shooter",
 	srcs=["control/shooter.cpp"],
-	hdrs=["control/shooter.h"],
+	hdrs=["control/shooter.h","util/quick.h"],
 	deps=[":interface",":countdown_timer"]
 )
 
 cc_test(
 	name="shooter_test",
-	srcs=["control/shooter.cpp","control/shooter.h","control/formal.h"],
+	srcs=["control/shooter.cpp","control/shooter.h","control/formal.h","util/quick.h"],
 	copts=["-DSHOOTER_TEST"],
 	deps=[":countdown_timer",":interface"],
 	timeout="short"
@@ -748,7 +748,7 @@ cc_test(
 	srcs=["executive/low_bar_wall_low_score.cpp","executive/low_bar_wall_low_score.h"],
 	copts=["-DLOW_BAR_WALL_LOW_SCORE_TEST"],
 	deps=[":executive",":test"],
-	timeout="short"
+	size="medium"
 )
 
 cc_test(
