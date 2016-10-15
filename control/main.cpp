@@ -551,7 +551,7 @@ Main::Mode get_auto(Panel const& panel){
 	return Main::Mode::TELEOP;
 }
 
-Main::Mode next_mode(Main::Mode m,bool autonomous,bool autonomous_start,Toplevel::Status_detail const& status,Time since_switch, Panel panel,bool const& topready,Robot_inputs const& in,pair<int,int> initial_encoders, unsigned int& br_step,bool& set_initial_encoders, Motion_profile& motion_profile,Countdown_timer& in_br_range){
+/*Main::Mode next_mode(Main::Mode m,bool autonomous,bool autonomous_start,Toplevel::Status_detail const& status,Time since_switch, Panel panel,bool const& topready,Robot_inputs const& in,pair<int,int> initial_encoders, unsigned int& br_step,bool& set_initial_encoders, Motion_profile& motion_profile,Countdown_timer& in_br_range){
 	pair<int,int> current_encoders=status.drive.ticks;//{encoderconv(in.digital_io.encoder[0]),encoderconv(in.digital_io.encoder[1])};//first is left, second is right
 	pair<int,int> encoder_differences=make_pair(current_encoders.first-initial_encoders.first,current_encoders.second-initial_encoders.second);
 	if(SLOW_PRINT){
@@ -604,7 +604,7 @@ Main::Mode next_mode(Main::Mode m,bool autonomous,bool autonomous_start,Toplevel
 
 		case Main::Mode::AUTO_PORTCULLIS:
 			if(!autonomous) return Main::Mode::TELEOP;
-			if(since_switch > 4/*2.5*/) return Main::Mode::AUTO_PORTCULLIS_DONE;
+			if(since_switch > 4) return Main::Mode::AUTO_PORTCULLIS_DONE;
 			return Main::Mode::AUTO_PORTCULLIS;
 	
 		case Main::Mode::AUTO_PORTCULLIS_DONE:
@@ -710,7 +710,7 @@ Main::Mode next_mode(Main::Mode m,bool autonomous,bool autonomous_start,Toplevel
 
 		case Main::Mode::AUTO_LBWLS_BR:
 			if(!autonomous) return Main::Mode::TELEOP;
-			if(since_switch > .39/*.78*/) return Main::Mode::AUTO_LBWLS_EJECT; //rotates on the batter to shoot
+			if(since_switch > .39) return Main::Mode::AUTO_LBWLS_EJECT; //rotates on the batter to shoot
 			return Main::Mode::AUTO_LBWLS_BR;
 //-----------------------------------------------------------------------------------------------------------------------------------------------
 			case Main::Mode::AUTO_LBWHS_WALL:
@@ -834,7 +834,7 @@ Main::Mode next_mode(Main::Mode m,bool autonomous,bool autonomous_start,Toplevel
 		default: assert(0);
 	}
 	return m;	
-}
+}*/
 
 Robot_outputs Main::operator()(Robot_inputs in,ostream&){
 	print_count++;
@@ -1312,9 +1312,10 @@ void test_modes(){
 	}
 }
 
+
 void test_next_mode(){
 	//Main::Mode next_mode(Main::Mode m,bool autonomous,bool autonomous_start,Toplevel::Status_detail /*status*/,Time since_switch, Panel panel,unsigned int navindex,vector<Nav2::NavS> NavV,int & stepcounter,Nav2::aturn Aturn){
-	vector<Main::Mode> MODE_LIST{
+	/*vector<Main::Mode> MODE_LIST{
 		#define X(NAME) Main::Mode::NAME,
 		MODES
 		#undef X
@@ -1330,11 +1331,11 @@ void test_next_mode(){
 		auto next=next_mode(mode,0,0,st,0,Panel{},topready,in,make_pair(0,0),br_step,set_initial_encoders,motion_profile,in_br_range);
 		cout<<"Testing mode "<<mode<<" goes to "<<next<<"\n";
 		assert(next==Main::Mode::TELEOP);
-	}
+	}*/
 }
 
 int main(){
-	test_next_mode();
+	//test_next_mode();
 	test_modes();
 }
 

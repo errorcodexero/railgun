@@ -1,4 +1,4 @@
-g++ -Wall -Werror -std=c++0x --short-enums -DMAIN_TEST -I.. main.cpp \
+g++ -Wall -Werror -std=c++14 --short-enums -DMAIN_TEST -I.. main.cpp \
 	../executive/executive.cpp \
 	../executive/teleop.cpp \
 	../executive/delay.cpp \

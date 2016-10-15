@@ -66,7 +66,7 @@ Executive Teleop::next_mode(Next_mode_info info) {
 			return Executive{Delay()};
 		}
 	}
-	return Executive{Teleop()};
+	return Executive{Teleop(shoot_step,collector_mode,tilt_learn_mode,cheval_step,joy_collector_pos)};
 }
 
 Teleop::Teleop():
@@ -91,6 +91,16 @@ Teleop::Teleop():
 	shooter_constants=read_shooter_constants();
 }
 
+Teleop::Teleop(Shoot_steps ss, Collector_mode cm, bool tlm, Cheval_steps cs, Joy_collector_pos jcp):
+	shoot_step(ss),
+	collector_mode(cm),
+	tilt_learn_mode(tlm),
+	cheval_step(cs),
+	joy_collector_pos(jcp)
+{
+	tilt_presets=read_tilt_presets();
+	shooter_constants=read_shooter_constants();
+}
 
 Shooter::Goal Teleop::shoot_action(Panel::Shooter_mode shooter_mode,double speed_dial,bool climbed_shot)const{
 	switch(shooter_mode){
@@ -516,6 +526,7 @@ void Teleop::display(ostream& o)const{
 
 #ifdef TELEOP_TEST
 #include "test.h"
+
 int main() {
 	Teleop a;
 	test_executive(a);
