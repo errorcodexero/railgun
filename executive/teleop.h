@@ -69,7 +69,7 @@ struct Teleop : Executive_impl<Teleop> {
 	bool operator==(Teleop const&)const;
 	void display(std::ostream&)const;
 	Teleop();
-	Teleop(Shoot_steps,Collector_mode,bool,Cheval_steps,Joy_collector_pos);
+	Teleop(Shooter_constants,Tilt_presets,Shoot_steps,Collector_mode,bool,Cheval_steps,Joy_collector_pos,Posedge_trigger_debounce);
 };
 
 std::ostream& operator<<(std::ostream&,Teleop::Shoot_steps);
