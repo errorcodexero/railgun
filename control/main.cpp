@@ -85,26 +85,6 @@ array<double,LEN> floats_to_doubles(array<float,LEN> a){
 	return r;
 }
 
-double mean(double a,double b){
-	return (a+b)/2;
-}
-
-array<double,3> mean(array<double,3> a,array<double,3> b){
-	return array<double,3>{
-		mean(a[0],b[0]),
-		mean(a[1],b[1]),
-		mean(a[2],b[2])
-	};
-}
-
-Tilt::Goal mean(Tilt::Goal a,Tilt::Goal b){
-	if(a.mode()==Tilt::Goal::Mode::GO_TO_ANGLE && b.mode()==Tilt::Goal::Mode::GO_TO_ANGLE){
-		return Tilt::Goal::go_to_angle(mean(a.angle(),b.angle()));
-	}else{
-		return a;
-	}
-}
-
 Shooter::Goal Main::shoot_action(Panel::Shooter_mode shooter_mode,double speed_dial,bool climbed_shot)const{
 	switch(shooter_mode){
 		case Panel::Shooter_mode::CLOSED_AUTO:
@@ -844,12 +824,6 @@ Robot_outputs Main::operator()(Robot_inputs in,ostream&){
 	Joystick_data gunner_joystick=in.joystick[1];
 	Panel panel=interpret(in.joystick[2]);
 
-	Tilt::Goal level=Tilt::Goal::go_to_angle(make_tolerances(tilt_presets.level));
-	Tilt::Goal low=Tilt::Goal::go_to_angle(make_tolerances(tilt_presets.low));
-	Tilt::Goal top=Tilt::Goal::go_to_angle(make_tolerances(tilt_presets.top));
-	Tilt::Goal cheval=Tilt::Goal::go_to_angle(make_tolerances(tilt_presets.cheval));
-	Tilt::Goal drawbridge=mean(top,level);
-	
 	if(!in.robot_mode.enabled){
 		shoot_step = Main::Shoot_steps::SPEED_UP;
 		collector_mode = Collector_mode::NOTHING;
@@ -884,7 +858,7 @@ Robot_outputs Main::operator()(Robot_inputs in,ostream&){
 		cout<<"\nSET INITIAL ENCODER VALUES\n";
 		initial_encoders = toplevel_status.drive.ticks;	
 	}
-	goals = mode_.run(Run_info{in,main_joystick,gunner_joystick,panel,toplevel_status,level,low,top,cheval,drawbridge});
+	goals = mode_.run(Run_info{in,main_joystick,gunner_joystick,panel,toplevel_status});
 	/*switch(mode){
 		case Mode::TELEOP:
 			goals=teleop(in,main_joystick,gunner_joystick,panel,toplevel_status,level,low,top,cheval,drawbridge);

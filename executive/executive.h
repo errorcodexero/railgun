@@ -26,12 +26,7 @@ std::ostream& operator<<(std::ostream&,Next_mode_info const&);
 	X(Joystick_data,main_joystick)\
 	X(Joystick_data,gunner_joystick)\
 	X(Panel,panel)\
-	X(Toplevel::Status_detail,toplevel_status)\
-	X(Tilt::Goal,level)\
-	X(Tilt::Goal,low)\
-	X(Tilt::Goal,top)\
-	X(Tilt::Goal,cheval)\
-	X(Tilt::Goal,drawbridge)
+	X(Toplevel::Status_detail,toplevel_status)
 DECLARE_STRUCT(Run_info,RUN_INFO_ITEMS)
 Run_info rand(Run_info*);
 Run_info example(Run_info*);

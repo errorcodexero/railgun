@@ -60,6 +60,26 @@ bool operator==(Teleop::Nudge const& a,Teleop::Nudge const& b){
 	return 1;
 }
 
+double mean(double a,double b){
+	return (a+b)/2;
+}
+
+array<double,3> mean(array<double,3> a,array<double,3> b){
+	return array<double,3>{
+		mean(a[0],b[0]),
+		mean(a[1],b[1]),
+		mean(a[2],b[2])
+	};
+}
+
+Tilt::Goal mean(Tilt::Goal a,Tilt::Goal b){
+	if(a.mode()==Tilt::Goal::Mode::GO_TO_ANGLE && b.mode()==Tilt::Goal::Mode::GO_TO_ANGLE){
+		return Tilt::Goal::go_to_angle(mean(a.angle(),b.angle()));
+	}else{
+		 return a;
+	}
+}
+
 Executive Teleop::next_mode(Next_mode_info info) {
 	if (info.autonomous_start) {
 		if (info.panel.in_use) {
@@ -239,9 +259,15 @@ void Teleop::cal(Time now,double current_tilt_angle,double current_shooter_speed
 
 Toplevel::Goal Teleop::run(Run_info info) {
 	Toplevel::Goal goals;
-		
-	bool enabled = info.in.robot_mode.enabled;
 	
+	bool enabled = info.in.robot_mode.enabled;
+
+	Tilt::Goal level=Tilt::Goal::go_to_angle(make_tolerances(tilt_presets.level));
+	Tilt::Goal low=Tilt::Goal::go_to_angle(make_tolerances(tilt_presets.low));
+	Tilt::Goal top=Tilt::Goal::go_to_angle(make_tolerances(tilt_presets.top));
+	Tilt::Goal cheval=Tilt::Goal::go_to_angle(make_tolerances(tilt_presets.cheval));
+	Tilt::Goal drawbridge=mean(top,level);	
+
 	{//Set drive goals
 		bool spin=fabs(info.main_joystick.axis[Gamepad_axis::RIGHTX])>.01;//drive turning button
 		double boost=info.main_joystick.axis[Gamepad_axis::LTRIGGER],slow=info.main_joystick.axis[Gamepad_axis::RTRIGGER];//turbo and slow buttons	
@@ -317,16 +343,16 @@ Toplevel::Goal Teleop::run(Run_info info) {
 		switch(collector_mode){
 			case Collector_mode::COLLECT:
 			{
-				goals.collector={Front::Goal::IN,Sides::Goal::IN,info.level};
+				goals.collector={Front::Goal::IN,Sides::Goal::IN,level};
 				bool ball=info.toplevel_status.collector.front.ball;
 				if(ball) collector_mode=Collector_mode::STOW;
 				break;
 			}
 			case Collector_mode::STOW:
-				goals.collector={Front::Goal::OFF,Sides::Goal::OFF,info.top};
+				goals.collector={Front::Goal::OFF,Sides::Goal::OFF,top};
 				break;
 			case Collector_mode::REFLECT:
-				goals.collector={Front::Goal::OFF,Sides::Goal::OUT,info.level};
+				goals.collector={Front::Goal::OFF,Sides::Goal::OUT,level};
 				break;
 			case Collector_mode::SHOOT_HIGH:
 			{
@@ -335,12 +361,12 @@ Toplevel::Goal Teleop::run(Run_info info) {
 				break;
 			}
 			case Collector_mode::SHOOT_LOW:
-				goals.collector={Front::Goal::OUT,Sides::Goal::OFF,info.top};
+				goals.collector={Front::Goal::OUT,Sides::Goal::OFF,top};
 				shoot_low_timer.update(info.in.now, enabled);
 				if (shoot_low_timer.done()) collector_mode = Collector_mode::STOW;
 				break;
 			case Collector_mode::LOW:
-				goals.collector={Front::Goal::OFF,Sides::Goal::OFF,info.low};
+				goals.collector={Front::Goal::OFF,Sides::Goal::OFF,low};
 				break;
 			case Collector_mode::NOTHING:
 				goals.collector={Front::Goal::OFF,Sides::Goal::OFF,Tilt::Goal::stop()};
@@ -352,7 +378,7 @@ Toplevel::Goal Teleop::run(Run_info info) {
 					goals.collector.sides=Sides::Goal::OFF;
 					switch(cheval_step) {
 						case Cheval_steps::GO_DOWN: 
-							goals.collector.tilt=info.cheval;
+							goals.collector.tilt=cheval;
 							if(ready(status(info.toplevel_status.collector.tilt),goals.collector.tilt)) cheval_step=Cheval_steps::DRIVE;
 							break;
 						case Cheval_steps::DRIVE:
@@ -364,7 +390,7 @@ Toplevel::Goal Teleop::run(Run_info info) {
 						case Cheval_steps::DRIVE_AND_STOW:
 							goals.drive.right=AUTO_POWER;
 							goals.drive.left=AUTO_POWER;
-							goals.collector.tilt=info.top;
+							goals.collector.tilt=top;
 							cheval_drive_timer.update(info.in.now,enabled);
 							if (cheval_drive_timer.done()) collector_mode=Collector_mode::STOW;
 							break;
@@ -374,7 +400,7 @@ Toplevel::Goal Teleop::run(Run_info info) {
 					break;
 				}
 			case Collector_mode::DRAWBRIDGE:
-				goals.collector={Front::Goal::OFF,Sides::Goal::OFF,info.drawbridge};
+				goals.collector={Front::Goal::OFF,Sides::Goal::OFF,drawbridge};
 				break;
 			default: assert(0);
 		}
@@ -422,8 +448,8 @@ Toplevel::Goal Teleop::run(Run_info info) {
 			}
 			switch (joy_collector_pos) {
 				case Joy_collector_pos::STOP: return Tilt::Goal::stop();
-				case Joy_collector_pos::LOW: return info.low;
-				case Joy_collector_pos::LEVEL: return info.level;
+				case Joy_collector_pos::LOW: return low;
+				case Joy_collector_pos::LEVEL: return level;
 				default: assert(0);
 			}
 		}();
