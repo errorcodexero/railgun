@@ -26,6 +26,12 @@
 		\
 	}
 
+#define IMPL_STRUCT_DECLARE(NAME,LIST) NAME( LIST(ARGS) bool);
+
+#define ITEMS(A,B) B,
+
+#define CONSTRUCT_STRUCT(NAME,LIST) NAME( LIST(ITEMS) bool)
+
 #define CMP_OPS(NAME,LIST) \
 	bool operator==(NAME const& a,NAME const& b){\
 		LIST(EQ1)\

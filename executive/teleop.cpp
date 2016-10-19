@@ -86,7 +86,8 @@ Executive Teleop::next_mode(Next_mode_info info) {
 			return Executive{Delay()};
 		}
 	}
-	return Executive{Teleop(shooter_constants,tilt_presets,shoot_step,collector_mode,tilt_learn_mode,cheval_step,joy_collector_pos,set_button)};
+	Teleop t = Teleop();//CONSTRUCT_STRUCT(Teleop,TELEOP_ITEMS);
+	return Executive{t};
 }
 
 Teleop::Teleop():
@@ -111,16 +112,7 @@ Teleop::Teleop():
 	shooter_constants=read_shooter_constants();
 }
 
-Teleop::Teleop(Shooter_constants sc,Tilt_presets tp,Shoot_steps ss,Collector_mode cm,bool tlm,Cheval_steps cs,Joy_collector_pos jcp,Posedge_trigger_debounce sb):	
-	shooter_constants(sc),
-	tilt_presets(tp),
-	shoot_step(ss),
-	collector_mode(cm),
-	tilt_learn_mode(tlm),
-	cheval_step(cs),
-	joy_collector_pos(jcp),
-	set_button(sb)
-{}
+IMPL_STRUCT(Teleop::Teleop,TELEOP_ITEMS)
 
 Shooter::Goal Teleop::shoot_action(Panel::Shooter_mode shooter_mode,double speed_dial,bool climbed_shot)const{
 	switch(shooter_mode){
@@ -511,7 +503,7 @@ Toplevel::Goal Teleop::run(Run_info info) {
 	return goals;
 }
 
-#define TELEOP_ITEMS(X)\
+#define TELEOP_ITEMS_NO_TYPE(X)\
 	X(shooter_constants)\
 	X(tilt_presets)\
 	X(shoot_step)\
@@ -530,14 +522,14 @@ Toplevel::Goal Teleop::run(Run_info info) {
 
 bool Teleop::operator<(Teleop const& a)const{
 	#define X(NAME) if(NAME<a.NAME) return 1; if(a.NAME<NAME) return 0;
-	TELEOP_ITEMS(X)
+	TELEOP_ITEMS_NO_TYPE(X)
 	#undef X
 	return 0;
 }
 
 bool Teleop::operator==(Teleop const& a)const{
 	#define X(NAME) if(NAME!=a.NAME) return 0;
-	TELEOP_ITEMS(X)
+	TELEOP_ITEMS_NO_TYPE(X)
 	#undef X
 	return 1;
 }
@@ -545,7 +537,7 @@ bool Teleop::operator==(Teleop const& a)const{
 void Teleop::display(ostream& o)const{
 	o<<"Teleop( ";
 	#define X(NAME) o<<""#NAME<<":"<<(NAME)<<" ";
-	//TELEOP_ITEMS(X)
+	//TELEOP_ITEMS_NO_TYPE(X)
 	#undef X
 	o<<")";
 }

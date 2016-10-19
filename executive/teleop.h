@@ -4,22 +4,17 @@
 #include "executive.h"
 #include "../util/posedge_trigger_debounce.h"
 #include "../util/posedge_toggle.h"
+#include "../util/quick.h"
 #include "../control/tilt_presets.h"
 #include "../control/shooter_constants.h"
 
 struct Teleop : Executive_impl<Teleop> {
-	Shooter_constants shooter_constants;
-	Tilt_presets tilt_presets;
-	
 	#define SHOOT_STEPS X(SPEED_UP) X(SHOOT)
 	enum class Shoot_steps{
 		#define X(NAME) NAME,
 		SHOOT_STEPS
 		#undef X
 	};	
-	Shoot_steps shoot_step;
-	
-	Countdown_timer shoot_high_timer, shoot_low_timer, cheval_lift_timer, cheval_drive_timer;
 	
 	#define COLLECTOR_MODES X(CHEVAL) X(NOTHING) X(COLLECT) X(STOW) X(SHOOT_HIGH) X(REFLECT) X(SHOOT_LOW) X(LOW) X(DRAWBRIDGE)
 	enum class Collector_mode{
@@ -27,7 +22,6 @@ struct Teleop : Executive_impl<Teleop> {
 		COLLECTOR_MODES
 		#undef X
 	};
-	Collector_mode collector_mode;
 	
 	enum Nudges{FORWARD,BACKWARD,CLOCKWISE,COUNTERCLOCKWISE,NUDGES};
 	#define NUDGE_ITEMS(X) X(Posedge_trigger,trigger) X(Countdown_timer,timer)
@@ -35,19 +29,13 @@ struct Teleop : Executive_impl<Teleop> {
 		Posedge_trigger trigger;
 		Countdown_timer timer;
 	};
-	std::array<Nudge,NUDGES> nudges;
 	
-	Posedge_toggle controller_auto;
-	Posedge_trigger_debounce cheval_trigger;
-	bool tilt_learn_mode;
-
 	#define CHEVAL_STEPS X(GO_DOWN) X(DRIVE) X(DRIVE_AND_STOW)
 	enum class Cheval_steps{
 		#define X(NAME) NAME,
 		CHEVAL_STEPS
 		#undef X
 	};
-	Cheval_steps cheval_step;
 
 	#define JOY_COLLECTOR_POS X(STOP) X(LOW) X(LEVEL)
 	enum class Joy_collector_pos{
@@ -55,13 +43,24 @@ struct Teleop : Executive_impl<Teleop> {
 		JOY_COLLECTOR_POS
 		#undef X
 	};
-	Joy_collector_pos joy_collector_pos;	
-
-	Posedge_trigger_debounce set_button;
 	
-	Shooter::Goal shoot_action(Panel::Shooter_mode,double,bool)const;
-	void shooter_protocol(Toplevel::Status_detail const&,const bool,const Time,Toplevel::Goal&,bool,Panel::Shooter_mode,double);
-	void cal(Time,double,double,Panel const&);
+	#define TELEOP_ITEMS(X)\
+		X(Shooter_constants,shooter_constants)\
+		X(Tilt_presets,tilt_presets)\
+		X(Shoot_steps,shoot_step)\
+		X(Countdown_timer,shoot_high_timer)\
+		X(Countdown_timer,shoot_low_timer)\
+		X(Countdown_timer,cheval_lift_timer)\
+		X(Countdown_timer,cheval_drive_timer)\
+		X(Collector_mode,collector_mode)\
+		X(SINGLE_ARG(std::array<Nudge,NUDGES>),nudges)\
+		X(Posedge_toggle,controller_auto)\
+		X(Posedge_trigger_debounce,cheval_trigger)\
+		X(bool,tilt_learn_mode)\
+		X(Cheval_steps,cheval_step)\
+		X(Joy_collector_pos,joy_collector_pos)\
+		X(Posedge_trigger_debounce,set_button)
+	TELEOP_ITEMS(DECL1)
 
 	Executive next_mode(Next_mode_info);
 	Toplevel::Goal run(Run_info);
@@ -69,7 +68,7 @@ struct Teleop : Executive_impl<Teleop> {
 	bool operator==(Teleop const&)const;
 	void display(std::ostream&)const;
 	Teleop();
-	Teleop(Shooter_constants,Tilt_presets,Shoot_steps,Collector_mode,bool,Cheval_steps,Joy_collector_pos,Posedge_trigger_debounce);
+	IMPL_STRUCT_DECLARE(Teleop,TELEOP_ITEMS)
 };
 
 std::ostream& operator<<(std::ostream&,Teleop::Shoot_steps);
