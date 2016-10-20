@@ -1,5 +1,6 @@
 #
-# Makefile for creating
+# Makefile for building the SABRE repository.  This is used by jenkins to
+# do periodic builds
 #
 
 WPILIB=/usr/local/wpilib
