@@ -60,8 +60,12 @@ struct Teleop : Executive_impl<Teleop> {
 		X(Cheval_steps,cheval_step)\
 		X(Joy_collector_pos,joy_collector_pos)\
 		X(Posedge_trigger_debounce,set_button)
-	TELEOP_ITEMS(DECL1)
+	STRUCT_MEMBERS(TELEOP_ITEMS)
 
+	Shooter::Goal shoot_action(Panel::Shooter_mode,double,bool)const;
+	void shooter_protocol(Toplevel::Status_detail const&,const bool,const Time,Toplevel::Goal&,bool,Panel::Shooter_mode,double);
+	void cal(Time,double,double,Panel const&);
+	
 	Executive next_mode(Next_mode_info);
 	Toplevel::Goal run(Run_info);
 	bool operator<(Teleop const&)const;

@@ -86,7 +86,7 @@ Executive Teleop::next_mode(Next_mode_info info) {
 			return Executive{Delay()};
 		}
 	}
-	Teleop t = Teleop();//CONSTRUCT_STRUCT(Teleop,TELEOP_ITEMS);
+	Teleop t(CONSTRUCT_STRUCT_PARAMS(TELEOP_ITEMS));
 	return Executive{t};
 }
 
