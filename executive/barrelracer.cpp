@@ -21,7 +21,7 @@ Executive Auto_br_straightaway::next_mode(Next_mode_info info){
 		return Executive{Teleop()};
 		//return make_unique<Auto_br_initialturn>();//TODO 
 	}
-	return Executive{Auto_br_straightaway(br_step,initial_encoders)};
+	return Executive{Auto_br_straightaway(CONSTRUCT_STRUCT_PARAMS(BARRELRACER_STRAIGHTAWAY_ITEMS))};
 }
 
 Toplevel::Goal Auto_br_straightaway::run(Run_info info){
@@ -34,7 +34,7 @@ Toplevel::Goal Auto_br_straightaway::run(Run_info info){
 
 Executive Auto_br_initialturn::next_mode(Next_mode_info info){
 	if(!info.autonomous) return Executive{Teleop()};
-	return Executive{Auto_br_initialturn(br_step, initial_encoders)};
+	return Executive{Auto_br_initialturn(CONSTRUCT_STRUCT_PARAMS(BARRELRACER_ITEMS))};
 }
 
 Toplevel::Goal Auto_br_initialturn::run(Run_info){
@@ -43,7 +43,7 @@ Toplevel::Goal Auto_br_initialturn::run(Run_info){
 
 Executive Auto_br_side::next_mode(Next_mode_info info){
 	if(!info.autonomous) return Executive{Teleop()};
-	return Executive{Auto_br_side(br_step, initial_encoders)};
+	return Executive{Auto_br_side(CONSTRUCT_STRUCT_PARAMS(BARRELRACER_ITEMS))};
 }
 
 Toplevel::Goal Auto_br_side::run(Run_info){
@@ -52,7 +52,7 @@ Toplevel::Goal Auto_br_side::run(Run_info){
 
 Executive Auto_br_sideturn::next_mode(Next_mode_info info){
 	if(!info.autonomous) return Executive{Teleop()};
-	return Executive{Auto_br_sideturn(br_step, initial_encoders)};
+	return Executive{Auto_br_sideturn(CONSTRUCT_STRUCT_PARAMS(BARRELRACER_ITEMS))};
 }
 
 Toplevel::Goal Auto_br_sideturn::run(Run_info){
@@ -61,7 +61,7 @@ Toplevel::Goal Auto_br_sideturn::run(Run_info){
 
 Executive Auto_br_endturn::next_mode(Next_mode_info info){
 	if(!info.autonomous) return Executive{Teleop()};
-	return Executive{Auto_br_endturn(br_step,initial_encoders)};
+	return Executive{Auto_br_endturn(CONSTRUCT_STRUCT_PARAMS(BARRELRACER_ITEMS))};
 }
 
 Toplevel::Goal Auto_br_endturn::run(Run_info){
