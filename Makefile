@@ -4,15 +4,16 @@
 #
 
 WPILIB=/usr/local/wpilib
+TARGET = sabre
 
-all: sabre
+all: $(TARGET)
 
-sabre::
+$(TARGET)::
 	(cd util ; make)
 	(cd input ; make)
 	(cd control ; make)
 	(cd executive ; make)
-	(cd roborio ; make WPILIB=$(WPILIB))
+	(cd roborio ; make WPILIB=$(WPILIB) TARGET=$(TARGET))
 
 clean::
 	rm */*.o */*.a
