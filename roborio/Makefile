@@ -17,5 +17,5 @@ SRC = \
 
 OBJS = $(SRC:.cpp=.o)
 
-sabre: $(OBJS)
+$(TARGET): $(OBJS)
 	$(CXX) -o $@ $(OBJS) $(MYLIBS) $(LDFLAGS) -lwpi
