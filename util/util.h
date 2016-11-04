@@ -167,13 +167,15 @@ std::vector<T> take(size_t lim,std::vector<T> v){
 	return r;
 }
 
-void print_lines(auto a){
+template<typename T>
+void print_lines(T a){
 	for(auto elem:a){
 		std::cout<<elem<<"\n";
 	}
 }
 
-auto cross(auto a,auto b){
+template<typename C_A,typename C_B>
+auto cross(C_A a,C_B b){
 	using A=decltype(*begin(a));
 	using B=decltype(*begin(b));
 	std::vector<std::pair<A,B>> r;

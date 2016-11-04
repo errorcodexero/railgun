@@ -33,7 +33,7 @@ Run_info example(Run_info*);
 std::vector<Run_info> examples(Run_info*);
 std::ostream& operator<<(std::ostream&,Run_info const&);
 
-class Executive_interface;
+struct Executive_interface;
 
 class Executive{
 	std::unique_ptr<Executive_interface> impl;

@@ -86,7 +86,8 @@ void print_diff(Executive const& a,Executive const& b){
 	a.get().diff(cout,b.get());
 }
 
-void show(string name,auto a){
+template<typename T>
+void show(string name,T a){
 	cout<<name<<":\n";
 	for(auto elem:take(20,to_vec(to_set(a)))){
 		cout<<"\t"<<elem<<"\n";

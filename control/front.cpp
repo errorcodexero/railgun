@@ -65,7 +65,7 @@ Robot_outputs Front::Output_applicator::operator()(Robot_outputs r, Front::Outpu
 	return r;
 }
 
-Front::Estimator::Estimator():input({0}){}
+Front::Estimator::Estimator():input(0){}
 
 Front::Status_detail Front::Estimator::get()const{ return input;}
 

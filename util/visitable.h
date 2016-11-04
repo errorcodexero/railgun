@@ -167,8 +167,8 @@ struct Nop{
 	}
 };
 
-template<typename T>
-void visit1(size_t i,auto &f,Visitable<T> const& a){
+template<typename Func,typename T>
+void visit1(size_t i,Func &f,Visitable<T> const& a){
 	visit(i,f,static_cast<const T&>(a));
 }
 
