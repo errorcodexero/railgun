@@ -6,8 +6,6 @@
 #include "../util/interface.h"
 #include "front.h"
 
-using namespace std;
-
 struct Sides{
 	enum class Goal{IN,OFF,OUT};
 	

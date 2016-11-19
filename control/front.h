@@ -5,8 +5,6 @@
 #include <set>
 #include "../util/interface.h"
 
-using namespace std;
-
 struct Front{
 	enum class Goal{IN,OFF,OUT,CLEAR_BALL};
 	

@@ -5,8 +5,6 @@
 #include "../util/interface.h"
 #include <set>
 
-using namespace std;
-
 class Multistate_input{//interprets from axes and sets value based on which segment of the range the voltage lies in
 	protected:
 	unsigned int value;
