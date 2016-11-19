@@ -11,10 +11,13 @@
 
 #define TYPES(A,B) A,
 
+#define STRUCT_MEMBERS(LIST)\
+	LIST(DECL1)\
+	bool dummy[0];
+
 #define DECLARE_STRUCT(NAME,LIST)\
 	struct NAME{\
-		LIST(DECL1)\
-		bool dummy[0];\
+		STRUCT_MEMBERS(LIST)\
 		NAME( LIST(TYPES) bool=0);\
 	};
 
@@ -25,6 +28,12 @@
 	NAME( LIST(ARGS) bool):LIST(FDECL) dummy{}{\
 		\
 	}
+
+#define IMPL_STRUCT_DECLARE(NAME,LIST) NAME( LIST(TYPES) bool);
+
+#define ITEMS(A,B) B,
+
+#define CONSTRUCT_STRUCT_PARAMS(LIST) LIST(ITEMS) false
 
 #define CMP_OPS(NAME,LIST) \
 	bool operator==(NAME const& a,NAME const& b){\

@@ -1,7 +1,7 @@
 #include "log.h"
 #include<typeinfo>
 
-#define nyi { cout<<"nyi "<<__LINE__<<"\n"; exit(44); }
+using namespace std;
 
 bool file_exists(string const& name){
 	ifstream f(name);
@@ -239,6 +239,12 @@ void visit(Func f,Sides::Input const& a){
 template<typename Func>
 void visit(Func f,Shooter::Status_detail const& a){
 	f.terminal(a);
+}
+
+template<typename Func,typename T1,typename T2>
+void visit(Func f,std::pair<T1,T2> p){
+	visit(f,p.first);
+	visit(f,p.second);
 }
 
 struct Header{

@@ -11,6 +11,12 @@ void Posedge_toggle::update(bool sample){
 
 bool Posedge_toggle::get()const{ return value; }
 
+bool operator<(Posedge_toggle a,Posedge_toggle b){
+	int a1=(a.value<<1)+a.last;
+	int b1=(b.value<<1)+b.last;
+	return a1<b1;
+}
+
 bool operator==(Posedge_toggle a,Posedge_toggle b){
 	return a.value==b.value && a.last==b.last;
 }

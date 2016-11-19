@@ -14,6 +14,10 @@ bool Posedge_trigger::operator()(bool b){
 	return r;
 }
 
+bool operator<(Posedge_trigger a,Posedge_trigger b){
+	return a.last<b.last;
+}
+
 bool operator==(Posedge_trigger a,Posedge_trigger b){
 	return a.last==b.last;
 }

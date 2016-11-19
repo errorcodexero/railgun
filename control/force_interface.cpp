@@ -89,6 +89,8 @@ int Force_interface::solenoid(unsigned location,int value){
 }
 
 int Force_interface::relay(unsigned location,int value){
+	assert((value&0x3)==value);
+
 	if(location==15){
 		int r=0;
 		for(unsigned i=0;i<Robot_outputs::RELAYS;i++){
@@ -108,11 +110,12 @@ int Force_interface::relay(unsigned location,int value){
 		force.relay[location]=0;
 	}else{
 		force.relay[location]=1;
-		Relay_output v;
-		if(value==0) v=Relay_output::_00;
-		if(value==1) v=Relay_output::_10;
-		if(value==3) v=Relay_output::_01;
-		force.values.relay[location]=v;
+		force.values.relay[location]=[=](){
+			if(value==0) return Relay_output::_00;
+			if(value==1) return Relay_output::_10;
+			if(value==3) return Relay_output::_01;
+			assert(0);
+		}();
 	}
 	return 0;
 }

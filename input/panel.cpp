@@ -216,6 +216,14 @@ ostream& operator<<(ostream& o,const Panel p){
 	return o<<")";
 }
 
+bool operator==(Panel const& ,Panel const&){
+	return 1;//TODO
+}
+
+bool operator!=(Panel const& a,Panel const& b){
+	return !(a==b);
+}
+
 float axis_to_percent(double a){
 	return .5-(a/2);
 }
@@ -251,7 +259,6 @@ Panel interpret(Joystick_data d){
 	return p;
 }
 
-#ifdef PANEL_TEST
 Joystick_data driver_station_input_rand(){
 	Joystick_data r;
 	for(unsigned i=0;i<JOY_AXES;i++){
@@ -263,6 +270,11 @@ Joystick_data driver_station_input_rand(){
 	return r;
 }
 
+Panel rand(Panel*){
+	return interpret(driver_station_input_rand());
+}
+
+#ifdef PANEL_TEST
 int main(){
 	{
 		cout<<"Test value   multistate_control(3)\n";

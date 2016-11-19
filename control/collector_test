@@ -1,4 +1,5 @@
 g++ --std=c++11 -Wall -g -DCOLLECTOR_TEST \
+	nop.cpp \
 	collector.cpp \
 	tilt.cpp \
 	front.cpp \

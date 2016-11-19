@@ -149,7 +149,9 @@ ostream& operator<<(ostream& o,Toplevel::Goal g){
 Toplevel::Status::Status():
 	drive(
 		{Motor_check::Status::OK_,Motor_check::Status::OK_},
-		0
+		0,
+		{0.0,0.0},
+		{0.0,0.0}
 	),
 	pump(Pump::Status::NOT_FULL),
 	/*tilt(0),
@@ -255,6 +257,16 @@ bool operator<(Toplevel::Status_detail const& a,Toplevel::Status_detail const& b
 	TOPLEVEL_ITEMS
 	#undef X
 	return 0;
+}
+
+bool operator!=(Toplevel::Status_detail const& a,Toplevel::Status_detail const& b){
+	return !(a==b);
+}
+
+Toplevel::Status_detail rand(Toplevel::Status_detail *a){
+	auto e=examples(a);
+	assert(e.size());
+	return choose_random(e);
 }
 
 ostream& operator<<(ostream& o,Toplevel::Status_detail const& a){
@@ -381,18 +393,6 @@ bool approx_equal(T t,Maybe<T> m){
 	if(!m) return 0;
 	return approx_equal(t,*m);
 }
-
-/*Digital_in random(Digital_in* d){
-	return choose(examples(d));
-}
-
-Robot_inputs random_inputs(){
-	Robot_inputs r;
-	for(unsigned i=0;i<Robot_outputs::DIGITAL_IOS;i++){
-		r.digital_io.in[i]=random_dio();
-	}
-	return r;
-}*/
 
 pair<Digital_in,Digital_in> create_pair(Digital_in*){
 	return make_pair(Digital_in::_0,Digital_in::_1);

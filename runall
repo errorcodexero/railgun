@@ -2,6 +2,8 @@
 
 #This is supposed to give a faster way to run all the tests.  It's not super elegant, oh well.
 
+import os,sys
+from optparse import OptionParser
 from glob import glob
 import os,sys
 import commands
@@ -64,6 +66,14 @@ def check_file(contents):
 			r.append((line_num,'type names',s))
 	return r
 
+#str->int
+def check_header(filename):
+	lines=file(filename).read().splitlines()
+	for line in lines:
+		if line.startswith('using namespace'):
+			print 'Error: "using namespace" in header file',filename
+			return 1
+
 #returns int
 def check_style():
 	cppfiles=commands.getoutput("find -name \*.cpp").splitlines()
@@ -74,9 +84,21 @@ def check_style():
 			print filename
 			for e in errors: print '\t',e
 			return 1
+	if any(map(check_header,hfiles)):
+		return 1
 	return 0
 
 #output stream -> void
+
+def get_dir(test_script): return test_script.split('/')[0]
+
+def make_directories(make_tobj,objdir):	
+        test_scripts=filter(lambda x: 'joystick_linux' not in x and x.split('/')[0]!=objdir,glob('*/*_test'))
+        dirs=set(map(get_dir,test_scripts)+['roborio'])
+        if(make_tobj): map(lambda x: os.system('mkdir -p '+objdir+'/%s'%x),dirs)
+        map(lambda x: os.system('mkdir -p obj/%s'%x),dirs)
+	return test_scripts
+	
 def makefile(out):
 	def get_base(test_script):
 		return test_script[:-5].split('/')[1]
@@ -84,20 +106,21 @@ def makefile(out):
 	def get_target_name(test_script):
 		return test_script.replace('/','_')
 
-	def get_dir(test_script): return test_script.split('/')[0]
+	#def get_dir(test_script): return test_script.split('/')[0]
 
 	def get_cppfile(test_script):
 		return get_dir(test_script)+'/'+get_base(test_script)+'.cpp'
 
 	objdir='tobj'
-	test_scripts=filter(lambda x: 'joystick_linux' not in x and x.split('/')[0]!=objdir,glob('*/*_test'))
-	dirs=set(map(get_dir,test_scripts)+['roborio'])
-	map(lambda x: os.system('mkdir -p '+objdir+'/%s'%x),dirs)
-	map(lambda x: os.system('mkdir -p obj/%s'%x),dirs)
+	#test_scripts=filter(lambda x: 'joystick_linux' not in x and x.split('/')[0]!=objdir,glob('*/*_test'))
+	#dirs=set(map(get_dir,test_scripts)+['roborio'])
+	#map(lambda x: os.system('mkdir -p '+objdir+'/%s'%x),dirs)
+	#map(lambda x: os.system('mkdir -p obj/%s'%x),dirs)
+	test_scripts=make_directories(True,objdir)
 
 	print>>out,'OBJDIR='+objdir
 	print>>out,'H_FILES=$(find -name \*.h)'
-	print>>out,'CXXFLAGS=-Wall -Wextra -Werror -std=c++14 -g -O2'
+	print>>out,'CXXFLAGS=-Wall -Werror -std=c++14 -g -O2'
 	print>>out,'export SHELL=/bin/bash' #so that later stderr redirection will work
 	print>>out,'.PHONY: clean'
 	print>>out,''
@@ -153,6 +176,10 @@ def makefile(out):
 
 def cross_makefile(out):
 	import commands
+
+	objdir='tobj'
+	make_directories(False,objdir)
+
 	def object_files():
 		cppfiles=commands.getoutput("find -name \*.cpp").splitlines()
 		cppfiles=filter(lambda x: 'Robot' not in x,cppfiles)
@@ -185,9 +212,12 @@ def cross_makefile(out):
 	print>>out,"\trm -f FRCUserProgram"
 	print>>out,"\tfind -name \*.o | xargs rm -f"
 
+def bazel_available():
+	#return bool
+	status,output=commands.getstatusoutput("which bazel")
+	return status==0
+
 if __name__=='__main__':
-	import os,sys
-	from optparse import OptionParser
 	p=OptionParser()
 	p.add_option('--test',action='store_true',help="Run unit tests")
 	p.add_option('--build',action='store_true',help="Build the executable to load onto the robot")
@@ -197,6 +227,9 @@ if __name__=='__main__':
 	assert len(args)==0
 
 	def test():
+		if bazel_available():
+			return os.system("bazel test --run_under='valgrind --error-exitcode=1' --cxxopt=-std=c++14 --cxxopt=-Wall --cxxopt=-Werror :all")
+
 		func=makefile
 		func(open('t.mk','w'))
 		#r=os.system('make -f t.mk && make -f t.mk clean')

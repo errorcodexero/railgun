@@ -1,4 +1,22 @@
-g++ -Wall -Werror -std=c++0x --short-enums -DMAIN_TEST -I.. main.cpp \
+g++ -Wall -Werror -std=c++14 --short-enums -DMAIN_TEST -I.. main.cpp \
+	../executive/executive.cpp \
+	../executive/teleop.cpp \
+	../executive/delay.cpp \
+	../executive/auto_null.cpp \
+	../executive/auto_reach.cpp \
+	../executive/auto_statictwo.cpp \
+	../executive/auto_static.cpp \
+	../executive/auto_stop.cpp \
+	../executive/portcullis.cpp \
+	../executive/cheval.cpp \
+	../executive/low_bar_low_score.cpp \
+	../executive/low_bar_wall_low_score.cpp \
+	../executive/low_bar_wall_high_score.cpp \
+	../executive/barrelracer.cpp \
+	../util/type.cpp \
+	tilt_presets.cpp \
+	shooter_constants.cpp \
+	nop.cpp \
 	force.cpp \
 	force_interface.cpp \
 	../util/fixVictor.cpp \
@@ -34,4 +52,6 @@ g++ -Wall -Werror -std=c++0x --short-enums -DMAIN_TEST -I.. main.cpp \
 	collector.cpp \
 	../util/debounce.cpp \
 	../util/posedge_trigger_debounce.cpp \
+	../util/motion_profile.cpp \
+	../util/pwm.cpp \
 	-o main 2>&1 && ./main

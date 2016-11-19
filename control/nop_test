@@ -1,0 +1,6 @@
+g++ --std=c++14 -DNOP_TEST -Wall -Wextra -Werror \
+	nop.cpp \
+	../util/interface.cpp\
+	../util/driver_station_interface.cpp\
+	../util/util.cpp\
+	-o nop 2>&1 && ./nop

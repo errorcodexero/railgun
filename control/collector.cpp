@@ -1,6 +1,6 @@
 #include "collector.h"
 
-#define nyi { cout<<"nyi "<<__LINE__<<"\n"; exit(44); }
+using namespace std;
 
 Collector::Goal::Goal():front(Front::Goal::OFF),sides(Sides::Goal::OFF),tilt(Tilt::Goal::stop()){}
 

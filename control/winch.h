@@ -10,6 +10,7 @@ struct Winch{
 	
 	typedef Goal Output;
 
+	#define WINCH_INPUT_ITEMS(X) X(bool,deployed)
 	struct Input{
 		bool deployed;
 		Input();

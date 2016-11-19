@@ -3,7 +3,6 @@
 static const int WINCH_PWM = 5;
 static const float WINCH_POWER = .8;
 
-#define nyi {cout<<"nyi: line "<<__LINE__; exit(44); }
 #define LIMIT_LOC 4
 
 Winch::Input::Input():deployed(0){}

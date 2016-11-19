@@ -7,13 +7,10 @@
 #include "driver_station_interface.h"
 #include "maybe_inline.h"
 #include "checked_array.h"
+#include "pwm.h"
 
 typedef double Time;//Seconds
-typedef double Pwm_output;
 typedef bool Solenoid_output;
-
-//enum class Digital_out{INPUT,_1,_0};
-//std::ostream& operator<<(std::ostream&,Digital_out);
 
 enum class Relay_output{_00,_01,_10,_11};
 std::ostream& operator<<(std::ostream&,Relay_output);
@@ -66,7 +63,11 @@ struct Talon_srx_output{
 	double speed;
 	enum class Mode{VOLTAGE,SPEED};
 	Mode mode;
+
 	Talon_srx_output():power_level(0),speed(0),mode(Talon_srx_output::Mode::VOLTAGE){}
+
+	static Talon_srx_output voltage(double);
+	static Talon_srx_output closed_loop(double);
 };
 
 enum Panel_outputs{SPUN_UP, BOULDER, PANEL_OUTPUTS};
@@ -165,6 +166,7 @@ std::ostream& operator<<(std::ostream&,Robot_mode);
 
 enum class Digital_in{OUTPUT,_0,_1,ENCODER};
 std::ostream& operator<<(std::ostream&,Digital_in);
+std::set<Digital_in> examples(Digital_in*);
 
 typedef int Encoder_output;
 
@@ -213,5 +215,7 @@ bool operator<(Robot_inputs,Robot_inputs);
 bool operator==(Robot_inputs,Robot_inputs);
 bool operator!=(Robot_inputs,Robot_inputs);
 std::ostream& operator<<(std::ostream& o,Robot_inputs);
+Robot_inputs rand(Robot_inputs*);
+Robot_inputs random_inputs();
 
 #endif

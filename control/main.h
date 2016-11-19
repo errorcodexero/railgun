@@ -12,52 +12,45 @@
 #include "../util/nav2.h"
 #include "log.h"
 #include "../util/posedge_trigger_debounce.h"
-
-struct Tilt_presets{
-	double top, level, low, cheval;//angles (in degrees) that it will go to when set to the tilt goals
-	Tilt_presets();
-};
-
-struct Shooter_constants{
-	PID_values pid;
-	float ground,climbed;
-
-	Shooter_constants();
-};
-bool operator<(Shooter_constants const&,Shooter_constants const&);
-bool operator==(Shooter_constants const&,Shooter_constants const&);
-std::ostream& operator<<(std::ostream&,Shooter_constants const&);
+#include "../util/motion_profile.h"
+#include "tilt_presets.h"
+#include "shooter_constants.h"
+#include "../executive/executive.h"
 
 struct Main{
 	#define MODES X(TELEOP)\
 		X(DELAY) X(AUTO_NULL) X(AUTO_REACH) X(AUTO_STATIC) \
 		X(AUTO_STOP) X(AUTO_STATICTWO) X(AUTO_TEST) \
 		X(AUTO_PORTCULLIS) X(AUTO_PORTCULLIS_DONE) \
-		X(AUTO_CHEVALPOS) X(AUTO_CHEVALDROP) \
-		X(AUTO_CHEVALDRIVE) X(AUTO_CHEVALSTOW) \
+		X(AUTO_CHEVALPOS) X(AUTO_CHEVALWAIT) X(AUTO_CHEVALDROP) X(AUTO_CHEVALDRIVE) X(AUTO_CHEVALSTOW) \
 		X(AUTO_LBLS_CROSS_LB) X(AUTO_LBLS_CROSS_MU) \
 		X(AUTO_LBLS_SCORE_SEEK) X(AUTO_LBLS_SCORE_LOCATE) \
-		X(AUTO_LBLS_SCORE_CD) X(AUTO_LBLS_SCORE_EJECT) X (AUTO_CHEVALWAIT) \
+		X(AUTO_LBLS_SCORE_CD) X(AUTO_LBLS_SCORE_EJECT) \
 		X(AUTO_LBWLS_WALL) X(AUTO_LBWLS_MUP) X(AUTO_LBWLS_ROTATE) X(AUTO_LBWLS_TOWER) \
 		X(AUTO_LBWLS_EJECT) X(AUTO_LBWLS_BACK) X(AUTO_LBWLS_C) X(AUTO_LBWLS_BR) \
 		X(AUTO_LBWHS_WALL) X(AUTO_LBWHS_MUP) X(AUTO_LBWHS_ROTATE) X(AUTO_LBWHS_TOWER) \
 		X(AUTO_LBWHS_EJECT) X(AUTO_LBWHS_BACK) X(AUTO_LBWHS_C) X(AUTO_LBWHS_BR) \
-		X(AUTO_LBWHS_PREP) X(AUTO_LBWHS_BP)
+		X(AUTO_LBWHS_PREP) X(AUTO_LBWHS_BP) \
+		X(AUTO_BR_STRAIGHTAWAY) X(AUTO_BR_INITIALTURN) X(AUTO_BR_SIDE) X(AUTO_BR_SIDETURN) X(AUTO_BR_ENDTURN)
 	enum class Mode{
 		#define X(NAME) NAME,
 		MODES
 		#undef X
 	};
 	Mode mode;
+	Executive mode_;
 
+	Motion_profile motion_profile;
+	Countdown_timer in_br_range;
 	Nav2 nav2;
 	Force_interface force;
 	Perf_tracker perf;
 	Toplevel toplevel;
 	bool topready;
 	bool simtest;
-	bool encoderflag;
-	int startencoder;
+	bool set_initial_encoders;
+	unsigned int br_step;//starts at lap 0 and increases by one every time it reaches a new node
+	std::pair<int,int> initial_encoders;//first is left, second is right
 	Robot_inputs in_i;
 
 	Countup_timer since_switch,since_auto_start;
@@ -69,7 +62,7 @@ struct Main{
 		Posedge_trigger trigger;
 		Countdown_timer timer;
 	};
-	array<Nudge,NUDGES> nudges;
+	std::array<Nudge,NUDGES> nudges;
 	
 	#define JOY_COLLECTOR_POS X(STOP) X(LOW) X(LEVEL)
 	enum class Joy_collector_pos{

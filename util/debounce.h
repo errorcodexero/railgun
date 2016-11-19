@@ -17,9 +17,13 @@ class Debounce{
 	bool get()const;
 	void update(Time,bool);
 
+	friend bool operator<(Debounce const&,Debounce const&);
+	friend bool operator==(Debounce const&,Debounce const&);
 	friend std::ostream& operator<<(std::ostream&,Debounce const&);
 };
 
+bool operator<(Debounce const&,Debounce const&);
+bool operator!=(Debounce const&,Debounce const&);
 std::ostream& operator<<(std::ostream&,Debounce const&);
 
 #endif

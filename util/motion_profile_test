@@ -1,0 +1,1 @@
+g++ -Wall -Wextra -Werror -std=c++11 -DMOTION_PROFILE_TEST motion_profile.cpp -o motion_profile 2>&1 && ./motion_profile

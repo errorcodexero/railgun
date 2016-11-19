@@ -2,6 +2,7 @@
 #define CHECKED_ARRAY_H
 
 #include<array>
+#include "util.h"
 
 //This is meant to be a drop-in replacement for std::array that does bounds checking
 

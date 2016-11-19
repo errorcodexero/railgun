@@ -7,14 +7,15 @@
 #include<vector>
 #include<sstream>
 #include<set>
+#include<memory>
 #include "interface.h"
 
 #ifndef PI
 #define PI 3.14159265
 #endif
 
-Pwm_output pwm_convert(double);
-double from_pwm(Pwm_output);
+#define PRINT(x) std::cout<<""#x<<":"<<(x)<<"\n";
+#define nyi { std::cout<<"nyi "<<__FILE__<<":"<<__LINE__<<"\n"; exit(44); }
 
 int write_file(std::string const& filename,std::string const& contents);
 int read_file(std::string const& filename,std::string &out);//I don't like out parameters.
@@ -123,5 +124,89 @@ bool operator<(std::bitset<LEN> a,std::bitset<LEN> b){
 	}
 	return 0;
 }
+
+template<typename T>
+std::vector<T> to_vec(std::set<T> s){
+	std::vector<T> r;
+	for(auto a:s) r|=a;
+	return r;
+}
+
+template<typename T>
+T choose_random(std::vector<T> v){
+	assert(v.size());
+	return v[rand()%v.size()];
+}
+
+template<typename T>
+T choose_random(std::set<T> a){
+	return choose_random(to_vec(a));
+}
+
+template<typename T>
+std::ostream& operator<<(std::ostream& o,std::unique_ptr<T> const& a){
+	if(a.get()) return o<<*a.get();
+	return o<<"NULL";
+}
+
+std::vector<size_t> range(size_t lim);
+
+template<typename T>
+std::set<T> to_set(std::vector<T> v){
+	std::set<T> r;
+	for(auto a:v) r|=a;
+	return r;
+}
+
+template<typename T>
+std::vector<T> take(size_t lim,std::vector<T> v){
+	std::vector<T> r;
+	for(size_t i=0;i<lim && i<v.size();i++){
+		r|=v[i];
+	}
+	return r;
+}
+
+template<typename T>
+void print_lines(T a){
+	for(auto elem:a){
+		std::cout<<elem<<"\n";
+	}
+}
+
+template<typename C_A,typename C_B>
+auto cross(C_A a,C_B b){
+	using A=decltype(*begin(a));
+	using B=decltype(*begin(b));
+	std::vector<std::pair<A,B>> r;
+	for(auto a1:a) for(auto b1:b){
+		r|=std::make_pair(a1,b1);
+	}
+	return r;
+}
+
+template<typename Func,typename Collection>
+Collection filter(Func f,Collection c){
+	Collection r;
+	for(auto a:c){
+		if(f(a)) r|=a;
+	}
+	return r;
+}
+
+template<typename T>
+std::vector<T> operator-(std::vector<T> a,std::set<T> b){
+	return filter([b](auto elem){ return b.count(elem)==0; },a);
+}
+
+template<typename Func,typename Collection>
+auto mapf(Func f,Collection c){
+	using T=typename std::remove_reference<decltype(f(*begin(c)))>::type;
+	std::vector<T> out;
+	for(auto a:c) out|=f(a);
+	return out;
+}
+
+#define MAP(F,C) mapf([&](auto a){ return F(a); },C)
 
 #endif

@@ -6,9 +6,7 @@ HIGH PRIORITY for Offseason:
 	- Autonomous 
 		- Drive Encoders
 		- Testing on carpet field with measurements
-		- Low goal auto mode 
 		- Vision run autonomous
-		- Rewrite structure
 	- Logging
 	- Fix ability to tell if partly climbed in winch estimator
 
@@ -29,7 +27,6 @@ NICE THINGS TO HAVE:
 	- Clean-up stuff:
 		- Use enum class more places
 		- Use std::array in place of C arrays in several places
-	- Update c++ compilers to use c++14 for runall2 tests	
 	- Clean up panel interpret
 	- Meta IO information
 		- Add a function that will discover which IOs different parts use (and make a nice list)

@@ -3,7 +3,6 @@
 #include <iostream>
 #include <math.h>
 #include "../util/util.h"
-#include "formal.h"
 
 using namespace std;
 
@@ -21,8 +20,23 @@ unsigned pdb_location(Drivebase::Motor m){
 	//assert(m>=0 && m<Drivebase::MOTORS);
 }
 
+int encoderconv(Maybe_inline<Encoder_output> encoder){
+	if(encoder) return *encoder;
+	return 10000;
+}
+
+double ticks_to_inches(const int ticks){
+	const unsigned int TICKS_PER_REVOLUTION=100;
+	const double WHEEL_DIAMETER=7.4;//inches
+	const double WHEEL_CIRCUMFERENCE=WHEEL_DIAMETER*PI;//inches
+	const double INCHES_PER_TICK=WHEEL_CIRCUMFERENCE/(double)TICKS_PER_REVOLUTION;//0.25 vs 0.251327
+	return ticks*INCHES_PER_TICK;
+}
+
 #define L_ENCODER_PORTS 0,1
 #define R_ENCODER_PORTS 2,3//2016 mounted backwards
+#define L_ENCODER_LOC 0
+#define R_ENCODER_LOC 1
 
 Robot_inputs Drivebase::Input_reader::operator()(Robot_inputs all,Input in)const{
 	for(unsigned i=0;i<MOTORS;i++){
@@ -37,6 +51,8 @@ Robot_inputs Drivebase::Input_reader::operator()(Robot_inputs all,Input in)const
 	};
 	encoder(L_ENCODER_PORTS,in.left);
 	encoder(R_ENCODER_PORTS,in.right);
+	all.digital_io.encoder[L_ENCODER_LOC] = in.ticks.first;
+	all.digital_io.encoder[R_ENCODER_LOC] = in.ticks.second;
 	return all;
 }
 
@@ -54,7 +70,8 @@ Drivebase::Input Drivebase::Input_reader::operator()(Robot_inputs const& in)cons
 			return r;
 		}(),
 		encoder_info(L_ENCODER_PORTS),
-		encoder_info(R_ENCODER_PORTS)
+		encoder_info(R_ENCODER_PORTS),
+		{encoderconv(in.digital_io.encoder[L_ENCODER_LOC]),encoderconv(in.digital_io.encoder[R_ENCODER_LOC])}
 	};
 }
 
@@ -80,7 +97,9 @@ set<Drivebase::Status> examples(Drivebase::Status*){
 			Motor_check::Status::OK_
 		}
 		,
-		false
+		false,
+		{0.0,0.0},
+		{0.0,0.0}
 	}};
 }
 
@@ -116,11 +135,14 @@ set<Drivebase::Input> examples(Drivebase::Input*){
 	auto d=Digital_in::_0;
 	auto p=make_pair(d,d);
 	return {Drivebase::Input{
-		{0,0},p,p
+		{0,0},p,p,{0,0}
 	}};
 }
 Drivebase::Estimator::Estimator(){
 	stall = false;
+	timer.set(.05);
+	last_ticks = {0,0};
+	speeds = {0.0,0.0};
 }
 
 Drivebase::Status_detail Drivebase::Estimator::get()const{
@@ -129,7 +151,7 @@ Drivebase::Status_detail Drivebase::Estimator::get()const{
 		a[i]=motor_check[i].get();
 	}
 	
-	return Status{a,stall};
+	return Status{a,stall,speeds,last_ticks};
 }
 
 ostream& operator<<(ostream& o,Drivebase::Output_applicator){
@@ -162,6 +184,15 @@ double mean(std::array<double, 6ul> a){
 	return sum(a)/a.size();
 }
 void Drivebase::Estimator::update(Time now,Drivebase::Input in,Drivebase::Output out){\
+	timer.update(now,true);
+	static const double POLL_TIME = .05;//seconds
+	if(timer.done()){
+		speeds.first = ticks_to_inches((last_ticks.first-in.ticks.first)/POLL_TIME);
+		speeds.second = ticks_to_inches((last_ticks.second-in.ticks.second)/POLL_TIME);
+		last_ticks = in.ticks;
+		timer.set(POLL_TIME);
+	}
+	
 	//cout << "Encoder in: " << in << endl;
 	for(unsigned i=0;i<MOTORS;i++){
 		Drivebase::Motor m=(Drivebase::Motor)i;
@@ -223,6 +254,7 @@ Drivebase::Status status(Drivebase::Status a){ return a; }
 bool ready(Drivebase::Status,Drivebase::Goal){ return 1; }
 
 #ifdef DRIVEBASE_TEST
+#include "formal.h"
 int main(){
 	Drivebase d;
 	tester(d);

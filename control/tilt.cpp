@@ -19,8 +19,6 @@
 #define TILT_LIM_LOC 9 //limit switch dio #
 #define TILT_ADDRESS 4 //pwm #
 
-#define nyi { std::cout<<"\nnyi "<<__LINE__<<"\n"; exit(44); }
-
 float volts_to_degrees(float f){
 	return (f-TOP_VOLTAGE)/VOLTS_PER_DEGREE;
 }
@@ -151,6 +149,13 @@ bool operator!=(Tilt::Status_detail a,Tilt::Status_detail b){ return !(a==b); }
 bool operator<(Tilt::Goal a,Tilt::Goal b){
 	CMP(mode())
 	switch(a.mode()){
+		case Tilt::Goal::Mode::STOP:
+			return 0;
+		case Tilt::Goal::Mode::GO_TO_ANGLE:
+			return a.angle() < b.angle();
+		case Tilt::Goal::Mode::DOWN:
+		case Tilt::Goal::Mode::UP:
+			return a.mode()<b.mode();
 		default:
 			std::cout<<a.mode();
 			nyi
@@ -255,15 +260,56 @@ bool approx_eq(Tilt::Status_detail a,Tilt::Status_detail b){
 	return a.top==b.top && approx_eq(a.angle,b.angle);
 }
 
+struct Sim{
+	Tilt::Status_detail current={0,45};
+
+	void update(Time timestep,Tilt::Output out){
+		assert(out>=-1 && out<=1);
+
+		//initially, assuming no momentum, gravity, etc.
+		//no idea if constant is even close (or the sign is right)
+		//for now, assuming that the going the whole range of motion would take 2 seconds.  Also, the range of motion is between 0 degress (up) and 120 degrees down.  
+		//This means 60 degrees/second
+		current.angle+=timestep*60*out;
+		current.top=current.angle<=0;
+
+		//could try to put something in here that will show that there's an error if going to do something that would break the robot by hitting stuff, etc.
+	}
+
+	Tilt::Input get()const{
+		return current;
+	}
+};
+
 int main(){
+	using namespace std;
+
 	Tilt a;
 	Tester_mode t;
 	t.check_outputs_exhaustive = 0;
 	t.input_exact=0;
-	tester(a, t);
+	{
+		//For now, the output is being supressed although the tests are still being run.
+		stringstream ss;
+		tester(a, t, ss);
+	}
 
-	for(double d=-90;d<=90;d+=30){
+	/*for(double d=-90;d<=90;d+=30){
 		std::cout<<d<<"\t"<<volts_to_degrees(degrees_to_volts(d))<<"\n";
+	}*/
+
+	Sim s;
+	Time timestep=.1;
+	Tilt::Goal goal=Tilt::Goal::up();
+	Tilt tilt;
+	cout<<"time\tready\tSimulated status\t\t\tEstimator status\n";
+	for(double t=0;t<2;t+=timestep){
+		auto sd=tilt.estimator.get();
+		cout<<t<<"\t"<<ready(status(sd),goal)<<"\t"<<s.get()<<"\t"<<sd<<"\n";
+		//TODO: Acutally put a goal & control() in here.
+		Tilt::Output out=control(tilt.estimator.get(),goal);
+		s.update(timestep,out);
+		tilt.estimator.update(t,s.get(),out);
 	}
 }
 

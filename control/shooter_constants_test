@@ -1,0 +1,6 @@
+g++ -std=c++14 -Wall -Wextra -DSHOOTER_CONSTANTS_TEST \
+	shooter_constants.cpp \
+	../util/interface.cpp \
+	../util/driver_station_interface.cpp \
+	../util/util.cpp \
+	-o shooter_constants 2>&1 && ./shooter_constants 2>&1

@@ -9,11 +9,7 @@
 #include "collector.h"
 #include "shooter.h"
 
-/*	X(Tilt,tilt,Tilt::Goal::stop())\
-	X(Sides,sides,Sides::Goal::OFF)\
-	X(Front,front,Front::Goal::OFF) \*/
-
-#define TOPLEVEL_ITEMS\
+#define TOPLEVEL_ITEMS \
 	X(Drivebase,drive,)\
 	X(Pump,pump,Pump::Goal::AUTO)\
 	X(Collector,collector,)\
@@ -102,6 +98,7 @@ bool operator==(Toplevel::Output const&,Toplevel::Output const&);
 bool operator!=(Toplevel::Output const&,Toplevel::Output const&);
 std::ostream& operator<<(std::ostream&,Toplevel::Output);
 
+bool operator<(Toplevel::Goal const&,Toplevel::Goal const&);
 std::ostream& operator<<(std::ostream&,Toplevel::Goal);
 std::ostream& operator<<(std::ostream&,Toplevel::Status_detail const&);
 
@@ -113,7 +110,9 @@ std::ostream& operator<<(std::ostream& o,Toplevel::Status);
 //
 bool operator<(Toplevel::Status_detail const&,Toplevel::Status_detail const&);
 bool operator==(Toplevel::Status_detail const&,Toplevel::Status_detail const&);
+bool operator!=(Toplevel::Status_detail const&,Toplevel::Status_detail const&);
 std::set<Toplevel::Status_detail> examples(Toplevel::Status_detail*);
+Toplevel::Status_detail rand(Toplevel::Status_detail*);
 
 std::set<Toplevel::Goal> examples(Toplevel::Goal*);
 std::set<Toplevel::Output> examples(Toplevel::Output*);
@@ -122,6 +121,7 @@ std::set<Toplevel::Input> examples(Toplevel::Input*);
 
 bool operator<(Toplevel::Input const&,Toplevel::Input const&);
 bool operator==(Toplevel::Input const&,Toplevel::Input const&);
+std::ostream& operator<<(std::ostream&,Toplevel::Input const&);
 
 bool operator!=(Toplevel::Input_reader const&,Toplevel::Input_reader const&);
 std::ostream& operator<<(std::ostream&,Toplevel::Input_reader const&);

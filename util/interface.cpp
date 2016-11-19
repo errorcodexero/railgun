@@ -107,6 +107,20 @@ std::ostream& operator<<(std::ostream& o, Talon_srx_input in){
 	return o<<")";
 }
 
+Talon_srx_output Talon_srx_output::voltage(double a){
+	Talon_srx_output r;
+	r.mode=Mode::VOLTAGE;
+	r.power_level=a;
+	return r;
+}
+
+Talon_srx_output Talon_srx_output::closed_loop(double a){
+	Talon_srx_output r;
+	r.mode=Mode::SPEED;
+	r.speed=a;
+	return r;
+}
+
 std::ostream& operator<<(std::ostream& o, Talon_srx_output::Mode a){
 	if(a==Talon_srx_output::Mode::VOLTAGE) o<<"VOLTAGE";
 	else if(a==Talon_srx_output::Mode::SPEED) o<<"SPEED";
@@ -488,6 +502,10 @@ ostream& operator<<(ostream& o,Robot_mode m){
 	return o<<")";
 }
 
+Digital_in random(Digital_in* d){
+	return choose_random(examples(d));
+}
+
 ostream& operator<<(ostream& o,Digital_in d){
 	switch(d){
 		#define X(name) case Digital_in::name: return o<<""#name;
@@ -521,6 +539,10 @@ vector<Digital_in> digital_ins(){
 	r|=Digital_in::_0;
 	r|=Digital_in::_1;
 	return r;
+}
+
+set<Digital_in> examples(Digital_in*){
+	return to_set(digital_ins());
 }
 
 Maybe<Digital_in> parse_digital_in(string s){
@@ -564,6 +586,18 @@ Robot_inputs::Robot_inputs():
 		analog[i]=0;
 	}
 	for(auto& a:current) a=0;
+}
+
+Robot_inputs random_inputs(){
+	Robot_inputs r;
+	for(unsigned i=0;i<Robot_outputs::DIGITAL_IOS;i++){
+		r.digital_io.in[i]=random((Digital_in*)0);
+	}
+	return r;
+}
+
+Robot_inputs rand(Robot_inputs*){
+	return random_inputs();
 }
 
 bool operator==(Robot_inputs a,Robot_inputs b){

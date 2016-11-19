@@ -6,6 +6,7 @@
 #include "../util/interface.h"
 #include "../util/util.h"
 #include "../util/countdown_timer.h"
+#include "../util/quick.h"
 
 const double GROUND_RPM=-6000.0;//This is the one we're actually using//7300
 const double CLIMB_RPM=-4000.0;
@@ -36,28 +37,26 @@ struct Shooter{
 	
 	typedef Status_detail Status;
 
+	//speed is in RPM
+	#define SHOOTER_INPUT_ITEMS(X)\
+		X(int,speed)\
+		X(bool,enabled)
 	struct Input{
-		int speed;//rpm
-		bool enabled;
+		#define X(A,B) A B;
+		SHOOTER_INPUT_ITEMS(X)
+		#undef X
 	};
-	
+
 	struct Input_reader{
 		Shooter::Input operator()(Robot_inputs const&)const;
 		Robot_inputs operator()(Robot_inputs,Shooter::Input)const;
 	};
 
-	struct Output{
-		PID_values constants;
-		double speed;//rpm
-		double voltage;
-		Talon_srx_output::Mode mode;
-		Output();
-		Output(double,double,Talon_srx_output::Mode);
-	};
+	typedef Talon_srx_output Output;
 	
 	struct Output_applicator{
 		Shooter::Output operator()(Robot_outputs const&)const;
-		Robot_outputs operator()(Robot_outputs,Shooter::Output)const;
+		Robot_outputs operator()(Robot_outputs,Output)const;
 	};
 
 	struct Estimator{
@@ -79,7 +78,6 @@ std::ostream& operator<<(std::ostream&,Shooter::Goal);
 std::ostream& operator<<(std::ostream&,Shooter::Input);
 std::ostream& operator<<(std::ostream&,Shooter::Status_detail);
 std::ostream& operator<<(std::ostream&,Shooter);
-std::ostream& operator<<(std::ostream&,Shooter::Output);
 
 bool operator==(Shooter::Input,Shooter::Input);
 bool operator!=(Shooter::Input,Shooter::Input);
@@ -92,10 +90,6 @@ bool operator!=(Shooter::Status_detail,Shooter::Status_detail);
 bool operator==(Shooter::Goal,Shooter::Goal);
 bool operator!=(Shooter::Goal,Shooter::Goal);
 bool operator<(Shooter::Goal,Shooter::Goal);
-
-bool operator==(Shooter::Output,Shooter::Output);
-bool operator!=(Shooter::Output,Shooter::Output);
-bool operator<(Shooter::Output,Shooter::Output);
 
 bool operator==(Shooter::Input_reader,Shooter::Input_reader);
 bool operator<(Shooter::Input_reader,Shooter::Input_reader);

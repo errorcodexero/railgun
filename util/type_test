@@ -1,0 +1,1 @@
+g++ --std=c++14 -Wall -Wextra -Werror type.cpp -o type 2>&1 && ./type 2>&1

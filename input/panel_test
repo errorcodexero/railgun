@@ -1,4 +1,4 @@
-g++ -Wall -Wextra --std=c++11 -DPANEL_TEST -o panel \
+g++ -Wall -Wextra --std=c++14 -DPANEL_TEST -o panel \
 	panel.cpp \
 	../util/util.cpp \
 	util.cpp \

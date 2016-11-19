@@ -14,7 +14,7 @@ Front::Input::Input(bool b):ball(b){}
 
 ostream& operator<<(ostream& o, Front::Goal a){
 	#define X(name) if(a==Front::Goal::name)return o<<"Front::Goal("#name")";
-	X(IN) X(OUT) X(OFF)
+	FRONT_GOAL(X)
 	#undef X
 	assert(0);
 }
@@ -65,7 +65,7 @@ Robot_outputs Front::Output_applicator::operator()(Robot_outputs r, Front::Outpu
 	return r;
 }
 
-Front::Estimator::Estimator():input({0}){}
+Front::Estimator::Estimator():input(0){}
 
 Front::Status_detail Front::Estimator::get()const{ return input;}
 
