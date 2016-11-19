@@ -325,7 +325,7 @@ Toplevel::Goal Main::teleop(
 			|| (panel.in_use && panel.three_position_switches[Panel::Three_position_switches::COLLECTOR_POS].get()==Panel::Three_position_switch::UP && !tilt_learn_mode)
 		){
 			collector_mode = Collector_mode::STOW;
-		}else if((gunner_pov==POV_section::RIGHT && !joy_learn) || enter_cheval/*(cheval_trigger(in.now,panel.in_use&&panel.cheval)&&!tilt_learn_mode)*/) {
+		} else if((gunner_pov==POV_section::RIGHT && !joy_learn) || enter_cheval) {
 			collector_mode = Collector_mode::CHEVAL;
 			cheval_lift_timer.set(.45);
 			cheval_drive_timer.set(2);
@@ -860,11 +860,11 @@ Main::Mode next_mode(Main::Mode m,bool autonomous,bool autonomous_start,Toplevel
 			return Main::Mode::AUTO_LBWHS_PREP;
 
 		case Main::Mode::AUTO_LBWHS_BP:
-		if(!autonomous) return Main::Mode::TELEOP;
-		if(since_switch > 2) return Main::Mode::AUTO_LBWHS_PREP;
-		return Main::Mode::AUTO_LBWHS_BP;
+		
+			if(!autonomous) return Main::Mode::TELEOP;
+			if(since_switch > 2) return Main::Mode::AUTO_LBWHS_PREP;
+			return Main::Mode::AUTO_LBWHS_BP;
 			
-
 		default: assert(0);
 	}
 	return m;	

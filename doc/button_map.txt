@@ -47,7 +47,7 @@ Gunner:
   Center     -
   Up         - Stow 
   Up_left    -
-  Left       - Cheval
+  Left       - Cheval - Disabled
   Down_left  -
   Down       -
   Down_right -
