@@ -176,8 +176,7 @@ void Teleop::shooter_protocol(
 }*/
 
 void Teleop::cal(Time now,double current_tilt_angle,double current_shooter_speed,Panel const& panel){
-	bool set=set_button(now,panel.in_use && panel.learn);
-
+	bool set=set_button(now,panel.in_use && panel.buttons.get()==static_cast<int>(Panel::Buttons::LEARN));
 	if(tilt_learn_mode){
 		auto update=[&](double &d){
 			d=current_tilt_angle;
@@ -185,13 +184,13 @@ void Teleop::cal(Time now,double current_tilt_angle,double current_shooter_speed
 			tilt_learn_mode=0;
 		};
 
-		if(panel.collect){
+		if(panel.buttons.get()==Panel::Buttons::COLLECT){
 			update(tilt_presets.level);
-		}else if(panel.collector_pos==Panel::Collector_pos::STOW || panel.shoot_low){
+		}else if(panel.three_position_switches[Panel::Three_position_switches::COLLECTOR_POS].get()==Panel::Three_position_switch::UP || panel.buttons.get()==Panel::Buttons::SHOOT_LOW){
 			update(tilt_presets.top);
-		}else if(panel.cheval){
+		}else if(panel.buttons.get()==Panel::Buttons::CHEVAL){
 			update(tilt_presets.cheval);
-		}else if(panel.collector_pos==Panel::Collector_pos::LOW){
+		}else if(panel.three_position_switches[Panel::Three_position_switches::COLLECTOR_POS].get()==Panel::Three_position_switch::DOWN){
 			update(tilt_presets.low);
 		}else if(set){
 			tilt_learn_mode=0;
@@ -205,12 +204,12 @@ void Teleop::cal(Time now,double current_tilt_angle,double current_shooter_speed
 	};
 	auto adjust=[&](float &f){
 		//assuming that speed dial comes in with a range of -1 to 1
-		if(fabs(f)<.0001 && fabs(panel.speed_dial)>.75) f=(panel.speed_dial>0 ? .01 : -.01);
-		else f*=panel.speed_dial*2;
+		if(fabs(f)<.0001 && fabs(panel.speed_dial.get())>.75) f=((panel.speed_dial.get()>0) ? .01 : -.01);
+		else f*=panel.speed_dial.get()*2;
 		write_shooter_constants(shooter_constants);
 		show();
 	};
-	switch(panel.auto_switch){
+	switch(panel.auto_switch.get()){
 		case 0:
 			tilt_learn_mode=1;
 			return;
@@ -301,18 +300,24 @@ Toplevel::Goal Teleop::run(Run_info info) {
 	//goals.shooter.value=0;
 	goals.shooter.constants=shooter_constants.pid;
 	
-	bool enter_cheval=cheval_trigger(info.in.now,info.panel.in_use&&info.panel.cheval)&&!tilt_learn_mode;
+	bool enter_cheval=cheval_trigger(info.in.now,info.panel.in_use && info.panel.buttons.get()==Panel::Buttons::CHEVAL) && !tilt_learn_mode;
 		
-	if((!info.panel.in_use && controller_auto.get()) || (info.panel.in_use && (info.panel.tilt_auto || info.panel.front_auto || info.panel.sides_auto))) {//Automatic collector modes
+	Panel& panel = info.panel;
+	Joystick_data& main_joystick = info.main_joystick;
+	Joystick_data& gunner_joystick = info.gunner_joystick;
+	Toplevel::Status_detail& toplevel_status = info.toplevel_status;
+	Robot_inputs& in = info.in;
+
+	if((!info.panel.in_use && controller_auto.get()) || (info.panel.in_use && (info.panel.two_position_switches[Panel::Two_position_switches::TILT_AUTO].get() || info.panel.two_position_switches[Panel::Two_position_switches::FRONT_AUTO].get() || info.panel.two_position_switches[Panel::Two_position_switches::SIDES_AUTO].get()))) {//Automatic collector modes
 		bool joy_learn=info.gunner_joystick.button[Gamepad_button::B];
 		POV_section gunner_pov = pov_section(info.gunner_joystick.pov);
-		if(info.gunner_joystick.button[Gamepad_button::X] || (info.panel.in_use && info.panel.shoot_low)){
+		if(gunner_joystick.button[Gamepad_button::X] || (info.panel.in_use && info.panel.buttons.get()==Panel::Buttons::SHOOT_LOW)){
 			const Time SHOOT_TIME=1;			
 			collector_mode=Collector_mode::SHOOT_LOW;
 			shoot_low_timer.set(SHOOT_TIME);
 		}else if(
 			(gunner_pov==POV_section::UP && !joy_learn) 
-			|| (info.panel.in_use && info.panel.collector_pos==Panel::Collector_pos::STOW && !tilt_learn_mode)
+			|| (panel.in_use && panel.three_position_switches[Panel::Three_position_switches::COLLECTOR_POS].get()==Panel::Three_position_switch::UP && !tilt_learn_mode)
 		){
 			collector_mode = Collector_mode::STOW;
 		} else if((gunner_pov==POV_section::RIGHT && !joy_learn) || enter_cheval) {
@@ -320,15 +325,15 @@ Toplevel::Goal Teleop::run(Run_info info) {
 			cheval_lift_timer.set(.45);
 			cheval_drive_timer.set(2);
 			cheval_step = Cheval_steps::GO_DOWN;
-		} else if (info.panel.in_use && info.panel.drawbridge && !tilt_learn_mode) collector_mode=Collector_mode::DRAWBRIDGE;
-		else if(info.gunner_joystick.button[Gamepad_button::A] || (info.panel.in_use && info.panel.shoot_prep)){
+		} else if (panel.in_use && panel.buttons.get()==Panel::Buttons::DRAWBRIDGE && !tilt_learn_mode) collector_mode=Collector_mode::DRAWBRIDGE;
+		else if(gunner_joystick.button[Gamepad_button::A] || (panel.in_use && panel.buttons.get()==Panel::Buttons::SHOOT_PREP)){
 			collector_mode=Collector_mode::SHOOT_HIGH;
 			shoot_step = Shoot_steps::SPEED_UP;
 			const Time SHOOT_TIME=1.5;
 			shoot_high_timer.set(SHOOT_TIME);//time until we can assume the ball had been shot after being injected
-		} else if((info.main_joystick.button[Gamepad_button::START] && !joy_learn) || (info.panel.in_use && info.panel.collect && !tilt_learn_mode)){
-			 collector_mode=Collector_mode::COLLECT;
-		}else if(info.panel.in_use && info.panel.collector_pos==Panel::Collector_pos::LOW && !tilt_learn_mode) collector_mode=Collector_mode::LOW;
+		} else if((main_joystick.button[Gamepad_button::START] && !joy_learn) || (panel.in_use && panel.buttons.get()==Panel::Buttons::COLLECT && !tilt_learn_mode)){
+			collector_mode=Collector_mode::COLLECT;
+		}else if(panel.in_use && panel.three_position_switches[Panel::Three_position_switches::COLLECTOR_POS].get()==Panel::Three_position_switch::DOWN && !tilt_learn_mode) collector_mode=Collector_mode::LOW;
 
 		//if(SLOW_PRINT)cout<<"collector_mode: "<<collector_mode<<"\n";
 
@@ -336,7 +341,7 @@ Toplevel::Goal Teleop::run(Run_info info) {
 			case Collector_mode::COLLECT:
 			{
 				goals.collector={Front::Goal::IN,Sides::Goal::IN,level};
-				bool ball=info.toplevel_status.collector.front.ball;
+				bool ball=toplevel_status.collector.front.ball;
 				if(ball) collector_mode=Collector_mode::STOW;
 				break;
 			}
@@ -348,13 +353,13 @@ Toplevel::Goal Teleop::run(Run_info info) {
 				break;
 			case Collector_mode::SHOOT_HIGH:
 			{
-				bool shoot_button=info.panel.shoot_high||info.gunner_joystick.button[Gamepad_button::Y];
-				shooter_protocol(info.toplevel_status,info.in.robot_mode.enabled,info.in.now,goals,shoot_button,info.panel.shooter_mode,info.panel.speed_dial);
+				bool shoot_button=(panel.buttons.get()==Panel::Buttons::SHOOT_HIGH || gunner_joystick.button[Gamepad_button::Y]);
+				shooter_protocol(toplevel_status,in.robot_mode.enabled,in.now,goals,shoot_button,(Shooter_mode)panel.shooter_mode.get(),panel.speed_dial.get());
 				break;
 			}
 			case Collector_mode::SHOOT_LOW:
 				goals.collector={Front::Goal::OUT,Sides::Goal::OFF,top};
-				shoot_low_timer.update(info.in.now, enabled);
+				shoot_low_timer.update(in.now, enabled);
 				if (shoot_low_timer.done()) collector_mode = Collector_mode::STOW;
 				break;
 			case Collector_mode::LOW:
@@ -371,19 +376,19 @@ Toplevel::Goal Teleop::run(Run_info info) {
 					switch(cheval_step) {
 						case Cheval_steps::GO_DOWN: 
 							goals.collector.tilt=cheval;
-							if(ready(status(info.toplevel_status.collector.tilt),goals.collector.tilt)) cheval_step=Cheval_steps::DRIVE;
+							if(ready(status(toplevel_status.collector.tilt),goals.collector.tilt)) cheval_step=Cheval_steps::DRIVE;
 							break;
 						case Cheval_steps::DRIVE:
 							goals.drive.right=AUTO_POWER;
 							goals.drive.left=AUTO_POWER;
-							cheval_lift_timer.update(info.in.now,enabled);
+							cheval_lift_timer.update(in.now,enabled);
 							if (cheval_lift_timer.done()) cheval_step=Cheval_steps::DRIVE_AND_STOW;
 							break;
 						case Cheval_steps::DRIVE_AND_STOW:
 							goals.drive.right=AUTO_POWER;
 							goals.drive.left=AUTO_POWER;
 							goals.collector.tilt=top;
-							cheval_drive_timer.update(info.in.now,enabled);
+							cheval_drive_timer.update(in.now,enabled);
 							if (cheval_drive_timer.done()) collector_mode=Collector_mode::STOW;
 							break;
 						default: 
@@ -397,28 +402,28 @@ Toplevel::Goal Teleop::run(Run_info info) {
 			default: assert(0);
 		}
 	}
-	if (!info.panel.in_use && !controller_auto.get()) {//Manual joystick controls 
+	if (!panel.in_use && !controller_auto.get()) {//Manual joystick controls 
 		goals.collector.front=[&]{
 			const double LIMIT=.5; 
-			if(info.gunner_joystick.axis[Gamepad_axis::LTRIGGER]>LIMIT) return Front::Goal::OUT;
-			if(info.gunner_joystick.axis[Gamepad_axis::RTRIGGER]>LIMIT) return Front::Goal::IN;
+			if(gunner_joystick.axis[Gamepad_axis::LTRIGGER]>LIMIT) return Front::Goal::OUT;
+			if(gunner_joystick.axis[Gamepad_axis::RTRIGGER]>LIMIT) return Front::Goal::IN;
 			return Front::Goal::OFF;
 		}();
 		goals.collector.sides=[&]{
-			if(info.gunner_joystick.button[Gamepad_button::RB]) return Sides::Goal::IN;
-			if(info.gunner_joystick.button[Gamepad_button::LB]) return Sides::Goal::OUT;
+			if(gunner_joystick.button[Gamepad_button::RB]) return Sides::Goal::IN;
+			if(gunner_joystick.button[Gamepad_button::LB]) return Sides::Goal::OUT;
 			return Sides::Goal::OFF;
 		}();
 		goals.collector.tilt=[&]{
 			{
-				Joystick_section tilt_control = joystick_section(info.gunner_joystick.axis[Gamepad_axis::RIGHTX],info.gunner_joystick.axis[Gamepad_axis::RIGHTY]);
+				Joystick_section tilt_control = joystick_section(gunner_joystick.axis[Gamepad_axis::RIGHTX],gunner_joystick.axis[Gamepad_axis::RIGHTY]);
 				#define X(NAME,SECTION) bool NAME=tilt_control==Joystick_section::SECTION;
 				X(down_b,DOWN) X(up_b,UP) X(level_b,LEFT) X(low_b,RIGHT)
 				#undef X
 				if(low_b) joy_collector_pos = Joy_collector_pos::LOW;
 				else if(level_b) joy_collector_pos = Joy_collector_pos::LEVEL;
-				if(info.gunner_joystick.button[Gamepad_button::B]){//learn
-					double learn_this=info.toplevel_status.collector.tilt.angle;
+				if(gunner_joystick.button[Gamepad_button::B]){//learn
+					double learn_this=toplevel_status.collector.tilt.angle;
 					switch(joy_collector_pos){
 						case Joy_collector_pos::LOW:
 							tilt_presets.low=learn_this;
@@ -446,60 +451,77 @@ Toplevel::Goal Teleop::run(Run_info info) {
 			}
 		}();
 	}
-	if(!info.panel.in_use){
-		if(info.gunner_joystick.button[Gamepad_button::R_JOY]) goals.shooter.mode=Shooter::Goal::Mode::SPEED;
+	if(!panel.in_use){
+		if(gunner_joystick.button[Gamepad_button::R_JOY]) goals.shooter.mode=Shooter::Goal::Mode::SPEED;
 		else goals.shooter.mode=Shooter::Goal::Mode::VOLTAGE;
 	}
 
-	cal(info.in.now,info.toplevel_status.collector.tilt.angle,info.in.talon_srx[0].velocity,info.panel);
+	cal(in.now,toplevel_status.collector.tilt.angle,in.talon_srx[0].velocity,panel);
 	
-	if (info.panel.in_use) {//Panel manual modes
-		if (!info.panel.front_auto) {
-			#define X(name) if(info.panel.front==Panel::Collector::name) goals.collector.front = Front::Goal::name;
-			X(IN) X(OUT) X(OFF)
-			#undef X
+	if (panel.in_use) {//Panel manual modes
+		if (!panel.two_position_switches[Panel::Two_position_switches::FRONT_AUTO].get()) {
+			switch(panel.three_position_switches[Panel::Three_position_switches::FRONT].get()){
+				case Panel::Three_position_switch::DOWN:
+					goals.collector.front = Front::Goal::OUT;
+					break;
+				case Panel::Three_position_switch::MIDDLE:
+					goals.collector.front = Front::Goal::OFF;
+					break;
+				case Panel::Three_position_switch::UP:
+					goals.collector.front = Front::Goal::IN;
+					break;
+				default: assert(0);
+			}
 		}
-		if (!info.panel.sides_auto) {
-			#define X(name) if(info.panel.sides==Panel::Collector::name) goals.collector.sides = Sides::Goal::name;
-			X(IN) X(OFF) X(OUT)
-			#undef X
+		if (!panel.two_position_switches[Panel::Two_position_switches::SIDES_AUTO].get()) {
+			switch(panel.three_position_switches[Panel::Three_position_switches::SIDES].get()){
+				case Panel::Three_position_switch::DOWN:
+					goals.collector.sides = Sides::Goal::OUT;	
+					break;
+				case Panel::Three_position_switch::MIDDLE:
+					goals.collector.sides = Sides::Goal::OFF;
+					break;
+				case Panel::Three_position_switch::UP:
+					goals.collector.sides = Sides::Goal::IN;
+					break;
+				default: assert(0);
+			}
 		}
-		if (!info.panel.tilt_auto) {
+		if (!panel.two_position_switches[Panel::Two_position_switches::TILT_AUTO].get()){
 			goals.collector.tilt=[&]{
-				if (info.panel.collector_up) return Tilt::Goal::up();
-				if (info.panel.collector_down) return Tilt::Goal::down();
+				if (panel.buttons.get()==Panel::Buttons::COLLECTOR_UP) return Tilt::Goal::up();
+				if (panel.buttons.get()==Panel::Buttons::COLLECTOR_DOWN) return Tilt::Goal::down();
 				return Tilt::Goal::stop();
 			}();
 		}
 	}
 	goals.climb_release=[&]{
-		if(info.panel.in_use) {
-			if(info.panel.lock_climber) return Climb_release::Goal::OUT;
+		if(panel.in_use) {
+			if(panel.two_position_switches[Panel::Two_position_switches::LOCK_CLIMBER].get()) return Climb_release::Goal::OUT;
 			return Climb_release::Goal::IN;
 		}
 		return Climb_release::Goal::OUT;
 	}();
 	goals.winch=[&]{
-		if(info.toplevel_status.climb_release==Climb_release::Status_detail::IN){
-			if(!info.panel.in_use){
-				switch (joystick_section(info.gunner_joystick.axis[Gamepad_axis::LEFTX], info.gunner_joystick.axis[Gamepad_axis::LEFTY])){
+		if(toplevel_status.climb_release==Climb_release::Status_detail::IN){
+			if(!panel.in_use){
+				switch (joystick_section(gunner_joystick.axis[Gamepad_axis::LEFTX], gunner_joystick.axis[Gamepad_axis::LEFTY])){
 					case Joystick_section::UP: 
 					case Joystick_section::DOWN: return Winch::Goal::IN;
 					default: break;
 				}
 			} else {
-				switch(info.panel.winch){
-					case Panel::Winch::UP: 
-					case Panel::Winch::DOWN: return Winch::Goal::IN;	
-					case Panel::Winch::STOP: return Winch::Goal::STOP;
+				switch((Panel::Three_position_switch)panel.three_position_switches[Panel::Three_position_switches::WINCH].get()){
+					case Panel::Three_position_switch::UP: 
+					case Panel::Three_position_switch::DOWN: return Winch::Goal::IN;	
+					case Panel::Three_position_switch::MIDDLE: return Winch::Goal::STOP;
 					default: assert(0);
 				}
 			}
 		}
 		return Winch::Goal::STOP;
 	}();
-	//if(SLOW_PRINT) cout<<shoot_step<<" "<<info.toplevel_status.shooter<<" "<<goals.shooter<<"\n";
-	//if(SLOW_PRINT) cout<<info.toplevel_status.drive.speeds<<"\n";
+//	///if(SLOW_PRINT) cout<<shoot_step<<" "<<toplevel_status.shooter<<" "<<goals.shooter<<"\n";
 	return goals;
 }
 

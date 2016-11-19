@@ -18,28 +18,26 @@ using Mode=Executive;
 
 Executive get_auto1(Next_mode_info info){
 	if (info.panel.in_use) {
-		switch(info.panel.auto_mode){ 
-			case Panel::Auto_mode::NOTHING:
+		switch(info.panel.auto_switch.get()){ 
+			case 0:
 				return Executive{Auto_null()};
-			case Panel::Auto_mode::REACH:
+			case 1: 
 				return Executive{Auto_reach()};
-			case Panel::Auto_mode::STATICS:
+			case 2:
 				return Executive{Auto_statictwo()};
-			case Panel::Auto_mode::STATICF:
+			case 3: 
 				return Executive{Auto_static()};
-			case Panel::Auto_mode::PORTCULLIS:
+			case 4:
 				return Mode{Auto_portcullis()};
-			case Panel::Auto_mode::CHEVAL:
+			case 5:
 				return Mode{Auto_cheval_pos()};
-			case Panel::Auto_mode::LBLS:
+			case 6:
 				return Mode{Auto_lbls_cross_lb(info.status.drive.ticks)};
-			case Panel::Auto_mode::LBWLS:	
+			case 7:	
 				return Mode{Auto_lbwls_wall()};
-			case Panel::Auto_mode::LBWHS:
+			case 8:
 				return Mode{Auto_lbwhs_wall()};
-			case Panel::Auto_mode::S:
-				return Mode{Auto_lbwhs_prep()};
-			case Panel::Auto_mode::BR:
+			case 9:
 				//FIXME: For now, just choosing some number to put in.
 				return Mode{Auto_br_straightaway(0, info.status.drive.ticks)};
 			default: assert(0);
@@ -50,7 +48,7 @@ Executive get_auto1(Next_mode_info info){
 
 Mode Delay::next_mode(Next_mode_info info){
 	if(!info.autonomous) return Mode{Teleop()};
-	if(info.since_switch > (info.panel.speed_dial+1)*5 || info.since_switch > 8) return get_auto1(info);
+	if(info.since_switch > (info.panel.speed_dial.get()+1)*5 || info.since_switch > 8) return get_auto1(info);
 	return Mode{Delay()};
 }
 

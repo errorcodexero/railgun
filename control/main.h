@@ -112,7 +112,7 @@ struct Main{
 
 	enum Shooter_mode{CLOSED_AUTO,CLOSED_MANUAL,OPEN};
 	Shooter::Goal shoot_action(Shooter_mode,double,bool)const;
-	void shooter_protocol(Toplevel::Status_detail const&,const bool,const Time,Toplevel::Goal&,bool,Shooter_mode,double);
+	//void shooter_protocol(Toplevel::Status_detail const&,const bool,const Time,Toplevel::Goal&,bool,Shooter_mode,double);
 	void cal(Time,double,double,Panel const&);
 
 	Toplevel::Goal teleop(Robot_inputs const&,Joystick_data const&,Joystick_data const&,Panel const&,Toplevel::Status_detail const&,

@@ -84,81 +84,7 @@ array<double,LEN> floats_to_doubles(array<float,LEN> a){
 	for(size_t i=0;i<LEN;i++) r[i]=a[i];
 	return r;
 }
-
-double mean(double a,double b){
-	return (a+b)/2;
-}
-
-array<double,3> mean(array<double,3> a,array<double,3> b){
-	return array<double,3>{
-		mean(a[0],b[0]),
-		mean(a[1],b[1]),
-		mean(a[2],b[2])
-	};
-}
-
-Tilt::Goal mean(Tilt::Goal a,Tilt::Goal b){
-	if(a.mode()==Tilt::Goal::Mode::GO_TO_ANGLE && b.mode()==Tilt::Goal::Mode::GO_TO_ANGLE){
-		return Tilt::Goal::go_to_angle(mean(a.angle(),b.angle()));
-	}else{
-		return a;
-	}
-}
-
-Shooter::Goal Main::shoot_action(Shooter_mode shooter_mode,double speed_dial,bool climbed_shot)const{
-	switch(shooter_mode){
-		case Shooter_mode::CLOSED_AUTO:
-			return Shooter::Goal{
-				shooter_constants.pid,
-				Shooter::Goal::Mode::SPEED,
-				climbed_shot?shooter_constants.climbed:shooter_constants.ground
-			};
-		case Shooter_mode::CLOSED_MANUAL:
-			return Shooter::Goal{
-				shooter_constants.pid,
-				Shooter::Goal::Mode::SPEED,
-				(climbed_shot?shooter_constants.ground:shooter_constants.climbed) * ( 1 + ((speed_dial * 20) * .01))
-			};
-		case Shooter_mode::OPEN:
-			return Shooter::Goal{
-				shooter_constants.pid,
-				Shooter::Goal::Mode::VOLTAGE,
-				-(speed_dial+1)/2
-			};
-		default:
-			assert(0);
-	}
-}
-
-void Main::shooter_protocol(
-	Toplevel::Status_detail const& status,
-	const bool enabled,
-	const Time now,
-	Toplevel::Goal& goals,
-	bool shoot,
-	Shooter_mode shooter_mode,
-	double speed_dial
-){
-	const Tilt::Goal top=Tilt::Goal::go_to_angle(make_tolerances(tilt_presets.top));
-	goals.collector.sides = Sides::Goal::OFF;
-	goals.collector.tilt = top;
-	switch(shoot_step){
-		case Shoot_steps::SPEED_UP:
-			goals.collector.front = Front::Goal::OFF;
-			goals.shooter=shoot_action(shooter_mode,speed_dial,status.winch.partly_climbed);
-			if(shoot && ready(status.shooter,goals.shooter)) shoot_step = Shoot_steps::SHOOT;
-			break;
-		case Shoot_steps::SHOOT:
-			goals.collector.front = Front::Goal::IN;
-			goals.shooter=shoot_action(shooter_mode,speed_dial,status.winch.partly_climbed);
-			shoot_high_timer.update(now,enabled);
-			if(shoot_high_timer.done()) collector_mode = Collector_mode::STOW;
-			break;
-		default:
-			assert(0);
-	}
-}
-
+/*
 Toplevel::Goal Main::teleop(
 	Robot_inputs const& in,
 	Joystick_data const& main_joystick,
@@ -434,7 +360,7 @@ Toplevel::Goal Main::teleop(
 	}();
 //	///if(SLOW_PRINT) cout<<shoot_step<<" "<<toplevel_status.shooter<<" "<<goals.shooter<<"\n";
 	return goals;
-}
+}*/
 
 void Main::cal(Time now,double current_tilt_angle,double current_shooter_speed,Panel const& panel){
 	bool set=set_button(now,panel.in_use && panel.buttons.get()==static_cast<int>(Panel::Buttons::LEARN));
@@ -458,7 +384,7 @@ void Main::cal(Time now,double current_tilt_angle,double current_shooter_speed,P
 			tilt_learn_mode=0;
 		}
 		return;
-}
+	}
 	if(!set) return;
 
 	auto show=[&](){
@@ -535,37 +461,6 @@ pair<float,float> driveatwall(const Robot_inputs in){
 double ticks_to_degrees(int ticks){
 	const double DEGREES_PER_TICK=0.716197244;//Assumed for now
 	return ticks * DEGREES_PER_TICK;//Degrees clockwise
-}
-
-Main::Mode get_auto(Panel const& panel){
-	if (panel.in_use) {
-		switch(panel.auto_switch.get()){ 
-			case 0:
-				return Main::Mode::AUTO_NULL;
-			case 1:
-				return Main::Mode::AUTO_REACH;
-			case 2:
-				return Main::Mode::AUTO_STATICTWO;
-			case 3:
-				return Main::Mode::AUTO_STATIC;
-			case 4:
-				return Main::Mode::AUTO_PORTCULLIS;
-			case 5:
-				return Main::Mode::AUTO_CHEVALPOS;
-			case 6:
-				return Main::Mode::AUTO_LBLS_CROSS_LB;
-			case 7:	
-				return Main::Mode::AUTO_LBWLS_WALL;
-			case 8:
-				return Main::Mode::AUTO_LBWHS_WALL;
-			case 9:
-				return Main::Mode::AUTO_LBWHS_PREP;
-			case Panel::Auto_mode::BR:
-				return Main::Mode::AUTO_BR_STRAIGHTAWAY;
-			default: assert(0);
-		}
-	}
-	return Main::Mode::TELEOP;
 }
 
 /*Main::Mode next_mode(Main::Mode m,bool autonomous,bool autonomous_start,Toplevel::Status_detail const& status,Time since_switch, Panel panel,bool const& topready,Robot_inputs const& in,pair<int,int> initial_encoders, unsigned int& br_step,bool& set_initial_encoders, Motion_profile& motion_profile,Countdown_timer& in_br_range){
@@ -1342,7 +1237,7 @@ void test_next_mode(){
 
 int main(){
 	//test_next_mode();
-	test_modes();
+	//test_modes();
 }
 
 #endif
