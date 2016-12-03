@@ -16,5 +16,5 @@ $(TARGET)::
 	(cd roborio ; make WPILIB=$(WPILIB) TARGET=$(TARGET))
 
 clean::
-	rm */*.o */*.a
+	rm -f */*.o */*.a
 
