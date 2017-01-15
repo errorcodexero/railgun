@@ -8,7 +8,7 @@
 #include <iostream>
 
 using namespace std;
-
+/*
 void SendWOL (void)
 {
 	int udpSocket;
@@ -72,7 +72,7 @@ void SendWOL (void)
 
 	close(udpSocket);
 }
-
+*/
 Joystick_data read_joystick(DriverStation& ds,int port){
 	//I don't know what the DriverStation does when port is out of range.
 	Joystick_data r;

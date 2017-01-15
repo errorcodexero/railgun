@@ -4,9 +4,11 @@
 #include "../util/interface.h"
 #include "../util/checked_array.h"
 
-class DigitalInput;
-class DigitalOutput;
-class Encoder;
+namespace frc{
+	class DigitalInput;
+	class DigitalOutput;
+	class Encoder;
+}
 
 class DIO_control{
 	public:
@@ -14,8 +16,8 @@ class DIO_control{
 	
 	private:
 	int channel;
-	DigitalInput *in;
-	DigitalOutput *out;
+	frc::DigitalInput *in;
+	frc::DigitalOutput *out;
 	
 	DIO_control(DIO_control const&) = delete;
 	DIO_control & operator= (DIO_control const&) = delete;
@@ -43,7 +45,7 @@ std::ostream& operator<<(std::ostream&,DIO_control::Mode);
 std::ostream& operator<<(std::ostream&,DIO_control const&);
 
 struct Encoder_control{
-	Encoder *encoder;
+	frc::Encoder *encoder;
 	int channel_a,channel_b;
 	
 	Encoder_control(Encoder_control const&) = delete;

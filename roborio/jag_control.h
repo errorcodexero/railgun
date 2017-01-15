@@ -1,3 +1,4 @@
+#if 0
 #ifndef JAG_CONTROL_H
 #define JAG_CONTROL_H
 
@@ -48,4 +49,5 @@ public:
 std::ostream& operator<<(std::ostream&,Jag_control::Mode);
 std::ostream& operator<<(std::ostream&,Jag_control const&);
 
+#endif
 #endif

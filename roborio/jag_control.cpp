@@ -1,3 +1,4 @@
+#if 0
 #include "jag_control.h"
 #include "WPILib.h"
 #include <iostream>
@@ -118,3 +119,4 @@ void Jag_control::output(ostream& o)const{
 	o<<" "<<mode;
 	o<<")";
 }
+#endif

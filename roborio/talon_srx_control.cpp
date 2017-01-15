@@ -1,5 +1,5 @@
 #include "talon_srx_control.h"
-#include "WPILib.h"
+#include "CANTalon.h"
 #include "../util/util.h"
 #include <cmath>
 #include <cassert>
