@@ -138,7 +138,7 @@ void Main::shooter_protocol(
 			assert(0);
 	}
 }
-
+/*
 Toplevel::Goal Main::teleop(
 	Robot_inputs const& in,
 	Joystick_data const& main_joystick,
@@ -395,10 +395,10 @@ Toplevel::Goal Main::teleop(
 		return Winch::Goal::STOP;
 	}();
 //	///if(SLOW_PRINT) cout<<shoot_step<<" "<<toplevel_status.shooter<<" "<<goals.shooter<<"\n";
-	if(SLOW_PRINT) cout<<toplevel_status.drive.speeds<<"\n";
+	//if(SLOW_PRINT) cout<<toplevel_status.drive.speeds<<"\n";
 	return goals;
 }
-
+*/
 void Main::cal(Time now,double current_tilt_angle,double current_shooter_speed,Panel const& panel){
 	bool set=set_button(now,panel.in_use && panel.learn);
 
@@ -841,10 +841,10 @@ Robot_outputs Main::operator()(Robot_inputs in,ostream&){
 	
 	Toplevel::Status_detail toplevel_status=toplevel.estimator.get();
 		
-	//if(SLOW_PRINT) cout<<"panel:"<<panel<<"\n";
-	cout << "Goals: " << motion_profile.goal << " Current: " << ticks_to_inches(toplevel_status.drive.ticks.first/*in.digital_io.encoder[0]*/) << endl;
+	if(SLOW_PRINT) cout<<"panel:"<<panel<<"\n";
+	//cout << "Goals: " << motion_profile.goal << " Current: " << ticks_to_inches(toplevel_status.drive.ticks.first/*in.digital_io.encoder[0]*/) << endl;
 	
-	if(SLOW_PRINT) cout<<"br_step:"<<br_step<<"\n";
+	//if(SLOW_PRINT) cout<<"br_step:"<<br_step<<"\n";
 	
 	bool autonomous_start_now=autonomous_start(in.robot_mode.autonomous && in.robot_mode.enabled);
 	since_auto_start.update(in.now,autonomous_start_now);
@@ -855,7 +855,7 @@ Robot_outputs Main::operator()(Robot_inputs in,ostream&){
 	if((toplevel_status.drive.ticks.first && initial_encoders.first==10000) || (toplevel_status.drive.ticks.second && initial_encoders.second==10000)) set_initial_encoders=true;
 	if(set_initial_encoders){
 		set_initial_encoders=false;
-		cout<<"\nSET INITIAL ENCODER VALUES\n";
+		//cout<<"\nSET INITIAL ENCODER VALUES\n";
 		initial_encoders = toplevel_status.drive.ticks;	
 	}
 	goals = mode_.run(Run_info{in,main_joystick,gunner_joystick,panel,toplevel_status});

@@ -296,7 +296,6 @@ Toplevel::Goal Teleop::run(Run_info info) {
 		goals.collector={Front::Goal::OFF,Sides::Goal::OFF,Tilt::Goal::stop()};
 		collector_mode=Collector_mode::NOTHING;
 	}
-	//if(SLOW_PRINT) cout<<tilt_presets<<"\n";
 	
 	//goals.shooter.value=0;
 	goals.shooter.constants=shooter_constants.pid;
