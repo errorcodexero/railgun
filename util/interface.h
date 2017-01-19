@@ -102,7 +102,7 @@ struct Robot_outputs{
 	static const unsigned SOLENOIDS=8;
 	Checked_array<Solenoid_output,SOLENOIDS> solenoid;
 	
-	static const unsigned RELAYS=8;
+	static const unsigned RELAYS=4;
 	Checked_array<Relay_output,RELAYS> relay;
 	
 	static const unsigned DIGITAL_IOS=10;//there are really 14 on the cRIO and the roboRIO headers say 26.
