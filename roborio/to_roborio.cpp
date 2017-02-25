@@ -315,12 +315,29 @@ public:
 		}
 		return error;
 	}
+	
+	DS_info read_ds_info(){
+		DS_info ds_info;
+		ds_info.connected=driver_station.IsDSAttached();
+		DriverStation::Alliance ds_alliance=driver_station.GetAlliance();
+		ds_info.alliance=[&]{
+			switch(ds_alliance){
+				case DriverStation::Alliance::kRed: return Alliance::RED;
+				case DriverStation::Alliance::kBlue: return Alliance::BLUE;
+				case DriverStation::Alliance::kInvalid: return Alliance::INVALID;
+				default: assert(0);
+			}
+		}();
+		ds_info.location=driver_station.GetLocation();
+		return ds_info;
+	}
 
 	pair<Robot_inputs,int> read(Robot_mode robot_mode){
 		int error_code=0;
 		Robot_inputs r;
 		r.robot_mode=robot_mode;
 		r.now=Timer::GetFPGATimestamp();
+		r.ds_info=read_ds_info();
 		error_code|=read_joysticks(r);
 		error_code|=read_analog(r);
 		//error_code|=read_driver_station(r.driver_station);
@@ -502,7 +519,7 @@ public:
 		static int print_num=0;
 		Robot_outputs out=main(in);
 		const int PRINT_SPEED=10;
-		if((print_num%PRINT_SPEED)==0){
+		if(in.ds_info.connected && (print_num%PRINT_SPEED)==0){
 			cout<<"in: "<<in<<"\n";
 			cout<<"main: "<<main<<"\n";
 			cout<<"out: "<<out<<"\n";

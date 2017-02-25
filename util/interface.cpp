@@ -456,6 +456,19 @@ bool operator!=(Joystick_data a,Joystick_data b){
 	return !(a==b);
 }
 
+ostream& operator<<(ostream& o,Alliance a){
+	o<<"Alliance(";
+	#define X(value) case value: o<<#value; break;
+	switch(a){
+		X(Alliance::RED)
+		X(Alliance::BLUE)
+		X(Alliance::INVALID)
+		default: assert(0);
+	}
+	#undef X
+	return o<<")";
+}
+
 ostream& operator<<(ostream& o,Joystick_data a){
 	o<<"Joystick_data(";
 	o<<"axes:";
@@ -578,6 +591,32 @@ ostream& operator<<(ostream& o,Digital_inputs const& a){
 	return o<<")";
 }
 
+DS_info::DS_info():connected(0),alliance(Alliance::INVALID),location(0){}
+
+ostream& operator<<(ostream& o,DS_info const& d){
+	o<<"DS_info(";
+	o<<"connected:"<<d.connected;
+	o<<" alliance:"<<d.alliance;
+	o<<" location:"<<d.location;
+	return o<<")";
+}
+
+bool operator<(DS_info const& a,DS_info const& b){
+	if(!a.connected && b.connected) return 1;
+	if(a.connected && !b.connected) return 0;
+	if(a.alliance<b.alliance) return 1;
+	if(b.alliance<a.alliance) return 0;
+	if(a.location<b.location) return 1;
+	if(b.location<a.location) return 0;
+	return 0;
+}
+
+bool operator==(DS_info const& a,DS_info const& b){
+	return a.connected==b.connected && a.alliance==b.alliance && a.location==b.location;
+}
+
+bool operator!=(DS_info const& a,DS_info const& b){ return !(a==b); }
+
 Robot_inputs::Robot_inputs():
 	now(0),orientation(0),pump(0)
 {
@@ -603,6 +642,7 @@ Robot_inputs rand(Robot_inputs*){
 bool operator==(Robot_inputs a,Robot_inputs b){
 	if(a.robot_mode!=b.robot_mode) return 0;
 	if(a.now!=b.now) return 0;
+	if(a.ds_info!=b.ds_info) return 0;
 	for(unsigned i=0;i<Robot_inputs::JOYSTICKS;i++){
 		if(a.joystick[i]!=b.joystick[i]) return 0;
 	}
@@ -639,6 +679,7 @@ bool operator<(Robot_inputs a,Robot_inputs b){
 	#define X(NAME) if(a.NAME<b.NAME) return 1; if(b.NAME<a.NAME) return 0;
 	X(robot_mode)
 	X(now)
+	X(ds_info)
 	X(joystick)
 	X(digital_io)
 	X(analog)
@@ -656,6 +697,7 @@ ostream& operator<<(ostream& o,Robot_inputs a){
 	o<<"Robot_inputs(\n";
 	o<<"  mode="<<a.robot_mode<<"\n";
 	o<<"  now="<<a.now<<"\n";
+	o<<"  ds_info:"<<a.ds_info<<"\n";
 	//o<<"joysticks:";
 	for(unsigned i=0;i<a.JOYSTICKS;i++){
 		o<<"  "<<a.joystick[i]<<"\n";
