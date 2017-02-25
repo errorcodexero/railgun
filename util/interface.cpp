@@ -300,11 +300,6 @@ bool operator==(Robot_outputs a,Robot_outputs b){
 			return 0;
 		}
 	}
-	/*for(unsigned i=0;i<Robot_outputs::CAN_JAGUARS;i++){
-		if(a.jaguar[i]!=b.jaguar[i]){
-			return 0;
-		}
-	}*/
 	return a.driver_station==b.driver_station && a.pump_auto==b.pump_auto;
 }
 
@@ -340,13 +335,6 @@ bool operator<(Robot_outputs a,Robot_outputs b){
 		if(b.talon_srx[i]<a.talon_srx[i])return 0;
 	}
 	
-	/*for(unsigned i=0;i<Robot_outputs::CAN_JAGUARS;i++){
-		auto a1=a.jaguar[i];
-		auto b1=b.jaguar[i];
-		if(a1<b1) return 1;
-		if(b1<a1) return 0;
-	}*/
-
 	return a.pump_auto<b.pump_auto;
 }
 
@@ -378,10 +366,6 @@ ostream& operator<<(ostream& o,Robot_outputs a){
 	for(unsigned i=0;i<Panel_outputs::PANEL_OUTPUTS;i++){
 		o<<a.panel_output[i];
 	}
-	/*o<<" jaguar:";
-	for(unsigned i=0;i<a.CAN_JAGUARS;i++){
-		o<<a.jaguar[i];
-	}*/
 	o<<" driver_station_output:"<<a.driver_station;
 	o<<" pump_auto:"<<a.pump_auto;
 	return o<<")";
@@ -454,6 +438,19 @@ bool operator==(Joystick_data a,Joystick_data b){
 
 bool operator!=(Joystick_data a,Joystick_data b){
 	return !(a==b);
+}
+
+ostream& operator<<(ostream& o,Alliance a){
+	o<<"Alliance(";
+	#define X(value) case value: o<<#value; break;
+	switch(a){
+		X(Alliance::RED)
+		X(Alliance::BLUE)
+		X(Alliance::INVALID)
+		default: assert(0);
+	}
+	#undef X
+	return o<<")";
 }
 
 ostream& operator<<(ostream& o,Joystick_data a){
@@ -578,6 +575,32 @@ ostream& operator<<(ostream& o,Digital_inputs const& a){
 	return o<<")";
 }
 
+DS_info::DS_info():connected(0),alliance(Alliance::INVALID),location(0){}
+
+ostream& operator<<(ostream& o,DS_info const& d){
+	o<<"DS_info(";
+	o<<"connected:"<<d.connected;
+	o<<" alliance:"<<d.alliance;
+	o<<" location:"<<d.location;
+	return o<<")";
+}
+
+bool operator<(DS_info const& a,DS_info const& b){
+	if(!a.connected && b.connected) return 1;
+	if(a.connected && !b.connected) return 0;
+	if(a.alliance<b.alliance) return 1;
+	if(b.alliance<a.alliance) return 0;
+	if(a.location<b.location) return 1;
+	if(b.location<a.location) return 0;
+	return 0;
+}
+
+bool operator==(DS_info const& a,DS_info const& b){
+	return a.connected==b.connected && a.alliance==b.alliance && a.location==b.location;
+}
+
+bool operator!=(DS_info const& a,DS_info const& b){ return !(a==b); }
+
 Robot_inputs::Robot_inputs():
 	now(0),orientation(0),pump(0)
 {
@@ -603,6 +626,7 @@ Robot_inputs rand(Robot_inputs*){
 bool operator==(Robot_inputs a,Robot_inputs b){
 	if(a.robot_mode!=b.robot_mode) return 0;
 	if(a.now!=b.now) return 0;
+	if(a.ds_info!=b.ds_info) return 0;
 	for(unsigned i=0;i<Robot_inputs::JOYSTICKS;i++){
 		if(a.joystick[i]!=b.joystick[i]) return 0;
 	}
@@ -612,11 +636,6 @@ bool operator==(Robot_inputs a,Robot_inputs b){
 			return 0;
 		}
 	}
-	/*for(unsigned i=0;i<Robot_outputs::CAN_JAGUARS;i++){
-		if(a.jaguar[i]!=b.jaguar[i]){
-			return 0;
-		}
-	}*/
 	for(unsigned i=0;i<Robot_inputs::TALON_SRX_INPUTS;i++){
 		if(a.talon_srx[i]!=b.talon_srx[i]){
 			return 0;
@@ -639,11 +658,11 @@ bool operator<(Robot_inputs a,Robot_inputs b){
 	#define X(NAME) if(a.NAME<b.NAME) return 1; if(b.NAME<a.NAME) return 0;
 	X(robot_mode)
 	X(now)
+	X(ds_info)
 	X(joystick)
 	X(digital_io)
 	X(analog)
 	X(talon_srx)
-	//X(jaguar) 
 	X(driver_station)
 	X(orientation)
 	X(current)
@@ -656,6 +675,7 @@ ostream& operator<<(ostream& o,Robot_inputs a){
 	o<<"Robot_inputs(\n";
 	o<<"  mode="<<a.robot_mode<<"\n";
 	o<<"  now="<<a.now<<"\n";
+	o<<"  ds_info:"<<a.ds_info<<"\n";
 	//o<<"joysticks:";
 	for(unsigned i=0;i<a.JOYSTICKS;i++){
 		o<<"  "<<a.joystick[i]<<"\n";
@@ -672,10 +692,6 @@ ostream& operator<<(ostream& o,Robot_inputs a){
 	for(unsigned i=0;i<Robot_inputs::TALON_SRX_INPUTS;i++){
 		o<<a.talon_srx[i];
 	}
-	/*o<<" jaguar:";
-	for(unsigned i=0;i<Robot_outputs::CAN_JAGUARS;i++){
-		o<<a.jaguar[i];
-	}*/
 	o<<" currents:"<<a.current;	
 	o<<" driver_station_inputs:"<<a.driver_station;
 	o<<" orientation:"<<a.orientation;
@@ -687,10 +703,7 @@ int main(){
 	cout<<Robot_outputs()<<"\n";
 	cout<<Robot_inputs()<<"\n";
 	cout<<Joystick_data()<<"\n";
-	cout<<Jaguar_output()<<"\n";
 	cout<<Talon_srx_output()<<"\n";
-	cout<<Jaguar_output::speedOut(10)<<"\n";
-	cout<<Jaguar_output::voltageOut(1.0)<<"\n";
 	for(auto a:digital_ins()){
 		assert(a==parse_digital_in(as_string(a)));
 	}

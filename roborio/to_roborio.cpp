@@ -227,14 +227,14 @@ class To_crio
 	USER_CODE main;
 	int skipped;
 	Talon_srx_controls talon_srx_controls;
-	//Jag_control jaguar[Robot_outputs::CAN_JAGUARS];
 	//DriverStationLCD *lcd;
 	//NetworkTable *table;
 	//Gyro *gyro;
 	PowerDistributionPanel *power;
 	Compressor *compressor;
+	DriverStation& driver_station;
 public:
-	To_crio():error_code(0),skipped(0)//,gyro(NULL)
+	To_crio():error_code(0),skipped(0),driver_station(DriverStation::GetInstance())//,gyro(NULL)
 	{
 		power = new PowerDistributionPanel();
 		// Wake the NUC by sending a Wake-on-LAN magic UDP packet:
@@ -268,11 +268,6 @@ public:
 			if(!analog_in[i]) error_code|=8;
 		}
 
-		//for(unsigned i=0;i<Robot_outputs::CAN_JAGUARS;i++){
-			//it just so happens that our four jags are numbered 1-4.  This is contrary to the IO map document that we have and also contrary to the recommendations in the Jaguar documentation (which recomends not to use the number 1 because it's the factory default).  We should change this at some point.  
-			//jaguar[i].init(i+1);
-		//}
-		//CANJaguar::UpdateSyncGroup(Jag_control::SYNC_GROUP);
 		/*
 		for(unsigned i=0;i<Robot_outputs::DIGITAL_IOS;i++){
 			int r=digital_io[i].set_channel(i);
@@ -315,12 +310,29 @@ public:
 		}
 		return error;
 	}
+	
+	DS_info read_ds_info(){
+		DS_info ds_info;
+		ds_info.connected=driver_station.IsDSAttached();
+		DriverStation::Alliance ds_alliance=driver_station.GetAlliance();
+		ds_info.alliance=[&]{
+			switch(ds_alliance){
+				case DriverStation::Alliance::kRed: return Alliance::RED;
+				case DriverStation::Alliance::kBlue: return Alliance::BLUE;
+				case DriverStation::Alliance::kInvalid: return Alliance::INVALID;
+				default: assert(0);
+			}
+		}();
+		ds_info.location=driver_station.GetLocation();
+		return ds_info;
+	}
 
 	pair<Robot_inputs,int> read(Robot_mode robot_mode){
 		int error_code=0;
 		Robot_inputs r;
 		r.robot_mode=robot_mode;
 		r.now=Timer::GetFPGATimestamp();
+		r.ds_info=read_ds_info();
 		error_code|=read_joysticks(r);
 		error_code|=read_analog(r);
 		//error_code|=read_driver_station(r.driver_station);
@@ -447,37 +459,6 @@ public:
 			}*/
 		}
 
-		//for(unsigned i=0;i<Robot_outputs::CAN_JAGUARS;i++){
-			//jaguar[i].set(out.jaguar[i],enabled);
-			//cerr<<jaguar[i]<<"\n";
-			//cerr<<"Are we enabled?"<<enabled<<"\n";
-			//cerr<<out.jaguar[i]<<"\n";
-			//cerr<<jaguar[i].jaguar->GetSpeed()<<"\n";
-		//}
-		/*	cerr<<"\n"<<jaguar[0].jaguar->GetSpeed()<<"\n";
-			cerr<<jaguar[1].jaguar->GetSpeed()<<"\n";
-			cerr<<jaguar[2].jaguar->GetSpeed()<<"\n";
-			cerr<<jaguar[3].jaguar->GetSpeed()<<"\n";*/
-		/*
-		float kP = 1.000;
-		float kI = 0.005;
-		float kD = 0.000;
-		for(unsigned i=0;i<Robot_outputs::CAN_JAGUARS;i++){
-			if(out.jaguar[i].controlSpeed != controlSpeed[i]){
-				jaguar[i]->ChangeControlMode(out.jaguar[i].controlSpeed ? CANJaguar::kSpeed : CANJaguar::kPercentVbus);
-				controlSpeed[i] = out.jaguar[i].controlSpeed;
-				jaguar[1]->SetPID(kP, kI, kD); //Need to add refernces to what PID is
-				jaguar[1]->EnableControl();
-				jaguar[i]->SetExpiration(2.0);
-				
-			}
-			if(out.jaguar[i].controlSpeed){
-				jaguar[i]->Set(out.jaguar[i].speed, SYNC_GROUP);
-			}else {
-				jaguar[i]->Set(out.jaguar[i].voltage, SYNC_GROUP);
-			}
-		}
-		*/
 		//rate limiting the output  
 		if(skipped==0){
 			//cerr<<"Ran "<<mode<<"\r\n";
@@ -502,7 +483,7 @@ public:
 		static int print_num=0;
 		Robot_outputs out=main(in);
 		const int PRINT_SPEED=10;
-		if((print_num%PRINT_SPEED)==0){
+		if(in.ds_info.connected && (print_num%PRINT_SPEED)==0){
 			cout<<"in: "<<in<<"\n";
 			cout<<"main: "<<main<<"\n";
 			cout<<"out: "<<out<<"\n";
@@ -547,9 +528,6 @@ public:
 		pair<Robot_inputs,int> in1=read(mode);
 		Robot_inputs in=in1.first;
 		error_code|=in1.second;
-		/*for(unsigned i=0;i<Robot_outputs::CAN_JAGUARS;i++){
-			//in.jaguar[i]=.3;//jaguar[i].get();
-		}*/
 		for(unsigned i=0;i<Robot_outputs::DIGITAL_IOS;i++){
 			//in.digital_io[i]=digital_io[i].get();
 		}

@@ -31,7 +31,6 @@ void print_diff(std::ostream&,Toplevel::Status&,Toplevel::Status const&);
 void print_diff(std::ostream&,Main&,Main const&);
 void print_diff(std::ostream&,Driver_station_output&,Driver_station_output const&);
 void print_diff(std::ostream&,Robot_outputs&,Robot_outputs const&);
-void print_diff(std::ostream&,std::string const&,Jaguar_input&,Jaguar_input const&);
 void print_diff(std::ostream&,Robot_inputs&,Robot_inputs const&);
 
 template<typename T>

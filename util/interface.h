@@ -3,7 +3,6 @@
 
 #include <iosfwd>
 #include <bitset>
-#include "jag_interface.h"
 #include "driver_station_interface.h"
 #include "maybe_inline.h"
 #include "checked_array.h"
@@ -111,9 +110,6 @@ struct Robot_outputs{
 	static const unsigned TALON_SRX_OUTPUTS=1;
 	Checked_array<Talon_srx_output, TALON_SRX_OUTPUTS> talon_srx;
 	
-	static const unsigned CAN_JAGUARS=0;
-	Checked_array<Jaguar_output,CAN_JAGUARS> jaguar;
-	
 	Checked_array<Panel_output,PANEL_OUTPUTS> panel_output;
 		
 	//could add in some setup for the analog inputs
@@ -164,6 +160,18 @@ bool operator==(Robot_mode,Robot_mode);
 bool operator!=(Robot_mode,Robot_mode);
 std::ostream& operator<<(std::ostream&,Robot_mode);
 
+enum class Alliance{RED,BLUE,INVALID};
+struct DS_info{
+	bool connected;
+	Alliance alliance;
+	int location;
+	DS_info();
+};
+bool operator<(DS_info const&,DS_info const&);
+bool operator==(DS_info const&,DS_info const&);
+bool operator!=(DS_info const&,DS_info const&);
+std::ostream& operator<<(std::ostream&,DS_info const&);
+
 enum class Digital_in{OUTPUT,_0,_1,ENCODER};
 std::ostream& operator<<(std::ostream&,Digital_in);
 std::set<Digital_in> examples(Digital_in*);
@@ -188,6 +196,8 @@ typedef double Rad; //radians, clockwise
 struct Robot_inputs{
 	Robot_mode robot_mode;
 	Time now;//time since boot.
+	
+	DS_info ds_info;
 
 	static const unsigned JOYSTICKS=3; //limitation of FRC coms was 4, now highter
 	Checked_array<Joystick_data,JOYSTICKS> joystick;
@@ -201,7 +211,6 @@ struct Robot_inputs{
 	static const unsigned TALON_SRX_INPUTS=1;
 	Checked_array<Talon_srx_input, TALON_SRX_INPUTS> talon_srx;
 	
-	Checked_array<Jaguar_input,Robot_outputs::CAN_JAGUARS> jaguar;
 	Driver_station_input driver_station;
 	Rad orientation;
 		

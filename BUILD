@@ -1,6 +1,6 @@
 cc_test(
 	name = "point_test",
-	srcs = ["util/point.cpp","util/point.h","util/interface.h","util/jag_interface.h","util/maybe.h","util/driver_station_interface.h","util/maybe_inline.h","util/checked_array.h","util/util.h","util/pwm.h"],
+	srcs = ["util/point.cpp","util/point.h","util/interface.h","util/maybe.h","util/driver_station_interface.h","util/maybe_inline.h","util/checked_array.h","util/util.h","util/pwm.h"],
 	copts = ["-DPOINT_TEST"],
 	timeout="short"
 )
@@ -16,12 +16,12 @@ cc_test(
 cc_library(
 	name = "point",
 	srcs = ["util/point.cpp"],
-	hdrs = ["util/point.h","util/interface.h","util/jag_interface.h","util/maybe.h","util/driver_station_interface.h","util/maybe_inline.h","util/checked_array.h","util/util.h","util/pwm.h"]
+	hdrs = ["util/point.h","util/interface.h","util/maybe.h","util/driver_station_interface.h","util/maybe_inline.h","util/checked_array.h","util/util.h","util/pwm.h"]
 )
 
 cc_test(
 	name="util_test",
-	#srcs=["util/util.cpp","util/interface.h","util/jag_interface.h","util/maybe.h","util/driver_station_interface.h","util/maybe_inline.h","util/checked_array.h","util/util.h","util/pwm.h"],
+	#srcs=["util/util.cpp","util/interface.h","util/maybe.h","util/driver_station_interface.h","util/maybe_inline.h","util/checked_array.h","util/util.h","util/pwm.h"],
 	srcs=["util/util.cpp"],
 	copts=["-DUTIL_TEST"],
 	deps=[":point"],
@@ -34,17 +34,6 @@ cc_library(
 	srcs=["util/util.cpp"],
 	deps=[":point"]
 )
-
-cc_test(
-	name="jag_interface_test",
-	srcs=["util/jag_interface.cpp"],
-	copts=["-DJAG_INTERFACE_TEST"],
-	deps=[":util"],
-	timeout="short"
-
-)
-
-cc_library(name="jag_interface",srcs=["util/jag_interface.cpp"],deps=[":util"])
 
 cc_test(
 	name="driver_station_interface_test",
@@ -65,7 +54,7 @@ cc_test(
 	name="interface_test",
 	srcs=["util/interface.cpp"],
 	copts=["-DINTERFACE_TEST"],
-	deps=[":jag_interface",":driver_station_interface"],
+	deps=[":driver_station_interface"],
 	timeout="short"
 )
 
@@ -73,7 +62,7 @@ cc_library(
 	name="posedge_toggle",
 	srcs=["util/posedge_toggle.cpp"],
 	hdrs=["util/posedge_toggle.h"],
-	deps=[":jag_interface"]
+	deps=[]
 )
 
 
@@ -213,7 +202,7 @@ cc_library(
 	name="interface",
 	srcs=["util/interface.cpp"],
 	hdrs=["util/interface.h"],
-	deps=[":jag_interface",":driver_station_interface",":pwm"]
+	deps=[":driver_station_interface",":pwm"]
 )
 
 cc_library(

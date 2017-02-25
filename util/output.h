@@ -4,7 +4,7 @@
 #include<iosfwd>
 #include<set>
 
-#define OUTPUT_TYPES X(PWM) X(SOLENOID) X(RELAY) X(DIGITAL_IO) X(TALON_SRX) X(CAN_JAGUAR) X(DRIVER_STATION) X(PUMP)
+#define OUTPUT_TYPES X(PWM) X(SOLENOID) X(RELAY) X(DIGITAL_IO) X(TALON_SRX) X(DRIVER_STATION) X(PUMP)
 
 #define NUMBERED_TYPES\
 	X(pwm,PWM,Robot_outputs::PWMS)\
@@ -13,7 +13,6 @@
 	X(digital_io,DIGITAL_IO,Robot_outputs::DIGITAL_IOS)\
 	X(talon_srx,TALON_SRX,Robot_outputs::TALON_SRX_OUTPUTS)\
 	X(driver_station,DRIVER_STATION,Driver_station_output::DIGITAL_OUTPUTS)
-	//X(can_jaguar,CAN_JAGUAR,Robot_outputs::CAN_JAGUARS)
 
 class Output{
 	public:

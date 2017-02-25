@@ -442,10 +442,6 @@ pair<Robot_inputs,Robot_inputs> create_pair(Robot_inputs*){
 		r.first.talon_srx[i]=p.first;
 		r.second.talon_srx[i]=p.second;
 	}
-	/*for(unsigned i=0;i<Robot_outputs::CAN_JAGUARS;i++){
-		auto p=create_pair((Can_jaguar_input*)0);
-		r.first.can_jaguar[i]=p.first;
-	}*/
 	//driver station
 	//current
 	for(unsigned i=0;i<Robot_inputs::CURRENT;i++){
