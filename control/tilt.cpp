@@ -29,7 +29,7 @@ float degrees_to_volts(float f){
 
 double power_to_keep_up(double angle) {
 	const double LENGTH = 9;//in inches
-	const double WEIGHT = 9;//in pounds
+	const double WEIGHT = 7.5;//in pounds
 	const double MOTOR_MAX = 1750;//in inch/pounds
 	return -(sin(angle * PI / 180) * (LENGTH * WEIGHT / MOTOR_MAX));
 }
@@ -215,6 +215,7 @@ Tilt::Output control(Tilt::Status_detail status, Tilt::Goal goal){
 			{
 				double error=goal.angle()[1]-status.angle;
 				double x=power_to_keep_up(status.angle) + error*.04;
+				//std::cout<<"\n\n\n"<<power_to_keep_up(status.angle)<<"  "<<(error*0.04)<<"\n\n\n";
 				if(x<0 && status.top) return 0;
 				return clip(x);
 			}
