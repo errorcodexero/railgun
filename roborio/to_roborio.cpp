@@ -73,7 +73,7 @@ void SendWOL (void)
 	close(udpSocket);
 }
 */
-Joystick_data read_joystick(DriverStation& ds,int port){
+Joystick_data read_joystick(frc::DriverStation& ds,int port){
 	//I don't know what the DriverStation does when port is out of range.
 	Joystick_data r;
 	{
@@ -105,7 +105,7 @@ Joystick_data read_joystick(DriverStation& ds,int port){
 }
 
 int read_joysticks(Robot_inputs &r){
-	DriverStation &ds=DriverStation::GetInstance();
+	frc::DriverStation &ds=frc::DriverStation::GetInstance();
 	//if(!ds) return 4;
 	for(unsigned i=0;i<r.JOYSTICKS;i++){
 		r.joystick[i]=read_joystick(ds,i);
@@ -162,7 +162,7 @@ int read_analog(Robot_inputs& r){
 
 //it might make sense to put this in the Robot_inputs structure.  
 Volt battery_voltage(){
-	auto &d=DriverStation::GetInstance();
+	auto &d=frc::DriverStation::GetInstance();
 	//AnalogModule *am=AnalogModule::GetInstance(DriverStation::kBatteryModuleNumber);
 	/*if(!d){
 		return 18; //this should look surprising
@@ -218,11 +218,11 @@ template<typename USER_CODE>
 class To_crio
 {
 	//todo: see if these still have to all be pointers or if there's some alternative w/ the roboRIO
-	Solenoid *solenoid[Robot_outputs::SOLENOIDS];
+	frc::Solenoid *solenoid[Robot_outputs::SOLENOIDS];
 	DIO_controls digital_io;
-	VictorSP *pwm[Robot_outputs::PWMS];
-	Relay *relay[Robot_outputs::RELAYS];
-	AnalogInput *analog_in[Robot_inputs::ANALOG_INPUTS];
+	frc::VictorSP *pwm[Robot_outputs::PWMS];
+	frc::Relay *relay[Robot_outputs::RELAYS];
+	frc::AnalogInput *analog_in[Robot_inputs::ANALOG_INPUTS];
 	int error_code;
 	USER_CODE main;
 	int skipped;
@@ -230,13 +230,13 @@ class To_crio
 	//DriverStationLCD *lcd;
 	//NetworkTable *table;
 	//Gyro *gyro;
-	PowerDistributionPanel *power;
-	Compressor *compressor;
-	DriverStation& driver_station;
+	frc::PowerDistributionPanel *power;
+	frc::Compressor *compressor;
+	frc::DriverStation& driver_station;
 public:
-	To_crio():error_code(0),skipped(0),driver_station(DriverStation::GetInstance())//,gyro(NULL)
+	To_crio():error_code(0),skipped(0),driver_station(frc::DriverStation::GetInstance())//,gyro(NULL)
 	{
-		power = new PowerDistributionPanel();
+		power = new frc::PowerDistributionPanel();
 		// Wake the NUC by sending a Wake-on-LAN magic UDP packet:
 		//SendWOL();
 
@@ -246,7 +246,7 @@ public:
 				solenoid[i]=NULL;
 			}else{*/
 				//solenoid[i]=new Solenoid(solenoid_module+1,i+1);
-				solenoid[i]=new Solenoid(i);//don't know of any way to determine module number, so just take the default one.
+				solenoid[i]=new frc::Solenoid(i);//don't know of any way to determine module number, so just take the default one.
 				//solenoid[i]=new Solenoid(i+1);
 				if(!solenoid[i]) error_code|=8;
 			//}
@@ -254,17 +254,17 @@ public:
 		talon_srx_controls.init();
 		
 		for(unsigned i=0;i<Robot_outputs::PWMS;i++){
-			pwm[i]=new VictorSP(i);//untested
+			pwm[i]=new frc::VictorSP(i);//untested
 			if(!pwm[i]) error_code|=8;
 		}
 
 		for(unsigned i=0;i<Robot_outputs::RELAYS;i++){
-			relay[i]=new Relay(i);
+			relay[i]=new frc::Relay(i);
 			if(!relay[i]) error_code|=8;
 		}
 
 		for(unsigned i=0;i<Robot_inputs::ANALOG_INPUTS;i++){
-			analog_in[i]=new AnalogInput(i);
+			analog_in[i]=new frc::AnalogInput(i);
 			if(!analog_in[i]) error_code|=8;
 		}
 
@@ -286,7 +286,7 @@ public:
 			//TODO: Note this somehow.
 		}*/
 
-		compressor=new Compressor();
+		compressor=new frc::Compressor();
 		if(compressor){
 			//for now I'm assuming that this means that it will run automatically.  I haven't seen any documentation that says what this does though.
 			compressor->Start();
@@ -314,12 +314,12 @@ public:
 	DS_info read_ds_info(){
 		DS_info ds_info;
 		ds_info.connected=driver_station.IsDSAttached();
-		DriverStation::Alliance ds_alliance=driver_station.GetAlliance();
+		frc::DriverStation::Alliance ds_alliance=driver_station.GetAlliance();
 		ds_info.alliance=[&]{
 			switch(ds_alliance){
-				case DriverStation::Alliance::kRed: return Alliance::RED;
-				case DriverStation::Alliance::kBlue: return Alliance::BLUE;
-				case DriverStation::Alliance::kInvalid: return Alliance::INVALID;
+				case frc::DriverStation::Alliance::kRed: return Alliance::RED;
+				case frc::DriverStation::Alliance::kBlue: return Alliance::BLUE;
+				case frc::DriverStation::Alliance::kInvalid: return Alliance::INVALID;
 				default: assert(0);
 			}
 		}();
@@ -331,7 +331,7 @@ public:
 		int error_code=0;
 		Robot_inputs r;
 		r.robot_mode=robot_mode;
-		r.now=Timer::GetFPGATimestamp();
+		r.now=frc::Timer::GetFPGATimestamp();
 		r.ds_info=read_ds_info();
 		error_code|=read_joysticks(r);
 		error_code|=read_analog(r);
@@ -378,11 +378,11 @@ public:
 		if(i>=Robot_outputs::RELAYS) return 1;
 		if(!relay[i]) return 2;
 		relay[i]->Set([=](){
-			if(out==Relay_output::_00) return Relay::kOff;
-			if(out==Relay_output::_01) return Relay::kReverse;
-			if(out==Relay_output::_10) return Relay::kForward;
+			if(out==Relay_output::_00) return frc::Relay::kOff;
+			if(out==Relay_output::_01) return frc::Relay::kReverse;
+			if(out==Relay_output::_10) return frc::Relay::kForward;
 			//Assuming RELAY_11
-			return Relay::kReverse;
+			return frc::Relay::kReverse;
 		}());
 		return 0;
 	}
@@ -426,13 +426,13 @@ public:
 		}
 		digital_io.set(out.digital_io);
 		
-		Joystick panel(2);
+		frc::Joystick panel(2);
 		for(unsigned i=0;i<Panel_outputs::PANEL_OUTPUTS;i++){
 			panel.SetOutput(out.panel_output[i].port, out.panel_output[i].value);
 		}
 			
-		SmartDashboard::PutBoolean("Ball: ", out.panel_output[Panel_outputs::BOULDER].value);
-		SmartDashboard::PutBoolean("Spun Up: ", out.panel_output[Panel_outputs::SPUN_UP].value);
+		frc::SmartDashboard::PutBoolean("Ball: ", out.panel_output[Panel_outputs::BOULDER].value);
+		frc::SmartDashboard::PutBoolean("Spun Up: ", out.panel_output[Panel_outputs::SPUN_UP].value);
 		
 		//cout << "d_io: " << digital_io << endl << "o.d.io: " << out.digital_io << endl ;
 
@@ -551,7 +551,7 @@ public:
 };
 
 template<typename USER_CODE>
-class Robot_adapter: public SampleRobot{
+class Robot_adapter: public frc::SampleRobot{
 	To_crio<USER_CODE> u;
 
 	void RobotInit(){}
@@ -565,7 +565,7 @@ class Robot_adapter: public SampleRobot{
 			mode.enabled=IsEnabled();
 			u.run(mode);
 			
-			Wait(0.005);
+			frc::Wait(0.005);
 		}
 	}
 
@@ -579,7 +579,7 @@ class Robot_adapter: public SampleRobot{
 			u.run(r);
 			
 			//should see what happpens when this wait is removed.
-			Wait(0.005);				// wait for a motor update time
+			frc::Wait(0.005);				// wait for a motor update time
 		}
 	}
 	
@@ -590,7 +590,7 @@ class Robot_adapter: public SampleRobot{
 			r.enabled=IsEnabled();
 			u.run(r);
 			
-			Wait(0.005);
+			frc::Wait(0.005);
 		}
 	}
 	
@@ -600,7 +600,7 @@ class Robot_adapter: public SampleRobot{
 			r.autonomous=IsAutonomous();
 			u.run(r);
 
-			Wait(0.005);
+			frc::Wait(0.005);
 		}
 	}
 };

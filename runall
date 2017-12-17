@@ -93,10 +93,10 @@ def check_style():
 def get_dir(test_script): return test_script.split('/')[0]
 
 def make_directories(make_tobj,objdir):	
-        test_scripts=filter(lambda x: 'joystick_linux' not in x and x.split('/')[0]!=objdir,glob('*/*_test'))
-        dirs=set(map(get_dir,test_scripts)+['roborio'])
-        if(make_tobj): map(lambda x: os.system('mkdir -p '+objdir+'/%s'%x),dirs)
-        map(lambda x: os.system('mkdir -p obj/%s'%x),dirs)
+	test_scripts=filter(lambda x: 'joystick_linux' not in x and x.split('/')[0]!=objdir,glob('*/*_test'))
+	dirs=set(map(get_dir,test_scripts)+['roborio','input/pixycam'])
+	if(make_tobj): map(lambda x: os.system('mkdir -p '+objdir+'/%s'%x),dirs)
+	map(lambda x: os.system('mkdir -p obj/%s'%x),dirs)
 	return test_scripts
 	
 def makefile(out):
@@ -174,7 +174,7 @@ def makefile(out):
 	print>>out, '\trm -f *_test'
 	print>>out, '\tfind -name \*.o | xargs rm -f'
 
-def cross_makefile(out):
+def cross_makefile(out,printouts,use_global_source):
 	import commands
 
 	objdir='tobj'
@@ -189,8 +189,9 @@ def cross_makefile(out):
 	print>>out,'OBJDIR=obj'
 	print>>out,"H_FILES=$(find -name \*.h)"
 	print>>out,"CXX=arm-frc-linux-gnueabi-g++"
-	print>>out,"CXXFLAGS=-Wall -Wextra -Werror -O2 -g -std=c++14 -I"+os.environ['HOME']+"/wpilib/cpp/current/include -I"+os.environ['HOME']+"/CTRE_FRCLib/cpp/include"+" -fmessage-length=0"
-        print>>out,"LD_FLAGS="+os.environ['HOME']+"/CTRE_FRCLib/cpp/lib/libCTRLib.a -L"+os.environ['HOME']+"/wpilib/cpp/current/lib -Wl,-rpath,/opt/GenICam_v2_3/bin/Linux_armv7-a -lwpi"
+	source_dir=""+os.environ['HOME'] if use_global_source else "../external"
+	print>>out,"CXXFLAGS=-pthread -Wall -Wextra -Werror -O2 -g -std=c++14 -DNAMESPACED_WPILIB -I"+source_dir+"/wpilib/cpp/current/include -I"+source_dir+"/CTRE_FRCLib/cpp/include -isystem "+source_dir+"/navx-mxp-libs/roborio/cpp/include "+printouts+" -fmessage-length=0" #TODO: remove the definition for using the namespaced version of WPILib after FIRST makes the change in 2018 (probably)
+	print>>out,"LD_FLAGS="+source_dir+"/CTRE_FRCLib/cpp/lib/libCTRLib.a "+source_dir+"/navx-mxp-libs/roborio/cpp/lib/libnavx_frc_cpp.a -L"+source_dir+"/wpilib/cpp/current/lib -Wl,-rpath,/opt/GenICam_v2_3/bin/Linux_armv7-a -lwpi"
 	print>>out,".PHONY: clean\n"
 
 	print>>out,"all: FRCUserProgram"
@@ -221,14 +222,18 @@ if __name__=='__main__':
 	p=OptionParser()
 	p.add_option('--test',action='store_true',help="Run unit tests")
 	p.add_option('--build',action='store_true',help="Build the executable to load onto the robot")
+	p.add_option('--bazel_args',dest="arguments",default="",help="Run the unit tests with a given set of bazel arguments")
+	p.add_option('--test_name',action="store",default="all",type="string",dest="test_name",help="Run the given test (use \"%default\" by default)")
+	p.add_option('--printouts',action="store_true",help="Build the robot code defining PRINT_OUTS (does nothing by default)")
 	p.add_option('--test_makefile',action='store_true')
 	p.add_option('--build_makefile',action='store_true')
+	p.add_option('--use_global_source',action="store_true",help="Search for external libraries in home folder rather than locally (local by default)")
 	options,args=p.parse_args()
 	assert len(args)==0
 
-	def test():
+	def test(arguments,test_name):
 		if bazel_available():
-			return os.system("bazel test --run_under='valgrind --error-exitcode=1' --cxxopt=-std=c++14 --cxxopt=-Wall --cxxopt=-Werror :all")
+			return os.system("bazel test --run_under='valgrind --error-exitcode=1' --cxxopt=-std=c++14 --cxxopt=-Wall --cxxopt=-Werror " + arguments + " :" + test_name)
 
 		func=makefile
 		func(open('t.mk','w'))
@@ -237,19 +242,21 @@ if __name__=='__main__':
 		assert r&0xff==0
 		return r>>8
 
-	def build():
-		cross_makefile(open('t.mk','w'))
+	def build(printouts,use_global_source):
+		define_printouts = "-DPRINT_OUTS" if printouts else ""
+		cross_makefile(open('t.mk','w'),define_printouts,use_global_source)
 		r=os.system('make -j4 -f t.mk')
 		assert r&0xff==0
 		return r>>8
 
 	if check_style(): sys.exit(1)
 
-	if options.test: test()
-	if options.build: build()
+	if options.arguments: test(options.arguments,options.test_name)
+	if options.test: test(options.arguments,options.test_name)
+	if options.build: build(options.printouts,options.use_global_source)
 
 	if options.test_makefile:makefile(sys.stdout)
 	if options.build_makefile:cross_makefile(sys.stdout)
 
 	if not options.test and not options.build and not options.test_makefile and not options.build_makefile:
-		sys.exit(test() or build())
+		sys.exit(test(options.arguments,options.test_name) or build(options.printouts,options.use_global_source))

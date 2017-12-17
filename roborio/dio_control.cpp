@@ -75,10 +75,10 @@ int DIO_control::set_mode(Mode m){
 	switch(m){
 	case Mode::FREE: return 0;
 	case Mode::IN:
-		in=new DigitalInput(channel);
+		in=new frc::DigitalInput(channel);
 		break;
 	case Mode::OUT:
-		out=new DigitalOutput(channel);
+		out=new frc::DigitalOutput(channel);
 		break;
 	default: return 1;
 	}
@@ -176,7 +176,7 @@ void DIO_controls::set(Checked_array<Digital_out,Robot_outputs::DIGITAL_IOS> con
 		auto& d=encoder[i];
 		if(ca!=d.channel_a || cb!=d.channel_b){
 			assert(!d.encoder);
-			d.encoder=new Encoder(ca,cb);
+			d.encoder=new frc::Encoder(ca,cb);
 			d.channel_a=ca;
 			d.channel_b=cb;
 		}
